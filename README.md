@@ -105,6 +105,7 @@ and keep zero/random/shuffled controls.
 Tracked cleanroom evidence:
 
 - `reports/cleanroom/gemma4_real/gemma4_prototype_report.md`
+- `reports/cleanroom/gemma4_training_probe/delta_training_report.md`
 
 The current real Gemma4 run shows engineering success:
 
@@ -118,6 +119,19 @@ It also shows the current scientific boundary:
 
 - the tracked run is `wiring_signal_only`,
 - therefore it is not an effectiveness claim.
+
+The training probe is stronger but still intentionally small:
+
+- `google/gemma-4-E2B`,
+- `steps = 1`,
+- `top_k = 2`,
+- `trainable_base_params = 0`,
+- trained `delta_qv` improves NLL from `11.8004` to `11.3691`,
+- trained `delta_qv` beats zero, random, and shuffled controls on this single
+  demo instance.
+
+This is a mechanism signal, not a benchmark result. The next step is to repeat
+the same controlled training on more generated examples.
 
 ## Proof Plan
 
