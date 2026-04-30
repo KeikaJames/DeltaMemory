@@ -1,0 +1,16 @@
+The secret code for unit XJQ-482 is tulip-91.
+
+The secret code for unit XJQ-483 is tulip-19.
+The secret code for unit XJQ-428 is violet-91.
+The secret code for unit XJQ-824 is amber-17.
+
+Operational notes continue for several unrelated paragraphs. The east panel was
+inspected. The west panel was delayed. The amber channel was reset. The violet
+channel was ignored. The backup relay stayed offline while the status board
+cycled through normal diagnostics.
+
+The unit XJQ-482 was later selected for emergency access verification.
+The verifier repeatedly checked unit XJQ-482 before the final query.
+
+The final operator note names the unit again but deliberately does not repeat
+the code value.

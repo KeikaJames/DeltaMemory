@@ -1,0 +1,14 @@
+# Apple Silicon stable environment for RCV-HC.
+#
+# Apple documents PyTorch 2.11.0 as the latest stable MPS release for Mac.
+# On macOS 26.3 this still currently fails MPS initialization on this machine;
+# see docs/macbook_setup.md before relying on --device mps.
+torch==2.11.0
+torchvision==0.26.0
+torchaudio==2.11.0
+
+transformers==5.7.0
+accelerate==1.13.0
+safetensors==0.7.0
+tokenizers==0.22.2
+pytest==9.0.3

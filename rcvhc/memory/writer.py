@@ -1,0 +1,154 @@
+"""Raw/Delta attention-memory writer."""
+
+from __future__ import annotations
+
+import math
+from typing import Sequence
+
+import torch
+from torch import nn
+import torch.nn.functional as F
+
+from rcvhc.core.types import AttentionMemoryItem
+
+
+class RMSNorm(nn.Module):
+    def __init__(self, dim: int, eps: float = 1e-6) -> None:
+        super().__init__()
+        self.weight = nn.Parameter(torch.ones(dim))
+        self.eps = eps
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return x * torch.rsqrt(x.pow(2).mean(dim=-1, keepdim=True) + self.eps) * self.weight
+
+
+class RCVHCWriter(nn.Module):
+    """Write per-block RawMemory and Delta Q/K/V memory.
+
+    The writer consumes frozen model outputs but its projections remain
+    trainable. It never stores full hidden histories or KV cache.
+    """
+
+    def __init__(self, hidden_size: int, memory_dim: int, block_size: int, eps: float = 1e-6) -> None:
+        super().__init__()
+        self.hidden_size = int(hidden_size)
+        self.memory_dim = int(memory_dim)
+        self.block_size = int(block_size)
+        self.eps = float(eps)
+        self.raw_key = nn.Linear(hidden_size, memory_dim)
+        self.raw_value = nn.Linear(hidden_size, memory_dim)
+        self.self_proj = nn.Linear(hidden_size * 2, memory_dim)
+        self.use_proj = nn.Linear(hidden_size, memory_dim)
+        self.delta_q = nn.Linear(memory_dim, memory_dim)
+        self.delta_k = nn.Linear(memory_dim, memory_dim)
+        self.delta_v = nn.Linear(memory_dim, memory_dim)
+        self.norm = RMSNorm(memory_dim, eps=eps)
+
+    def write_layer(
+        self,
+        *,
+        layer_id: int,
+        h_in: torch.Tensor,
+        h_out: torch.Tensor,
+        attn: torch.Tensor | None,
+        token_offset: int = 0,
+        source_text_by_block: Sequence[str] | None = None,
+    ) -> list[AttentionMemoryItem]:
+        if h_in.dim() != 3 or h_out.dim() != 3:
+            raise ValueError("h_in and h_out must have shape [batch, seq, hidden]")
+        if h_in.shape[0] != 1:
+            raise ValueError("cleanroom P0 writer currently supports batch size 1")
+        seq_len = min(h_in.shape[1], h_out.shape[1])
+        attn_mean = None
+        if attn is not None:
+            if attn.dim() != 4:
+                raise ValueError("attn must have shape [batch, heads, seq, seq]")
+            attn_mean = attn[:, :, :seq_len, :seq_len].float().mean(dim=1)
+
+        items: list[AttentionMemoryItem] = []
+        for block_id, start in enumerate(range(0, seq_len, self.block_size)):
+            end = min(start + self.block_size, seq_len)
+            h_block_in = h_in[0, start:end]
+            h_block_out = h_out[0, start:end]
+            raw_summary = h_block_out.mean(dim=0)
+            raw_key = self.raw_key(raw_summary)
+            raw_value = self.raw_value(raw_summary)
+            delta, usage_mass = self._delta_value(h_block_in, h_block_out, h_out[0], attn_mean, start, end)
+            snippet = ""
+            if source_text_by_block is not None and block_id < len(source_text_by_block):
+                snippet = source_text_by_block[block_id]
+            metadata = {
+                "source_text": snippet,
+                "source_text_debug_only": True,
+                "layer_id": layer_id,
+                "block_id": block_id,
+                "token_range": [token_offset + start, token_offset + end],
+                "usage_mass": usage_mass,
+                "block_size": self.block_size,
+            }
+            items.append(
+                AttentionMemoryItem(
+                    memory_id=None,
+                    layer_id=layer_id,
+                    block_id=block_id,
+                    token_start=token_offset + start,
+                    token_end=token_offset + end,
+                    raw_key=raw_key,
+                    raw_value=raw_value,
+                    delta_q=self.delta_q(delta),
+                    delta_k=self.delta_k(delta),
+                    delta_v=self.delta_v(delta),
+                    usage_mass=usage_mass,
+                    metadata=metadata,
+                )
+            )
+        return items
+
+    def _delta_value(
+        self,
+        h_block_in: torch.Tensor,
+        h_block_out: torch.Tensor,
+        h_out: torch.Tensor,
+        attn_mean: torch.Tensor | None,
+        start: int,
+        end: int,
+    ) -> tuple[torch.Tensor, float]:
+        c_self_input = torch.cat([h_block_in.mean(dim=0), h_block_out.mean(dim=0)], dim=-1)
+        c_self = self.self_proj(c_self_input)
+        if attn_mean is None or end >= h_out.shape[0]:
+            return torch.zeros_like(c_self), 0.0
+        future = h_out[end:]
+        c_use = self.use_proj(future)
+        weights = attn_mean[0, end : h_out.shape[0], start:end].sum(dim=-1).float()
+        usage_mass_tensor = weights.sum()
+        if float(usage_mass_tensor.detach().cpu()) <= self.eps:
+            return torch.zeros_like(c_self), 0.0
+        weights = weights / (usage_mass_tensor + self.eps)
+        v2 = (weights.unsqueeze(-1).to(c_use.dtype) * c_use).sum(dim=0)
+        delta = self.norm(v2 - c_self)
+        if not torch.isfinite(delta).all():
+            delta = torch.nan_to_num(delta)
+        return delta, float(usage_mass_tensor.detach().cpu())
+
+
+def split_source_snippets(tokenizer, input_ids: torch.Tensor, block_size: int) -> list[str]:
+    ids = input_ids.detach().cpu().tolist()
+    if ids and isinstance(ids[0], list):
+        ids = ids[0]
+    snippets = []
+    for start in range(0, len(ids), block_size):
+        chunk = ids[start : start + block_size]
+        try:
+            snippets.append(tokenizer.decode(chunk, skip_special_tokens=True))
+        except TypeError:
+            snippets.append(tokenizer.decode(chunk))
+    return snippets
+
+
+def fit_memory_dim(vector: torch.Tensor, memory_dim: int) -> torch.Tensor:
+    flat = vector.flatten()
+    if flat.numel() == memory_dim:
+        return flat
+    if flat.numel() > memory_dim:
+        return flat[:memory_dim]
+    return F.pad(flat, (0, memory_dim - flat.numel()))
