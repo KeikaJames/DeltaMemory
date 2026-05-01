@@ -57,6 +57,7 @@ class DeltaExperimentConfig:
     logit_bias_loss_weight: float = 0.0
     logit_bias_scale: float = 1.0
     payload_answer_loss_weight: float = 0.0
+    payload_probe_layer_strategy: str = "mean_all"  # mean_all | last_layer | first_layer | best_layer
     control_margin_min: float = 0.05
     report_dir: str = "reports/experiments/delta_experiment"
 
@@ -148,7 +149,7 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
             logit_bias_logits, _ = _logit_bias_readout(sample, memories, logit_projector)
             logit_bias_loss = _answer_loss(logit_bias_logits, sample.answer_start, sample.answer_ids)
         if cfg.payload_answer_loss_weight > 0.0:
-            payload_answer_loss = _payload_answer_loss(payload_probe, memories, sample.answer_ids)
+            payload_answer_loss = _payload_answer_loss(payload_probe, memories, sample.answer_ids, cfg.payload_probe_layer_strategy)
         if cfg.address_margin_weight > 0.0 and len(train_prepared) > 1:
             address_loss, address_margin_value = _address_ranking_loss(writer, sample, train_prepared, layer_ids, cfg)
         if cfg.contrastive_margin_weight > 0.0 and len(train_prepared) > 1:
@@ -494,8 +495,8 @@ def evaluate_conflict_margins(
             else:
                 memories = correct_memories
                 injection_mode = mode
-            correct = _score_candidate_answer(bundle, injector, logit_projector, payload_probe, sample.example.question, sample.example.answer, memories, injection_mode)
-            foreign_score = _score_candidate_answer(bundle, injector, logit_projector, payload_probe, sample.example.question, foreign.example.answer, memories, injection_mode)
+            correct = _score_candidate_answer(bundle, injector, logit_projector, payload_probe, sample.example.question, sample.example.answer, memories, injection_mode, cfg.payload_probe_layer_strategy)
+            foreign_score = _score_candidate_answer(bundle, injector, logit_projector, payload_probe, sample.example.question, foreign.example.answer, memories, injection_mode, cfg.payload_probe_layer_strategy)
             margin = foreign_score["answer_nll"] - correct["answer_nll"]
             by_mode[mode].append(margin)
             token_row = _answer_token_discrimination(
@@ -508,6 +509,7 @@ def evaluate_conflict_margins(
                 foreign.example.answer,
                 memories,
                 injection_mode,
+                cfg.payload_probe_layer_strategy,
             )
             token_by_mode[mode].append(token_row)
             sample_modes[mode] = {
@@ -711,8 +713,9 @@ def _payload_answer_loss(
     payload_probe: PayloadAnswerProbe,
     memories_by_layer: dict[int, list[AttentionMemoryItem]],
     answer_ids: list[int],
+    layer_strategy: str = "mean_all",
 ) -> torch.Tensor:
-    logits, _ = _payload_probe_logits(memories_by_layer, payload_probe)
+    logits, _ = _payload_probe_logits(memories_by_layer, payload_probe, layer_strategy)
     if not answer_ids:
         raise ValueError("payload answer loss requires at least one answer token")
     target = torch.tensor([int(answer_ids[0])], device=logits.device)
@@ -728,6 +731,7 @@ def _score_candidate_answer(
     answer: str,
     memories_by_layer: dict[int, list[AttentionMemoryItem]],
     mode: str,
+    layer_strategy: str = "mean_all",
 ) -> dict[str, float]:
     prompt_text, answer_start, answer_ids = _metric_prompt(bundle.tokenizer, question, answer)
     prompt = _encode(bundle.tokenizer, prompt_text, bundle.device)
@@ -752,7 +756,7 @@ def _score_candidate_answer(
             )
         logits, _ = _apply_logit_bias(out.logits, memories_by_layer, logit_projector)
     elif mode == "payload_probe":
-        logits, _ = _payload_probe_logits(memories_by_layer, payload_probe)
+        logits, _ = _payload_probe_logits(memories_by_layer, payload_probe, layer_strategy)
         if not answer_ids:
             return {"answer_nll": 0.0, "answer_rank": 0.0, "top10": 0.0, "answer_logprob": 0.0}
         target_id = int(answer_ids[0])
@@ -785,6 +789,7 @@ def _answer_token_discrimination(
     paired_answer: str,
     memories_by_layer: dict[int, list[AttentionMemoryItem]],
     mode: str,
+    layer_strategy: str = "mean_all",
 ) -> dict[str, float]:
     prompt_text, answer_start, correct_ids = _metric_prompt(bundle.tokenizer, question, correct_answer)
     _, _, paired_ids = _metric_prompt(bundle.tokenizer, question, paired_answer)
@@ -810,7 +815,7 @@ def _answer_token_discrimination(
             )
         logits, _ = _apply_logit_bias(out.logits, memories_by_layer, logit_projector)
     elif mode == "payload_probe":
-        logits, _ = _payload_probe_logits(memories_by_layer, payload_probe)
+        logits, _ = _payload_probe_logits(memories_by_layer, payload_probe, layer_strategy)
         log_probs = torch.log_softmax(logits.float(), dim=-1)
         if not correct_ids or not paired_ids:
             return {
@@ -1249,8 +1254,19 @@ def _oracle_answer_embedding_bias(
 def _payload_probe_logits(
     memories_by_layer: dict[int, list[AttentionMemoryItem]],
     payload_probe: PayloadAnswerProbe,
+    layer_strategy: str = "mean_all",
 ) -> tuple[torch.Tensor, dict[str, float]]:
-    memories = [item for layer_memories in memories_by_layer.values() for item in layer_memories]
+    if not memories_by_layer:
+        param = next(payload_probe.parameters())
+        return torch.zeros(1, device=param.device, dtype=param.dtype), {}
+    sorted_layers = sorted(memories_by_layer.keys())
+    if layer_strategy == "last_layer":
+        layers_to_use = [sorted_layers[-1]]
+    elif layer_strategy == "first_layer":
+        layers_to_use = [sorted_layers[0]]
+    else:
+        layers_to_use = sorted_layers
+    memories = [item for lid in layers_to_use for item in memories_by_layer[lid]]
     if not memories:
         param = next(payload_probe.parameters())
         return torch.zeros(1, device=param.device, dtype=param.dtype), {}
@@ -1260,6 +1276,8 @@ def _payload_probe_logits(
     logits = payload_probe(payload)
     return logits, {
         "payload_probe_logit_norm": float(logits.detach().float().norm().cpu()),
+        "payload_probe_layer_strategy": layer_strategy,
+        "payload_probe_layers_used": float(len(layers_to_use)),
     }
 
 

@@ -44,6 +44,7 @@ def main() -> int:
     parser.add_argument("--logit-bias-loss-weight", type=float, default=0.0)
     parser.add_argument("--logit-bias-scale", type=float, default=1.0)
     parser.add_argument("--payload-answer-loss-weight", type=float, default=0.0)
+    parser.add_argument("--payload-probe-layer-strategy", default="mean_all", choices=["mean_all","last_layer","first_layer"])
     parser.add_argument("--control-margin-min", type=float, default=0.05)
     parser.add_argument("--report-dir", default="reports/experiments/delta_experiment")
     args = parser.parse_args()
@@ -77,6 +78,7 @@ def main() -> int:
         logit_bias_loss_weight=args.logit_bias_loss_weight,
         logit_bias_scale=args.logit_bias_scale,
         payload_answer_loss_weight=args.payload_answer_loss_weight,
+        payload_probe_layer_strategy=args.payload_probe_layer_strategy,
         control_margin_min=args.control_margin_min,
         report_dir=args.report_dir,
     )
