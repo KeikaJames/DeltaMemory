@@ -217,7 +217,7 @@ def evaluate_prepared(
             if mode == "no_memory":
                 logits = sample.base_logits
                 trace = {}
-            elif mode == "raw_memory":
+            elif mode in {"raw_memory", "hidden_retrieval"}:
                 logits, trace = _raw_late_readout(sample, memories, injector)
             else:
                 selected_memories = wrong_query_memories if mode == "delta_qv_wrong_query" else memories

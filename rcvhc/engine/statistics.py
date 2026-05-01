@@ -10,6 +10,7 @@ from typing import Any
 PRIMARY_BASELINES = [
     "no_memory",
     "raw_memory",
+    "hidden_retrieval",
     "delta_qv_zero",
     "delta_qv_random",
     "delta_qv_shuffled",

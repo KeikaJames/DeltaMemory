@@ -156,7 +156,7 @@ class AttentionMemoryEngine:
         comparisons: dict[str, dict[str, Any]] = {}
         injector = GemmaAttentionInjector(self.bundle.model, self.projector)
         for mode in modes:
-            if mode == "raw_memory":
+            if mode in {"raw_memory", "hidden_retrieval"}:
                 logits, trace = self._raw_late_readout(base.logits, base.hidden_states[-1], memories)
             elif mode == "no_memory":
                 logits, trace = base.logits, {}

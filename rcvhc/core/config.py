@@ -9,6 +9,7 @@ from typing import Sequence
 QKV_MODES = {
     "no_memory",
     "raw_memory",
+    "hidden_retrieval",
     "delta_v",
     "delta_qv",
     "delta_kv",
@@ -38,6 +39,7 @@ class RCVHCCleanConfig:
     main_modes: tuple[str, ...] = (
         "no_memory",
         "raw_memory",
+        "hidden_retrieval",
         "delta_qv",
         "delta_qv_zero",
         "delta_qv_random",

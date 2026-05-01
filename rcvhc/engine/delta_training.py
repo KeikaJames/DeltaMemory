@@ -27,6 +27,7 @@ from rcvhc.memory.writer import RCVHCWriter, fit_memory_dim, split_source_snippe
 TRAIN_EVAL_MODES = [
     "no_memory",
     "raw_memory",
+    "hidden_retrieval",
     "delta_qv",
     "delta_qv_zero",
     "delta_qv_random",
@@ -213,7 +214,7 @@ def _evaluate_modes(
         if mode == "no_memory":
             logits = base_logits
             trace = {}
-        elif mode == "raw_memory":
+        elif mode in {"raw_memory", "hidden_retrieval"}:
             logits, trace = _raw_late_readout(base_logits, prompt["input_ids"], memories, injector)
         else:
             result = injector.forward_layers(
