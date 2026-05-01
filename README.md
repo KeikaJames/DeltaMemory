@@ -105,83 +105,70 @@ real model and keep zero/random/shuffled controls.
 
 ## Current Evidence
 
-Tracked cleanroom evidence:
+All current real-model reports use `google/gemma-4-E2B` on Apple Metal/MPS,
+freeze the base model (`trainable_base_params = 0`), and keep retrieved source
+text out of the prompt. The strongest current claim is deliberately narrow:
 
-- `reports/cleanroom/gemma4_real/gemma4_prototype_report.md`
-- `reports/cleanroom/gemma4_training_probe/delta_training_report.md`
-- `reports/cleanroom/gemma4_delta_experiment_main/delta_experiment_report.md`
-- `reports/cleanroom/gemma4_delta_experiment_mps_scaled/report.md`
+```text
+Delta Q/V injection inside attention creates a large memory-channel improvement
+over ordinary frozen attention, but query-specific retrieval/binding is not yet
+isolated as the causal source.
+```
 
-The current real Gemma4 run shows engineering success:
+### Main controlled evidence
 
-- base model frozen,
-- `trainable_base_params = 0`,
-- layerwise Q/V Delta injection has non-zero norm,
-- zero/random/shuffled/force-gate controls run,
-- no retrieved source text is inserted into the prompt.
+| experiment | main result | alignment/control result | remote report |
+| --- | --- | --- | --- |
+| Question-only query eval32 | `delta_qv` NLL `5.5366` vs no-memory `12.7923`; 160/160 held-out examples improve | `wrong_query` is tied with correct Delta (`5.5399`), so binding is not isolated | [reports/cleanroom/question_only_query_eval32](https://github.com/KeikaJames/RCV-HC/tree/main/reports/cleanroom/question_only_query_eval32) |
+| Conflict-margin pilot | `delta_qv` NLL `5.1661` vs no-memory `12.8438` | mean margin advantage vs wrong-query is `-0.0070`; negative alignment result | [reports/cleanroom/conflict_margin_pilot](https://github.com/KeikaJames/RCV-HC/tree/main/reports/cleanroom/conflict_margin_pilot) |
+| Paired-conflict pilot | `delta_qv` NLL `4.6836` vs no-memory `12.3341` | paired same-unit conflict margin advantage is only `0.0094`; not enough | [reports/cleanroom/paired_conflict_pilot](https://github.com/KeikaJames/RCV-HC/tree/main/reports/cleanroom/paired_conflict_pilot) |
+| Contrastive alignment pilot | isolated contrastive `delta_qv` NLL `5.4597`; shared contrastive `5.2961` vs no-memory `12.3341` | shared contrastive margin improves to `0.0295` but fails shuffled gate (`shuffled` `5.2929`) | [reports/cleanroom/contrastive_alignment_pilot](https://github.com/KeikaJames/RCV-HC/tree/main/reports/cleanroom/contrastive_alignment_pilot) |
+| Hidden retrieval baseline pilot | `delta_qv` NLL `5.8246` vs hidden retrieval `14.5274` and no-memory `12.2118` | lightweight hidden/raw late-fusion baseline is not competitive; not a full RetrievalAttention baseline | [reports/cleanroom/hidden_retrieval_baseline_pilot](https://github.com/KeikaJames/RCV-HC/tree/main/reports/cleanroom/hidden_retrieval_baseline_pilot) |
+| Long-distance NoLiMa-style pilot | `delta_qv` NLL `4.9367` vs no-memory `11.8879` | fails shuffled-control gate (`shuffled` `4.8210`), margin advantage near zero | [reports/cleanroom/long_distance_nolima_pilot](https://github.com/KeikaJames/RCV-HC/tree/main/reports/cleanroom/long_distance_nolima_pilot) |
 
-It also shows the current scientific boundary:
+### Superseded or early mechanism reports
 
-- the tracked run is `wiring_signal_only`,
-- therefore it is not an effectiveness claim.
+These runs are retained for provenance but should not be used as final evidence
+because later experiments found and fixed stronger controls.
 
-The training probe is stronger but still intentionally small:
+| experiment | status | remote report |
+| --- | --- | --- |
+| Scaled MPS Delta experiment | early controlled mechanism result; `delta_qv` NLL `8.3279` vs no-memory `12.3188` across 3 seeds | [reports/cleanroom/gemma4_delta_experiment_mps_scaled](https://github.com/KeikaJames/RCV-HC/tree/main/reports/cleanroom/gemma4_delta_experiment_mps_scaled) |
+| Expanded Delta Memory eval8 | superseded by answer-randomization and question-only-query fixes | [reports/cleanroom/delta_memory_expanded](https://github.com/KeikaJames/RCV-HC/tree/main/reports/cleanroom/delta_memory_expanded) |
+| Delta vs ordinary attention eval32 | superseded by answer-randomization and question-only-query fixes | [reports/cleanroom/delta_vs_attention_eval32](https://github.com/KeikaJames/RCV-HC/tree/main/reports/cleanroom/delta_vs_attention_eval32) |
+| Corrected random-answer eval32 | superseded because retrieval query still used teacher-forced answer tokens | [reports/cleanroom/corrected_random_answers_eval32](https://github.com/KeikaJames/RCV-HC/tree/main/reports/cleanroom/corrected_random_answers_eval32) |
+| Layer ablation eval32 | superseded by later evaluation fixes; useful only as early layer-policy signal | [reports/cleanroom/layer_ablation_eval32](https://github.com/KeikaJames/RCV-HC/tree/main/reports/cleanroom/layer_ablation_eval32) |
 
-- `google/gemma-4-E2B`,
-- `steps = 1`,
-- `top_k = 2`,
-- `trainable_base_params = 0`,
-- trained `delta_qv` improves NLL from `11.8004` to `11.3691`,
-- trained `delta_qv` beats zero, random, and shuffled controls on this single
-  demo instance.
+## Literature Positioning and Causal Proof Plan
 
-This is a mechanism signal, not a benchmark result. The next step is to repeat
-the same controlled training on more generated examples.
+Recent memory-system work points to a stricter bar than "NLL improves":
 
-The current multi-example Gemma4 probe repeats that test on generated
-later-reference examples:
+- **Memorizing Transformers / RetrievalAttention / LongMem-style systems** make
+  retrieval identity central: a query should select specific external KV/hidden
+  records and the selected record should control the answer.
+- **Titans-style neural long-term memory** emphasizes test-time memory updates
+  and explicit interaction between short-term attention and long-term memory.
+- **Mamba/SSM hybrids** are a different axis: they improve long-sequence
+  efficiency by changing the backbone/state update, while Delta Memory keeps the
+  Transformer backbone frozen and injects external memory into attention.
 
-- `train_samples = 4`,
-- `eval_samples = 4`,
-- `steps = 2`,
-- `block_size = 64`,
-- `trainable_base_params = 0`,
-- held-out `delta_qv` improves NLL from `12.2486` to `11.4252`,
-- held-out `delta_qv` beats zero, random, and shuffled controls.
+For Delta Memory, the missing causal proof is query-specific binding. The next
+valid proof should use these gates:
 
-The scaled MPS run strengthens this mechanism signal:
+1. **Shared memory competition**: retrieval must choose from a pool containing
+   correct and conflicting memories, not from an isolated per-sample store.
+2. **Counterfactual memory swap**: holding the question fixed, swapping in a
+   paired foreign memory should move likelihood toward the foreign answer or at
+   least reduce the correct-vs-foreign margin.
+3. **Margin objective and metric**: report
+   `foreign_answer_nll - correct_answer_nll`; correct memory must increase this
+   margin over wrong-query/foreign memory.
+4. **Shuffled/wrong-query gates**: `delta_qv` must beat shuffled and wrong-query
+   controls, not only zero/random/no-memory.
+5. **Stronger baseline**: compare against a real retrieved-KV/attention baseline,
+   not only the lightweight hidden late-fusion `hidden_retrieval` baseline.
 
-- `model = google/gemma-4-E2B`,
-- `device = mps`,
-- `dtype = bfloat16`,
-- `seeds = [0, 1, 2]`,
-- `train_samples = 8`,
-- `eval_samples = 8`,
-- `steps = 8`,
-- `trainable_base_params = 0`,
-- mean held-out `delta_qv` NLL is `8.3279`,
-- mean no-memory NLL is `12.3188`,
-- trained `delta_qv` beats zero, random, and shuffled controls on all seeds.
-
-This is now a controlled small-scale mechanism result on a real Gemma4 base.
-It is still not a broad benchmark result.
-
-## Proof Plan
-
-The project should prove the mechanism in this order:
-
-1. **Wiring proof**: frozen Gemma accepts external Delta Memory and layerwise
-   Q/V injection; zero/random/shuffled controls run.
-2. **Optimization proof**: train only Delta Memory adapters and show trained
-   `delta_qv` improves answer-token NLL/rank while base parameters remain
-   frozen.
-3. **Alignment proof**: trained `delta_qv` must beat `delta_qv_zero`,
-   `delta_qv_random`, and `delta_qv_shuffled`.
-4. **Storage proof**: old blocks outside the active local window are retrieved
-   from external storage and affect Q/K/V without prompt insertion.
-5. **External baseline comparison**: only after the above passes, compare against
-   a carefully implemented external baseline under the same frozen model,
-   trainable-parameter budget, and data.
+Until those gates pass, larger-seed confirmation is intentionally deferred.
 
 ## Repository Layout
 
