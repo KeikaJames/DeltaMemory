@@ -60,3 +60,25 @@ def test_delta_experiment_mock_smoke(tmp_path):
     assert summary["final_eval"]["aggregate"]["delta_qv"]["q_delta_norm"] > 0.0
     paths = write_delta_experiment_report(summary, tmp_path / "report")
     assert Path(paths["report"]).exists()
+
+
+def test_delta_experiment_conflict_margins(tmp_path):
+    cfg = DeltaExperimentConfig(
+        model="mock-gemma",
+        device="cpu",
+        dtype="float32",
+        steps=1,
+        train_samples=2,
+        eval_samples=2,
+        block_size=16,
+        memory_dim=32,
+        top_k=2,
+        conflict_margins=True,
+        report_dir=str(tmp_path / "report"),
+    )
+    summary = run_delta_experiment(cfg)
+    margins = summary["conflict_margins"]
+    assert margins is not None
+    assert "delta_qv" in margins["aggregate"]
+    assert "delta_qv_wrong_query" in margins["aggregate"]
+    assert "margin_advantage_vs_wrong_query" in margins["aggregate"]["delta_qv"]

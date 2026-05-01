@@ -39,6 +39,7 @@ class DeltaExperimentConfig:
     layers: str = "all"
     alpha_scale: float = 0.2
     gate_bias: float = -1.0
+    conflict_margins: bool = False
     report_dir: str = "reports/cleanroom/delta_experiment"
 
 
@@ -113,6 +114,11 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
 
     final_train = evaluate_prepared(writer, injector, train_prepared, layer_ids, cfg)
     final_eval = evaluate_prepared(writer, injector, eval_prepared, layer_ids, cfg)
+    conflict_margins = (
+        evaluate_conflict_margins(bundle, writer, injector, eval_prepared, layer_ids, cfg)
+        if cfg.conflict_margins
+        else None
+    )
     summary = {
         "config": asdict(cfg),
         "layer_ids": layer_ids,
@@ -126,6 +132,7 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
         "train": train_rows,
         "final_train": final_train,
         "final_eval": final_eval,
+        "conflict_margins": conflict_margins,
         "statistics": primary_delta_memory_statistics(final_eval, seed=cfg.seed),
         "diagnosis": diagnose_experiment(initial_eval, final_eval),
     }
@@ -174,6 +181,90 @@ def evaluate_prepared(
             by_mode[mode].append(row)
         per_sample.append({"sample_id": sample.example.sample_id, "unit": sample.example.unit, "answer": sample.example.answer, "modes": sample_rows})
     return {"aggregate": _aggregate_by_mode(by_mode), "samples": per_sample}
+
+
+def evaluate_conflict_margins(
+    bundle,
+    writer: RCVHCWriter,
+    injector: GemmaAttentionInjector,
+    prepared: list[PreparedDeltaExample],
+    layer_ids: list[int],
+    cfg: DeltaExperimentConfig,
+) -> dict[str, Any]:
+    if len(prepared) < 2:
+        return {"aggregate": {}, "samples": []}
+    modes = ["no_memory", "delta_qv", "delta_qv_wrong_query"]
+    by_mode: dict[str, list[float]] = {mode: [] for mode in modes}
+    samples: list[dict[str, Any]] = []
+    for sample_idx, sample in enumerate(prepared):
+        foreign = prepared[(sample_idx + 1) % len(prepared)]
+        correct_memories = _select_topk_by_layer(_live_memories(writer, sample, layer_ids, cfg), sample.query, cfg.top_k)
+        foreign_memories = _select_topk_by_layer(_live_memories(writer, foreign, layer_ids, cfg), foreign.query, cfg.top_k)
+        sample_modes: dict[str, dict[str, float]] = {}
+        for mode in modes:
+            if mode == "no_memory":
+                memories = {}
+            elif mode == "delta_qv_wrong_query":
+                memories = foreign_memories
+            else:
+                memories = correct_memories
+            correct = _score_candidate_answer(bundle, injector, sample.example.question, sample.example.answer, memories, mode)
+            foreign_score = _score_candidate_answer(bundle, injector, sample.example.question, foreign.example.answer, memories, mode)
+            margin = foreign_score["answer_nll"] - correct["answer_nll"]
+            by_mode[mode].append(margin)
+            sample_modes[mode] = {
+                "correct_answer_nll": correct["answer_nll"],
+                "foreign_answer_nll": foreign_score["answer_nll"],
+                "foreign_minus_correct_nll": margin,
+            }
+        samples.append(
+            {
+                "sample_id": sample.example.sample_id,
+                "unit": sample.example.unit,
+                "answer": sample.example.answer,
+                "foreign_sample_id": foreign.example.sample_id,
+                "foreign_answer": foreign.example.answer,
+                "modes": sample_modes,
+            }
+        )
+    aggregate = {mode: {"foreign_minus_correct_nll": _mean(values)} for mode, values in by_mode.items()}
+    if by_mode["delta_qv"] and by_mode["delta_qv_wrong_query"]:
+        aggregate["delta_qv"]["margin_advantage_vs_wrong_query"] = (
+            aggregate["delta_qv"]["foreign_minus_correct_nll"]
+            - aggregate["delta_qv_wrong_query"]["foreign_minus_correct_nll"]
+        )
+    return {"aggregate": aggregate, "samples": samples}
+
+
+def _score_candidate_answer(
+    bundle,
+    injector: GemmaAttentionInjector,
+    question: str,
+    answer: str,
+    memories_by_layer: dict[int, list[AttentionMemoryItem]],
+    mode: str,
+) -> dict[str, float]:
+    prompt_text, answer_start, answer_ids = _metric_prompt(bundle.tokenizer, question, answer)
+    prompt = _encode(bundle.tokenizer, prompt_text, bundle.device)
+    if mode == "no_memory":
+        with torch.no_grad():
+            out = bundle.model(
+                input_ids=prompt["input_ids"],
+                attention_mask=prompt["attention_mask"],
+                output_hidden_states=False,
+                output_attentions=False,
+                use_cache=False,
+            )
+        logits = out.logits
+    else:
+        result = injector.forward_layers(
+            input_ids=prompt["input_ids"],
+            attention_mask=prompt["attention_mask"],
+            memories_by_layer=memories_by_layer,
+            mode=mode,
+        )
+        logits = result.logits
+    return compute_answer_metrics(logits, prompt["input_ids"], answer_start, answer_ids)
 
 
 def diagnose_experiment(initial_eval: dict[str, Any], final_eval: dict[str, Any]) -> dict[str, Any]:
@@ -417,6 +508,17 @@ def _markdown(summary: dict[str, Any]) -> str:
                 perm=float(row.get("permutation_p", 1.0)),
             )
         )
+    margins = summary.get("conflict_margins")
+    if margins:
+        lines.extend(["", "## Conflict Margins", ""])
+        lines.append("| mode | foreign_minus_correct_nll |")
+        lines.append("| --- | ---: |")
+        for mode, row in (margins.get("aggregate") or {}).items():
+            lines.append(f"| {mode} | {float(row.get('foreign_minus_correct_nll', 0.0)):.4f} |")
+        delta_row = (margins.get("aggregate") or {}).get("delta_qv", {})
+        if "margin_advantage_vs_wrong_query" in delta_row:
+            lines.append("")
+            lines.append(f"- `delta_qv_margin_advantage_vs_wrong_query`: `{float(delta_row['margin_advantage_vs_wrong_query']):.4f}`")
     lines.extend(
         [
             "",
