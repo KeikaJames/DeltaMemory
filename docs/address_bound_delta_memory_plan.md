@@ -202,3 +202,44 @@ even forced correct-address memory barely differs from paired-foreign memory
 
 Current conclusion: the architecture needs a different binding mechanism, not
 more seeds or heavier loss on the current mean-pooled query/address path.
+
+## Token/Span-Bound follow-up
+
+The next tested hypothesis was that whole-block mean pooling destroys identity.
+The implementation now supports oracle span writing for `address_token_binding`:
+
+```text
+address_key = projector(hidden(address_span_tokens))
+payload     = writer(hidden(value_span_tokens), hidden(address_span_tokens))
+```
+
+New metadata records `address_text`, `value_text`, paired foreign address/value
+texts, and character ranges. With `--oracle-span-writer`, the experiment runner
+uses the annotated source address span for memory addressing, the annotated
+source value span for the Delta payload, and the query-side address span for the
+query key. Conflict-margin reports also include payload-swap controls:
+
+- correct address + correct payload;
+- correct address + paired payload;
+- paired address + correct payload;
+- paired address + paired payload.
+
+### Oracle-span pilot results
+
+| Experiment | Channel result | Binding result | Report |
+| --- | --- | --- | --- |
+| Oracle span payload pilot | `delta_qv` NLL `3.5718` vs no-memory `12.1946` | payload swap remains tied; margin advantage vs wrong-query `-0.0084` | `reports/experiments/oracle_span_payload_pilot` |
+| Oracle span contrastive pilot | `delta_qv` NLL `4.3541` vs no-memory `12.1946` | oracle contrastive only reaches margin advantage `0.0267`, far below the `0.5` gate | `reports/experiments/oracle_span_payload_contrastive_pilot` |
+
+This is a stronger negative result than the previous address-bound pilots. Even
+when the writer sees only the labelled address/value spans, the Q/V residual
+payload still behaves mostly like a generic activation channel rather than an
+answer-specific associative payload.
+
+### Revised conclusion
+
+Do not scale the current oracle-span implementation yet. The next research
+question is whether a Q/V residual is the correct payload object at all. If the
+goal is factual binding, the payload may need to become a token-conditioned
+low-rank adapter or fast-weight update trained directly against answer-span
+likelihood, while Q/V Delta remains a useful but non-specific memory channel.

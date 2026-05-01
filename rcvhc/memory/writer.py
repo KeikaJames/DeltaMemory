@@ -108,6 +108,62 @@ class RCVHCWriter(nn.Module):
             )
         return items
 
+    def write_oracle_span_layer(
+        self,
+        *,
+        layer_id: int,
+        h_out: torch.Tensor,
+        address_token_range: tuple[int, int],
+        value_token_range: tuple[int, int],
+        token_offset: int = 0,
+        source_text: str = "",
+    ) -> list[AttentionMemoryItem]:
+        if h_out.dim() != 3:
+            raise ValueError("h_out must have shape [batch, seq, hidden]")
+        if h_out.shape[0] != 1:
+            raise ValueError("oracle span writer currently supports batch size 1")
+        address_start, address_end = _clamped_span(address_token_range, h_out.shape[1])
+        value_start, value_end = _clamped_span(value_token_range, h_out.shape[1])
+        address_summary = h_out[0, address_start:address_end].mean(dim=0)
+        value_summary = h_out[0, value_start:value_end].mean(dim=0)
+        raw_key = self.raw_key(address_summary)
+        address_key = self.address_key(address_summary)
+        raw_value = self.raw_value(value_summary)
+        payload_basis = self.self_proj(torch.cat([address_summary, value_summary], dim=-1))
+        payload_use = self.use_proj(value_summary)
+        delta = self.norm(payload_use - payload_basis)
+        if not torch.isfinite(delta).all():
+            delta = torch.nan_to_num(delta)
+        metadata = {
+            "source_text": source_text,
+            "source_text_debug_only": True,
+            "layer_id": layer_id,
+            "block_id": 0,
+            "token_range": [token_offset + address_start, token_offset + value_end],
+            "address_token_range": [token_offset + address_start, token_offset + address_end],
+            "value_token_range": [token_offset + value_start, token_offset + value_end],
+            "usage_mass": 1.0,
+            "block_size": self.block_size,
+            "oracle_span_writer": True,
+        }
+        return [
+            AttentionMemoryItem(
+                memory_id=None,
+                layer_id=layer_id,
+                block_id=0,
+                token_start=token_offset + address_start,
+                token_end=token_offset + value_end,
+                raw_key=raw_key,
+                address_key=address_key,
+                raw_value=raw_value,
+                delta_q=self.delta_q(delta),
+                delta_k=self.delta_k(delta),
+                delta_v=self.delta_v(delta),
+                usage_mass=1.0,
+                metadata=metadata,
+            )
+        ]
+
     def _delta_value(
         self,
         h_block_in: torch.Tensor,
@@ -156,3 +212,9 @@ def fit_memory_dim(vector: torch.Tensor, memory_dim: int) -> torch.Tensor:
     if flat.numel() > memory_dim:
         return flat[:memory_dim]
     return F.pad(flat, (0, memory_dim - flat.numel()))
+
+
+def _clamped_span(span: tuple[int, int], seq_len: int) -> tuple[int, int]:
+    start = max(0, min(int(span[0]), seq_len - 1))
+    end = max(start + 1, min(int(span[1]), seq_len))
+    return start, end

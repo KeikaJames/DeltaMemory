@@ -40,6 +40,7 @@ def main() -> int:
     parser.add_argument("--shared-memory-retrieval", action="store_true")
     parser.add_argument("--identity-gate-beta", type=float, default=64.0)
     parser.add_argument("--identity-gate-tau", type=float, default=0.01)
+    parser.add_argument("--oracle-span-writer", action="store_true")
     parser.add_argument("--control-margin-min", type=float, default=0.05)
     parser.add_argument("--report-dir", default="reports/experiments/delta_experiment")
     args = parser.parse_args()
@@ -69,6 +70,7 @@ def main() -> int:
         shared_memory_retrieval=args.shared_memory_retrieval,
         identity_gate_beta=args.identity_gate_beta,
         identity_gate_tau=args.identity_gate_tau,
+        oracle_span_writer=args.oracle_span_writer,
         control_margin_min=args.control_margin_min,
         report_dir=args.report_dir,
     )

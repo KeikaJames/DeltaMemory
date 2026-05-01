@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -49,6 +49,7 @@ class DeltaExperimentConfig:
     shared_memory_retrieval: bool = False
     identity_gate_beta: float = 64.0
     identity_gate_tau: float = 0.01
+    oracle_span_writer: bool = False
     control_margin_min: float = 0.05
     report_dir: str = "reports/experiments/delta_experiment"
 
@@ -63,6 +64,8 @@ class PreparedDeltaExample:
     snippets: list[str]
     answer_start: int
     answer_ids: list[int]
+    address_token_range: tuple[int, int] | None = None
+    value_token_range: tuple[int, int] | None = None
 
 
 def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
@@ -239,6 +242,7 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
         "retrieval_query_uses_answer": False,
         "retrieval_key": "address_query_to_address_key",
         "address_key_separate_from_payload": True,
+        "oracle_span_writer": cfg.oracle_span_writer,
         "source_text_debug_only": True,
         "train_examples": [example.as_dict() for example in train_examples],
         "eval_examples": [example.as_dict() for example in eval_examples],
@@ -325,6 +329,8 @@ def evaluate_conflict_margins(
         "delta_qv_wrong_query",
         "delta_qv_oracle_correct",
         "delta_qv_oracle_paired",
+        "delta_qv_oracle_correct_address_paired_payload",
+        "delta_qv_oracle_paired_address_correct_payload",
     ]
     by_mode: dict[str, list[float]] = {mode: [] for mode in modes}
     address_rows: list[dict[str, float]] = []
@@ -356,6 +362,8 @@ def evaluate_conflict_margins(
         oracle_correct_memories = _select_sample_topk_by_layer(diagnostic_pool, sample_query, sample.example.sample_id, cfg.top_k)
         paired_id = sample.example.paired_sample_id if sample.example.paired_sample_id is not None else foreign.example.sample_id
         oracle_paired_memories = _select_sample_topk_by_layer(diagnostic_pool, sample_query, paired_id, cfg.top_k)
+        oracle_correct_address_paired_payload = _swap_payload_by_layer(oracle_correct_memories, oracle_paired_memories)
+        oracle_paired_address_correct_payload = _swap_payload_by_layer(oracle_paired_memories, oracle_correct_memories)
         sample_modes: dict[str, dict[str, float]] = {}
         for mode in modes:
             if mode == "no_memory":
@@ -369,6 +377,12 @@ def evaluate_conflict_margins(
                 injection_mode = "delta_qv"
             elif mode == "delta_qv_oracle_paired":
                 memories = oracle_paired_memories
+                injection_mode = "delta_qv"
+            elif mode == "delta_qv_oracle_correct_address_paired_payload":
+                memories = oracle_correct_address_paired_payload
+                injection_mode = "delta_qv"
+            elif mode == "delta_qv_oracle_paired_address_correct_payload":
+                memories = oracle_paired_address_correct_payload
                 injection_mode = "delta_qv"
             else:
                 memories = correct_memories
@@ -403,6 +417,43 @@ def evaluate_conflict_margins(
             - aggregate["delta_qv_wrong_query"]["foreign_minus_correct_nll"]
         )
     return {"aggregate": aggregate, "samples": samples}
+
+
+def _swap_payload_by_layer(
+    address_memories: dict[int, list[AttentionMemoryItem]],
+    payload_memories: dict[int, list[AttentionMemoryItem]],
+) -> dict[int, list[AttentionMemoryItem]]:
+    swapped: dict[int, list[AttentionMemoryItem]] = {}
+    for layer_id, address_items in address_memories.items():
+        payload_items = payload_memories.get(layer_id, [])
+        if not payload_items:
+            swapped[layer_id] = list(address_items)
+            continue
+        layer_swapped = []
+        for idx, address_item in enumerate(address_items):
+            payload_item = payload_items[min(idx, len(payload_items) - 1)]
+            metadata = dict(address_item.metadata)
+            metadata.update(
+                {
+                    "payload_swapped": True,
+                    "address_sample_id": address_item.metadata.get("sample_id"),
+                    "payload_sample_id": payload_item.metadata.get("sample_id"),
+                    "payload_answer": payload_item.metadata.get("answer"),
+                }
+            )
+            layer_swapped.append(
+                replace(
+                    address_item,
+                    raw_value=payload_item.raw_value,
+                    delta_q=payload_item.delta_q,
+                    delta_k=payload_item.delta_k,
+                    delta_v=payload_item.delta_v,
+                    usage_mass=payload_item.usage_mass,
+                    metadata=metadata,
+                )
+            )
+        swapped[layer_id] = layer_swapped
+    return swapped
 
 
 def _address_diagnostics(
@@ -620,6 +671,7 @@ def _prepare_example(bundle, example: DeltaExample, cfg: DeltaExperimentConfig) 
             use_cache=False,
         )
     query_prompt = _encode(bundle.tokenizer, _query_prompt(example.question), bundle.device)
+    query_prompt_text = _query_prompt(example.question)
     with torch.no_grad():
         query_base = bundle.model(
             input_ids=query_prompt["input_ids"],
@@ -628,6 +680,13 @@ def _prepare_example(bundle, example: DeltaExample, cfg: DeltaExperimentConfig) 
             output_attentions=False,
             use_cache=False,
         )
+    address_token_range = _token_range_for_example(bundle.tokenizer, example.text, example.address_text, example.address_char_range)
+    value_token_range = _token_range_for_example(bundle.tokenizer, example.text, example.value_text, example.value_char_range)
+    query_hidden = query_base.hidden_states[-1].mean(dim=(0, 1)).detach().float().cpu()
+    if cfg.oracle_span_writer and example.address_text is not None:
+        query_address_range = _token_range_for_example(bundle.tokenizer, query_prompt_text, example.address_text, None)
+        if query_address_range is not None:
+            query_hidden = _mean_hidden_span(query_base.hidden_states[-1], query_address_range).detach().float().cpu()
     snippets = split_source_snippets(bundle.tokenizer, context["input_ids"], cfg.block_size)
     detached = SimpleNamespace(
         hidden_states=tuple(t.detach() for t in out.hidden_states),
@@ -638,10 +697,12 @@ def _prepare_example(bundle, example: DeltaExample, cfg: DeltaExperimentConfig) 
         context_out=detached,
         prompt=prompt,
         base_logits=base.logits.detach(),
-        query_hidden=query_base.hidden_states[-1].mean(dim=(0, 1)).detach().float().cpu(),
+        query_hidden=query_hidden,
         snippets=snippets,
         answer_start=answer_start,
         answer_ids=answer_ids,
+        address_token_range=address_token_range,
+        value_token_range=value_token_range,
     )
 
 
@@ -653,14 +714,26 @@ def _live_memories(
 ) -> list[AttentionMemoryItem]:
     items: list[AttentionMemoryItem] = []
     for layer_id in layer_ids:
-        layer_items = writer.write_layer(
-            layer_id=layer_id,
-            h_in=sample.context_out.hidden_states[layer_id],
-            h_out=sample.context_out.hidden_states[layer_id + 1],
-            attn=sample.context_out.attentions[layer_id],
-            token_offset=0,
-            source_text_by_block=sample.snippets,
-        )
+        if cfg.oracle_span_writer:
+            if sample.address_token_range is None or sample.value_token_range is None:
+                raise ValueError("oracle_span_writer requires address/value span metadata")
+            layer_items = writer.write_oracle_span_layer(
+                layer_id=layer_id,
+                h_out=sample.context_out.hidden_states[layer_id + 1],
+                address_token_range=sample.address_token_range,
+                value_token_range=sample.value_token_range,
+                token_offset=0,
+                source_text=sample.example.text,
+            )
+        else:
+            layer_items = writer.write_layer(
+                layer_id=layer_id,
+                h_in=sample.context_out.hidden_states[layer_id],
+                h_out=sample.context_out.hidden_states[layer_id + 1],
+                attn=sample.context_out.attentions[layer_id],
+                token_offset=0,
+                source_text_by_block=sample.snippets,
+            )
         for item in layer_items:
             item.metadata.update(
                 {
@@ -670,6 +743,10 @@ def _live_memories(
                     "paired_sample_id": sample.example.paired_sample_id,
                     "collision_group_id": sample.example.collision_group_id,
                     "foreign_answer": sample.example.foreign_answer,
+                    "address_text": sample.example.address_text,
+                    "value_text": sample.example.value_text,
+                    "foreign_address_text": sample.example.foreign_address_text,
+                    "foreign_value_text": sample.example.foreign_value_text,
                 }
             )
         items.extend(layer_items)
@@ -692,6 +769,57 @@ def _query_key(writer: RCVHCWriter, sample: PreparedDeltaExample) -> torch.Tenso
     param = next(writer.parameters())
     query_hidden = sample.query_hidden.to(device=param.device, dtype=param.dtype)
     return writer.address_query(query_hidden).float()
+
+
+def _token_range_for_example(
+    tokenizer,
+    text: str,
+    needle: str | None,
+    char_range: list[int] | None,
+) -> tuple[int, int] | None:
+    if needle is None:
+        return None
+    if char_range is None:
+        start = text.find(needle)
+        if start < 0:
+            return None
+        char_range = [start, start + len(needle)]
+    return _char_range_to_token_range(tokenizer, text, tuple(char_range))
+
+
+def _char_range_to_token_range(tokenizer, text: str, char_range: tuple[int, int]) -> tuple[int, int]:
+    start_char, end_char = int(char_range[0]), int(char_range[1])
+    try:
+        encoded = tokenizer(text, return_tensors="pt", add_special_tokens=False, return_offsets_mapping=True)
+        offsets = encoded["offset_mapping"][0].tolist()
+        token_indices = [
+            idx
+            for idx, (tok_start, tok_end) in enumerate(offsets)
+            if tok_end > start_char and tok_start < end_char
+        ]
+        if token_indices:
+            return token_indices[0], token_indices[-1] + 1
+    except (TypeError, NotImplementedError):
+        pass
+    except KeyError:
+        pass
+    prefix = text[:start_char]
+    span = text[start_char:end_char]
+    start = _encoded_len(tokenizer, prefix)
+    end = start + _encoded_len(tokenizer, span)
+    return start, max(start + 1, end)
+
+
+def _mean_hidden_span(hidden: torch.Tensor, token_range: tuple[int, int]) -> torch.Tensor:
+    start = max(0, min(int(token_range[0]), hidden.shape[1] - 1))
+    end = max(start + 1, min(int(token_range[1]), hidden.shape[1]))
+    return hidden[0, start:end].mean(dim=0)
+
+
+def _encoded_len(tokenizer, text: str) -> int:
+    if not text.strip():
+        return 0
+    return len(tokenizer.encode(text, add_special_tokens=False))
 
 
 def _select_topk_by_layer(
@@ -847,6 +975,7 @@ def _markdown(summary: dict[str, Any]) -> str:
         "oracle_contrastive_weight",
         "identity_gate_beta",
         "identity_gate_tau",
+        "oracle_span_writer",
         "control_margin_min",
     ]:
         lines.append(f"- `{key}`: `{cfg.get(key)}`")

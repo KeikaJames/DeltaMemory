@@ -58,6 +58,12 @@ def test_address_token_binding_has_explicit_paired_addresses():
         assert "ADDRESS:" in first.text
         assert "ADDR::" in first.question
         assert first.answer not in first.question
+        assert first.address_text is not None
+        assert first.value_text == f"secret-code = {first.answer}"
+        assert first.foreign_address_text == second.address_text
+        assert first.foreign_value_text == second.value_text
+        assert first.address_char_range is not None
+        assert first.value_char_range is not None
 
 
 def test_long_distance_nolima_has_large_gap():
@@ -119,6 +125,32 @@ def test_delta_experiment_conflict_margins(tmp_path):
     assert "margin_advantage_vs_wrong_query" in margins["aggregate"]["delta_qv"]
     assert "address" in margins["aggregate"]
     assert "correct_address_rank" in margins["samples"][0]["address_diagnostics"]
+    assert "delta_qv_oracle_correct_address_paired_payload" in margins["aggregate"]
+    assert "delta_qv_oracle_paired_address_correct_payload" in margins["aggregate"]
+
+
+def test_delta_experiment_oracle_span_writer_conflict_controls(tmp_path):
+    cfg = DeltaExperimentConfig(
+        model="mock-gemma",
+        device="cpu",
+        dtype="float32",
+        steps=1,
+        train_samples=2,
+        eval_samples=2,
+        task_suite="address_token_binding",
+        block_size=16,
+        memory_dim=32,
+        top_k=1,
+        oracle_span_writer=True,
+        conflict_margins=True,
+        report_dir=str(tmp_path / "report"),
+    )
+    summary = run_delta_experiment(cfg)
+    assert summary["oracle_span_writer"] is True
+    assert summary["eval_examples"][0]["address_text"] is not None
+    sample = summary["conflict_margins"]["samples"][0]
+    assert "delta_qv_oracle_correct_address_paired_payload" in sample["modes"]
+    assert "delta_qv_oracle_paired_address_correct_payload" in sample["modes"]
 
 
 def test_delta_experiment_contrastive_training_records_margin(tmp_path):

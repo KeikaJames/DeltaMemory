@@ -17,6 +17,12 @@ class DeltaExample:
     paired_sample_id: int | None = None
     collision_group_id: str | None = None
     foreign_answer: str | None = None
+    address_text: str | None = None
+    value_text: str | None = None
+    foreign_address_text: str | None = None
+    foreign_value_text: str | None = None
+    address_char_range: list[int] | None = None
+    value_char_range: list[int] | None = None
 
     def as_dict(self) -> dict[str, object]:
         return asdict(self)
@@ -267,15 +273,20 @@ def make_address_token_binding_examples(num_examples: int, seed: int = 0, start_
                 break
             paired_sample_id = sample_ids[1 - pair_idx] if len(examples) + 1 < num_examples or pair_idx == 1 else None
             foreign_answer = pair[1 - pair_idx][2] if paired_sample_id is not None else None
+            foreign_address = pair[1 - pair_idx][1] if paired_sample_id is not None else None
+            foreign_value = f"secret-code = {foreign_answer}" if foreign_answer is not None else None
+            value_text = f"secret-code = {answer}"
             text = "\n".join(
                 [
                     "Memory card format: each card has an ADDRESS line and one PAYLOAD line.",
                     f"ADDRESS: {address}",
-                    f"PAYLOAD: secret-code = {answer}",
+                    f"PAYLOAD: {value_text}",
                     f"VALIDATION: use the full address {address}; do not answer from unit id alone.",
                     "The payload is intentionally not repeated outside this address card.",
                 ]
             )
+            address_start = text.index(address)
+            value_start = text.index(value_text)
             question = f"For ADDRESS {address}, what is the secret-code payload?"
             examples.append(
                 DeltaExample(
@@ -288,6 +299,12 @@ def make_address_token_binding_examples(num_examples: int, seed: int = 0, start_
                     paired_sample_id=paired_sample_id,
                     collision_group_id=group_id,
                     foreign_answer=foreign_answer,
+                    address_text=address,
+                    value_text=value_text,
+                    foreign_address_text=foreign_address,
+                    foreign_value_text=foreign_value,
+                    address_char_range=[address_start, address_start + len(address)],
+                    value_char_range=[value_start, value_start + len(value_text)],
                 )
             )
     return examples

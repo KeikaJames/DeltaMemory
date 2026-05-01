@@ -38,7 +38,7 @@ prompt in the Delta Memory path.
 | What stays frozen? | The base Gemma model; only writer/projector/gates train. |
 | What is proven? | A strong in-attention memory-channel effect over ordinary frozen attention. |
 | What is not proven yet? | Query-specific retrieval/binding as the causal source. |
-| Next direction | **Address-Bound Delta Memory**: separate memory identity from payload injection. |
+| Next direction | **Token/Span-Bound Delta Memory**: separate address spans, value spans, and payload injection. |
 
 ## Mechanism
 
@@ -54,7 +54,9 @@ v' = v + alpha_v * gate_v * P_v(Delta)
 The current research hypothesis is now stricter:
 
 ```text
-query-address margin -> identity gate -> signed Delta payload -> Q/V residual
+question address span -> memory address key
+source value span     -> signed payload Delta
+address classifier    -> identity gate -> Q/V residual
 ```
 
 See [`docs/address_bound_delta_memory_plan.md`](docs/address_bound_delta_memory_plan.md)
@@ -85,6 +87,8 @@ keeps the base model frozen, and does not insert retrieved text into the prompt.
 | Oracle payload control pilot | `5.1881` vs `12.1370` NLL | even forced correct-address payload barely beats forced paired payload; oracle margin advantage `0.0166` | [report](reports/experiments/oracle_address_control_pilot) |
 | Binding stress pilot | `2.9874` vs `12.1370` NLL | high LR/weight stress test still fails; address scores collapse and oracle margin advantage is `-0.0178` | [report](reports/experiments/binding_stress_pilot) |
 | Query-specific binding follow-up | best Delta NLL `2.5695` vs no-memory `12.1370` | all follow-ups fail binding; forced oracle payload also fails to separate paired answers | [report](reports/experiments/query_specific_binding_followup) |
+| Oracle span payload pilot | `3.5718` vs no-memory `12.1946` NLL | oracle address/value spans preserve the channel but payload swap remains tied; margin advantage vs wrong-query `-0.0084` | [report](reports/experiments/oracle_span_payload_pilot) |
+| Oracle span contrastive pilot | `4.3541` vs no-memory `12.1946` NLL | oracle contrastive raises margin advantage only to `0.0267`, far below the `0.5` payload-specificity gate | [report](reports/experiments/oracle_span_payload_contrastive_pilot) |
 | Hidden retrieval baseline | `5.8246` vs `12.2118` NLL | hidden late-fusion baseline is weak (`14.5274`) | [report](reports/experiments/hidden_retrieval_baseline_pilot) |
 | Long-distance NoLiMa-style | `4.9367` vs `11.8879` NLL | fails shuffled gate (`4.8210`) | [report](reports/experiments/long_distance_nolima_pilot) |
 
@@ -115,11 +119,11 @@ The literature tension is useful:
 | NoLiMa / RULER | exposes long-context shortcuts | NLL alone is not enough |
 | Delta-rule / fast-weight views | binding and anti-interference framing | current Delta path needs explicit address supervision |
 
-The proposed synthesis is **Address-Bound Delta Memory**:
+The proposed synthesis is now **Token/Span-Bound Delta Memory**:
 
 ```text
-memory item = (address key, payload delta, anti-key metadata)
-query      -> address competition -> causal gate -> payload injection
+memory item = (address span key, value span payload delta, anti-key metadata)
+query      -> address span competition -> causal gate -> payload injection
 ```
 
 Pass/fail gates before larger scaling:
@@ -132,6 +136,7 @@ Pass/fail gates before larger scaling:
 | Wrong-query | correct-address Delta beats wrong-query/foreign-address Delta. |
 | Margin | correct memory improves `foreign_nll - correct_nll`. |
 | Payload swap | correct address + foreign payload differs from correct address + correct payload. |
+| Oracle span | oracle value-span payload beats paired value-span payload before learned retrieval is trusted. |
 | Baseline | Delta beats hidden retrieval and a real retrieved-KV/attention baseline. |
 
 ## Quick start
