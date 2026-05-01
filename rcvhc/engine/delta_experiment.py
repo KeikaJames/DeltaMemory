@@ -144,7 +144,7 @@ def evaluate_prepared(
         memories = _select_topk_by_layer(_live_memories(writer, sample, layer_ids, cfg), sample.query, cfg.top_k)
         wrong_query_sample = prepared[(sample_idx + 1) % len(prepared)] if len(prepared) > 1 else sample
         wrong_query_memories = _select_topk_by_layer(
-            _live_memories(writer, sample, layer_ids, cfg),
+            _live_memories(writer, wrong_query_sample, layer_ids, cfg),
             wrong_query_sample.query,
             cfg.top_k,
         )
