@@ -12,6 +12,7 @@ PRIMARY_BASELINES = [
     "raw_memory",
     "hidden_retrieval",
     "retrieved_attention",
+    "logit_bias",
     "delta_qv_zero",
     "delta_qv_random",
     "delta_qv_shuffled",

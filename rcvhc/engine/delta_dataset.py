@@ -29,6 +29,40 @@ class DeltaExample:
 
 
 COLORS = ["tulip", "violet", "amber", "cedar", "indigo", "saffron", "lumen", "marble"]
+SINGLE_TOKEN_CODES = [
+    "red",
+    "blue",
+    "green",
+    "white",
+    "black",
+    "silver",
+    "gold",
+    "purple",
+    "orange",
+    "yellow",
+    "brown",
+    "cyan",
+    "magenta",
+    "bronze",
+    "pearl",
+    "coral",
+    "navy",
+    "ivory",
+    "olive",
+    "teal",
+    "ruby",
+    "jade",
+    "opal",
+    "plum",
+    "rose",
+    "lime",
+    "charcoal",
+    "cream",
+    "azure",
+    "beige",
+    "mauve",
+    "tan",
+]
 SUFFIXES = ["91", "19", "17", "44", "63", "72", "38", "85"]
 DELTA_TASK_SUITES = {
     "single_fact_late_reference",
@@ -38,6 +72,7 @@ DELTA_TASK_SUITES = {
     "adversarial_negative",
     "paired_conflict_binding",
     "address_token_binding",
+    "address_token_binding_single_token",
     "long_distance_nolima_style",
 }
 
@@ -62,6 +97,8 @@ def make_delta_memory_examples(
         return make_paired_conflict_binding_examples(num_examples, seed=seed, start_id=start_id)
     if task_suite == "address_token_binding":
         return make_address_token_binding_examples(num_examples, seed=seed, start_id=start_id)
+    if task_suite == "address_token_binding_single_token":
+        return make_address_token_binding_examples(num_examples, seed=seed, start_id=start_id, single_token_answers=True)
     if task_suite == "long_distance_nolima_style":
         return make_long_distance_nolima_examples(num_examples, seed=seed, start_id=start_id)
     raise ValueError(f"unknown Delta Memory task suite: {task_suite}")
@@ -252,7 +289,12 @@ def make_paired_conflict_binding_examples(num_examples: int, seed: int = 0, star
     return examples
 
 
-def make_address_token_binding_examples(num_examples: int, seed: int = 0, start_id: int = 0) -> list[DeltaExample]:
+def make_address_token_binding_examples(
+    num_examples: int,
+    seed: int = 0,
+    start_id: int = 0,
+    single_token_answers: bool = False,
+) -> list[DeltaExample]:
     rng = random.Random(seed)
     examples: list[DeltaExample] = []
     used_units: set[str] = set()
@@ -263,7 +305,7 @@ def make_address_token_binding_examples(num_examples: int, seed: int = 0, start_
         pair = []
         for _ in range(2):
             case_id = _unique_case(rng, used_cases)
-            answer = _unique_code(rng, used_codes)
+            answer = _unique_single_token_code(rng, used_codes) if single_token_answers else _unique_code(rng, used_codes)
             address = f"ADDR::{case_id}::{unit}"
             pair.append((case_id, address, answer))
         sample_ids = [start_id + len(examples) + offset for offset in range(2)]
@@ -295,7 +337,7 @@ def make_address_token_binding_examples(num_examples: int, seed: int = 0, start_
                     answer,
                     text,
                     question,
-                    "address_token_binding",
+                    "address_token_binding_single_token" if single_token_answers else "address_token_binding",
                     paired_sample_id=paired_sample_id,
                     collision_group_id=group_id,
                     foreign_answer=foreign_answer,
@@ -366,6 +408,14 @@ def _unique_case(rng: random.Random, used: set[str]) -> str:
 def _unique_code(rng: random.Random, used: set[str]) -> str:
     while True:
         code = f"{rng.choice(COLORS)}-{rng.randint(10, 99)}"
+        if code not in used:
+            used.add(code)
+            return code
+
+
+def _unique_single_token_code(rng: random.Random, used: set[str]) -> str:
+    while True:
+        code = rng.choice(SINGLE_TOKEN_CODES)
         if code not in used:
             used.add(code)
             return code

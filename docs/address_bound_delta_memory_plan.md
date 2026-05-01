@@ -231,6 +231,8 @@ query key. Conflict-margin reports also include payload-swap controls:
 | Oracle span payload pilot | `delta_qv` NLL `3.5718` vs no-memory `12.1946` | payload swap remains tied; margin advantage vs wrong-query `-0.0084` | `reports/experiments/oracle_span_payload_pilot` |
 | Oracle span contrastive pilot | `delta_qv` NLL `4.3541` vs no-memory `12.1946` | oracle contrastive only reaches margin advantage `0.0267`, far below the `0.5` gate | `reports/experiments/oracle_span_payload_contrastive_pilot` |
 | Retrieved-attention baseline pilot | `delta_qv` NLL `3.5718` vs retrieved-attention `14.3560` | non-prompt external K/V readout is not competitive; binding controls still fail | `reports/experiments/retrieved_attention_baseline_pilot` |
+| Oracle logit-bias diagnostic | `logit_bias` NLL `16.0778` vs no-memory `18.6584`; `delta_qv` NLL `4.4997` | direct logit-side injection improves NLL but answer-token margin remains negative | `reports/experiments/oracle_logit_bias_diagnostic_pilot` |
+| Payload answer probe pilot | `logit_bias` NLL `15.7359` vs no-memory `18.6584`; `delta_qv` NLL `5.3487` | payload probe fails held-out answer identity: top1 correct `0.0`, binding margin `0.0625` | `reports/experiments/payload_answer_probe_pilot` |
 
 This is a stronger negative result than the previous address-bound pilots. Even
 when the writer sees only the labelled address/value spans, the Q/V residual
@@ -243,10 +245,19 @@ states before the LM head. It is a stronger non-prompt baseline than the earlier
 mean hidden late-fusion readout, but the pilot remains weak and does not alter
 the binding conclusion.
 
+Following advisor feedback, the next diagnostic moved the payload closer to
+logits. `logit_bias` maps the oracle value-span payload to a vocab-sized final
+logit bias, and `payload_probe` predicts the answer token directly from the
+payload using the frozen LM head. Both tests fail the strict oracle binding
+gate. `logit_bias` improves held-out NLL but does not flip answer-token
+preference, and `payload_probe` does not generalize answer identity on held-out
+answers.
+
 ### Revised conclusion
 
-Do not scale the current oracle-span implementation yet. The next research
-question is whether a Q/V residual is the correct payload object at all. If the
-goal is factual binding, the payload may need to become a token-conditioned
-low-rank adapter or fast-weight update trained directly against answer-span
-likelihood, while Q/V Delta remains a useful but non-specific memory channel.
+Do not scale the current oracle-span implementation yet, and do not implement a
+fast-weight payload until the payload itself passes answer-token identity
+probing. The current evidence says the bottleneck is now earlier than Q/V
+transport: the value-span payload representation does not yet carry a robust,
+held-out answer identity. Q/V Delta remains a useful but non-specific memory
+channel.

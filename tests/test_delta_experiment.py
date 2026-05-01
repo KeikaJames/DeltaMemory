@@ -66,6 +66,15 @@ def test_address_token_binding_has_explicit_paired_addresses():
         assert first.value_char_range is not None
 
 
+def test_address_token_binding_single_token_answers():
+    examples = make_delta_memory_examples("address_token_binding_single_token", 4, seed=23)
+    assert {example.task_type for example in examples} == {"address_token_binding_single_token"}
+    for example in examples:
+        assert " " not in example.answer
+        assert "-" not in example.answer
+        assert example.value_text == f"secret-code = {example.answer}"
+
+
 def test_long_distance_nolima_has_large_gap():
     example = make_delta_memory_examples("long_distance_nolima_style", 1, seed=17)[0]
     assert example.task_type == "long_distance_nolima_style"
@@ -95,11 +104,13 @@ def test_delta_experiment_mock_smoke(tmp_path):
     assert "raw_memory" in summary["final_eval"]["aggregate"]
     assert "hidden_retrieval" in summary["final_eval"]["aggregate"]
     assert "retrieved_attention" in summary["final_eval"]["aggregate"]
+    assert "logit_bias" in summary["final_eval"]["aggregate"]
     assert "delta_qv_wrong_layer" in summary["final_eval"]["aggregate"]
     assert "delta_qv_wrong_query" in summary["final_eval"]["aggregate"]
     assert "statistics" in summary
     assert "no_memory" in summary["statistics"]["comparisons"]
     assert "retrieved_attention" in summary["statistics"]["comparisons"]
+    assert "logit_bias" in summary["statistics"]["comparisons"]
     assert summary["final_eval"]["aggregate"]["delta_qv"]["q_delta_norm"] > 0.0
     paths = write_delta_experiment_report(summary, tmp_path / "report")
     assert Path(paths["report"]).exists()
@@ -129,6 +140,9 @@ def test_delta_experiment_conflict_margins(tmp_path):
     assert "correct_address_rank" in margins["samples"][0]["address_diagnostics"]
     assert "delta_qv_oracle_correct_address_paired_payload" in margins["aggregate"]
     assert "delta_qv_oracle_paired_address_correct_payload" in margins["aggregate"]
+    assert "logit_bias_oracle_correct" in margins["aggregate"]
+    assert "payload_probe_oracle_correct" in margins["aggregate"]
+    assert "answer_token_binding_margin" in margins["aggregate"]["logit_bias_oracle_correct"]
 
 
 def test_delta_experiment_oracle_span_writer_conflict_controls(tmp_path):
@@ -153,6 +167,35 @@ def test_delta_experiment_oracle_span_writer_conflict_controls(tmp_path):
     sample = summary["conflict_margins"]["samples"][0]
     assert "delta_qv_oracle_correct_address_paired_payload" in sample["modes"]
     assert "delta_qv_oracle_paired_address_correct_payload" in sample["modes"]
+    assert "logit_bias_oracle_correct" in sample["modes"]
+    assert "payload_probe_oracle_correct" in sample["modes"]
+    assert "answer_token" in sample["modes"]["logit_bias_oracle_correct"]
+
+
+def test_delta_experiment_logit_bias_training_records_loss(tmp_path):
+    cfg = DeltaExperimentConfig(
+        model="mock-gemma",
+        device="cpu",
+        dtype="float32",
+        steps=1,
+        train_samples=2,
+        eval_samples=2,
+        task_suite="address_token_binding_single_token",
+        block_size=16,
+        memory_dim=32,
+        top_k=1,
+        oracle_span_writer=True,
+        conflict_margins=True,
+        logit_bias_loss_weight=1.0,
+        payload_answer_loss_weight=1.0,
+        report_dir=str(tmp_path / "report"),
+    )
+    summary = run_delta_experiment(cfg)
+    assert summary["train"][0]["logit_bias_loss"] >= 0.0
+    assert summary["train"][0]["payload_answer_loss"] >= 0.0
+    assert "logit_bias" in summary["final_eval"]["aggregate"]
+    assert "logit_bias_oracle_correct" in summary["conflict_margins"]["aggregate"]
+    assert "payload_probe_oracle_correct" in summary["conflict_margins"]["aggregate"]
 
 
 def test_delta_experiment_contrastive_training_records_margin(tmp_path):

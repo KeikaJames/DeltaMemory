@@ -41,6 +41,9 @@ def main() -> int:
     parser.add_argument("--identity-gate-beta", type=float, default=64.0)
     parser.add_argument("--identity-gate-tau", type=float, default=0.01)
     parser.add_argument("--oracle-span-writer", action="store_true")
+    parser.add_argument("--logit-bias-loss-weight", type=float, default=0.0)
+    parser.add_argument("--logit-bias-scale", type=float, default=1.0)
+    parser.add_argument("--payload-answer-loss-weight", type=float, default=0.0)
     parser.add_argument("--control-margin-min", type=float, default=0.05)
     parser.add_argument("--report-dir", default="reports/experiments/delta_experiment")
     args = parser.parse_args()
@@ -71,6 +74,9 @@ def main() -> int:
         identity_gate_beta=args.identity_gate_beta,
         identity_gate_tau=args.identity_gate_tau,
         oracle_span_writer=args.oracle_span_writer,
+        logit_bias_loss_weight=args.logit_bias_loss_weight,
+        logit_bias_scale=args.logit_bias_scale,
+        payload_answer_loss_weight=args.payload_answer_loss_weight,
         control_margin_min=args.control_margin_min,
         report_dir=args.report_dir,
     )

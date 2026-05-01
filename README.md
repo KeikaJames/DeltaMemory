@@ -89,6 +89,8 @@ keeps the base model frozen, and does not insert retrieved text into the prompt.
 | Query-specific binding follow-up | best Delta NLL `2.5695` vs no-memory `12.1370` | all follow-ups fail binding; forced oracle payload also fails to separate paired answers | [report](reports/experiments/query_specific_binding_followup) |
 | Oracle span payload pilot | `3.5718` vs no-memory `12.1946` NLL | oracle address/value spans preserve the channel but payload swap remains tied; margin advantage vs wrong-query `-0.0084` | [report](reports/experiments/oracle_span_payload_pilot) |
 | Oracle span contrastive pilot | `4.3541` vs no-memory `12.1946` NLL | oracle contrastive raises margin advantage only to `0.0267`, far below the `0.5` payload-specificity gate | [report](reports/experiments/oracle_span_payload_contrastive_pilot) |
+| Oracle logit-bias diagnostic | logit-bias NLL `16.0778` vs no-memory `18.6584`; Delta `4.4997` | direct logit-side payload improves NLL but fails answer-token binding; margin remains negative | [report](reports/experiments/oracle_logit_bias_diagnostic_pilot) |
+| Payload answer probe pilot | logit-bias NLL `15.7359` vs no-memory `18.6584`; Delta `5.3487` | payload probe does not generalize answer identity; top1 correct `0.0`, margin `0.0625` | [report](reports/experiments/payload_answer_probe_pilot) |
 | Retrieved-attention baseline pilot | `3.5718` vs retrieved-attention `14.3560` NLL | non-prompt external K/V readout is not competitive; shuffled/wrong-query still tied with Delta | [report](reports/experiments/retrieved_attention_baseline_pilot) |
 | Hidden retrieval baseline | `5.8246` vs `12.2118` NLL | hidden late-fusion baseline is weak (`14.5274`) | [report](reports/experiments/hidden_retrieval_baseline_pilot) |
 | Long-distance NoLiMa-style | `4.9367` vs `11.8879` NLL | fails shuffled gate (`4.8210`) | [report](reports/experiments/long_distance_nolima_pilot) |
@@ -138,6 +140,7 @@ Pass/fail gates before larger scaling:
 | Margin | correct memory improves `foreign_nll - correct_nll`. |
 | Payload swap | correct address + foreign payload differs from correct address + correct payload. |
 | Oracle span | oracle value-span payload beats paired value-span payload before learned retrieval is trusted. |
+| Logit-side diagnostic | direct payload-to-logit injection flips answer-token preference before fast weights are attempted. |
 | Baseline | Delta beats hidden retrieval and a real retrieved-KV/attention baseline. |
 
 ## Quick start

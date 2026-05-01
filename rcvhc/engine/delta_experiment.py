@@ -9,6 +9,7 @@ from types import SimpleNamespace
 from typing import Any
 
 import torch
+from torch import nn
 import torch.nn.functional as F
 
 from rcvhc.core.config import resolve_layer_policy
@@ -18,8 +19,11 @@ from rcvhc.engine.delta_dataset import DeltaExample, make_delta_memory_examples
 from rcvhc.engine.delta_training import TRAIN_EVAL_MODES, _answer_loss, _grad_norm
 from rcvhc.engine.statistics import primary_delta_memory_statistics
 from rcvhc.gemma.attention_injector import GemmaAttentionInjector, QKVDeltaProjector
-from rcvhc.gemma.model_adapter import exposed_qkv_layers, get_hidden_size, load_model_bundle, trainable_base_params
+from rcvhc.gemma.model_adapter import exposed_qkv_layers, get_hidden_size, get_vocab_size, load_model_bundle, trainable_base_params
 from rcvhc.memory.writer import RCVHCWriter, fit_memory_dim, split_source_snippets
+
+
+EXPERIMENT_EVAL_MODES = [*TRAIN_EVAL_MODES, "logit_bias"]
 
 
 @dataclass
@@ -50,6 +54,9 @@ class DeltaExperimentConfig:
     identity_gate_beta: float = 64.0
     identity_gate_tau: float = 0.01
     oracle_span_writer: bool = False
+    logit_bias_loss_weight: float = 0.0
+    logit_bias_scale: float = 1.0
+    payload_answer_loss_weight: float = 0.0
     control_margin_min: float = 0.05
     report_dir: str = "reports/experiments/delta_experiment"
 
@@ -73,6 +80,12 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
     bundle = load_model_bundle(cfg.model, device=cfg.device, dtype=cfg.dtype)
     hidden_size = get_hidden_size(bundle.model)
     writer = RCVHCWriter(hidden_size, cfg.memory_dim, cfg.block_size).to(bundle.device, dtype=bundle.dtype)
+    logit_projector = PayloadLogitProjector(cfg.memory_dim, get_vocab_size(bundle.model), cfg.logit_bias_scale).to(
+        bundle.device, dtype=bundle.dtype
+    )
+    payload_probe = PayloadAnswerProbe(cfg.memory_dim, hidden_size, bundle.model.get_output_embeddings()).to(
+        bundle.device, dtype=bundle.dtype
+    )
     projector = QKVDeltaProjector(cfg.memory_dim, hidden_size, cfg.alpha_scale, cfg.gate_bias).to(
         bundle.device, dtype=bundle.dtype
     )
@@ -95,9 +108,12 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
 
     train_prepared = [_prepare_example(bundle, example, cfg) for example in train_examples]
     eval_prepared = [_prepare_example(bundle, example, cfg) for example in eval_examples]
-    optimizer = torch.optim.AdamW(list(writer.parameters()) + list(projector.parameters()), lr=cfg.lr)
+    optimizer = torch.optim.AdamW(
+        _trainable_parameters(writer, projector, logit_projector, payload_probe),
+        lr=cfg.lr,
+    )
 
-    initial_eval = evaluate_prepared(writer, injector, eval_prepared, layer_ids, cfg)
+    initial_eval = evaluate_prepared(writer, injector, logit_projector, eval_prepared, layer_ids, cfg)
     train_rows = []
     for step in range(1, cfg.steps + 1):
         sample_idx = (step - 1) % len(train_prepared)
@@ -125,7 +141,14 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
         margin_advantage = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
         address_loss = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
         address_margin_value = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
+        logit_bias_loss = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
+        payload_answer_loss = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
         foreign = _foreign_sample(train_prepared, sample_idx) if len(train_prepared) > 1 else sample
+        if cfg.logit_bias_loss_weight > 0.0:
+            logit_bias_logits, _ = _logit_bias_readout(sample, memories, logit_projector)
+            logit_bias_loss = _answer_loss(logit_bias_logits, sample.answer_start, sample.answer_ids)
+        if cfg.payload_answer_loss_weight > 0.0:
+            payload_answer_loss = _payload_answer_loss(payload_probe, memories, sample.answer_ids)
         if cfg.address_margin_weight > 0.0 and len(train_prepared) > 1:
             address_loss, address_margin_value = _address_ranking_loss(writer, sample, train_prepared, layer_ids, cfg)
         if cfg.contrastive_margin_weight > 0.0 and len(train_prepared) > 1:
@@ -204,9 +227,11 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
             + cfg.contrastive_margin_weight * contrastive_loss
             + cfg.oracle_contrastive_weight * oracle_contrastive_loss
             + cfg.address_margin_weight * address_loss
+            + cfg.logit_bias_loss_weight * logit_bias_loss
+            + cfg.payload_answer_loss_weight * payload_answer_loss
         )
         loss.backward()
-        grad_norm = _grad_norm(list(writer.parameters()) + list(projector.parameters()))
+        grad_norm = _grad_norm(_trainable_parameters(writer, projector, logit_projector, payload_probe))
         optimizer.step()
         train_rows.append(
             {
@@ -220,6 +245,8 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
                 "oracle_margin_advantage": float(oracle_margin_advantage.detach().cpu()),
                 "address_loss": float(address_loss.detach().cpu()),
                 "address_margin": float(address_margin_value.detach().cpu()),
+                "logit_bias_loss": float(logit_bias_loss.detach().cpu()),
+                "payload_answer_loss": float(payload_answer_loss.detach().cpu()),
                 "grad_norm": grad_norm,
                 "q_delta_norm": result.trace.q_delta_norm,
                 "v_delta_norm": result.trace.v_delta_norm,
@@ -227,10 +254,10 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
             }
         )
 
-    final_train = evaluate_prepared(writer, injector, train_prepared, layer_ids, cfg)
-    final_eval = evaluate_prepared(writer, injector, eval_prepared, layer_ids, cfg)
+    final_train = evaluate_prepared(writer, injector, logit_projector, train_prepared, layer_ids, cfg)
+    final_eval = evaluate_prepared(writer, injector, logit_projector, eval_prepared, layer_ids, cfg)
     conflict_margins = (
-        evaluate_conflict_margins(bundle, writer, injector, eval_prepared, layer_ids, cfg)
+        evaluate_conflict_margins(bundle, writer, injector, logit_projector, payload_probe, eval_prepared, layer_ids, cfg)
         if cfg.conflict_margins
         else None
     )
@@ -243,6 +270,7 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
         "retrieval_key": "address_query_to_address_key",
         "address_key_separate_from_payload": True,
         "oracle_span_writer": cfg.oracle_span_writer,
+        "logit_bias_payload": True,
         "source_text_debug_only": True,
         "train_examples": [example.as_dict() for example in train_examples],
         "eval_examples": [example.as_dict() for example in eval_examples],
@@ -257,15 +285,47 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
     return summary
 
 
+class PayloadLogitProjector(nn.Module):
+    def __init__(self, memory_dim: int, vocab_size: int, scale: float = 1.0) -> None:
+        super().__init__()
+        self.scale = float(scale)
+        self.norm = nn.LayerNorm(memory_dim)
+        self.to_logits = nn.Linear(memory_dim, vocab_size)
+        nn.init.zeros_(self.to_logits.weight)
+        nn.init.zeros_(self.to_logits.bias)
+
+    def forward(self, payload: torch.Tensor) -> torch.Tensor:
+        return self.scale * self.to_logits(self.norm(payload))
+
+
+class PayloadAnswerProbe(nn.Module):
+    def __init__(self, memory_dim: int, hidden_size: int, output_embeddings: nn.Module) -> None:
+        super().__init__()
+        self.norm = nn.LayerNorm(memory_dim)
+        self.to_hidden = nn.Linear(memory_dim, hidden_size)
+        self.output_embeddings = output_embeddings
+        for param in self.output_embeddings.parameters():
+            param.requires_grad_(False)
+
+    def forward(self, payload: torch.Tensor) -> torch.Tensor:
+        hidden = self.to_hidden(self.norm(payload))
+        return self.output_embeddings(hidden)
+
+
+def _trainable_parameters(*modules: nn.Module) -> list[torch.nn.Parameter]:
+    return [param for module in modules for param in module.parameters() if param.requires_grad]
+
+
 def evaluate_prepared(
     writer: RCVHCWriter,
     injector: GemmaAttentionInjector,
+    logit_projector: PayloadLogitProjector,
     prepared: list[PreparedDeltaExample],
     layer_ids: list[int],
     cfg: DeltaExperimentConfig,
 ) -> dict[str, Any]:
     per_sample = []
-    by_mode: dict[str, list[dict[str, Any]]] = {mode: [] for mode in TRAIN_EVAL_MODES}
+    by_mode: dict[str, list[dict[str, Any]]] = {mode: [] for mode in EXPERIMENT_EVAL_MODES}
     shared_pool = _memory_pool(writer, prepared, layer_ids, cfg) if cfg.shared_memory_retrieval else None
     for sample_idx, sample in enumerate(prepared):
         sample_query = _query_key(writer, sample)
@@ -286,7 +346,7 @@ def evaluate_prepared(
             cfg.identity_gate_tau,
         )
         sample_rows = {}
-        for mode in TRAIN_EVAL_MODES:
+        for mode in EXPERIMENT_EVAL_MODES:
             if mode == "no_memory":
                 logits = sample.base_logits
                 trace = {}
@@ -294,6 +354,8 @@ def evaluate_prepared(
                 logits, trace = _raw_late_readout(sample, memories, injector)
             elif mode == "retrieved_attention":
                 logits, trace = _retrieved_attention_readout(sample, memories, injector)
+            elif mode == "logit_bias":
+                logits, trace = _logit_bias_readout(sample, memories, logit_projector)
             else:
                 selected_memories = wrong_query_memories if mode == "delta_qv_wrong_query" else memories
                 result = injector.forward_layers(
@@ -318,6 +380,8 @@ def evaluate_conflict_margins(
     bundle,
     writer: RCVHCWriter,
     injector: GemmaAttentionInjector,
+    logit_projector: PayloadLogitProjector,
+    payload_probe: PayloadAnswerProbe,
     prepared: list[PreparedDeltaExample],
     layer_ids: list[int],
     cfg: DeltaExperimentConfig,
@@ -333,8 +397,17 @@ def evaluate_conflict_margins(
         "delta_qv_oracle_paired",
         "delta_qv_oracle_correct_address_paired_payload",
         "delta_qv_oracle_paired_address_correct_payload",
+        "logit_bias_oracle_correct",
+        "logit_bias_oracle_paired",
+        "logit_bias_correct_address_paired_payload",
+        "logit_bias_paired_address_correct_payload",
+        "payload_probe_oracle_correct",
+        "payload_probe_oracle_paired",
+        "payload_probe_correct_address_paired_payload",
+        "payload_probe_paired_address_correct_payload",
     ]
     by_mode: dict[str, list[float]] = {mode: [] for mode in modes}
+    token_by_mode: dict[str, list[dict[str, float]]] = {mode: [] for mode in modes}
     address_rows: list[dict[str, float]] = []
     samples: list[dict[str, Any]] = []
     shared_pool = _memory_pool(writer, prepared, layer_ids, cfg) if cfg.shared_memory_retrieval else None
@@ -386,17 +459,54 @@ def evaluate_conflict_margins(
             elif mode == "delta_qv_oracle_paired_address_correct_payload":
                 memories = oracle_paired_address_correct_payload
                 injection_mode = "delta_qv"
+            elif mode == "logit_bias_oracle_correct":
+                memories = oracle_correct_memories
+                injection_mode = "logit_bias"
+            elif mode == "logit_bias_oracle_paired":
+                memories = oracle_paired_memories
+                injection_mode = "logit_bias"
+            elif mode == "logit_bias_correct_address_paired_payload":
+                memories = oracle_correct_address_paired_payload
+                injection_mode = "logit_bias"
+            elif mode == "logit_bias_paired_address_correct_payload":
+                memories = oracle_paired_address_correct_payload
+                injection_mode = "logit_bias"
+            elif mode == "payload_probe_oracle_correct":
+                memories = oracle_correct_memories
+                injection_mode = "payload_probe"
+            elif mode == "payload_probe_oracle_paired":
+                memories = oracle_paired_memories
+                injection_mode = "payload_probe"
+            elif mode == "payload_probe_correct_address_paired_payload":
+                memories = oracle_correct_address_paired_payload
+                injection_mode = "payload_probe"
+            elif mode == "payload_probe_paired_address_correct_payload":
+                memories = oracle_paired_address_correct_payload
+                injection_mode = "payload_probe"
             else:
                 memories = correct_memories
                 injection_mode = mode
-            correct = _score_candidate_answer(bundle, injector, sample.example.question, sample.example.answer, memories, injection_mode)
-            foreign_score = _score_candidate_answer(bundle, injector, sample.example.question, foreign.example.answer, memories, injection_mode)
+            correct = _score_candidate_answer(bundle, injector, logit_projector, payload_probe, sample.example.question, sample.example.answer, memories, injection_mode)
+            foreign_score = _score_candidate_answer(bundle, injector, logit_projector, payload_probe, sample.example.question, foreign.example.answer, memories, injection_mode)
             margin = foreign_score["answer_nll"] - correct["answer_nll"]
             by_mode[mode].append(margin)
+            token_row = _answer_token_discrimination(
+                bundle,
+                injector,
+                logit_projector,
+                payload_probe,
+                sample.example.question,
+                sample.example.answer,
+                foreign.example.answer,
+                memories,
+                injection_mode,
+            )
+            token_by_mode[mode].append(token_row)
             sample_modes[mode] = {
                 "correct_answer_nll": correct["answer_nll"],
                 "foreign_answer_nll": foreign_score["answer_nll"],
                 "foreign_minus_correct_nll": margin,
+                "answer_token": token_row,
             }
         samples.append(
             {
@@ -412,6 +522,8 @@ def evaluate_conflict_margins(
             }
         )
     aggregate = {mode: {"foreign_minus_correct_nll": _mean(values)} for mode, values in by_mode.items()}
+    for mode, rows in token_by_mode.items():
+        aggregate[mode].update(_aggregate_answer_token_rows(rows))
     aggregate["address"] = _aggregate_address_diagnostics(address_rows)
     if by_mode["delta_qv"] and by_mode["delta_qv_wrong_query"]:
         aggregate["delta_qv"]["margin_advantage_vs_wrong_query"] = (
@@ -587,9 +699,23 @@ def _candidate_answer_loss(
     return _answer_loss(result.logits, answer_start, answer_ids)
 
 
+def _payload_answer_loss(
+    payload_probe: PayloadAnswerProbe,
+    memories_by_layer: dict[int, list[AttentionMemoryItem]],
+    answer_ids: list[int],
+) -> torch.Tensor:
+    logits, _ = _payload_probe_logits(memories_by_layer, payload_probe)
+    if not answer_ids:
+        raise ValueError("payload answer loss requires at least one answer token")
+    target = torch.tensor([int(answer_ids[0])], device=logits.device)
+    return F.cross_entropy(logits.view(1, -1).float(), target)
+
+
 def _score_candidate_answer(
     bundle,
     injector: GemmaAttentionInjector,
+    logit_projector: PayloadLogitProjector,
+    payload_probe: PayloadAnswerProbe,
     question: str,
     answer: str,
     memories_by_layer: dict[int, list[AttentionMemoryItem]],
@@ -607,6 +733,29 @@ def _score_candidate_answer(
                 use_cache=False,
             )
         logits = out.logits
+    elif mode == "logit_bias":
+        with torch.no_grad():
+            out = bundle.model(
+                input_ids=prompt["input_ids"],
+                attention_mask=prompt["attention_mask"],
+                output_hidden_states=False,
+                output_attentions=False,
+                use_cache=False,
+            )
+        logits, _ = _apply_logit_bias(out.logits, memories_by_layer, logit_projector)
+    elif mode == "payload_probe":
+        logits, _ = _payload_probe_logits(memories_by_layer, payload_probe)
+        if not answer_ids:
+            return {"answer_nll": 0.0, "answer_rank": 0.0, "top10": 0.0, "answer_logprob": 0.0}
+        target_id = int(answer_ids[0])
+        log_probs = torch.log_softmax(logits.float(), dim=-1)
+        rank = int((log_probs > log_probs[target_id]).sum().detach().cpu()) + 1
+        return {
+            "answer_nll": float((-log_probs[target_id]).detach().cpu()),
+            "answer_rank": float(rank),
+            "top10": float(rank <= 10),
+            "answer_logprob": float(log_probs[target_id].detach().cpu()),
+        }
     else:
         result = injector.forward_layers(
             input_ids=prompt["input_ids"],
@@ -616,6 +765,103 @@ def _score_candidate_answer(
         )
         logits = result.logits
     return compute_answer_metrics(logits, prompt["input_ids"], answer_start, answer_ids)
+
+
+def _answer_token_discrimination(
+    bundle,
+    injector: GemmaAttentionInjector,
+    logit_projector: PayloadLogitProjector,
+    payload_probe: PayloadAnswerProbe,
+    question: str,
+    correct_answer: str,
+    paired_answer: str,
+    memories_by_layer: dict[int, list[AttentionMemoryItem]],
+    mode: str,
+) -> dict[str, float]:
+    prompt_text, answer_start, correct_ids = _metric_prompt(bundle.tokenizer, question, correct_answer)
+    _, _, paired_ids = _metric_prompt(bundle.tokenizer, question, paired_answer)
+    prompt = _encode(bundle.tokenizer, prompt_text, bundle.device)
+    if mode == "no_memory":
+        with torch.no_grad():
+            out = bundle.model(
+                input_ids=prompt["input_ids"],
+                attention_mask=prompt["attention_mask"],
+                output_hidden_states=False,
+                output_attentions=False,
+                use_cache=False,
+            )
+        logits = out.logits
+    elif mode == "logit_bias":
+        with torch.no_grad():
+            out = bundle.model(
+                input_ids=prompt["input_ids"],
+                attention_mask=prompt["attention_mask"],
+                output_hidden_states=False,
+                output_attentions=False,
+                use_cache=False,
+            )
+        logits, _ = _apply_logit_bias(out.logits, memories_by_layer, logit_projector)
+    elif mode == "payload_probe":
+        logits, _ = _payload_probe_logits(memories_by_layer, payload_probe)
+        log_probs = torch.log_softmax(logits.float(), dim=-1)
+        if not correct_ids or not paired_ids:
+            return {
+                "correct_token_logprob": 0.0,
+                "paired_token_logprob": 0.0,
+                "binding_margin": 0.0,
+                "top1_is_correct": 0.0,
+                "top1_is_paired": 0.0,
+                "correct_token_id": 0.0,
+                "paired_token_id": 0.0,
+            }
+        correct_id = int(correct_ids[0])
+        paired_id = int(paired_ids[0])
+        top1 = int(torch.argmax(log_probs).detach().cpu())
+        correct_lp = float(log_probs[correct_id].detach().cpu())
+        paired_lp = float(log_probs[paired_id].detach().cpu())
+        return {
+            "correct_token_logprob": correct_lp,
+            "paired_token_logprob": paired_lp,
+            "binding_margin": correct_lp - paired_lp,
+            "top1_is_correct": float(top1 == correct_id),
+            "top1_is_paired": float(top1 == paired_id),
+            "correct_token_id": float(correct_id),
+            "paired_token_id": float(paired_id),
+        }
+    else:
+        result = injector.forward_layers(
+            input_ids=prompt["input_ids"],
+            attention_mask=prompt["attention_mask"],
+            memories_by_layer=memories_by_layer,
+            mode=mode,
+        )
+        logits = result.logits
+    logit_pos = answer_start - 1
+    if logit_pos < 0 or logit_pos >= logits.shape[1] or not correct_ids or not paired_ids:
+        return {
+            "correct_token_logprob": 0.0,
+            "paired_token_logprob": 0.0,
+            "binding_margin": 0.0,
+            "top1_is_correct": 0.0,
+            "top1_is_paired": 0.0,
+            "correct_token_id": 0.0,
+            "paired_token_id": 0.0,
+        }
+    correct_id = int(correct_ids[0])
+    paired_id = int(paired_ids[0])
+    log_probs = torch.log_softmax(logits[0, logit_pos].float(), dim=-1)
+    top1 = int(torch.argmax(log_probs).detach().cpu())
+    correct_lp = float(log_probs[correct_id].detach().cpu())
+    paired_lp = float(log_probs[paired_id].detach().cpu())
+    return {
+        "correct_token_logprob": correct_lp,
+        "paired_token_logprob": paired_lp,
+        "binding_margin": correct_lp - paired_lp,
+        "top1_is_correct": float(top1 == correct_id),
+        "top1_is_paired": float(top1 == paired_id),
+        "correct_token_id": float(correct_id),
+        "paired_token_id": float(paired_id),
+    }
 
 
 def diagnose_experiment(initial_eval: dict[str, Any], final_eval: dict[str, Any], min_control_gap: float = 0.05) -> dict[str, Any]:
@@ -942,6 +1188,48 @@ def _retrieved_attention_readout(
     }
 
 
+def _logit_bias_readout(
+    sample: PreparedDeltaExample,
+    memories_by_layer: dict[int, list[AttentionMemoryItem]],
+    logit_projector: PayloadLogitProjector,
+) -> tuple[torch.Tensor, dict[str, float]]:
+    return _apply_logit_bias(sample.base_logits, memories_by_layer, logit_projector)
+
+
+def _apply_logit_bias(
+    base_logits: torch.Tensor,
+    memories_by_layer: dict[int, list[AttentionMemoryItem]],
+    logit_projector: PayloadLogitProjector,
+) -> tuple[torch.Tensor, dict[str, float]]:
+    memories = [item for layer_memories in memories_by_layer.values() for item in layer_memories]
+    if not memories:
+        return base_logits, {}
+    payload = torch.stack([item.raw_value.to(base_logits.device, base_logits.dtype) for item in memories], dim=0).mean(dim=0)
+    bias = logit_projector(payload).to(base_logits.device, base_logits.dtype).view(1, 1, -1)
+    logits = base_logits + bias
+    return logits, {
+        "logit_bias_norm": float(bias.detach().float().norm().cpu()),
+        "logit_bias_max": float(bias.detach().float().max().cpu()),
+    }
+
+
+def _payload_probe_logits(
+    memories_by_layer: dict[int, list[AttentionMemoryItem]],
+    payload_probe: PayloadAnswerProbe,
+) -> tuple[torch.Tensor, dict[str, float]]:
+    memories = [item for layer_memories in memories_by_layer.values() for item in layer_memories]
+    if not memories:
+        param = next(payload_probe.parameters())
+        return torch.zeros(1, device=param.device, dtype=param.dtype), {}
+    device = next(payload_probe.parameters()).device
+    dtype = next(payload_probe.parameters()).dtype
+    payload = torch.stack([item.raw_value.to(device, dtype) for item in memories], dim=0).mean(dim=0)
+    logits = payload_probe(payload)
+    return logits, {
+        "payload_probe_logit_norm": float(logits.detach().float().norm().cpu()),
+    }
+
+
 def _aggregate_by_mode(by_mode: dict[str, list[dict[str, Any]]]) -> dict[str, dict[str, float]]:
     aggregate: dict[str, dict[str, float]] = {}
     for mode, rows in by_mode.items():
@@ -956,6 +1244,19 @@ def _aggregate_by_mode(by_mode: dict[str, list[dict[str, Any]]]) -> dict[str, di
                 traces[key].append(float(row["qkv_trace"].get(key, 0.0)))
         aggregate[mode] = {key: _mean(values) for key, values in (metrics | traces).items()}
     return aggregate
+
+
+def _aggregate_answer_token_rows(rows: list[dict[str, float]]) -> dict[str, float]:
+    if not rows:
+        return {}
+    keys = [
+        "correct_token_logprob",
+        "paired_token_logprob",
+        "binding_margin",
+        "top1_is_correct",
+        "top1_is_paired",
+    ]
+    return {f"answer_token_{key}": _mean([float(row.get(key, 0.0)) for row in rows]) for key in keys}
 
 
 def _fit_last_dim(tensor: torch.Tensor, target_dim: int) -> torch.Tensor:
@@ -1019,6 +1320,9 @@ def _markdown(summary: dict[str, Any]) -> str:
         "identity_gate_beta",
         "identity_gate_tau",
         "oracle_span_writer",
+        "logit_bias_loss_weight",
+        "logit_bias_scale",
+        "payload_answer_loss_weight",
         "control_margin_min",
     ]:
         lines.append(f"- `{key}`: `{cfg.get(key)}`")
@@ -1037,7 +1341,7 @@ def _markdown(summary: dict[str, Any]) -> str:
     )
     initial = summary["initial_eval"]["aggregate"]
     final = summary["final_eval"]["aggregate"]
-    for mode in TRAIN_EVAL_MODES:
+    for mode in EXPERIMENT_EVAL_MODES:
         if mode not in initial or mode not in final:
             continue
         lines.append(
@@ -1080,6 +1384,20 @@ def _markdown(summary: dict[str, Any]) -> str:
             if mode == "address":
                 continue
             lines.append(f"| {mode} | {float(row.get('foreign_minus_correct_nll', 0.0)):.4f} |")
+        lines.extend(["", "## Answer Token Discrimination", ""])
+        lines.append("| mode | binding_margin | top1_correct | top1_paired |")
+        lines.append("| --- | ---: | ---: | ---: |")
+        for mode, row in (margins.get("aggregate") or {}).items():
+            if mode == "address":
+                continue
+            lines.append(
+                "| {mode} | {margin:.4f} | {correct:.4f} | {paired:.4f} |".format(
+                    mode=mode,
+                    margin=float(row.get("answer_token_binding_margin", 0.0)),
+                    correct=float(row.get("answer_token_top1_is_correct", 0.0)),
+                    paired=float(row.get("answer_token_top1_is_paired", 0.0)),
+                )
+            )
         address = (margins.get("aggregate") or {}).get("address")
         if address:
             lines.extend(
