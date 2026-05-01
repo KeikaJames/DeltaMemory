@@ -23,7 +23,7 @@ from rcvhc.gemma.model_adapter import exposed_qkv_layers, get_hidden_size, get_v
 from rcvhc.memory.writer import RCVHCWriter, fit_memory_dim, split_source_snippets
 
 
-EXPERIMENT_EVAL_MODES = [*TRAIN_EVAL_MODES, "logit_bias", "oracle_logit_answer_embedding"]
+EXPERIMENT_EVAL_MODES = [*TRAIN_EVAL_MODES, "logit_bias", "payload_probe", "oracle_logit_answer_embedding"]
 
 
 @dataclass
@@ -58,6 +58,7 @@ class DeltaExperimentConfig:
     logit_bias_scale: float = 1.0
     payload_answer_loss_weight: float = 0.0
     payload_probe_layer_strategy: str = "mean_all"  # mean_all | last_layer | first_layer | best_layer
+    eval_injection_modes: str = "all"
     control_margin_min: float = 0.05
     report_dir: str = "reports/experiments/delta_experiment"
 
@@ -280,6 +281,7 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
         "final_train": final_train,
         "final_eval": final_eval,
         "conflict_margins": conflict_margins,
+        "stage2_binding_summary": _stage2_binding_summary(final_eval, conflict_margins),
         "statistics": primary_delta_memory_statistics(final_eval, seed=cfg.seed),
         "diagnosis": diagnose_experiment(initial_eval, final_eval, min_control_gap=cfg.control_margin_min),
     }
@@ -327,7 +329,8 @@ def evaluate_prepared(
     cfg: DeltaExperimentConfig,
 ) -> dict[str, Any]:
     per_sample = []
-    by_mode: dict[str, list[dict[str, Any]]] = {mode: [] for mode in EXPERIMENT_EVAL_MODES}
+    eval_modes = _eval_modes(cfg)
+    by_mode: dict[str, list[dict[str, Any]]] = {mode: [] for mode in eval_modes}
     shared_pool = _memory_pool(writer, prepared, layer_ids, cfg) if cfg.shared_memory_retrieval else None
     for sample_idx, sample in enumerate(prepared):
         sample_query = _query_key(writer, sample)
@@ -348,7 +351,7 @@ def evaluate_prepared(
             cfg.identity_gate_tau,
         )
         sample_rows = {}
-        for mode in EXPERIMENT_EVAL_MODES:
+        for mode in eval_modes:
             if mode == "no_memory":
                 logits = sample.base_logits
                 trace = {}
@@ -358,6 +361,15 @@ def evaluate_prepared(
                 logits, trace = _retrieved_attention_readout(sample, memories, injector)
             elif mode == "logit_bias":
                 logits, trace = _logit_bias_readout(sample, memories, logit_projector)
+            elif mode == "payload_probe":
+                logits, trace = _payload_probe_logits(memories, payload_probe, cfg.payload_probe_layer_strategy)
+                row = {
+                    "metrics": _payload_probe_metrics(logits, sample.answer_ids),
+                    "qkv_trace": trace,
+                }
+                sample_rows[mode] = row
+                by_mode[mode].append(row)
+                continue
             elif mode == "oracle_logit_answer_embedding":
                 logits, trace = _oracle_answer_embedding_bias(
                     sample.base_logits,
@@ -878,6 +890,15 @@ def _answer_token_discrimination(
 
 
 def diagnose_experiment(initial_eval: dict[str, Any], final_eval: dict[str, Any], min_control_gap: float = 0.05) -> dict[str, Any]:
+    required = {"delta_qv", "delta_qv_zero", "delta_qv_random", "delta_qv_shuffled"}
+    missing = sorted(mode for mode in required if mode not in initial_eval.get("aggregate", {}) or mode not in final_eval.get("aggregate", {}))
+    if missing:
+        return {
+            "control_margin_min": float(min_control_gap),
+            "diagnosis_skipped": True,
+            "missing_modes": missing,
+            "mechanism_supported_on_eval": False,
+        }
     initial_delta = _mode_metric(initial_eval, "delta_qv", "answer_nll")
     final_delta = _mode_metric(final_eval, "delta_qv", "answer_nll")
     final_zero = _mode_metric(final_eval, "delta_qv_zero", "answer_nll")
@@ -896,6 +917,70 @@ def diagnose_experiment(initial_eval: dict[str, Any], final_eval: dict[str, Any]
         "eval_delta_beats_random": random_gap > min_control_gap,
         "eval_delta_beats_shuffled": shuffled_gap > min_control_gap,
         "mechanism_supported_on_eval": zero_gap > min_control_gap and random_gap > min_control_gap and shuffled_gap > min_control_gap,
+    }
+
+
+def _eval_modes(cfg: DeltaExperimentConfig) -> list[str]:
+    if cfg.eval_injection_modes.strip().lower() == "all":
+        return list(EXPERIMENT_EVAL_MODES)
+    requested = [item.strip() for item in cfg.eval_injection_modes.split(",") if item.strip()]
+    valid = set(EXPERIMENT_EVAL_MODES)
+    unknown = sorted(set(requested) - valid)
+    if unknown:
+        raise ValueError(f"unknown eval injection modes: {unknown}")
+    modes = []
+    for mode in ["no_memory", *requested]:
+        if mode in valid and mode not in modes:
+            modes.append(mode)
+    return modes
+
+
+def _stage2_binding_summary(final_eval: dict[str, Any], conflict_margins: dict[str, Any] | None) -> dict[str, Any]:
+    """Compact Stage 2 answer-token view for channel diagnostics.
+
+    Sequence-level NLL is not enough for binding. This summary keeps the
+    top-level report focused on answer-token rank and payload-swap metrics.
+    """
+
+    mode_rows: dict[str, dict[str, float]] = {}
+    samples = final_eval.get("samples") or []
+    for mode, aggregate in (final_eval.get("aggregate") or {}).items():
+        sample_metrics = [
+            sample.get("modes", {}).get(mode, {}).get("metrics", {})
+            for sample in samples
+            if mode in sample.get("modes", {})
+        ]
+        top1_values = [1.0 if float(metrics.get("answer_rank", 0.0)) == 1.0 else 0.0 for metrics in sample_metrics]
+        mode_rows[mode] = {
+            "answer_nll": float(aggregate.get("answer_nll", 0.0)),
+            "answer_rank": float(aggregate.get("answer_rank", 0.0)),
+            "top1_correct_rate": _mean(top1_values),
+            "top10": float(aggregate.get("top10", 0.0)),
+            "answer_logprob": float(aggregate.get("answer_logprob", 0.0)),
+        }
+    swap_rows: dict[str, dict[str, float]] = {}
+    if conflict_margins:
+        for mode, row in (conflict_margins.get("aggregate") or {}).items():
+            if mode == "address":
+                continue
+            swap_rows[mode] = {
+                "foreign_minus_correct_nll": float(row.get("foreign_minus_correct_nll", 0.0)),
+                "binding_margin": float(row.get("answer_token_binding_margin", 0.0)),
+                "top1_is_correct": float(row.get("answer_token_top1_is_correct", 0.0)),
+                "top1_is_paired": float(row.get("answer_token_top1_is_paired", 0.0)),
+            }
+    return {
+        "eval_modes": mode_rows,
+        "swap_controls": swap_rows,
+        "oracle_channel_pass": bool(
+            mode_rows.get("oracle_logit_answer_embedding", {}).get("top1_correct_rate", 0.0) >= 0.85
+            and mode_rows.get("oracle_logit_answer_embedding", {}).get("answer_nll", 1e9) <= 1.0
+        ),
+        "payload_probe_layer_strategy": (
+            samples[0].get("modes", {}).get("payload_probe", {}).get("qkv_trace", {}).get("payload_probe_layer_strategy")
+            if samples
+            else None
+        ),
     }
 
 
@@ -1281,6 +1366,21 @@ def _payload_probe_logits(
     }
 
 
+def _payload_probe_metrics(logits: torch.Tensor, answer_ids: list[int]) -> dict[str, float]:
+    if not answer_ids:
+        return {"answer_nll": 0.0, "answer_rank": 0.0, "top10": 0.0, "answer_logprob": 0.0}
+    target_id = int(answer_ids[0])
+    log_probs = torch.log_softmax(logits.view(-1).float(), dim=-1)
+    rank = int((log_probs > log_probs[target_id]).sum().detach().cpu()) + 1
+    answer_logprob = float(log_probs[target_id].detach().cpu())
+    return {
+        "answer_nll": float(-answer_logprob),
+        "answer_rank": float(rank),
+        "top10": float(rank <= 10),
+        "answer_logprob": answer_logprob,
+    }
+
+
 def _aggregate_by_mode(by_mode: dict[str, list[dict[str, Any]]]) -> dict[str, dict[str, float]]:
     aggregate: dict[str, dict[str, float]] = {}
     for mode, rows in by_mode.items():
@@ -1374,6 +1474,8 @@ def _markdown(summary: dict[str, Any]) -> str:
         "logit_bias_loss_weight",
         "logit_bias_scale",
         "payload_answer_loss_weight",
+        "payload_probe_layer_strategy",
+        "eval_injection_modes",
         "control_margin_min",
     ]:
         lines.append(f"- `{key}`: `{cfg.get(key)}`")
@@ -1392,7 +1494,7 @@ def _markdown(summary: dict[str, Any]) -> str:
     )
     initial = summary["initial_eval"]["aggregate"]
     final = summary["final_eval"]["aggregate"]
-    for mode in EXPERIMENT_EVAL_MODES:
+    for mode in [mode for mode in EXPERIMENT_EVAL_MODES if mode in initial and mode in final]:
         if mode not in initial or mode not in final:
             continue
         lines.append(
@@ -1466,6 +1568,23 @@ def _markdown(summary: dict[str, Any]) -> str:
         if "margin_advantage_vs_wrong_query" in delta_row:
             lines.append("")
             lines.append(f"- `delta_qv_margin_advantage_vs_wrong_query`: `{float(delta_row['margin_advantage_vs_wrong_query']):.4f}`")
+    stage2 = summary.get("stage2_binding_summary") or {}
+    if stage2:
+        lines.extend(["", "## Stage 2 Binding Summary", ""])
+        lines.append("| mode | answer_nll | top1_correct | top10 |")
+        lines.append("| --- | ---: | ---: | ---: |")
+        for mode, row in (stage2.get("eval_modes") or {}).items():
+            lines.append(
+                "| {mode} | {nll:.4f} | {top1:.4f} | {top10:.4f} |".format(
+                    mode=mode,
+                    nll=float(row.get("answer_nll", 0.0)),
+                    top1=float(row.get("top1_correct_rate", 0.0)),
+                    top10=float(row.get("top10", 0.0)),
+                )
+            )
+        lines.append("")
+        lines.append(f"- `oracle_channel_pass`: `{stage2.get('oracle_channel_pass')}`")
+        lines.append(f"- `payload_probe_layer_strategy`: `{stage2.get('payload_probe_layer_strategy')}`")
     lines.extend(
         [
             "",

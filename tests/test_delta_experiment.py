@@ -105,8 +105,10 @@ def test_delta_experiment_mock_smoke(tmp_path):
     assert "hidden_retrieval" in summary["final_eval"]["aggregate"]
     assert "retrieved_attention" in summary["final_eval"]["aggregate"]
     assert "logit_bias" in summary["final_eval"]["aggregate"]
+    assert "payload_probe" in summary["final_eval"]["aggregate"]
     assert "delta_qv_wrong_layer" in summary["final_eval"]["aggregate"]
     assert "delta_qv_wrong_query" in summary["final_eval"]["aggregate"]
+    assert "payload_probe" in summary["stage2_binding_summary"]["eval_modes"]
     assert "statistics" in summary
     assert "no_memory" in summary["statistics"]["comparisons"]
     assert "retrieved_attention" in summary["statistics"]["comparisons"]
@@ -194,8 +196,32 @@ def test_delta_experiment_logit_bias_training_records_loss(tmp_path):
     assert summary["train"][0]["logit_bias_loss"] >= 0.0
     assert summary["train"][0]["payload_answer_loss"] >= 0.0
     assert "logit_bias" in summary["final_eval"]["aggregate"]
+    assert "payload_probe" in summary["final_eval"]["aggregate"]
     assert "logit_bias_oracle_correct" in summary["conflict_margins"]["aggregate"]
     assert "payload_probe_oracle_correct" in summary["conflict_margins"]["aggregate"]
+    assert summary["stage2_binding_summary"]["payload_probe_layer_strategy"] is not None
+
+
+def test_delta_experiment_restricted_eval_modes_include_payload_probe(tmp_path):
+    cfg = DeltaExperimentConfig(
+        model="mock-gemma",
+        device="cpu",
+        dtype="float32",
+        steps=1,
+        train_samples=2,
+        eval_samples=2,
+        task_suite="address_token_binding_single_token",
+        block_size=16,
+        memory_dim=32,
+        top_k=1,
+        oracle_span_writer=True,
+        eval_injection_modes="payload_probe,logit_bias",
+        report_dir=str(tmp_path / "report"),
+    )
+    summary = run_delta_experiment(cfg)
+    assert list(summary["final_eval"]["aggregate"]) == ["no_memory", "payload_probe", "logit_bias"]
+    assert summary["diagnosis"]["diagnosis_skipped"] is True
+    assert "payload_probe" in summary["stage2_binding_summary"]["eval_modes"]
 
 
 def test_delta_experiment_contrastive_training_records_margin(tmp_path):
