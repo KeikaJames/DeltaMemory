@@ -1,8 +1,8 @@
 # Apple Silicon stable environment for RCV-HC.
 #
 # Apple documents PyTorch 2.11.0 as the latest stable MPS release for Mac.
-# On macOS 26.3 this still currently fails MPS initialization on this machine;
-# see docs/macbook_setup.md before relying on --device mps.
+# Run real Gemma experiments outside restricted sandboxes so PyTorch can see
+# Metal/MPS. Inside restricted shells, torch.backends.mps may report unavailable.
 torch==2.11.0
 torchvision==0.26.0
 torchaudio==2.11.0

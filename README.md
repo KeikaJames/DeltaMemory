@@ -76,7 +76,7 @@ Run the real Gemma4 E2B wiring demo:
 ```bash
 .venv-mac/bin/python scripts/run_gemma4_prototype.py \
   --model google/gemma-4-E2B \
-  --device auto \
+  --device mps \
   --dtype bfloat16 \
   --block-size 128 \
   --memory-dim 512 \
@@ -88,7 +88,7 @@ Train only the RCV-HC Delta Q/V adapter:
 ```bash
 .venv-mac/bin/python scripts/train_delta_qv_prototype.py \
   --model google/gemma-4-E2B \
-  --device auto \
+  --device mps \
   --dtype bfloat16 \
   --steps 5 \
   --block-size 128 \
@@ -96,9 +96,10 @@ Train only the RCV-HC Delta Q/V adapter:
   --report-dir reports/cleanroom/gemma4_training
 ```
 
-On CPU, real Gemma backward passes are slow. For quick verification of adapter
-optimization, use `--model mock-gemma`; for scientific claims, run the real model
-and keep zero/random/shuffled controls.
+On Apple Silicon, run real Gemma experiments with `--device mps` outside
+restricted sandboxes. See `docs/apple_silicon.md`. For quick verification of
+adapter optimization, use `--model mock-gemma`; for scientific claims, run the
+real model and keep zero/random/shuffled controls.
 
 ## Current Evidence
 
@@ -107,6 +108,7 @@ Tracked cleanroom evidence:
 - `reports/cleanroom/gemma4_real/gemma4_prototype_report.md`
 - `reports/cleanroom/gemma4_training_probe/delta_training_report.md`
 - `reports/cleanroom/gemma4_delta_experiment_main/delta_experiment_report.md`
+- `reports/cleanroom/gemma4_delta_experiment_mps_scaled/report.md`
 
 The current real Gemma4 run shows engineering success:
 
@@ -145,8 +147,22 @@ later-reference examples:
 - held-out `delta_qv` improves NLL from `12.2486` to `11.4252`,
 - held-out `delta_qv` beats zero, random, and shuffled controls.
 
-This is the first clean RCV-HC Delta attention-memory mechanism signal on a
-real Gemma4 base. It is still a small probe, not a benchmark-scale result.
+The scaled MPS run strengthens this mechanism signal:
+
+- `model = google/gemma-4-E2B`,
+- `device = mps`,
+- `dtype = bfloat16`,
+- `seeds = [0, 1, 2]`,
+- `train_samples = 8`,
+- `eval_samples = 8`,
+- `steps = 8`,
+- `trainable_base_params = 0`,
+- mean held-out `delta_qv` NLL is `8.3279`,
+- mean no-memory NLL is `12.3188`,
+- trained `delta_qv` beats zero, random, and shuffled controls on all seeds.
+
+This is now a controlled small-scale mechanism result on a real Gemma4 base.
+It is still not a broad benchmark result.
 
 ## Proof Plan
 
