@@ -1,4 +1,4 @@
-"""Typed records shared by the cleanroom modules."""
+"""Typed records shared by Delta Memory modules."""
 
 from __future__ import annotations
 

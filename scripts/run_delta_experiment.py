@@ -34,7 +34,7 @@ def main() -> int:
     parser.add_argument("--contrastive-margin-weight", type=float, default=0.0)
     parser.add_argument("--contrastive-margin", type=float, default=0.5)
     parser.add_argument("--shared-memory-retrieval", action="store_true")
-    parser.add_argument("--report-dir", default="reports/cleanroom/delta_experiment")
+    parser.add_argument("--report-dir", default="reports/experiments/delta_experiment")
     args = parser.parse_args()
     cfg = DeltaExperimentConfig(
         model=args.model,

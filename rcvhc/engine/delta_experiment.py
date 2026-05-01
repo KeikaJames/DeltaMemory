@@ -1,4 +1,4 @@
-"""Multi-example Delta Q/V experiment for the cleanroom prototype."""
+"""Multi-example Delta Q/V experiment runner."""
 
 from __future__ import annotations
 
@@ -43,7 +43,7 @@ class DeltaExperimentConfig:
     contrastive_margin_weight: float = 0.0
     contrastive_margin: float = 0.5
     shared_memory_retrieval: bool = False
-    report_dir: str = "reports/cleanroom/delta_experiment"
+    report_dir: str = "reports/experiments/delta_experiment"
 
 
 @dataclass

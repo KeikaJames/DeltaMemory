@@ -1,4 +1,4 @@
-"""CPU/disk storage for cleanroom attention memory."""
+"""CPU/disk storage for external attention memory."""
 
 from __future__ import annotations
 
@@ -28,7 +28,7 @@ class AttentionMemoryStore:
         self.metadata: dict[str, object] = {
             "memory_dim": self.memory_dim,
             "temperature": self.temperature,
-            "created_by": "rcvhc.cleanroom.AttentionMemoryStore",
+            "created_by": "rcvhc.memory.AttentionMemoryStore",
         }
 
     def append(self, items: Iterable[AttentionMemoryItem]) -> list[int]:

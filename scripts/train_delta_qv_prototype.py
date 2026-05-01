@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Train only Delta Memory writer/QV adapters on the cleanroom demo."""
+"""Train only Delta Memory writer/QV adapters on the demo."""
 
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ def main() -> int:
     parser.add_argument("--device", default="auto")
     parser.add_argument("--dtype", default="bfloat16")
     parser.add_argument("--input", default="examples/delta_attention_demo.txt")
-    parser.add_argument("--report-dir", default="reports/cleanroom/gemma4_training")
+    parser.add_argument("--report-dir", default="reports/experiments/gemma4_training")
     parser.add_argument("--question", default="What is the secret code for unit XJQ-482?")
     parser.add_argument("--answer", default="tulip-91")
     parser.add_argument("--steps", type=int, default=5)

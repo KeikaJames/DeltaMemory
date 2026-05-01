@@ -30,8 +30,8 @@ python scripts/run_gemma4_prototype.py \
 
 Expected output:
 
-- `reports/cleanroom/gemma4_prototype_report.md`
-- `reports/cleanroom/gemma4_prototype_summary.json`
+- `reports/experiments/gemma4_prototype_report.md`
+- `reports/experiments/gemma4_prototype_summary.json`
 
 ## Real Gemma4 Run
 

@@ -19,7 +19,7 @@ TASK_SUITES = [
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", default="reports/cleanroom/delta_memory_matrix.json")
+    parser.add_argument("--output", default="reports/experiments/delta_memory_matrix.json")
     parser.add_argument("--model", default="google/gemma-4-E2B")
     parser.add_argument("--device", default="mps")
     parser.add_argument("--dtype", default="bfloat16")
@@ -39,7 +39,7 @@ def main() -> int:
                 for top_k in _ints(args.top_ks):
                     for layers in _strings(args.layers):
                         report_dir = (
-                            f"reports/cleanroom/delta_memory/{task_suite}/"
+                            f"reports/experiments/delta_memory/{task_suite}/"
                             f"seed{seed}_mem{memory_dim}_top{top_k}_{layers}"
                         )
                         command = [

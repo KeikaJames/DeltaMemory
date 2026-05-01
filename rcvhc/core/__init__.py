@@ -1,1 +1,1 @@
-"""Core cleanroom configuration and types."""
+"""Core Delta Memory configuration and types."""

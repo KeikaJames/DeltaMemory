@@ -1,0 +1,923 @@
+{
+  "config": {
+    "alpha_scale": 0.2,
+    "block_size": 128,
+    "device": "auto",
+    "dtype": "bfloat16",
+    "eval_samples": 2,
+    "gate_bias": -1.0,
+    "layers": "max_exposed",
+    "lr": 0.001,
+    "memory_dim": 512,
+    "model": "google/gemma-4-E2B",
+    "report_dir": "reports/experiments/gemma4_delta_experiment_probe",
+    "seed": 0,
+    "steps": 1,
+    "top_k": 2,
+    "train_samples": 2
+  },
+  "diagnosis": {
+    "eval_delta_beats_random": true,
+    "eval_delta_beats_shuffled": true,
+    "eval_delta_beats_zero": true,
+    "eval_delta_nll_drop": 0.1454954743385315,
+    "mechanism_supported_on_eval": true
+  },
+  "eval_examples": [
+    {
+      "answer": "tulip-91",
+      "question": "What is the secret code for unit XJQ-691?",
+      "sample_id": 10000,
+      "task_type": "later_referenced_fact",
+      "text": "The secret code for unit XJQ-691 is tulip-91.\nThe secret code for unit XJQ-880 is violet-17.\nThe secret code for unit XJQ-405 is amber-44.\nThe secret code for unit XJQ-137 is cedar-63.\nOperations continued with routine inventory checks. The staff logged unrelated pressure readings and shift notes. No code value was repeated in this operational section.\nThe unit XJQ-691 was later selected for emergency access verification.\nThe verifier repeatedly checked unit XJQ-691 before the final query.\nThe final operator note names unit XJQ-691 again but deliberately does not repeat the code value.",
+      "unit": "XJQ-691"
+    },
+    {
+      "answer": "violet-44",
+      "question": "What is the secret code for unit XJQ-806?",
+      "sample_id": 10001,
+      "task_type": "later_referenced_fact",
+      "text": "The secret code for unit XJQ-806 is violet-44.\nThe secret code for unit XJQ-222 is amber-44.\nThe secret code for unit XJQ-823 is cedar-63.\nThe secret code for unit XJQ-125 is indigo-72.\nOperations continued with routine inventory checks. The staff logged unrelated pressure readings and shift notes. No code value was repeated in this operational section.\nThe unit XJQ-806 was later selected for emergency access verification.\nThe verifier repeatedly checked unit XJQ-806 before the final query.\nThe final operator note names unit XJQ-806 again but deliberately does not repeat the code value.",
+      "unit": "XJQ-806"
+    }
+  ],
+  "final_eval": {
+    "aggregate": {
+      "delta_qv": {
+        "answer_logprob": -47.66403293609619,
+        "answer_nll": 11.916008234024048,
+        "answer_rank": 33201.875,
+        "gate_v": 0.22509765625,
+        "q_delta_norm": 2.252220034599304,
+        "top10": 0.25,
+        "v_delta_norm": 0.5414986312389374
+      },
+      "delta_qv_force_gate": {
+        "answer_logprob": -45.43743014335632,
+        "answer_nll": 11.35935753583908,
+        "answer_rank": 28544.5,
+        "gate_v": 1.0,
+        "q_delta_norm": 6.939951181411743,
+        "top10": 0.25,
+        "v_delta_norm": 2.465607762336731
+      },
+      "delta_qv_random": {
+        "answer_logprob": -48.37443661689758,
+        "answer_nll": 12.093609154224396,
+        "answer_rank": 35531.25,
+        "gate_v": 0.267578125,
+        "q_delta_norm": 1.5390676856040955,
+        "top10": 0.125,
+        "v_delta_norm": 0.5288560092449188
+      },
+      "delta_qv_shuffled": {
+        "answer_logprob": -47.765456199645996,
+        "answer_nll": 11.941364049911499,
+        "answer_rank": 34215.375,
+        "gate_v": 0.22607421875,
+        "q_delta_norm": 2.2507793307304382,
+        "top10": 0.25,
+        "v_delta_norm": 0.5433844923973083
+      },
+      "delta_qv_zero": {
+        "answer_logprob": -48.3936185836792,
+        "answer_nll": 12.0984046459198,
+        "answer_rank": 34574.5,
+        "gate_v": 0.26953125,
+        "q_delta_norm": 0.004046736750751734,
+        "top10": 0.125,
+        "v_delta_norm": 0.0016787232598289847
+      },
+      "no_memory": {
+        "answer_logprob": -48.325095653533936,
+        "answer_nll": 12.081273913383484,
+        "answer_rank": 34809.0,
+        "gate_v": 0.0,
+        "q_delta_norm": 0.0,
+        "top10": 0.125,
+        "v_delta_norm": 0.0
+      }
+    },
+    "samples": [
+      {
+        "answer": "tulip-91",
+        "modes": {
+          "delta_qv": {
+            "metrics": {
+              "answer_logprob": -43.807984352111816,
+              "answer_nll": 10.951996088027954,
+              "answer_rank": 38365.5,
+              "top10": 0.5
+            },
+            "qkv_trace": {
+              "gate_k": 0.26953125,
+              "gate_q": 0.26953125,
+              "gate_v": 0.1923828125,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 2.9585819244384766,
+              "q_relative_delta_norm": 0.0017589026829227805,
+              "v_delta_norm": 0.5522303581237793,
+              "v_relative_delta_norm": 0.0016448976239189506
+            }
+          },
+          "delta_qv_force_gate": {
+            "metrics": {
+              "answer_logprob": -39.951505184173584,
+              "answer_nll": 9.987876296043396,
+              "answer_rank": 29488.25,
+              "top10": 0.5
+            },
+            "qkv_trace": {
+              "gate_k": 1.0,
+              "gate_q": 1.0,
+              "gate_v": 1.0,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 8.142622947692871,
+              "q_relative_delta_norm": 0.004840860143303871,
+              "v_delta_norm": 2.868178367614746,
+              "v_relative_delta_norm": 0.008543281815946102
+            }
+          },
+          "delta_qv_random": {
+            "metrics": {
+              "answer_logprob": -45.09019422531128,
+              "answer_nll": 11.27254855632782,
+              "answer_rank": 42174.5,
+              "top10": 0.25
+            },
+            "qkv_trace": {
+              "gate_k": 0.26953125,
+              "gate_q": 0.2734375,
+              "gate_v": 0.265625,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 1.5712530612945557,
+              "q_relative_delta_norm": 0.0009341236436739564,
+              "v_delta_norm": 0.5260729789733887,
+              "v_relative_delta_norm": 0.0015669841086491942
+            }
+          },
+          "delta_qv_shuffled": {
+            "metrics": {
+              "answer_logprob": -44.90869140625,
+              "answer_nll": 11.2271728515625,
+              "answer_rank": 41174.75,
+              "top10": 0.25
+            },
+            "qkv_trace": {
+              "gate_k": 0.26953125,
+              "gate_q": 0.27734375,
+              "gate_v": 0.259765625,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 1.5429767370224,
+              "q_relative_delta_norm": 0.0009173130965791643,
+              "v_delta_norm": 0.5345386266708374,
+              "v_relative_delta_norm": 0.0015922002494335175
+            }
+          },
+          "delta_qv_zero": {
+            "metrics": {
+              "answer_logprob": -45.03379821777344,
+              "answer_nll": 11.25844955444336,
+              "answer_rank": 40995.0,
+              "top10": 0.25
+            },
+            "qkv_trace": {
+              "gate_k": 0.26953125,
+              "gate_q": 0.26953125,
+              "gate_v": 0.26953125,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 0.004046736750751734,
+              "q_relative_delta_norm": 2.405820168860373e-06,
+              "v_delta_norm": 0.0016787232598289847,
+              "v_relative_delta_norm": 5.000319106329698e-06
+            }
+          },
+          "no_memory": {
+            "metrics": {
+              "answer_logprob": -45.043641090393066,
+              "answer_nll": 11.260910272598267,
+              "answer_rank": 40600.5,
+              "top10": 0.25
+            },
+            "qkv_trace": {}
+          }
+        },
+        "sample_id": 10000,
+        "unit": "XJQ-691"
+      },
+      {
+        "answer": "violet-44",
+        "modes": {
+          "delta_qv": {
+            "metrics": {
+              "answer_logprob": -51.520081520080566,
+              "answer_nll": 12.880020380020142,
+              "answer_rank": 28038.25,
+              "top10": 0.0
+            },
+            "qkv_trace": {
+              "gate_k": 0.26953125,
+              "gate_q": 0.27734375,
+              "gate_v": 0.2578125,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 1.5458581447601318,
+              "q_relative_delta_norm": 0.000931848946493119,
+              "v_delta_norm": 0.5307669043540955,
+              "v_relative_delta_norm": 0.0015485479962080717
+            }
+          },
+          "delta_qv_force_gate": {
+            "metrics": {
+              "answer_logprob": -50.92335510253906,
+              "answer_nll": 12.730838775634766,
+              "answer_rank": 27600.75,
+              "top10": 0.0
+            },
+            "qkv_trace": {
+              "gate_k": 1.0,
+              "gate_q": 1.0,
+              "gate_v": 1.0,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 5.737279415130615,
+              "q_relative_delta_norm": 0.003458453109487891,
+              "v_delta_norm": 2.063037157058716,
+              "v_relative_delta_norm": 0.006019048858433962
+            }
+          },
+          "delta_qv_random": {
+            "metrics": {
+              "answer_logprob": -51.65867900848389,
+              "answer_nll": 12.914669752120972,
+              "answer_rank": 28888.0,
+              "top10": 0.0
+            },
+            "qkv_trace": {
+              "gate_k": 0.26953125,
+              "gate_q": 0.275390625,
+              "gate_v": 0.26953125,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 1.5068823099136353,
+              "q_relative_delta_norm": 0.0009083541808649898,
+              "v_delta_norm": 0.531639039516449,
+              "v_relative_delta_norm": 0.001551092485897243
+            }
+          },
+          "delta_qv_shuffled": {
+            "metrics": {
+              "answer_logprob": -50.62222099304199,
+              "answer_nll": 12.655555248260498,
+              "answer_rank": 27256.0,
+              "top10": 0.25
+            },
+            "qkv_trace": {
+              "gate_k": 0.26953125,
+              "gate_q": 0.26953125,
+              "gate_v": 0.1923828125,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 2.9585819244384766,
+              "q_relative_delta_norm": 0.0017834440805017948,
+              "v_delta_norm": 0.5522303581237793,
+              "v_relative_delta_norm": 0.00161116907838732
+            }
+          },
+          "delta_qv_zero": {
+            "metrics": {
+              "answer_logprob": -51.75343894958496,
+              "answer_nll": 12.93835973739624,
+              "answer_rank": 28154.0,
+              "top10": 0.0
+            },
+            "qkv_trace": {
+              "gate_k": 0.26953125,
+              "gate_q": 0.26953125,
+              "gate_v": 0.26953125,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 0.004046736750751734,
+              "q_relative_delta_norm": 2.4393877993134083e-06,
+              "v_delta_norm": 0.0016787232598289847,
+              "v_relative_delta_norm": 4.897787675872678e-06
+            }
+          },
+          "no_memory": {
+            "metrics": {
+              "answer_logprob": -51.606550216674805,
+              "answer_nll": 12.901637554168701,
+              "answer_rank": 29017.5,
+              "top10": 0.0
+            },
+            "qkv_trace": {}
+          }
+        },
+        "sample_id": 10001,
+        "unit": "XJQ-806"
+      }
+    ]
+  },
+  "final_train": {
+    "aggregate": {
+      "delta_qv": {
+        "answer_logprob": -50.440722703933716,
+        "answer_nll": 12.610180675983429,
+        "answer_rank": 42126.625,
+        "gate_v": 0.1923828125,
+        "q_delta_norm": 2.9585819244384766,
+        "top10": 0.25,
+        "v_delta_norm": 0.5522303581237793
+      },
+      "delta_qv_force_gate": {
+        "answer_logprob": -46.34703326225281,
+        "answer_nll": 11.586758315563202,
+        "answer_rank": 35110.75,
+        "gate_v": 1.0,
+        "q_delta_norm": 8.142622947692871,
+        "top10": 0.375,
+        "v_delta_norm": 2.868178367614746
+      },
+      "delta_qv_random": {
+        "answer_logprob": -51.75002312660217,
+        "answer_nll": 12.937505781650543,
+        "answer_rank": 43446.5,
+        "gate_v": 0.2685546875,
+        "q_delta_norm": 1.5742422342300415,
+        "top10": 0.25,
+        "v_delta_norm": 0.5518237352371216
+      },
+      "delta_qv_shuffled": {
+        "answer_logprob": -51.55081558227539,
+        "answer_nll": 12.887703895568848,
+        "answer_rank": 42175.0,
+        "gate_v": 0.2587890625,
+        "q_delta_norm": 1.5426000356674194,
+        "top10": 0.25,
+        "v_delta_norm": 0.5331678092479706
+      },
+      "delta_qv_zero": {
+        "answer_logprob": -51.67795133590698,
+        "answer_nll": 12.919487833976746,
+        "answer_rank": 43652.0,
+        "gate_v": 0.26953125,
+        "q_delta_norm": 0.004046736750751734,
+        "top10": 0.25,
+        "v_delta_norm": 0.0016787232598289847
+      },
+      "no_memory": {
+        "answer_logprob": -51.596654415130615,
+        "answer_nll": 12.899163603782654,
+        "answer_rank": 43787.625,
+        "gate_v": 0.0,
+        "q_delta_norm": 0.0,
+        "top10": 0.25,
+        "v_delta_norm": 0.0
+      }
+    },
+    "samples": [
+      {
+        "answer": "tulip-91",
+        "modes": {
+          "delta_qv": {
+            "metrics": {
+              "answer_logprob": -41.564284801483154,
+              "answer_nll": 10.391071200370789,
+              "answer_rank": 35803.5,
+              "top10": 0.5
+            },
+            "qkv_trace": {
+              "gate_k": 0.26953125,
+              "gate_q": 0.26953125,
+              "gate_v": 0.1923828125,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 2.9585819244384766,
+              "q_relative_delta_norm": 0.0017464341362938285,
+              "v_delta_norm": 0.5522303581237793,
+              "v_relative_delta_norm": 0.0015732788015156984
+            }
+          },
+          "delta_qv_force_gate": {
+            "metrics": {
+              "answer_logprob": -37.5823130607605,
+              "answer_nll": 9.395578265190125,
+              "answer_rank": 27845.75,
+              "top10": 0.75
+            },
+            "qkv_trace": {
+              "gate_k": 1.0,
+              "gate_q": 1.0,
+              "gate_v": 1.0,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 8.142622947692871,
+              "q_relative_delta_norm": 0.004806544166058302,
+              "v_delta_norm": 2.868178367614746,
+              "v_relative_delta_norm": 0.008171307854354382
+            }
+          },
+          "delta_qv_random": {
+            "metrics": {
+              "answer_logprob": -42.99382448196411,
+              "answer_nll": 10.748456120491028,
+              "answer_rank": 38447.25,
+              "top10": 0.5
+            },
+            "qkv_trace": {
+              "gate_k": 0.26953125,
+              "gate_q": 0.26953125,
+              "gate_v": 0.267578125,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 1.5863592624664307,
+              "q_relative_delta_norm": 0.0009364188299514353,
+              "v_delta_norm": 0.5506020784378052,
+              "v_relative_delta_norm": 0.0015686398837715387
+            }
+          },
+          "delta_qv_shuffled": {
+            "metrics": {
+              "answer_logprob": -42.585700035095215,
+              "answer_nll": 10.646425008773804,
+              "answer_rank": 37405.75,
+              "top10": 0.5
+            },
+            "qkv_trace": {
+              "gate_k": 0.26953125,
+              "gate_q": 0.275390625,
+              "gate_v": 0.259765625,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 1.542334794998169,
+              "q_relative_delta_norm": 0.0009104314376600087,
+              "v_delta_norm": 0.5330011248588562,
+              "v_relative_delta_norm": 0.0015184956137090921
+            }
+          },
+          "delta_qv_zero": {
+            "metrics": {
+              "answer_logprob": -43.05374622344971,
+              "answer_nll": 10.763436555862427,
+              "answer_rank": 38991.0,
+              "top10": 0.5
+            },
+            "qkv_trace": {
+              "gate_k": 0.26953125,
+              "gate_q": 0.26953125,
+              "gate_v": 0.26953125,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 0.004046736750751734,
+              "q_relative_delta_norm": 2.388765778960078e-06,
+              "v_delta_norm": 0.0016787232598289847,
+              "v_relative_delta_norm": 4.782605174113996e-06
+            }
+          },
+          "no_memory": {
+            "metrics": {
+              "answer_logprob": -42.77510738372803,
+              "answer_nll": 10.693776845932007,
+              "answer_rank": 38906.25,
+              "top10": 0.5
+            },
+            "qkv_trace": {}
+          }
+        },
+        "sample_id": 0,
+        "unit": "XJQ-964"
+      },
+      {
+        "answer": "violet-44",
+        "modes": {
+          "delta_qv": {
+            "metrics": {
+              "answer_logprob": -59.31716060638428,
+              "answer_nll": 14.82929015159607,
+              "answer_rank": 48449.75,
+              "top10": 0.0
+            },
+            "qkv_trace": {
+              "gate_k": 0.26953125,
+              "gate_q": 0.26953125,
+              "gate_v": 0.1923828125,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 2.9585819244384766,
+              "q_relative_delta_norm": 0.001814751885831356,
+              "v_delta_norm": 0.5522303581237793,
+              "v_relative_delta_norm": 0.0016648699529469013
+            }
+          },
+          "delta_qv_force_gate": {
+            "metrics": {
+              "answer_logprob": -55.11175346374512,
+              "answer_nll": 13.77793836593628,
+              "answer_rank": 42375.75,
+              "top10": 0.0
+            },
+            "qkv_trace": {
+              "gate_k": 1.0,
+              "gate_q": 1.0,
+              "gate_v": 1.0,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 8.142622947692871,
+              "q_relative_delta_norm": 0.004994568414986134,
+              "v_delta_norm": 2.868178367614746,
+              "v_relative_delta_norm": 0.008647014386951923
+            }
+          },
+          "delta_qv_random": {
+            "metrics": {
+              "answer_logprob": -60.506221771240234,
+              "answer_nll": 15.126555442810059,
+              "answer_rank": 48445.75,
+              "top10": 0.0
+            },
+            "qkv_trace": {
+              "gate_k": 0.26953125,
+              "gate_q": 0.267578125,
+              "gate_v": 0.26953125,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 1.5621252059936523,
+              "q_relative_delta_norm": 0.0009581852937117219,
+              "v_delta_norm": 0.553045392036438,
+              "v_relative_delta_norm": 0.0016673271311447024
+            }
+          },
+          "delta_qv_shuffled": {
+            "metrics": {
+              "answer_logprob": -60.515931129455566,
+              "answer_nll": 15.128982782363892,
+              "answer_rank": 46944.25,
+              "top10": 0.0
+            },
+            "qkv_trace": {
+              "gate_k": 0.26953125,
+              "gate_q": 0.27734375,
+              "gate_v": 0.2578125,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 1.54286527633667,
+              "q_relative_delta_norm": 0.0009463715250603855,
+              "v_delta_norm": 0.533334493637085,
+              "v_relative_delta_norm": 0.0016079024644568563
+            }
+          },
+          "delta_qv_zero": {
+            "metrics": {
+              "answer_logprob": -60.30215644836426,
+              "answer_nll": 15.075539112091064,
+              "answer_rank": 48313.0,
+              "top10": 0.0
+            },
+            "qkv_trace": {
+              "gate_k": 0.26953125,
+              "gate_q": 0.26953125,
+              "gate_v": 0.26953125,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 0.004046736750751734,
+              "q_relative_delta_norm": 2.482210447851685e-06,
+              "v_delta_norm": 0.0016787232598289847,
+              "v_relative_delta_norm": 5.06103242514655e-06
+            }
+          },
+          "no_memory": {
+            "metrics": {
+              "answer_logprob": -60.4182014465332,
+              "answer_nll": 15.1045503616333,
+              "answer_rank": 48669.0,
+              "top10": 0.0
+            },
+            "qkv_trace": {}
+          }
+        },
+        "sample_id": 1,
+        "unit": "XJQ-141"
+      }
+    ]
+  },
+  "initial_eval": {
+    "aggregate": {
+      "delta_qv": {
+        "answer_logprob": -48.24601483345032,
+        "answer_nll": 12.06150370836258,
+        "answer_rank": 34652.0,
+        "gate_v": 0.26953125,
+        "q_delta_norm": 1.5577772855758667,
+        "top10": 0.125,
+        "v_delta_norm": 0.5465172231197357
+      },
+      "delta_qv_force_gate": {
+        "answer_logprob": -48.437570095062256,
+        "answer_nll": 12.109392523765564,
+        "answer_rank": 35889.25,
+        "gate_v": 1.0,
+        "q_delta_norm": 5.781365394592285,
+        "top10": 0.125,
+        "v_delta_norm": 2.0282018184661865
+      },
+      "delta_qv_random": {
+        "answer_logprob": -48.42656946182251,
+        "answer_nll": 12.106642365455627,
+        "answer_rank": 34852.875,
+        "gate_v": 0.26953125,
+        "q_delta_norm": 1.5583483576774597,
+        "top10": 0.25,
+        "v_delta_norm": 0.5572471916675568
+      },
+      "delta_qv_shuffled": {
+        "answer_logprob": -48.248859882354736,
+        "answer_nll": 12.062214970588684,
+        "answer_rank": 34754.875,
+        "gate_v": 0.26953125,
+        "q_delta_norm": 1.556430697441101,
+        "top10": 0.125,
+        "v_delta_norm": 0.5463084280490875
+      },
+      "delta_qv_zero": {
+        "answer_logprob": -48.325095653533936,
+        "answer_nll": 12.081273913383484,
+        "answer_rank": 34809.0,
+        "gate_v": 0.26953125,
+        "q_delta_norm": 0.0,
+        "top10": 0.125,
+        "v_delta_norm": 0.0
+      },
+      "no_memory": {
+        "answer_logprob": -48.325095653533936,
+        "answer_nll": 12.081273913383484,
+        "answer_rank": 34809.0,
+        "gate_v": 0.0,
+        "q_delta_norm": 0.0,
+        "top10": 0.125,
+        "v_delta_norm": 0.0
+      }
+    },
+    "samples": [
+      {
+        "answer": "tulip-91",
+        "modes": {
+          "delta_qv": {
+            "metrics": {
+              "answer_logprob": -45.11112642288208,
+              "answer_nll": 11.27778160572052,
+              "answer_rank": 40797.25,
+              "top10": 0.25
+            },
+            "qkv_trace": {
+              "gate_k": 0.26953125,
+              "gate_q": 0.26953125,
+              "gate_v": 0.26953125,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 1.570380687713623,
+              "q_relative_delta_norm": 0.0009336050134152174,
+              "v_delta_norm": 0.5453295707702637,
+              "v_relative_delta_norm": 0.001624342636205256
+            }
+          },
+          "delta_qv_force_gate": {
+            "metrics": {
+              "answer_logprob": -45.37298393249512,
+              "answer_nll": 11.34324598312378,
+              "answer_rank": 43306.75,
+              "top10": 0.25
+            },
+            "qkv_trace": {
+              "gate_k": 1.0,
+              "gate_q": 1.0,
+              "gate_v": 1.0,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 5.827885627746582,
+              "q_relative_delta_norm": 0.0034647288266569376,
+              "v_delta_norm": 2.0240111351013184,
+              "v_relative_delta_norm": 0.006028808653354645
+            }
+          },
+          "delta_qv_random": {
+            "metrics": {
+              "answer_logprob": -45.279723167419434,
+              "answer_nll": 11.319930791854858,
+              "answer_rank": 40231.0,
+              "top10": 0.25
+            },
+            "qkv_trace": {
+              "gate_k": 0.26953125,
+              "gate_q": 0.26953125,
+              "gate_v": 0.26953125,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 1.5547746419906616,
+              "q_relative_delta_norm": 0.0009243270615115762,
+              "v_delta_norm": 0.5721791386604309,
+              "v_relative_delta_norm": 0.0017043179832398891
+            }
+          },
+          "delta_qv_shuffled": {
+            "metrics": {
+              "answer_logprob": -44.93071746826172,
+              "answer_nll": 11.23267936706543,
+              "answer_rank": 40428.5,
+              "top10": 0.25
+            },
+            "qkv_trace": {
+              "gate_k": 0.26953125,
+              "gate_q": 0.26953125,
+              "gate_v": 0.26953125,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 1.542480707168579,
+              "q_relative_delta_norm": 0.0009170182165689766,
+              "v_delta_norm": 0.5472872853279114,
+              "v_relative_delta_norm": 0.001630173996090889
+            }
+          },
+          "delta_qv_zero": {
+            "metrics": {
+              "answer_logprob": -45.043641090393066,
+              "answer_nll": 11.260910272598267,
+              "answer_rank": 40600.5,
+              "top10": 0.25
+            },
+            "qkv_trace": {
+              "gate_k": 0.26953125,
+              "gate_q": 0.26953125,
+              "gate_v": 0.26953125,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 0.0,
+              "q_relative_delta_norm": 0.0,
+              "v_delta_norm": 0.0,
+              "v_relative_delta_norm": 0.0
+            }
+          },
+          "no_memory": {
+            "metrics": {
+              "answer_logprob": -45.043641090393066,
+              "answer_nll": 11.260910272598267,
+              "answer_rank": 40600.5,
+              "top10": 0.25
+            },
+            "qkv_trace": {}
+          }
+        },
+        "sample_id": 10000,
+        "unit": "XJQ-691"
+      },
+      {
+        "answer": "violet-44",
+        "modes": {
+          "delta_qv": {
+            "metrics": {
+              "answer_logprob": -51.380903244018555,
+              "answer_nll": 12.845225811004639,
+              "answer_rank": 28506.75,
+              "top10": 0.0
+            },
+            "qkv_trace": {
+              "gate_k": 0.26953125,
+              "gate_q": 0.26953125,
+              "gate_v": 0.26953125,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 1.5451738834381104,
+              "q_relative_delta_norm": 0.0009314364870078862,
+              "v_delta_norm": 0.5477048754692078,
+              "v_relative_delta_norm": 0.0015979656018316746
+            }
+          },
+          "delta_qv_force_gate": {
+            "metrics": {
+              "answer_logprob": -51.502156257629395,
+              "answer_nll": 12.875539064407349,
+              "answer_rank": 28471.75,
+              "top10": 0.0
+            },
+            "qkv_trace": {
+              "gate_k": 1.0,
+              "gate_q": 1.0,
+              "gate_v": 1.0,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 5.734845161437988,
+              "q_relative_delta_norm": 0.0034569858107715845,
+              "v_delta_norm": 2.0323925018310547,
+              "v_relative_delta_norm": 0.005929641425609589
+            }
+          },
+          "delta_qv_random": {
+            "metrics": {
+              "answer_logprob": -51.573415756225586,
+              "answer_nll": 12.893353939056396,
+              "answer_rank": 29474.75,
+              "top10": 0.25
+            },
+            "qkv_trace": {
+              "gate_k": 0.26953125,
+              "gate_q": 0.26953125,
+              "gate_v": 0.26953125,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 1.5619220733642578,
+              "q_relative_delta_norm": 0.0009415323729626834,
+              "v_delta_norm": 0.5423152446746826,
+              "v_relative_delta_norm": 0.001582241035066545
+            }
+          },
+          "delta_qv_shuffled": {
+            "metrics": {
+              "answer_logprob": -51.567002296447754,
+              "answer_nll": 12.891750574111938,
+              "answer_rank": 29081.25,
+              "top10": 0.0
+            },
+            "qkv_trace": {
+              "gate_k": 0.26953125,
+              "gate_q": 0.26953125,
+              "gate_v": 0.26953125,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 1.570380687713623,
+              "q_relative_delta_norm": 0.0009466312476433814,
+              "v_delta_norm": 0.5453295707702637,
+              "v_relative_delta_norm": 0.001591035514138639
+            }
+          },
+          "delta_qv_zero": {
+            "metrics": {
+              "answer_logprob": -51.606550216674805,
+              "answer_nll": 12.901637554168701,
+              "answer_rank": 29017.5,
+              "top10": 0.0
+            },
+            "qkv_trace": {
+              "gate_k": 0.26953125,
+              "gate_q": 0.26953125,
+              "gate_v": 0.26953125,
+              "k_delta_norm": 0.0,
+              "k_relative_delta_norm": 0.0,
+              "q_delta_norm": 0.0,
+              "q_relative_delta_norm": 0.0,
+              "v_delta_norm": 0.0,
+              "v_relative_delta_norm": 0.0
+            }
+          },
+          "no_memory": {
+            "metrics": {
+              "answer_logprob": -51.606550216674805,
+              "answer_nll": 12.901637554168701,
+              "answer_rank": 29017.5,
+              "top10": 0.0
+            },
+            "qkv_trace": {}
+          }
+        },
+        "sample_id": 10001,
+        "unit": "XJQ-806"
+      }
+    ]
+  },
+  "layer_id": 14,
+  "prompt_insertion_used": false,
+  "source_text_debug_only": true,
+  "train": [
+    {
+      "gate_v": 0.26953125,
+      "grad_norm": 1.3579123816114869,
+      "loss": 10.771726608276367,
+      "q_delta_norm": 1.570380687713623,
+      "sample_id": 0,
+      "step": 1,
+      "v_delta_norm": 0.5453295707702637
+    }
+  ],
+  "train_examples": [
+    {
+      "answer": "tulip-91",
+      "question": "What is the secret code for unit XJQ-964?",
+      "sample_id": 0,
+      "task_type": "later_referenced_fact",
+      "text": "The secret code for unit XJQ-964 is tulip-91.\nThe secret code for unit XJQ-494 is violet-17.\nThe secret code for unit XJQ-876 is amber-44.\nThe secret code for unit XJQ-530 is cedar-63.\nOperations continued with routine inventory checks. The staff logged unrelated pressure readings and shift notes. No code value was repeated in this operational section.\nThe unit XJQ-964 was later selected for emergency access verification.\nThe verifier repeatedly checked unit XJQ-964 before the final query.\nThe final operator note names unit XJQ-964 again but deliberately does not repeat the code value.",
+      "unit": "XJQ-964"
+    },
+    {
+      "answer": "violet-44",
+      "question": "What is the secret code for unit XJQ-141?",
+      "sample_id": 1,
+      "task_type": "later_referenced_fact",
+      "text": "The secret code for unit XJQ-141 is violet-44.\nThe secret code for unit XJQ-365 is amber-44.\nThe secret code for unit XJQ-623 is cedar-63.\nThe secret code for unit XJQ-597 is indigo-72.\nOperations continued with routine inventory checks. The staff logged unrelated pressure readings and shift notes. No code value was repeated in this operational section.\nThe unit XJQ-141 was later selected for emergency access verification.\nThe verifier repeatedly checked unit XJQ-141 before the final query.\nThe final operator note names unit XJQ-141 again but deliberately does not repeat the code value.",
+      "unit": "XJQ-141"
+    }
+  ],
+  "trainable_base_params": 0
+}

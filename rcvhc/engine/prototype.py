@@ -30,7 +30,7 @@ class PrototypeRunConfig:
     dtype: str = "bfloat16"
     input_path: str = "examples/delta_attention_demo.txt"
     store_path: str = "runs/gemma4_attention_store"
-    report_dir: str = "reports/cleanroom"
+    report_dir: str = "reports/experiments"
     question: str = "What is the secret code for unit XJQ-482?"
     answer: str = "tulip-91"
     block_size: int = 128

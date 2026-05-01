@@ -1,4 +1,4 @@
-"""Train the frozen-backbone Delta Memory Q/V adapter on a single cleanroom task.
+"""Train the frozen-backbone Delta Memory Q/V adapter on a single task.
 
 This is deliberately small. It answers the practical question: the base Gemma
 model does not know how to use Delta Memory by itself, so we train only
@@ -44,7 +44,7 @@ class DeltaTrainingConfig:
     device: str = "auto"
     dtype: str = "bfloat16"
     input_path: str = "examples/delta_attention_demo.txt"
-    report_dir: str = "reports/cleanroom/gemma4_training"
+    report_dir: str = "reports/experiments/gemma4_training"
     question: str = "What is the secret code for unit XJQ-482?"
     answer: str = "tulip-91"
     steps: int = 5

@@ -57,7 +57,7 @@ class RCVHCWriter(nn.Module):
         if h_in.dim() != 3 or h_out.dim() != 3:
             raise ValueError("h_in and h_out must have shape [batch, seq, hidden]")
         if h_in.shape[0] != 1:
-            raise ValueError("cleanroom P0 writer currently supports batch size 1")
+            raise ValueError("P0 writer currently supports batch size 1")
         seq_len = min(h_in.shape[1], h_out.shape[1])
         attn_mean = None
         if attn is not None:

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Run the cleanroom Delta Memory attention-injection demo.
+"""Run the Delta Memory attention-injection demo.
 
-The default uses the local mock Gemma-style model so CI and cleanroom tests do
+The default uses the local mock Gemma-style model so CI and mock tests do
 not download weights. Pass ``--model google/gemma-4-E2B`` to try the real base
 model when available.
 """
@@ -27,7 +27,7 @@ def main() -> int:
     parser.add_argument("--dtype", default="float32")
     parser.add_argument("--input", default="examples/delta_attention_demo.txt")
     parser.add_argument("--store", default="runs/rcvhc_attention_store")
-    parser.add_argument("--report-dir", default="reports/cleanroom")
+    parser.add_argument("--report-dir", default="reports/experiments")
     args = parser.parse_args()
 
     text = Path(args.input).read_text(encoding="utf-8")
@@ -62,7 +62,7 @@ def main() -> int:
 
 def _markdown(summary: dict) -> str:
     lines = [
-        "# Delta Memory Cleanroom Demo Report",
+        "# Delta Memory Experiment Demo Report",
         "",
         "## Status",
         "",

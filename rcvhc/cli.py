@@ -1,4 +1,4 @@
-"""Command line interface for the cleanroom Delta Memory prototype."""
+"""Command line interface for Delta Memory experiments."""
 
 from __future__ import annotations
 

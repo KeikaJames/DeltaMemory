@@ -19,7 +19,7 @@ execution. Delta Memory currently needs live PyTorch autograd over adapter
 modules and runtime hooks inside Gemma attention projections, so the practical
 backend is Metal/MPS.
 
-MLX is a plausible future path for Apple Silicon, but this cleanroom prototype
+MLX is a plausible future path for Apple Silicon, but this research prototype
 uses Transformers because it already exposes `output_hidden_states`,
 `output_attentions`, and module hooks needed by the attention-memory experiment.
 

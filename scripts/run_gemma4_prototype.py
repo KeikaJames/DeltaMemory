@@ -20,7 +20,7 @@ def main() -> int:
     parser.add_argument("--dtype", default="bfloat16")
     parser.add_argument("--input", default="examples/delta_attention_demo.txt")
     parser.add_argument("--store", default="runs/gemma4_attention_store")
-    parser.add_argument("--report-dir", default="reports/cleanroom")
+    parser.add_argument("--report-dir", default="reports/experiments")
     parser.add_argument("--question", default="What is the secret code for unit XJQ-482?")
     parser.add_argument("--answer", default="tulip-91")
     parser.add_argument("--block-size", type=int, default=128)

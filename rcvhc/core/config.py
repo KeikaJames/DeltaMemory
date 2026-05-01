@@ -1,4 +1,4 @@
-"""Configuration for the cleanroom Delta Memory prototype."""
+"""Configuration for Delta Memory experiments."""
 
 from __future__ import annotations
 

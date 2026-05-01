@@ -17,12 +17,12 @@
   <a href="docs/address_bound_delta_memory_plan.md">Research Plan</a> ·
   <a href="docs/design.md">Design</a> ·
   <a href="docs/apple_silicon.md">Apple Silicon</a> ·
-  <a href="reports/cleanroom">Reports</a>
+  <a href="reports/experiments">Reports</a>
 </p>
 
 ---
 
-Delta Memory is a cleanroom research prototype for injecting external memory
+Delta Memory is an experimental research prototype for injecting external memory
 directly into frozen Gemma-style decoder attention layers. The package is still
 named `rcvhc` for compatibility with earlier experiments.
 
@@ -72,12 +72,12 @@ keeps the base model frozen, and does not insert retrieved text into the prompt.
 
 | Experiment | Delta vs ordinary attention | Alignment/control result | Report |
 | --- | ---: | --- | --- |
-| Question-only query eval32 | `5.5366` vs `12.7923` NLL | `wrong_query` tied with correct Delta (`5.5399`) | [report](reports/cleanroom/question_only_query_eval32) |
-| Conflict-margin pilot | `5.1661` vs `12.8438` NLL | margin advantage `-0.0070` | [report](reports/cleanroom/conflict_margin_pilot) |
-| Paired-conflict pilot | `4.6836` vs `12.3341` NLL | margin advantage `0.0094` | [report](reports/cleanroom/paired_conflict_pilot) |
-| Contrastive alignment pilot | `5.2961` vs `12.3341` NLL | shared contrastive fails shuffled gate | [report](reports/cleanroom/contrastive_alignment_pilot) |
-| Hidden retrieval baseline | `5.8246` vs `12.2118` NLL | hidden late-fusion baseline is weak (`14.5274`) | [report](reports/cleanroom/hidden_retrieval_baseline_pilot) |
-| Long-distance NoLiMa-style | `4.9367` vs `11.8879` NLL | fails shuffled gate (`4.8210`) | [report](reports/cleanroom/long_distance_nolima_pilot) |
+| Question-only query eval32 | `5.5366` vs `12.7923` NLL | `wrong_query` tied with correct Delta (`5.5399`) | [report](reports/experiments/question_only_query_eval32) |
+| Conflict-margin pilot | `5.1661` vs `12.8438` NLL | margin advantage `-0.0070` | [report](reports/experiments/conflict_margin_pilot) |
+| Paired-conflict pilot | `4.6836` vs `12.3341` NLL | margin advantage `0.0094` | [report](reports/experiments/paired_conflict_pilot) |
+| Contrastive alignment pilot | `5.2961` vs `12.3341` NLL | shared contrastive fails shuffled gate | [report](reports/experiments/contrastive_alignment_pilot) |
+| Hidden retrieval baseline | `5.8246` vs `12.2118` NLL | hidden late-fusion baseline is weak (`14.5274`) | [report](reports/experiments/hidden_retrieval_baseline_pilot) |
+| Long-distance NoLiMa-style | `4.9367` vs `11.8879` NLL | fails shuffled gate (`4.8210`) | [report](reports/experiments/long_distance_nolima_pilot) |
 
 ### Superseded reports
 
@@ -87,11 +87,11 @@ retrieval queries, or stronger controls.
 
 | Experiment | Status | Report |
 | --- | --- | --- |
-| Scaled MPS Delta experiment | early mechanism signal | [report](reports/cleanroom/gemma4_delta_experiment_mps_scaled) |
-| Expanded Delta Memory eval8 | superseded by answer-randomization and question-only-query fixes | [report](reports/cleanroom/delta_memory_expanded) |
-| Delta vs ordinary attention eval32 | superseded by evaluation fixes | [report](reports/cleanroom/delta_vs_attention_eval32) |
-| Corrected random-answer eval32 | superseded because retrieval query used answer tokens | [report](reports/cleanroom/corrected_random_answers_eval32) |
-| Layer ablation eval32 | useful only as early layer-policy signal | [report](reports/cleanroom/layer_ablation_eval32) |
+| Scaled MPS Delta experiment | early mechanism signal | [report](reports/experiments/gemma4_delta_experiment_mps_scaled) |
+| Expanded Delta Memory eval8 | superseded by answer-randomization and question-only-query fixes | [report](reports/experiments/delta_memory_expanded) |
+| Delta vs ordinary attention eval32 | superseded by evaluation fixes | [report](reports/experiments/delta_vs_attention_eval32) |
+| Corrected random-answer eval32 | superseded because retrieval query used answer tokens | [report](reports/experiments/corrected_random_answers_eval32) |
+| Layer ablation eval32 | useful only as early layer-policy signal | [report](reports/experiments/layer_ablation_eval32) |
 
 ## Research direction
 
@@ -169,7 +169,7 @@ See [`docs/apple_silicon.md`](docs/apple_silicon.md) for MPS/Metal notes.
 | [`docs/design.md`](docs/design.md) | architecture and evidence boundary |
 | [`docs/gemma4_prototype.md`](docs/gemma4_prototype.md) | Gemma prototype runbook |
 | [`docs/apple_silicon.md`](docs/apple_silicon.md) | Apple Silicon / MPS setup |
-| [`reports/cleanroom`](reports/cleanroom) | tracked cleanroom experiment artifacts |
+| [`reports/experiments`](reports/experiments) | tracked experiment artifacts |
 
 ## References
 
@@ -195,7 +195,7 @@ rcvhc/gemma/      Gemma-style adapter and layerwise Q/K/V injector
 rcvhc/engine/     ingest, ask, training, experiments, statistics
 scripts/          runnable demos and experiment CLIs
 docs/             design notes and research plans
-reports/          tracked cleanroom experiment reports
+reports/          tracked experiment reports
 tests/            CI-safe mock tests; no Gemma download required
 ```
 

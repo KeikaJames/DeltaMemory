@@ -1,4 +1,4 @@
-"""Unified ingest/ask engine for the cleanroom prototype."""
+"""Unified ingest/ask engine for Delta Memory."""
 
 from __future__ import annotations
 

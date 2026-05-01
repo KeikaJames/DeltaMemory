@@ -1,4 +1,4 @@
-"""Model loading and a tiny Gemma-style mock used by cleanroom tests."""
+"""Model loading and a tiny Gemma-style mock used by tests."""
 
 from __future__ import annotations
 
