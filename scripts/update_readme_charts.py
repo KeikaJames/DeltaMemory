@@ -35,7 +35,7 @@ END_MARK = "<!-- END AUTOGEN: stage6 -->"
 
 def collect_summaries(reports_dir: Path) -> list[dict[str, Any]]:
     rows = []
-    for summary_path in sorted(reports_dir.glob("*/delta_experiment_summary.json")):
+    for summary_path in sorted(reports_dir.rglob("delta_experiment_summary.json")):
         try:
             with summary_path.open("r", encoding="utf-8") as fh:
                 summary = json.load(fh)
