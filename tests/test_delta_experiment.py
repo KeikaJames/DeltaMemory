@@ -358,7 +358,7 @@ def test_update_readme_charts_round_trip(tmp_path):
             "delta_qv": {"answer_nll": 4.5, "top1_correct_rate": 0.3},
             "payload_probe": {"answer_nll": 3.1, "top1_correct_rate": 0.85},
         }},
-        "stage2_binding_summary": {"channels": {
+        "stage2_binding_summary": {"eval_modes": {
             "payload_probe": {"top1_correct_rate": 0.85},
         }},
     }))

@@ -46,7 +46,7 @@ def collect_summaries(reports_dir: Path) -> list[dict[str, Any]]:
 
 
 def _binding_metric(stage2: dict[str, Any], channel: str, key: str) -> Any:
-    block = (stage2 or {}).get("channels", {}).get(channel) or {}
+    block = (stage2 or {}).get("eval_modes", {}).get(channel) or {}
     return block.get(key)
 
 

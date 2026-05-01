@@ -242,17 +242,25 @@ Each row is one Stage 6 oracle-span-writer run. Cells are `held-out NLL / top1`.
 | stage1_writer_capacity_v2_lastlayer_alpha0 | address_token_binding_single_token | mean | 16 | 16 | 0 | 19.104 / — | 19.104 / — | — / — | 19.104 / — | — / — | 0.008 / — |
 | stage1_writer_capacity_v3_firstlayer_alpha0 | address_token_binding_single_token | mean | 16 | 16 | 0 | 19.104 / — | 19.104 / — | — / — | 19.104 / — | — / — | 0.008 / — |
 | stage1_writer_capacity_v4_firstlayer_long | address_token_binding_single_token | mean | 16 | 16 | 0 | 19.104 / — | 19.104 / — | — / — | 19.104 / — | — / — | 0.008 / — |
-| stage2a_binding_instrumentation_mock | address_token_binding_single_token | mean | 2 | 2 | 0 | 8.213 / — | 8.211 / — | 8.571 / — | 8.213 / — | — / — | 7.921 / — |
-| stage2a_restricted_eval_mock | address_token_binding_single_token | mean | 2 | 2 | 0 | 9.010 / — | — / — | 8.275 / — | 9.010 / — | — / — | — / — |
-| stage2b_combined_output_side_gemma | address_token_binding_single_token | mean | 16 | 16 | 0 | 19.104 / — | — / — | 4.719 / — | 23.249 / — | — / — | 0.008 / — |
-| stage2b_logit_bias_firstlayer_gemma | address_token_binding_single_token | mean | 16 | 16 | 0 | 19.104 / — | — / — | 12.363 / — | 21.953 / — | — / — | 0.008 / — |
-| stage2b_logit_bias_firstlayer_mock | address_token_binding_single_token | mean | 2 | 2 | 0 | 8.532 / — | — / — | 8.562 / — | 8.532 / — | — / — | — / — |
-| stage2b_output_side_losses_mock | address_token_binding_single_token | mean | 2 | 2 | 0 | 8.492 / — | — / — | 8.335 / — | 8.492 / — | — / — | 8.131 / — |
-| stage2b_payload_probe_embedding_swap_gemma | address_token_binding_single_token | mean | 16 | 16 | 0 | 19.104 / — | — / — | 4.654 / — | 19.104 / — | — / — | 0.008 / — |
-| stage2c_lm_head_lora_mock | address_token_binding_single_token | mean | 2 | 2 | 0 | 8.809 / — | — / — | 8.184 / — | — / — | 8.773 / — | 8.510 / — |
-| stage2c_lm_head_lora_rank1_gemma | address_token_binding_single_token | mean | 16 | 16 | 0 | 19.104 / — | — / — | 12.418 / — | 19.104 / — | 35.656 / — | 0.008 / — |
-| stage2c_lm_head_lora_rank1_norm_scale50_gemma | address_token_binding_single_token | mean | 16 | 16 | 0 | 19.104 / — | — / — | 12.191 / — | 19.104 / — | 7.588 / — | 0.008 / — |
-| stage2c_lm_head_lora_rank4_norm_scale50_gemma | address_token_binding_single_token | mean | 16 | 16 | 0 | 19.104 / — | — / — | 12.349 / — | 19.104 / — | 6.078 / — | 0.008 / — |
+| stage2a_binding_instrumentation_mock | address_token_binding_single_token | mean | 2 | 2 | 0 | 8.213 / 0.000 | 8.211 / 0.000 | 8.571 / 0.000 | 8.213 / 0.000 | — / — | 7.921 / 0.000 |
+| stage2a_restricted_eval_mock | address_token_binding_single_token | mean | 2 | 2 | 0 | 9.010 / 0.000 | — / — | 8.275 / 0.000 | 9.010 / 0.000 | — / — | — / — |
+| stage2b_combined_output_side_gemma | address_token_binding_single_token | mean | 16 | 16 | 0 | 19.104 / 0.000 | — / — | 4.719 / 0.375 | 23.249 / 0.312 | — / — | 0.008 / 1.000 |
+| stage2b_logit_bias_firstlayer_gemma | address_token_binding_single_token | mean | 16 | 16 | 0 | 19.104 / 0.000 | — / — | 12.363 / 0.000 | 21.953 / 0.250 | — / — | 0.008 / 1.000 |
+| stage2b_logit_bias_firstlayer_mock | address_token_binding_single_token | mean | 2 | 2 | 0 | 8.532 / 0.000 | — / — | 8.562 / 0.000 | 8.532 / 0.000 | — / — | — / — |
+| stage2b_output_side_losses_mock | address_token_binding_single_token | mean | 2 | 2 | 0 | 8.492 / 0.000 | — / — | 8.335 / 0.000 | 8.492 / 0.000 | — / — | 8.131 / 0.000 |
+| stage2b_payload_probe_embedding_swap_gemma | address_token_binding_single_token | mean | 16 | 16 | 0 | 19.104 / 0.000 | — / — | 4.654 / 0.375 | 19.104 / 0.000 | — / — | 0.008 / 1.000 |
+| stage2c_lm_head_lora_mock | address_token_binding_single_token | mean | 2 | 2 | 0 | 8.809 / 0.000 | — / — | 8.184 / 0.000 | — / — | 8.773 / 0.000 | 8.510 / 0.000 |
+| stage2c_lm_head_lora_rank1_gemma | address_token_binding_single_token | mean | 16 | 16 | 0 | 19.104 / 0.000 | — / — | 12.418 / 0.000 | 19.104 / 0.000 | 35.656 / 0.000 | 0.008 / 1.000 |
+| stage2c_lm_head_lora_rank1_norm_scale50_gemma | address_token_binding_single_token | mean | 16 | 16 | 0 | 19.104 / 0.000 | — / — | 12.191 / 0.000 | 19.104 / 0.000 | 7.588 / 0.375 | 0.008 / 1.000 |
+| stage2c_lm_head_lora_rank4_norm_scale50_gemma | address_token_binding_single_token | mean | 16 | 16 | 0 | 19.104 / 0.000 | — / — | 12.349 / 0.000 | 19.104 / 0.000 | 6.078 / 0.375 | 0.008 / 1.000 |
+| phase1_pool-attn_swap-off_seed-0 | address_token_binding_single_token | attn | 24 | 24 | 0 | 19.497 / 0.000 | 4.695 / 0.000 | 3.725 / 0.583 | 9.211 / 0.250 | 4.196 / 0.167 | 0.006 / 1.000 |
+| phase1_pool-attn_swap-off_seed-1 | address_token_binding_single_token | attn | 24 | 24 | 1 | 19.224 / 0.000 | 5.257 / 0.000 | 3.697 / 0.500 | 7.789 / 0.333 | 3.952 / 0.167 | 0.005 / 1.000 |
+| phase1_pool-attn_swap-on_seed-0 | address_token_binding_single_token | attn | 24 | 24 | 0 | 19.497 / 0.000 | 4.533 / 0.000 | 3.204 / 0.500 | 8.603 / 0.292 | 4.126 / 0.167 | 0.006 / 1.000 |
+| phase1_pool-attn_swap-on_seed-1 | address_token_binding_single_token | attn | 24 | 24 | 1 | 19.224 / 0.000 | 4.202 / 0.042 | 3.226 / 0.417 | 7.174 / 0.292 | 3.184 / 0.292 | 0.005 / 1.000 |
+| phase1_pool-mean_swap-off_seed-0 | address_token_binding_single_token | mean | 24 | 24 | 0 | 19.497 / 0.000 | 4.835 / 0.000 | 3.894 / 0.417 | 9.476 / 0.250 | 4.366 / 0.167 | 0.006 / 1.000 |
+| phase1_pool-mean_swap-off_seed-1 | address_token_binding_single_token | mean | 24 | 24 | 1 | 19.224 / 0.000 | 4.203 / 0.042 | 3.797 / 0.458 | 8.085 / 0.208 | 4.028 / 0.125 | 0.005 / 1.000 |
+| phase1_pool-mean_swap-on_seed-0 | address_token_binding_single_token | mean | 24 | 24 | 0 | 19.497 / 0.000 | 4.835 / 0.000 | 3.560 / 0.500 | 9.543 / 0.333 | 4.494 / 0.083 | 0.006 / 1.000 |
+| phase1_pool-mean_swap-on_seed-1 | address_token_binding_single_token | mean | 24 | 24 | 1 | 19.224 / 0.000 | 4.203 / 0.042 | 3.559 / 0.167 | 7.615 / 0.208 | 3.941 / 0.167 | 0.005 / 1.000 |
 
 > Pass gate (Stage 6 strict): held-out top1 >= 0.85 on at least one of `payload_probe`, `logit_bias`, `lm_head_lora`, while `delta_qv` stays < 0.5 (Story A negative reference).
 
