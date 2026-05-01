@@ -42,7 +42,12 @@ class DeltaExperimentConfig:
     conflict_margins: bool = False
     contrastive_margin_weight: float = 0.0
     contrastive_margin: float = 0.5
+    address_margin_weight: float = 0.0
+    address_margin: float = 0.1
     shared_memory_retrieval: bool = False
+    identity_gate_beta: float = 64.0
+    identity_gate_tau: float = 0.01
+    control_margin_min: float = 0.05
     report_dir: str = "reports/experiments/delta_experiment"
 
 
@@ -98,6 +103,8 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
             train_pool if train_pool is not None else _live_memories(writer, sample, layer_ids, cfg),
             sample.query,
             cfg.top_k,
+            cfg.identity_gate_beta,
+            cfg.identity_gate_tau,
         )
         result = injector.forward_layers(
             input_ids=sample.prompt["input_ids"],
@@ -108,12 +115,18 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
         answer_loss = _answer_loss(result.logits, sample.answer_start, sample.answer_ids)
         contrastive_loss = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
         margin_advantage = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
+        address_loss = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
+        address_margin_value = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
+        foreign = _foreign_sample(train_prepared, sample_idx) if len(train_prepared) > 1 else sample
+        if cfg.address_margin_weight > 0.0 and len(train_prepared) > 1:
+            address_loss, address_margin_value = _address_ranking_loss(writer, sample, foreign, layer_ids, cfg)
         if cfg.contrastive_margin_weight > 0.0 and len(train_prepared) > 1:
-            foreign = _foreign_sample(train_prepared, sample_idx)
             foreign_memories = _select_topk_by_layer(
                 train_pool if train_pool is not None else _live_memories(writer, foreign, layer_ids, cfg),
                 foreign.query,
                 cfg.top_k,
+                cfg.identity_gate_beta,
+                cfg.identity_gate_tau,
             )
             foreign_answer_with_correct_memory = _candidate_answer_loss(
                 bundle,
@@ -144,7 +157,11 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
             margin_advantage = correct_margin - foreign_margin
             target_margin = torch.as_tensor(cfg.contrastive_margin, device=answer_loss.device, dtype=answer_loss.dtype)
             contrastive_loss = F.relu(target_margin - margin_advantage)
-        loss = answer_loss + cfg.contrastive_margin_weight * contrastive_loss
+        loss = (
+            answer_loss
+            + cfg.contrastive_margin_weight * contrastive_loss
+            + cfg.address_margin_weight * address_loss
+        )
         loss.backward()
         grad_norm = _grad_norm(list(writer.parameters()) + list(projector.parameters()))
         optimizer.step()
@@ -156,6 +173,8 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
                 "answer_loss": float(answer_loss.detach().cpu()),
                 "contrastive_loss": float(contrastive_loss.detach().cpu()),
                 "contrastive_margin_advantage": float(margin_advantage.detach().cpu()),
+                "address_loss": float(address_loss.detach().cpu()),
+                "address_margin": float(address_margin_value.detach().cpu()),
                 "grad_norm": grad_norm,
                 "q_delta_norm": result.trace.q_delta_norm,
                 "v_delta_norm": result.trace.v_delta_norm,
@@ -176,6 +195,8 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
         "trainable_base_params": trainable_base_params(bundle.model),
         "prompt_insertion_used": False,
         "retrieval_query_uses_answer": False,
+        "retrieval_key": "address_key",
+        "address_key_separate_from_payload": True,
         "source_text_debug_only": True,
         "train_examples": [example.as_dict() for example in train_examples],
         "eval_examples": [example.as_dict() for example in eval_examples],
@@ -185,7 +206,7 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
         "final_eval": final_eval,
         "conflict_margins": conflict_margins,
         "statistics": primary_delta_memory_statistics(final_eval, seed=cfg.seed),
-        "diagnosis": diagnose_experiment(initial_eval, final_eval),
+        "diagnosis": diagnose_experiment(initial_eval, final_eval, min_control_gap=cfg.control_margin_min),
     }
     return summary
 
@@ -205,12 +226,16 @@ def evaluate_prepared(
             shared_pool if shared_pool is not None else _live_memories(writer, sample, layer_ids, cfg),
             sample.query,
             cfg.top_k,
+            cfg.identity_gate_beta,
+            cfg.identity_gate_tau,
         )
         wrong_query_sample = _foreign_sample(prepared, sample_idx)
         wrong_query_memories = _select_topk_by_layer(
             shared_pool if shared_pool is not None else _live_memories(writer, wrong_query_sample, layer_ids, cfg),
             wrong_query_sample.query,
             cfg.top_k,
+            cfg.identity_gate_beta,
+            cfg.identity_gate_tau,
         )
         sample_rows = {}
         for mode in TRAIN_EVAL_MODES:
@@ -249,7 +274,7 @@ def evaluate_conflict_margins(
 ) -> dict[str, Any]:
     if len(prepared) < 2:
         return {"aggregate": {}, "samples": []}
-    modes = ["no_memory", "delta_qv", "delta_qv_wrong_query"]
+    modes = ["no_memory", "delta_qv", "delta_qv_identity_gate", "delta_qv_wrong_query"]
     by_mode: dict[str, list[float]] = {mode: [] for mode in modes}
     address_rows: list[dict[str, float]] = []
     samples: list[dict[str, Any]] = []
@@ -265,11 +290,15 @@ def evaluate_conflict_margins(
             shared_pool if shared_pool is not None else _live_memories(writer, sample, layer_ids, cfg),
             sample.query,
             cfg.top_k,
+            cfg.identity_gate_beta,
+            cfg.identity_gate_tau,
         )
         foreign_memories = _select_topk_by_layer(
             shared_pool if shared_pool is not None else _live_memories(writer, foreign, layer_ids, cfg),
             foreign.query,
             cfg.top_k,
+            cfg.identity_gate_beta,
+            cfg.identity_gate_tau,
         )
         sample_modes: dict[str, dict[str, float]] = {}
         for mode in modes:
@@ -326,10 +355,10 @@ def _address_diagnostics(
             "address_margin": 0.0,
             "correct_vs_paired_score_margin": 0.0,
         }
-    q = F.normalize(query.float().to(memories[0].raw_key.device), dim=0)
+    q = F.normalize(query.float().to(memories[0].address_key.device), dim=0)
     scored = []
     for item in memories:
-        score = float(F.normalize(item.raw_key.float(), dim=0).matmul(q).detach().cpu())
+        score = float(F.normalize(item.address_key.float(), dim=0).matmul(q).detach().cpu())
         scored.append((score, item))
     scored.sort(key=lambda row: row[0], reverse=True)
     top1 = scored[0][0]
@@ -366,6 +395,42 @@ def _foreign_sample(prepared: list[PreparedDeltaExample], sample_idx: int) -> Pr
         if candidate.example.unit == sample.example.unit:
             return candidate
     return prepared[(sample_idx + 1) % len(prepared)]
+
+
+def _address_ranking_loss(
+    writer: RCVHCWriter,
+    sample: PreparedDeltaExample,
+    foreign: PreparedDeltaExample,
+    layer_ids: list[int],
+    cfg: DeltaExperimentConfig,
+) -> tuple[torch.Tensor, torch.Tensor]:
+    correct_items = _live_memories(writer, sample, layer_ids, cfg)
+    foreign_items = _live_memories(writer, foreign, layer_ids, cfg)
+    if not correct_items or not foreign_items:
+        device = next(writer.parameters()).device
+        zero = torch.zeros((), device=device)
+        return zero, zero
+    query = sample.query.to(next(writer.parameters()).device).float()
+    query = F.normalize(query, dim=0)
+    losses = []
+    margins = []
+    target = torch.as_tensor(cfg.address_margin, device=query.device, dtype=query.dtype)
+    for layer_id in layer_ids:
+        correct_layer = [item for item in correct_items if item.layer_id == layer_id]
+        foreign_layer = [item for item in foreign_items if item.layer_id == layer_id]
+        if not correct_layer or not foreign_layer:
+            continue
+        correct_keys = torch.stack([item.address_key.float() for item in correct_layer], dim=0)
+        foreign_keys = torch.stack([item.address_key.float() for item in foreign_layer], dim=0)
+        correct_score = F.normalize(correct_keys, dim=-1).matmul(query).max()
+        foreign_score = F.normalize(foreign_keys, dim=-1).matmul(query).max()
+        margin = correct_score - foreign_score
+        margins.append(margin)
+        losses.append(F.relu(target - margin))
+    if not losses:
+        zero = torch.zeros((), device=query.device, dtype=query.dtype)
+        return zero, zero
+    return torch.stack(losses).mean(), torch.stack(margins).mean()
 
 
 def _candidate_answer_loss(
@@ -418,18 +483,25 @@ def _score_candidate_answer(
     return compute_answer_metrics(logits, prompt["input_ids"], answer_start, answer_ids)
 
 
-def diagnose_experiment(initial_eval: dict[str, Any], final_eval: dict[str, Any]) -> dict[str, Any]:
+def diagnose_experiment(initial_eval: dict[str, Any], final_eval: dict[str, Any], min_control_gap: float = 0.05) -> dict[str, Any]:
     initial_delta = _mode_metric(initial_eval, "delta_qv", "answer_nll")
     final_delta = _mode_metric(final_eval, "delta_qv", "answer_nll")
     final_zero = _mode_metric(final_eval, "delta_qv_zero", "answer_nll")
     final_random = _mode_metric(final_eval, "delta_qv_random", "answer_nll")
     final_shuffled = _mode_metric(final_eval, "delta_qv_shuffled", "answer_nll")
+    zero_gap = final_zero - final_delta
+    random_gap = final_random - final_delta
+    shuffled_gap = final_shuffled - final_delta
     return {
+        "control_margin_min": float(min_control_gap),
         "eval_delta_nll_drop": initial_delta - final_delta,
-        "eval_delta_beats_zero": final_delta < final_zero,
-        "eval_delta_beats_random": final_delta < final_random,
-        "eval_delta_beats_shuffled": final_delta < final_shuffled,
-        "mechanism_supported_on_eval": final_delta < final_zero and final_delta < final_random and final_delta < final_shuffled,
+        "eval_delta_zero_nll_gap": zero_gap,
+        "eval_delta_random_nll_gap": random_gap,
+        "eval_delta_shuffled_nll_gap": shuffled_gap,
+        "eval_delta_beats_zero": zero_gap > min_control_gap,
+        "eval_delta_beats_random": random_gap > min_control_gap,
+        "eval_delta_beats_shuffled": shuffled_gap > min_control_gap,
+        "mechanism_supported_on_eval": zero_gap > min_control_gap and random_gap > min_control_gap and shuffled_gap > min_control_gap,
     }
 
 
@@ -535,26 +607,48 @@ def _memory_pool(
     return items
 
 
-def _select_topk_by_layer(memories: list[AttentionMemoryItem], query: torch.Tensor, top_k: int) -> dict[int, list[AttentionMemoryItem]]:
+def _select_topk_by_layer(
+    memories: list[AttentionMemoryItem],
+    query: torch.Tensor,
+    top_k: int,
+    identity_gate_beta: float = 64.0,
+    identity_gate_tau: float = 0.01,
+) -> dict[int, list[AttentionMemoryItem]]:
     selected: dict[int, list[AttentionMemoryItem]] = {}
     for layer_id in sorted({item.layer_id for item in memories}):
         layer_memories = [item for item in memories if item.layer_id == layer_id]
-        selected[layer_id] = _select_topk(layer_memories, query, top_k)
+        selected[layer_id] = _select_topk(layer_memories, query, top_k, identity_gate_beta, identity_gate_tau)
     return selected
 
 
-def _select_topk(memories: list[AttentionMemoryItem], query: torch.Tensor, top_k: int) -> list[AttentionMemoryItem]:
+def _select_topk(
+    memories: list[AttentionMemoryItem],
+    query: torch.Tensor,
+    top_k: int,
+    identity_gate_beta: float = 64.0,
+    identity_gate_tau: float = 0.01,
+) -> list[AttentionMemoryItem]:
     if not memories:
         return []
-    q = query.float().to(memories[0].raw_key.device)
-    keys = torch.stack([item.raw_key.float() for item in memories], dim=0)
+    q = query.float().to(memories[0].address_key.device)
+    keys = torch.stack([item.address_key.float() for item in memories], dim=0)
     scores = F.normalize(keys, dim=-1).matmul(F.normalize(q, dim=0))
     _, idx = scores.topk(min(top_k, len(memories)))
+    top_scores, _ = scores.topk(min(2, len(memories)))
+    top1 = float(top_scores[0].detach().cpu())
+    top2 = float(top_scores[1].detach().cpu()) if len(top_scores) > 1 else top1
+    margin = top1 - top2
+    gate = float(torch.sigmoid(torch.tensor(identity_gate_beta * (margin - identity_gate_tau))).item())
     selected = []
     for rank, item_idx in enumerate(idx.tolist()):
         item = memories[int(item_idx)]
         item.metadata = dict(item.metadata)
         item.metadata["retrieval_rank"] = rank
+        item.metadata["address_score"] = float(scores[int(item_idx)].detach().cpu())
+        item.metadata["address_top1_score"] = top1
+        item.metadata["address_top2_score"] = top2
+        item.metadata["address_margin"] = margin
+        item.metadata["identity_gate"] = gate
         selected.append(item)
     return selected
 
@@ -588,7 +682,7 @@ def _aggregate_by_mode(by_mode: dict[str, list[dict[str, Any]]]) -> dict[str, di
     aggregate: dict[str, dict[str, float]] = {}
     for mode, rows in by_mode.items():
         metrics = {"answer_nll": [], "answer_rank": [], "top10": [], "answer_logprob": []}
-        traces = {"q_delta_norm": [], "v_delta_norm": [], "gate_v": [], "injected_layers": []}
+        traces = {"q_delta_norm": [], "v_delta_norm": [], "gate_v": [], "identity_gate": [], "injected_layers": []}
         for row in rows:
             for key in metrics:
                 value = row["metrics"].get(key)
@@ -634,25 +728,45 @@ def _markdown(summary: dict[str, Any]) -> str:
         "## Config",
         "",
     ]
-    for key in ["model", "device", "dtype", "steps", "lr", "task_suite", "train_samples", "eval_samples", "block_size", "memory_dim", "top_k"]:
-        lines.append(f"- `{key}`: `{cfg[key]}`")
+    for key in [
+        "model",
+        "device",
+        "dtype",
+        "steps",
+        "lr",
+        "task_suite",
+        "train_samples",
+        "eval_samples",
+        "block_size",
+        "memory_dim",
+        "top_k",
+        "address_margin_weight",
+        "address_margin",
+        "identity_gate_beta",
+        "identity_gate_tau",
+        "control_margin_min",
+    ]:
+        lines.append(f"- `{key}`: `{cfg.get(key)}`")
     lines.extend(
         [
             f"- `layer_ids`: `{summary['layer_ids']}`",
             f"- `trainable_base_params`: `{summary['trainable_base_params']}`",
             f"- `prompt_insertion_used`: `{summary['prompt_insertion_used']}`",
+            f"- `retrieval_key`: `{summary.get('retrieval_key', 'raw_key')}`",
             "",
             "## Eval Aggregate",
             "",
-            "| mode | initial_nll | final_nll | final_rank | top10 | q_delta | v_delta | gate_v |",
-            "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+            "| mode | initial_nll | final_nll | final_rank | top10 | q_delta | v_delta | gate_v | identity_gate |",
+            "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
         ]
     )
     initial = summary["initial_eval"]["aggregate"]
     final = summary["final_eval"]["aggregate"]
     for mode in TRAIN_EVAL_MODES:
+        if mode not in initial or mode not in final:
+            continue
         lines.append(
-            "| {mode} | {initial_nll:.4f} | {final_nll:.4f} | {rank:.4f} | {top10:.4f} | {q:.4f} | {v:.4f} | {gate:.4f} |".format(
+            "| {mode} | {initial_nll:.4f} | {final_nll:.4f} | {rank:.4f} | {top10:.4f} | {q:.4f} | {v:.4f} | {gate:.4f} | {identity:.4f} |".format(
                 mode=mode,
                 initial_nll=float(initial[mode]["answer_nll"]),
                 final_nll=float(final[mode]["answer_nll"]),
@@ -661,6 +775,7 @@ def _markdown(summary: dict[str, Any]) -> str:
                 q=float(final[mode]["q_delta_norm"]),
                 v=float(final[mode]["v_delta_norm"]),
                 gate=float(final[mode]["gate_v"]),
+                identity=float(final[mode].get("identity_gate", 0.0)),
             )
         )
     lines.extend(["", "## Diagnosis", ""])
@@ -687,7 +802,22 @@ def _markdown(summary: dict[str, Any]) -> str:
         lines.append("| mode | foreign_minus_correct_nll |")
         lines.append("| --- | ---: |")
         for mode, row in (margins.get("aggregate") or {}).items():
+            if mode == "address":
+                continue
             lines.append(f"| {mode} | {float(row.get('foreign_minus_correct_nll', 0.0)):.4f} |")
+        address = (margins.get("aggregate") or {}).get("address")
+        if address:
+            lines.extend(
+                [
+                    "",
+                    "## Address Diagnostics",
+                    "",
+                    f"- `correct_address_rank`: `{float(address.get('correct_address_rank', 0.0)):.4f}`",
+                    f"- `paired_negative_rank`: `{float(address.get('paired_negative_rank', 0.0)):.4f}`",
+                    f"- `address_margin`: `{float(address.get('address_margin', 0.0)):.4f}`",
+                    f"- `correct_vs_paired_score_margin`: `{float(address.get('correct_vs_paired_score_margin', 0.0)):.4f}`",
+                ]
+            )
         delta_row = (margins.get("aggregate") or {}).get("delta_qv", {})
         if "margin_advantage_vs_wrong_query" in delta_row:
             lines.append("")

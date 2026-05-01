@@ -76,6 +76,10 @@ keeps the base model frozen, and does not insert retrieved text into the prompt.
 | Conflict-margin pilot | `5.1661` vs `12.8438` NLL | margin advantage `-0.0070` | [report](reports/experiments/conflict_margin_pilot) |
 | Paired-conflict pilot | `4.6836` vs `12.3341` NLL | margin advantage `0.0094` | [report](reports/experiments/paired_conflict_pilot) |
 | Contrastive alignment pilot | `5.2961` vs `12.3341` NLL | shared contrastive fails shuffled gate | [report](reports/experiments/contrastive_alignment_pilot) |
+| Address-key projection pilot | `4.8159` vs `11.6111` NLL | address rank is poor (`5.25`); shuffled gap only `0.0062`, below the `0.05` gate | [report](reports/experiments/address_key_projection_pilot) |
+| Identity-gate pilot | `5.3501` vs `11.6111` NLL; identity-gated Delta `6.9899` | gate suppresses weak addresses (`0.3796`) but correct rank remains `5.25`; shuffled gate fails | [report](reports/experiments/identity_gate_pilot) |
+| Address-supervised pilot | `3.9278` vs `11.6111` NLL | address ranking loss improves channel but not binding; wrong-query and shuffled remain tied | [report](reports/experiments/address_supervised_pilot) |
+| Address-token contrastive pilot | `3.0843` vs `12.1370` NLL | explicit address tokens plus contrastive loss still fail the `0.05` shuffled/wrong-query gate | [report](reports/experiments/address_token_contrastive_pilot) |
 | Hidden retrieval baseline | `5.8246` vs `12.2118` NLL | hidden late-fusion baseline is weak (`14.5274`) | [report](reports/experiments/hidden_retrieval_baseline_pilot) |
 | Long-distance NoLiMa-style | `4.9367` vs `11.8879` NLL | fails shuffled gate (`4.8210`) | [report](reports/experiments/long_distance_nolima_pilot) |
 

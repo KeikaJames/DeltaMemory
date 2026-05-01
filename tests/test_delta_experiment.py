@@ -48,6 +48,18 @@ def test_paired_conflict_binding_has_same_unit_conflicts():
         assert first.collision_group_id == second.collision_group_id
 
 
+def test_address_token_binding_has_explicit_paired_addresses():
+    examples = make_delta_memory_examples("address_token_binding", 4, seed=19)
+    for first, second in zip(examples[0::2], examples[1::2]):
+        assert first.unit == second.unit
+        assert first.answer != second.answer
+        assert first.paired_sample_id == second.sample_id
+        assert second.paired_sample_id == first.sample_id
+        assert "ADDRESS:" in first.text
+        assert "ADDR::" in first.question
+        assert first.answer not in first.question
+
+
 def test_long_distance_nolima_has_large_gap():
     example = make_delta_memory_examples("long_distance_nolima_style", 1, seed=17)[0]
     assert example.task_type == "long_distance_nolima_style"

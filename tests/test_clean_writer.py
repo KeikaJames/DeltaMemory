@@ -15,6 +15,7 @@ def test_writer_outputs_raw_and_delta_memory():
     items = writer.write_layer(layer_id=1, h_in=h_in, h_out=h_out, attn=attn)
     assert len(items) == 3
     assert items[0].raw_key.shape == (8,)
+    assert items[0].address_key.shape == (8,)
     assert items[0].delta_q.shape == (8,)
     assert items[0].metadata["source_text_debug_only"] is True
     assert all(torch.isfinite(item.delta_v).all() for item in items)

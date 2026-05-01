@@ -16,6 +16,7 @@ class AttentionMemoryItem:
     token_start: int
     token_end: int
     raw_key: torch.Tensor
+    address_key: torch.Tensor
     raw_value: torch.Tensor
     delta_q: torch.Tensor
     delta_k: torch.Tensor
@@ -31,6 +32,7 @@ class AttentionMemoryItem:
             token_start=self.token_start,
             token_end=self.token_end,
             raw_key=self.raw_key.detach().cpu().float(),
+            address_key=self.address_key.detach().cpu().float(),
             raw_value=self.raw_value.detach().cpu().float(),
             delta_q=self.delta_q.detach().cpu().float(),
             delta_k=self.delta_k.detach().cpu().float(),
@@ -58,6 +60,7 @@ class QKVTrace:
     gate_q: float = 0.0
     gate_k: float = 0.0
     gate_v: float = 0.0
+    identity_gate: float = 0.0
     injected_layers: float = 0.0
 
     def as_dict(self) -> dict[str, float]:
@@ -71,5 +74,6 @@ class QKVTrace:
             "gate_q": self.gate_q,
             "gate_k": self.gate_k,
             "gate_v": self.gate_v,
+            "identity_gate": self.identity_gate,
             "injected_layers": self.injected_layers,
         }

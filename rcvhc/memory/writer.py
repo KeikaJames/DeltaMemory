@@ -36,6 +36,7 @@ class RCVHCWriter(nn.Module):
         self.block_size = int(block_size)
         self.eps = float(eps)
         self.raw_key = nn.Linear(hidden_size, memory_dim)
+        self.address_key = nn.Linear(hidden_size, memory_dim)
         self.raw_value = nn.Linear(hidden_size, memory_dim)
         self.self_proj = nn.Linear(hidden_size * 2, memory_dim)
         self.use_proj = nn.Linear(hidden_size, memory_dim)
@@ -72,6 +73,7 @@ class RCVHCWriter(nn.Module):
             h_block_out = h_out[0, start:end]
             raw_summary = h_block_out.mean(dim=0)
             raw_key = self.raw_key(raw_summary)
+            address_key = self.address_key(raw_summary)
             raw_value = self.raw_value(raw_summary)
             delta, usage_mass = self._delta_value(h_block_in, h_block_out, h_out[0], attn_mean, start, end)
             snippet = ""
@@ -94,6 +96,7 @@ class RCVHCWriter(nn.Module):
                     token_start=token_offset + start,
                     token_end=token_offset + end,
                     raw_key=raw_key,
+                    address_key=address_key,
                     raw_value=raw_value,
                     delta_q=self.delta_q(delta),
                     delta_k=self.delta_k(delta),

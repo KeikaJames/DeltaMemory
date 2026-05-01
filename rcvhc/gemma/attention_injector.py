@@ -22,6 +22,7 @@ QKV_INTERVENTION_MODES = {
     "delta_qv_shuffled",
     "delta_qv_wrong_layer",
     "delta_qv_wrong_query",
+    "delta_qv_identity_gate",
     "delta_qv_force_gate",
 }
 
@@ -80,25 +81,46 @@ class QKVDeltaProjector(nn.Module):
             z = noise * (z_norm / n_norm)
         return z
 
-    def project(self, base: torch.Tensor, z: torch.Tensor, kind: str, mode: str) -> tuple[torch.Tensor, dict[str, float]]:
+    def identity_gate(self, memories: list[AttentionMemoryItem], mode: str, device, dtype) -> torch.Tensor:
+        if mode != "delta_qv_identity_gate":
+            return torch.ones(1, 1, 1, device=device, dtype=dtype)
+        if not memories:
+            return torch.zeros(1, 1, 1, device=device, dtype=dtype)
+        value = float(memories[0].metadata.get("identity_gate", 0.0))
+        return torch.full((1, 1, 1), value, device=device, dtype=dtype)
+
+    def project(
+        self,
+        base: torch.Tensor,
+        z: torch.Tensor,
+        kind: str,
+        mode: str,
+        identity_gate: torch.Tensor | None = None,
+    ) -> tuple[torch.Tensor, dict[str, float]]:
         z = self.norm(z.to(device=base.device, dtype=base.dtype))
         force_gate = mode == "delta_qv_force_gate"
+        identity_gate = (
+            torch.ones((*z.shape[:-1], 1), device=z.device, dtype=z.dtype)
+            if identity_gate is None
+            else identity_gate.to(device=z.device, dtype=z.dtype)
+        )
         gate_q = torch.ones((*z.shape[:-1], 1), device=z.device, dtype=z.dtype) if force_gate else torch.sigmoid(self.gate_q(z))
         gate_k = torch.ones_like(gate_q) if force_gate else torch.sigmoid(self.gate_k(z))
         gate_v = torch.ones_like(gate_q) if force_gate else torch.sigmoid(self.gate_v(z))
         update = torch.zeros_like(base)
-        if kind == "q" and mode in {"delta_qv", "delta_qkv", "delta_qv_shuffled", "delta_qv_zero", "delta_qv_random", "delta_qv_wrong_layer", "delta_qv_wrong_query", "delta_qv_force_gate"}:
-            update = self.alpha_scale * gate_q * self._project_kind("q", z, base.shape[-1], base.device, base.dtype)
+        if kind == "q" and mode in {"delta_qv", "delta_qkv", "delta_qv_shuffled", "delta_qv_zero", "delta_qv_random", "delta_qv_wrong_layer", "delta_qv_wrong_query", "delta_qv_identity_gate", "delta_qv_force_gate"}:
+            update = identity_gate * self.alpha_scale * gate_q * self._project_kind("q", z, base.shape[-1], base.device, base.dtype)
         elif kind == "k" and mode in {"delta_kv", "delta_qkv"}:
             update = self.alpha_scale * gate_k * self._project_kind("k", z, base.shape[-1], base.device, base.dtype)
         elif kind == "v" and mode in QKV_INTERVENTION_MODES - {"no_memory"}:
-            update = self.alpha_scale * gate_v * self._project_kind("v", z, base.shape[-1], base.device, base.dtype)
+            update = identity_gate * self.alpha_scale * gate_v * self._project_kind("v", z, base.shape[-1], base.device, base.dtype)
         trace = {
             f"{kind}_delta_norm": float(update.detach().float().norm().cpu()),
             f"{kind}_relative_delta_norm": float((update.detach().float().norm() / (base.detach().float().norm() + 1e-6)).cpu()),
             "gate_q": float(gate_q.detach().float().mean().cpu()),
             "gate_k": float(gate_k.detach().float().mean().cpu()),
             "gate_v": float(gate_v.detach().float().mean().cpu()),
+            "identity_gate": float(identity_gate.detach().float().mean().cpu()),
         }
         return base + update.to(dtype=base.dtype), trace
 
@@ -200,7 +222,8 @@ class GemmaAttentionInjector:
         def hook_for(layer_memories: list[AttentionMemoryItem], kind: str):
             def hook(_module: nn.Module, _inputs, output: torch.Tensor) -> torch.Tensor:
                 z = self.projector.delta_vector(layer_memories, mode=mode, kind=kind, device=output.device, dtype=output.dtype)
-                updated, trace = self.projector.project(output, z, kind=kind, mode=mode)
+                identity_gate = self.projector.identity_gate(layer_memories, mode=mode, device=output.device, dtype=output.dtype)
+                updated, trace = self.projector.project(output, z, kind=kind, mode=mode, identity_gate=identity_gate)
                 add_metric(trace)
                 return updated
 
@@ -242,6 +265,7 @@ class GemmaAttentionInjector:
             gate_q=mean("gate_q"),
             gate_k=mean("gate_k"),
             gate_v=mean("gate_v"),
+            identity_gate=mean("identity_gate"),
             injected_layers=float(len(layer_ids)),
         )
         return InjectionResult(out.logits, trace)

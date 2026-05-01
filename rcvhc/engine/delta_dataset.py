@@ -31,6 +31,7 @@ DELTA_TASK_SUITES = {
     "paraphrase_nolima_style",
     "adversarial_negative",
     "paired_conflict_binding",
+    "address_token_binding",
     "long_distance_nolima_style",
 }
 
@@ -53,6 +54,8 @@ def make_delta_memory_examples(
         return make_adversarial_negative_examples(num_examples, seed=seed, start_id=start_id)
     if task_suite == "paired_conflict_binding":
         return make_paired_conflict_binding_examples(num_examples, seed=seed, start_id=start_id)
+    if task_suite == "address_token_binding":
+        return make_address_token_binding_examples(num_examples, seed=seed, start_id=start_id)
     if task_suite == "long_distance_nolima_style":
         return make_long_distance_nolima_examples(num_examples, seed=seed, start_id=start_id)
     raise ValueError(f"unknown Delta Memory task suite: {task_suite}")
@@ -235,6 +238,53 @@ def make_paired_conflict_binding_examples(num_examples: int, seed: int = 0, star
                     text,
                     question,
                     "paired_conflict_binding",
+                    paired_sample_id=paired_sample_id,
+                    collision_group_id=group_id,
+                    foreign_answer=foreign_answer,
+                )
+            )
+    return examples
+
+
+def make_address_token_binding_examples(num_examples: int, seed: int = 0, start_id: int = 0) -> list[DeltaExample]:
+    rng = random.Random(seed)
+    examples: list[DeltaExample] = []
+    used_units: set[str] = set()
+    used_codes: set[str] = set()
+    used_cases: set[str] = set()
+    while len(examples) < num_examples:
+        unit = _unique_unit(rng, used_units)
+        pair = []
+        for _ in range(2):
+            case_id = _unique_case(rng, used_cases)
+            answer = _unique_code(rng, used_codes)
+            address = f"ADDR::{case_id}::{unit}"
+            pair.append((case_id, address, answer))
+        sample_ids = [start_id + len(examples) + offset for offset in range(2)]
+        group_id = f"address-token-{unit}"
+        for pair_idx, (case_id, address, answer) in enumerate(pair):
+            if len(examples) >= num_examples:
+                break
+            paired_sample_id = sample_ids[1 - pair_idx] if len(examples) + 1 < num_examples or pair_idx == 1 else None
+            foreign_answer = pair[1 - pair_idx][2] if paired_sample_id is not None else None
+            text = "\n".join(
+                [
+                    "Memory card format: each card has an ADDRESS line and one PAYLOAD line.",
+                    f"ADDRESS: {address}",
+                    f"PAYLOAD: secret-code = {answer}",
+                    f"VALIDATION: use the full address {address}; do not answer from unit id alone.",
+                    "The payload is intentionally not repeated outside this address card.",
+                ]
+            )
+            question = f"For ADDRESS {address}, what is the secret-code payload?"
+            examples.append(
+                DeltaExample(
+                    sample_ids[pair_idx],
+                    unit,
+                    answer,
+                    text,
+                    question,
+                    "address_token_binding",
                     paired_sample_id=paired_sample_id,
                     collision_group_id=group_id,
                     foreign_answer=foreign_answer,

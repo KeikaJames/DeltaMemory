@@ -173,10 +173,10 @@ Each report must include:
 1. Add paired-negative metadata and address diagnostics to the existing
    `paired_conflict_binding` suite. **Done.**
 2. Add `address_key` projection and retrieval ranking metrics without changing
-   generation behavior.
-3. Add identity gate as an optional mode, default off for compatibility.
-4. Run mock tests and one MPS pilot.
-5. Add signed counterfactual loss.
-6. Run the small pass/fail matrix.
+   generation behavior. **Done.**
+3. Add identity gate as an optional mode, default off for compatibility. **Done.**
+4. Run mock tests and one MPS pilot. **Done.**
+5. Add signed counterfactual/address loss. **Done for first pilot.**
+6. Run the small pass/fail matrix. **In progress; current pilots still fail
+   shuffled/wrong-query gates under a 0.05 NLL control-margin threshold.**
 7. Only if gates pass, unblock larger-seed confirmation.
-

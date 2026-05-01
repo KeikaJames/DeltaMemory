@@ -41,6 +41,7 @@ class AttentionMemoryStore:
             stored.metadata.setdefault("layer_id", stored.layer_id)
             stored.metadata.setdefault("block_id", stored.block_id)
             stored.metadata.setdefault("token_range", [stored.token_start, stored.token_end])
+            stored.metadata.setdefault("address_key_source", "writer.address_key")
             self._items.append(stored)
             written.append(self._next_id)
             self._next_id += 1
@@ -59,7 +60,7 @@ class AttentionMemoryStore:
             q = q.mean(dim=0)
         if q.numel() != self.memory_dim:
             q = _fit_dim(q, self.memory_dim)
-        keys = torch.stack([item.raw_key.float() for item in candidates], dim=0)
+        keys = torch.stack([item.address_key.float() for item in candidates], dim=0)
         scores = self.temperature * F.normalize(keys, dim=-1, eps=self.eps).matmul(
             F.normalize(q, dim=0, eps=self.eps)
         )
@@ -88,6 +89,7 @@ class AttentionMemoryStore:
                     token_start=item.token_start,
                     token_end=item.token_end,
                     raw_key=item.raw_key.to(device),
+                    address_key=item.address_key.to(device),
                     raw_value=item.raw_value.to(device),
                     delta_q=item.delta_q.to(device),
                     delta_k=item.delta_k.to(device),
@@ -120,7 +122,7 @@ class AttentionMemoryStore:
             return sum(p.stat().st_size for p in Path(path).rglob("*") if p.is_file())
         tensor_bytes = 0
         for item in self._items:
-            for tensor in (item.raw_key, item.raw_value, item.delta_q, item.delta_k, item.delta_v):
+            for tensor in (item.raw_key, item.address_key, item.raw_value, item.delta_q, item.delta_k, item.delta_v):
                 tensor_bytes += tensor.numel() * tensor.element_size()
         metadata_bytes = sum(len(json.dumps(item.metadata, sort_keys=True).encode("utf-8")) for item in self._items)
         return int(tensor_bytes + metadata_bytes)
@@ -142,6 +144,7 @@ class AttentionMemoryStore:
                     "token_start": item.token_start,
                     "token_end": item.token_end,
                     "raw_key": item.raw_key,
+                    "address_key": item.address_key,
                     "raw_value": item.raw_value,
                     "delta_q": item.delta_q,
                     "delta_k": item.delta_k,
@@ -171,6 +174,7 @@ class AttentionMemoryStore:
                 token_start=int(record["token_start"]),
                 token_end=int(record["token_end"]),
                 raw_key=record["raw_key"].float().cpu(),
+                address_key=record.get("address_key", record["raw_key"]).float().cpu(),
                 raw_value=record["raw_value"].float().cpu(),
                 delta_q=record["delta_q"].float().cpu(),
                 delta_k=record["delta_k"].float().cpu(),

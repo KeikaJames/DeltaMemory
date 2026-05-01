@@ -34,6 +34,7 @@ TRAIN_EVAL_MODES = [
     "delta_qv_shuffled",
     "delta_qv_wrong_layer",
     "delta_qv_wrong_query",
+    "delta_qv_identity_gate",
     "delta_qv_force_gate",
 ]
 
@@ -265,8 +266,8 @@ def _select_topk_by_layer(memories: list[AttentionMemoryItem], query: torch.Tens
 def _select_topk(memories: list[AttentionMemoryItem], query: torch.Tensor, top_k: int) -> list[AttentionMemoryItem]:
     if not memories:
         return []
-    q = query.float().to(memories[0].raw_key.device)
-    keys = torch.stack([item.raw_key.float() for item in memories], dim=0)
+    q = query.float().to(memories[0].address_key.device)
+    keys = torch.stack([item.address_key.float() for item in memories], dim=0)
     scores = F.normalize(keys, dim=-1).matmul(F.normalize(q, dim=0))
     _, idx = scores.topk(min(top_k, len(memories)))
     selected = []
