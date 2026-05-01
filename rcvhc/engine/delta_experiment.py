@@ -251,10 +251,16 @@ def evaluate_conflict_margins(
         return {"aggregate": {}, "samples": []}
     modes = ["no_memory", "delta_qv", "delta_qv_wrong_query"]
     by_mode: dict[str, list[float]] = {mode: [] for mode in modes}
+    address_rows: list[dict[str, float]] = []
     samples: list[dict[str, Any]] = []
     shared_pool = _memory_pool(writer, prepared, layer_ids, cfg) if cfg.shared_memory_retrieval else None
     for sample_idx, sample in enumerate(prepared):
         foreign = _foreign_sample(prepared, sample_idx)
+        diagnostic_pool = shared_pool if shared_pool is not None else (
+            _live_memories(writer, sample, layer_ids, cfg) + _live_memories(writer, foreign, layer_ids, cfg)
+        )
+        address_diagnostics = _address_diagnostics(diagnostic_pool, sample.query, sample, foreign)
+        address_rows.append(address_diagnostics)
         correct_memories = _select_topk_by_layer(
             shared_pool if shared_pool is not None else _live_memories(writer, sample, layer_ids, cfg),
             sample.query,
@@ -289,16 +295,66 @@ def evaluate_conflict_margins(
                 "answer": sample.example.answer,
                 "foreign_sample_id": foreign.example.sample_id,
                 "foreign_answer": foreign.example.answer,
+                "paired_sample_id": sample.example.paired_sample_id,
+                "collision_group_id": sample.example.collision_group_id,
+                "address_diagnostics": address_diagnostics,
                 "modes": sample_modes,
             }
         )
     aggregate = {mode: {"foreign_minus_correct_nll": _mean(values)} for mode, values in by_mode.items()}
+    aggregate["address"] = _aggregate_address_diagnostics(address_rows)
     if by_mode["delta_qv"] and by_mode["delta_qv_wrong_query"]:
         aggregate["delta_qv"]["margin_advantage_vs_wrong_query"] = (
             aggregate["delta_qv"]["foreign_minus_correct_nll"]
             - aggregate["delta_qv_wrong_query"]["foreign_minus_correct_nll"]
         )
     return {"aggregate": aggregate, "samples": samples}
+
+
+def _address_diagnostics(
+    memories: list[AttentionMemoryItem],
+    query: torch.Tensor,
+    sample: PreparedDeltaExample,
+    foreign: PreparedDeltaExample,
+) -> dict[str, float]:
+    if not memories:
+        return {
+            "correct_address_rank": 0.0,
+            "paired_negative_rank": 0.0,
+            "top1_score": 0.0,
+            "top2_score": 0.0,
+            "address_margin": 0.0,
+            "correct_vs_paired_score_margin": 0.0,
+        }
+    q = F.normalize(query.float().to(memories[0].raw_key.device), dim=0)
+    scored = []
+    for item in memories:
+        score = float(F.normalize(item.raw_key.float(), dim=0).matmul(q).detach().cpu())
+        scored.append((score, item))
+    scored.sort(key=lambda row: row[0], reverse=True)
+    top1 = scored[0][0]
+    top2 = scored[1][0] if len(scored) > 1 else top1
+    correct_id = sample.example.sample_id
+    paired_id = sample.example.paired_sample_id if sample.example.paired_sample_id is not None else foreign.example.sample_id
+    correct_scores = [(rank, score) for rank, (score, item) in enumerate(scored, start=1) if item.metadata.get("sample_id") == correct_id]
+    paired_scores = [(rank, score) for rank, (score, item) in enumerate(scored, start=1) if item.metadata.get("sample_id") == paired_id]
+    correct_rank, correct_score = correct_scores[0] if correct_scores else (0, 0.0)
+    paired_rank, paired_score = paired_scores[0] if paired_scores else (0, 0.0)
+    return {
+        "correct_address_rank": float(correct_rank),
+        "paired_negative_rank": float(paired_rank),
+        "top1_score": top1,
+        "top2_score": top2,
+        "address_margin": top1 - top2,
+        "correct_vs_paired_score_margin": correct_score - paired_score,
+    }
+
+
+def _aggregate_address_diagnostics(rows: list[dict[str, float]]) -> dict[str, float]:
+    if not rows:
+        return {}
+    keys = sorted({key for row in rows for key in row})
+    return {key: _mean([float(row.get(key, 0.0)) for row in rows]) for key in keys}
 
 
 def _foreign_sample(prepared: list[PreparedDeltaExample], sample_idx: int) -> PreparedDeltaExample:
@@ -444,16 +500,26 @@ def _live_memories(
 ) -> list[AttentionMemoryItem]:
     items: list[AttentionMemoryItem] = []
     for layer_id in layer_ids:
-        items.extend(
-            writer.write_layer(
-                layer_id=layer_id,
-                h_in=sample.context_out.hidden_states[layer_id],
-                h_out=sample.context_out.hidden_states[layer_id + 1],
-                attn=sample.context_out.attentions[layer_id],
-                token_offset=0,
-                source_text_by_block=sample.snippets,
-            )
+        layer_items = writer.write_layer(
+            layer_id=layer_id,
+            h_in=sample.context_out.hidden_states[layer_id],
+            h_out=sample.context_out.hidden_states[layer_id + 1],
+            attn=sample.context_out.attentions[layer_id],
+            token_offset=0,
+            source_text_by_block=sample.snippets,
         )
+        for item in layer_items:
+            item.metadata.update(
+                {
+                    "sample_id": sample.example.sample_id,
+                    "unit": sample.example.unit,
+                    "answer": sample.example.answer,
+                    "paired_sample_id": sample.example.paired_sample_id,
+                    "collision_group_id": sample.example.collision_group_id,
+                    "foreign_answer": sample.example.foreign_answer,
+                }
+            )
+        items.extend(layer_items)
     return items
 
 

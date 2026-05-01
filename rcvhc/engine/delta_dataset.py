@@ -14,6 +14,9 @@ class DeltaExample:
     text: str
     question: str
     task_type: str = "later_referenced_fact"
+    paired_sample_id: int | None = None
+    collision_group_id: str | None = None
+    foreign_answer: str | None = None
 
     def as_dict(self) -> dict[str, object]:
         return asdict(self)
@@ -204,10 +207,14 @@ def make_paired_conflict_binding_examples(num_examples: int, seed: int = 0, star
             case_id = _unique_case(rng, used_cases)
             answer = _unique_code(rng, used_codes)
             pair.append((case_id, answer))
-        for case_id, answer in pair:
+        sample_ids = [start_id + len(examples) + offset for offset in range(2)]
+        group_id = f"paired-conflict-{unit}"
+        for pair_idx, (case_id, answer) in enumerate(pair):
             if len(examples) >= num_examples:
                 break
-            sample_id = start_id + len(examples)
+            sample_id = sample_ids[pair_idx]
+            paired_sample_id = sample_ids[1 - pair_idx] if len(examples) + 1 < num_examples or pair_idx == 1 else None
+            foreign_answer = pair[1 - pair_idx][1] if paired_sample_id is not None else None
             distractor_unit = _unique_unit(rng, used_units)
             distractor_case = _unique_case(rng, used_cases)
             distractor_answer = _unique_code(rng, used_codes)
@@ -220,7 +227,19 @@ def make_paired_conflict_binding_examples(num_examples: int, seed: int = 0, star
                 ]
             )
             question = f"For ledger {case_id}, what is the secret code for unit {unit}?"
-            examples.append(DeltaExample(sample_id, unit, answer, text, question, "paired_conflict_binding"))
+            examples.append(
+                DeltaExample(
+                    sample_id,
+                    unit,
+                    answer,
+                    text,
+                    question,
+                    "paired_conflict_binding",
+                    paired_sample_id=paired_sample_id,
+                    collision_group_id=group_id,
+                    foreign_answer=foreign_answer,
+                )
+            )
     return examples
 
 

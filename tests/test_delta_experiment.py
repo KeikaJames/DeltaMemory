@@ -43,6 +43,9 @@ def test_paired_conflict_binding_has_same_unit_conflicts():
         assert first.unit == second.unit
         assert first.answer != second.answer
         assert first.question != second.question
+        assert first.paired_sample_id == second.sample_id
+        assert second.paired_sample_id == first.sample_id
+        assert first.collision_group_id == second.collision_group_id
 
 
 def test_long_distance_nolima_has_large_gap():
@@ -102,6 +105,8 @@ def test_delta_experiment_conflict_margins(tmp_path):
     assert "delta_qv" in margins["aggregate"]
     assert "delta_qv_wrong_query" in margins["aggregate"]
     assert "margin_advantage_vs_wrong_query" in margins["aggregate"]["delta_qv"]
+    assert "address" in margins["aggregate"]
+    assert "correct_address_rank" in margins["samples"][0]["address_diagnostics"]
 
 
 def test_delta_experiment_contrastive_training_records_margin(tmp_path):
