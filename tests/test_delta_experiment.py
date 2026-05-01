@@ -45,6 +45,14 @@ def test_paired_conflict_binding_has_same_unit_conflicts():
         assert first.question != second.question
 
 
+def test_long_distance_nolima_has_large_gap():
+    example = make_delta_memory_examples("long_distance_nolima_style", 1, seed=17)[0]
+    assert example.task_type == "long_distance_nolima_style"
+    assert example.answer in example.text
+    assert example.answer not in example.question
+    assert len(example.text.split()) > 350
+
+
 def test_delta_experiment_mock_smoke(tmp_path):
     cfg = DeltaExperimentConfig(
         model="mock-gemma",

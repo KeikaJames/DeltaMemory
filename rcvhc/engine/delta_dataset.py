@@ -28,6 +28,7 @@ DELTA_TASK_SUITES = {
     "paraphrase_nolima_style",
     "adversarial_negative",
     "paired_conflict_binding",
+    "long_distance_nolima_style",
 }
 
 
@@ -49,6 +50,8 @@ def make_delta_memory_examples(
         return make_adversarial_negative_examples(num_examples, seed=seed, start_id=start_id)
     if task_suite == "paired_conflict_binding":
         return make_paired_conflict_binding_examples(num_examples, seed=seed, start_id=start_id)
+    if task_suite == "long_distance_nolima_style":
+        return make_long_distance_nolima_examples(num_examples, seed=seed, start_id=start_id)
     raise ValueError(f"unknown Delta Memory task suite: {task_suite}")
 
 
@@ -218,6 +221,43 @@ def make_paired_conflict_binding_examples(num_examples: int, seed: int = 0, star
             )
             question = f"For ledger {case_id}, what is the secret code for unit {unit}?"
             examples.append(DeltaExample(sample_id, unit, answer, text, question, "paired_conflict_binding"))
+    return examples
+
+
+def make_long_distance_nolima_examples(num_examples: int, seed: int = 0, start_id: int = 0) -> list[DeltaExample]:
+    rng = random.Random(seed)
+    examples: list[DeltaExample] = []
+    used_units: set[str] = set()
+    used_codes: set[str] = set()
+    for idx in range(num_examples):
+        sample_id = start_id + idx
+        unit = _unique_unit(rng, used_units)
+        alias = f"regional asset {rng.randint(1000, 9999)}"
+        answer = _unique_code(rng, used_codes)
+        filler = []
+        for filler_idx in range(18):
+            distractor = _unique_unit(rng, used_units)
+            filler.append(
+                " ".join(
+                    [
+                        f"Archive paragraph {filler_idx}: unit {distractor} passed routine calibration.",
+                        "The paragraph discusses inventories, weather delays, route planning, and maintenance logs.",
+                        "No emergency phrase, code phrase, ledger answer, or recovery token is provided here.",
+                    ]
+                )
+            )
+        text = "\n".join(
+            [
+                f"Crosswalk note: hardware identifier {unit} is referred to as {alias} in the regional archive.",
+                *filler[:9],
+                f"Policy memorandum: the emergency phrase assigned to {alias} is {answer}.",
+                "The phrase is intentionally not repeated after this memorandum.",
+                *filler[9:],
+                f"Final audit note: hardware identifier {unit} requires the archived emergency phrase.",
+            ]
+        )
+        question = f"What emergency phrase is assigned to hardware identifier {unit}?"
+        examples.append(DeltaExample(sample_id, unit, answer, text, question, "long_distance_nolima_style"))
     return examples
 
 
