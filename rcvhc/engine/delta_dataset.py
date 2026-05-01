@@ -53,14 +53,15 @@ def make_later_reference_examples(num_examples: int, seed: int = 0, start_id: in
     rng = random.Random(seed)
     examples: list[DeltaExample] = []
     used_units: set[str] = set()
+    used_codes: set[str] = set()
     for idx in range(num_examples):
         sample_id = start_id + idx
         unit = _unique_unit(rng, used_units)
-        answer = f"{COLORS[idx % len(COLORS)]}-{SUFFIXES[(idx * 3) % len(SUFFIXES)]}"
+        answer = _unique_code(rng, used_codes)
         distractors = []
         for d_idx in range(3):
             other = _unique_unit(rng, used_units)
-            code = f"{COLORS[(idx + d_idx + 1) % len(COLORS)]}-{SUFFIXES[(idx + d_idx + 2) % len(SUFFIXES)]}"
+            code = _unique_code(rng, used_codes)
             distractors.append(f"The secret code for unit {other} is {code}.")
         filler = " ".join(
             [
@@ -88,12 +89,13 @@ def make_multi_hop_binding_examples(num_examples: int, seed: int = 0, start_id: 
     rng = random.Random(seed)
     examples: list[DeltaExample] = []
     used_units: set[str] = set()
+    used_codes: set[str] = set()
     for idx in range(num_examples):
         sample_id = start_id + idx
         unit = _unique_unit(rng, used_units)
         badge = f"badge-{rng.randint(1000, 9999)}"
         locker = f"locker-{rng.randint(10, 99)}"
-        answer = f"{COLORS[idx % len(COLORS)]}-{SUFFIXES[(idx * 5) % len(SUFFIXES)]}"
+        answer = _unique_code(rng, used_codes)
         distractor_unit = _unique_unit(rng, used_units)
         text = "\n".join(
             [
@@ -114,11 +116,12 @@ def make_temporal_overwrite_examples(num_examples: int, seed: int = 0, start_id:
     rng = random.Random(seed)
     examples: list[DeltaExample] = []
     used_units: set[str] = set()
+    used_codes: set[str] = set()
     for idx in range(num_examples):
         sample_id = start_id + idx
         unit = _unique_unit(rng, used_units)
-        old_answer = f"{COLORS[(idx + 2) % len(COLORS)]}-{SUFFIXES[(idx + 1) % len(SUFFIXES)]}"
-        answer = f"{COLORS[idx % len(COLORS)]}-{SUFFIXES[(idx * 3 + 2) % len(SUFFIXES)]}"
+        old_answer = _unique_code(rng, used_codes)
+        answer = _unique_code(rng, used_codes)
         text = "\n".join(
             [
                 f"Morning record: the secret code for unit {unit} is {old_answer}.",
@@ -137,11 +140,12 @@ def make_paraphrase_nolima_examples(num_examples: int, seed: int = 0, start_id: 
     rng = random.Random(seed)
     examples: list[DeltaExample] = []
     used_units: set[str] = set()
+    used_codes: set[str] = set()
     for idx in range(num_examples):
         sample_id = start_id + idx
         unit = _unique_unit(rng, used_units)
         alias = f"north-aisle asset {rng.randint(100, 999)}"
-        answer = f"{COLORS[idx % len(COLORS)]}-{SUFFIXES[(idx * 7) % len(SUFFIXES)]}"
+        answer = _unique_code(rng, used_codes)
         text = "\n".join(
             [
                 f"Inventory label {alias} corresponds to hardware unit {unit}.",
@@ -159,13 +163,14 @@ def make_adversarial_negative_examples(num_examples: int, seed: int = 0, start_i
     rng = random.Random(seed)
     examples: list[DeltaExample] = []
     used_units: set[str] = set()
+    used_codes: set[str] = set()
     for idx in range(num_examples):
         sample_id = start_id + idx
         unit = _unique_unit(rng, used_units)
         near_unit = f"{unit[:-1]}{(int(unit[-1]) + 1) % 10}"
         used_units.add(near_unit)
-        answer = f"{COLORS[idx % len(COLORS)]}-{SUFFIXES[(idx * 2) % len(SUFFIXES)]}"
-        wrong = f"{COLORS[(idx + 4) % len(COLORS)]}-{SUFFIXES[(idx * 2 + 3) % len(SUFFIXES)]}"
+        answer = _unique_code(rng, used_codes)
+        wrong = _unique_code(rng, used_codes)
         text = "\n".join(
             [
                 f"The secret code for unit {near_unit} is {wrong}.",
@@ -186,3 +191,11 @@ def _unique_unit(rng: random.Random, used: set[str]) -> str:
         if unit not in used:
             used.add(unit)
             return unit
+
+
+def _unique_code(rng: random.Random, used: set[str]) -> str:
+    while True:
+        code = f"{rng.choice(COLORS)}-{rng.randint(10, 99)}"
+        if code not in used:
+            used.add(code)
+            return code

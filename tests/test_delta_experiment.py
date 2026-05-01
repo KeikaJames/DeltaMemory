@@ -27,6 +27,13 @@ def test_delta_memory_task_suites_have_answerable_held_out_questions():
             assert example.unit in example.question
 
 
+def test_delta_memory_answers_are_seed_dependent():
+    for task_suite in DELTA_TASK_SUITES:
+        train_like = make_delta_memory_examples(task_suite, 8, seed=4)
+        eval_like = make_delta_memory_examples(task_suite, 8, seed=10_004)
+        assert [example.answer for example in train_like] != [example.answer for example in eval_like]
+
+
 def test_delta_experiment_mock_smoke(tmp_path):
     cfg = DeltaExperimentConfig(
         model="mock-gemma",
