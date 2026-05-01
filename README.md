@@ -257,18 +257,18 @@ The implementation plan is tracked in
 This project is an experimental cleanroom prototype. The following papers and
 benchmarks motivate the current design and the stricter causal gates:
 
-| topic | reference |
-| --- | --- |
-| Retrieval-augmented language modeling | RETRO: Improving Language Models by Retrieving from Trillions of Tokens, arXiv:2112.04426 |
-| External kNN memory | Memorizing Transformers, arXiv:2203.08913 |
-| Long-context memory transformers | LongMem: Scaling Language Models with Long Context Using Memory Augmented Transformer, arXiv:2307.02486 |
-| Selective state-space models | Mamba: Linear-Time Sequence Modeling with Selective State Spaces, arXiv:2312.00752 |
-| Bounded compressive memory | Leave No Context Behind: Efficient Infinite Context Transformers with Infini-attention, arXiv:2404.07143 |
-| Real context-size evaluation | RULER: What's the Real Context Size of Your Long-Context Language Models?, arXiv:2404.06654 |
-| Long-context beyond literal matching | NoLiMa: Long-Context Evaluation Beyond Literal Matching, arXiv:2502.05167 |
-| Test-time neural long-term memory | Titans: Learning to Memorize at Test Time, arXiv:2501.00663 |
-| Delta-rule / fast-weight memory | Parallelizing Linear Transformers with the Delta Rule over Sequence Length, arXiv:2406.06484 |
-| KV-cache retrieval baseline direction | RetrievalAttention: Accelerating Long-Context LLM Inference via Vector Retrieval, OpenReview |
+| topic | citation | DOI / link |
+| --- | --- | --- |
+| Retrieval-augmented language modeling | Borgeaud et al., "Improving Language Models by Retrieving from Trillions of Tokens" (RETRO), arXiv:2112.04426 | [10.48550/arXiv.2112.04426](https://doi.org/10.48550/arXiv.2112.04426) |
+| External kNN memory | Wu et al., "Memorizing Transformers", arXiv:2203.08913 | [10.48550/arXiv.2203.08913](https://doi.org/10.48550/arXiv.2203.08913) |
+| Long-context memory transformers | Wang et al., "Augmenting Language Models with Long-Term Memory" (LongMem), arXiv:2306.07174 | [10.48550/arXiv.2306.07174](https://doi.org/10.48550/arXiv.2306.07174) |
+| Selective state-space models | Gu and Dao, "Mamba: Linear-Time Sequence Modeling with Selective State Spaces", arXiv:2312.00752 | [10.48550/arXiv.2312.00752](https://doi.org/10.48550/arXiv.2312.00752) |
+| Bounded compressive memory | Munkhdalai et al., "Leave No Context Behind: Efficient Infinite Context Transformers with Infini-attention", arXiv:2404.07143 | [10.48550/arXiv.2404.07143](https://doi.org/10.48550/arXiv.2404.07143) |
+| Real context-size evaluation | Hsieh et al., "RULER: What's the Real Context Size of Your Long-Context Language Models?", arXiv:2404.06654 | [10.48550/arXiv.2404.06654](https://doi.org/10.48550/arXiv.2404.06654) |
+| Delta-rule / fast-weight memory | Yang et al., "Parallelizing Linear Transformers with the Delta Rule over Sequence Length", arXiv:2406.06484 | [10.48550/arXiv.2406.06484](https://doi.org/10.48550/arXiv.2406.06484) |
+| Test-time neural long-term memory | Behrouz et al., "Titans: Learning to Memorize at Test Time", arXiv:2501.00663 | [10.48550/arXiv.2501.00663](https://doi.org/10.48550/arXiv.2501.00663) |
+| Long-context beyond literal matching | Modarressi et al., "NoLiMa: Long-Context Evaluation Beyond Literal Matching", arXiv:2502.05167 | [10.48550/arXiv.2502.05167](https://doi.org/10.48550/arXiv.2502.05167) |
+| KV-cache retrieval baseline direction | "RetrievalAttention: Accelerating Long-Context LLM Inference via Vector Retrieval", OpenReview | [OpenReview](https://openreview.net/forum?id=8z3cOVER4z) |
 
 ## License
 
