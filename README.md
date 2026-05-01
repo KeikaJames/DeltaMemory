@@ -106,6 +106,7 @@ Tracked cleanroom evidence:
 
 - `reports/cleanroom/gemma4_real/gemma4_prototype_report.md`
 - `reports/cleanroom/gemma4_training_probe/delta_training_report.md`
+- `reports/cleanroom/gemma4_delta_experiment_main/delta_experiment_report.md`
 
 The current real Gemma4 run shows engineering success:
 
@@ -132,6 +133,20 @@ The training probe is stronger but still intentionally small:
 
 This is a mechanism signal, not a benchmark result. The next step is to repeat
 the same controlled training on more generated examples.
+
+The current multi-example Gemma4 probe repeats that test on generated
+later-reference examples:
+
+- `train_samples = 4`,
+- `eval_samples = 4`,
+- `steps = 2`,
+- `block_size = 64`,
+- `trainable_base_params = 0`,
+- held-out `delta_qv` improves NLL from `12.2486` to `11.4252`,
+- held-out `delta_qv` beats zero, random, and shuffled controls.
+
+This is the first clean RCV-HC Delta attention-memory mechanism signal on a
+real Gemma4 base. It is still a small probe, not a benchmark-scale result.
 
 ## Proof Plan
 
