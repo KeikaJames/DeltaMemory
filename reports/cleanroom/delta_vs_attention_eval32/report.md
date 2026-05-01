@@ -1,5 +1,10 @@
 # Delta Memory vs Ordinary Attention Eval32
 
+> Superseded note: this report used the original synthetic answer generator,
+> whose answer sequence was deterministic across train/eval seeds. Treat it as
+> an early mechanism signal. The corrected random-answer rerun is
+> `reports/cleanroom/corrected_random_answers_eval32/report.md`.
+
 ## Question
 
 Does layerwise Delta Memory injection inside attention outperform the frozen
@@ -72,4 +77,3 @@ The base model remains frozen, the injected path uses all 15 exposed attention
 layers, and no retrieved source text is inserted into the prompt. This supports
 the claim that the effect is from Delta injection inside attention, not from RAG
 or an external MCP/tool-context path.
-

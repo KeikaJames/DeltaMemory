@@ -1,5 +1,10 @@
 # Delta Memory Layer Ablation Eval32
 
+> Superseded note: this report used the original synthetic answer generator,
+> whose answer sequence was deterministic across train/eval seeds. Treat it as
+> an early layer-policy signal, not a final ablation. Re-run layer ablations on
+> the corrected random-answer suites before making a strong layerwise claim.
+
 ## Question
 
 Does injecting Delta Memory into every attention layer improve over a last-layer
@@ -48,4 +53,3 @@ The one exception is `single_fact_late_reference`, where last-layer-only is
 better. That suggests the next step should not blindly assume all-layer is
 always optimal. The right next experiment is a layer-policy sweep:
 `last`, `first+middle+last`, `every_2nd`, and `all`, plus wrong-query controls.
-

@@ -1,5 +1,10 @@
 # Delta Memory Expanded Gemma/MPS Report
 
+> Superseded note: this report used the original synthetic answer generator,
+> whose answer sequence was deterministic across train/eval seeds. Treat it as
+> an early mechanism signal. The corrected random-answer rerun is
+> `reports/cleanroom/corrected_random_answers_eval32/report.md`.
+
 ## Config
 
 - `model`: `google/gemma-4-E2B`
