@@ -177,6 +177,8 @@ Each report must include:
 3. Add identity gate as an optional mode, default off for compatibility. **Done.**
 4. Run mock tests and one MPS pilot. **Done.**
 5. Add signed counterfactual/address loss. **Done for first pilot.**
-6. Run the small pass/fail matrix. **In progress; current pilots still fail
-   shuffled/wrong-query gates under a 0.05 NLL control-margin threshold.**
-7. Only if gates pass, unblock larger-seed confirmation.
+6. Run the small pass/fail matrix. **Done; pilots fail shuffled/wrong-query
+   gates under a 0.05 NLL control-margin threshold.**
+7. Only if gates pass, unblock larger-seed confirmation. **Closed as a
+   negative multiseed confirmation: the final 3-seed run preserves the strong
+   Delta channel but support rate remains 0.0 for query-specific binding.**

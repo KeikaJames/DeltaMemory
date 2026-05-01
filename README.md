@@ -80,6 +80,7 @@ keeps the base model frozen, and does not insert retrieved text into the prompt.
 | Identity-gate pilot | `5.3501` vs `11.6111` NLL; identity-gated Delta `6.9899` | gate suppresses weak addresses (`0.3796`) but correct rank remains `5.25`; shuffled gate fails | [report](reports/experiments/identity_gate_pilot) |
 | Address-supervised pilot | `3.9278` vs `11.6111` NLL | address ranking loss improves channel but not binding; wrong-query and shuffled remain tied | [report](reports/experiments/address_supervised_pilot) |
 | Address-token contrastive pilot | `3.0843` vs `12.1370` NLL | explicit address tokens plus contrastive loss still fail the `0.05` shuffled/wrong-query gate | [report](reports/experiments/address_token_contrastive_pilot) |
+| Final address-bound multiseed | mean `4.0965` vs no-memory `12.1111` NLL over 3 seeds | support rate `0.0`; shuffled gap `0.0031`, wrong-query gap `0.0027`, address rank `4.9167` | [report](reports/experiments/address_bound_final_multiseed) |
 | Hidden retrieval baseline | `5.8246` vs `12.2118` NLL | hidden late-fusion baseline is weak (`14.5274`) | [report](reports/experiments/hidden_retrieval_baseline_pilot) |
 | Long-distance NoLiMa-style | `4.9367` vs `11.8879` NLL | fails shuffled gate (`4.8210`) | [report](reports/experiments/long_distance_nolima_pilot) |
 
