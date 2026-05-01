@@ -231,6 +231,35 @@ def test_delta_experiment_restricted_eval_modes_include_payload_probe(tmp_path):
     assert "payload_probe" in summary["stage2_binding_summary"]["eval_modes"]
 
 
+def test_delta_experiment_lm_head_lora_training_records_loss(tmp_path):
+    cfg = DeltaExperimentConfig(
+        model="mock-gemma",
+        device="cpu",
+        dtype="float32",
+        steps=1,
+        train_samples=2,
+        eval_samples=2,
+        task_suite="address_token_binding_single_token",
+        block_size=16,
+        memory_dim=32,
+        top_k=1,
+        oracle_span_writer=True,
+        conflict_margins=True,
+        lm_head_lora_loss_weight=1.0,
+        stage2_swap_loss_weight=0.1,
+        stage2_swap_mode="lm_head_lora",
+        eval_injection_modes="lm_head_lora,payload_probe",
+        report_dir=str(tmp_path / "report"),
+    )
+    summary = run_delta_experiment(cfg)
+    assert summary["train"][0]["lm_head_lora_loss"] >= 0.0
+    assert summary["train"][0]["stage2_swap_loss"] >= 0.0
+    assert "lm_head_lora" in summary["final_eval"]["aggregate"]
+    assert "lm_head_lora_update_norm" in summary["final_eval"]["aggregate"]["lm_head_lora"]
+    assert "lm_head_lora_oracle_correct" in summary["conflict_margins"]["aggregate"]
+    assert "lm_head_lora" in summary["stage2_binding_summary"]["eval_modes"]
+
+
 def test_delta_experiment_contrastive_training_records_margin(tmp_path):
     cfg = DeltaExperimentConfig(
         model="mock-gemma",

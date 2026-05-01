@@ -48,7 +48,10 @@ def main() -> int:
     parser.add_argument("--payload-embedding-loss-weight", type=float, default=0.0)
     parser.add_argument("--stage2-swap-loss-weight", type=float, default=0.0)
     parser.add_argument("--stage2-swap-margin", type=float, default=2.0)
-    parser.add_argument("--stage2-swap-mode", default="payload_probe", choices=["payload_probe","logit_bias"])
+    parser.add_argument("--stage2-swap-mode", default="payload_probe", choices=["payload_probe","logit_bias","lm_head_lora"])
+    parser.add_argument("--lm-head-lora-loss-weight", type=float, default=0.0)
+    parser.add_argument("--lm-head-lora-rank", type=int, default=1)
+    parser.add_argument("--lm-head-lora-scale", type=float, default=1.0)
     parser.add_argument("--eval-injection-modes", default="all", help="Comma-separated eval modes, or 'all'. no_memory is always included.")
     parser.add_argument("--control-margin-min", type=float, default=0.05)
     parser.add_argument("--report-dir", default="reports/experiments/delta_experiment")
@@ -88,6 +91,9 @@ def main() -> int:
         stage2_swap_loss_weight=args.stage2_swap_loss_weight,
         stage2_swap_margin=args.stage2_swap_margin,
         stage2_swap_mode=args.stage2_swap_mode,
+        lm_head_lora_loss_weight=args.lm_head_lora_loss_weight,
+        lm_head_lora_rank=args.lm_head_lora_rank,
+        lm_head_lora_scale=args.lm_head_lora_scale,
         eval_injection_modes=args.eval_injection_modes,
         control_margin_min=args.control_margin_min,
         report_dir=args.report_dir,

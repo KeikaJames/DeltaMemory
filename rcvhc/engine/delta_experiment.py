@@ -19,11 +19,12 @@ from rcvhc.engine.delta_dataset import DeltaExample, make_delta_memory_examples
 from rcvhc.engine.delta_training import TRAIN_EVAL_MODES, _answer_loss, _grad_norm
 from rcvhc.engine.statistics import primary_delta_memory_statistics
 from rcvhc.gemma.attention_injector import GemmaAttentionInjector, QKVDeltaProjector
+from rcvhc.gemma.fast_weight_injector import LMHeadFastWeightProjector
 from rcvhc.gemma.model_adapter import exposed_qkv_layers, get_hidden_size, get_vocab_size, load_model_bundle, trainable_base_params
 from rcvhc.memory.writer import RCVHCWriter, fit_memory_dim, split_source_snippets
 
 
-EXPERIMENT_EVAL_MODES = [*TRAIN_EVAL_MODES, "logit_bias", "payload_probe", "oracle_logit_answer_embedding"]
+EXPERIMENT_EVAL_MODES = [*TRAIN_EVAL_MODES, "logit_bias", "payload_probe", "lm_head_lora", "oracle_logit_answer_embedding"]
 
 
 @dataclass
@@ -61,7 +62,10 @@ class DeltaExperimentConfig:
     payload_embedding_loss_weight: float = 0.0
     stage2_swap_loss_weight: float = 0.0
     stage2_swap_margin: float = 2.0
-    stage2_swap_mode: str = "payload_probe"  # payload_probe | logit_bias
+    stage2_swap_mode: str = "payload_probe"  # payload_probe | logit_bias | lm_head_lora
+    lm_head_lora_loss_weight: float = 0.0
+    lm_head_lora_rank: int = 1
+    lm_head_lora_scale: float = 1.0
     eval_injection_modes: str = "all"
     control_margin_min: float = 0.05
     report_dir: str = "reports/experiments/delta_experiment"
@@ -73,6 +77,7 @@ class PreparedDeltaExample:
     context_out: Any
     prompt: dict[str, torch.Tensor]
     base_logits: torch.Tensor
+    base_hidden: torch.Tensor
     query_hidden: torch.Tensor
     snippets: list[str]
     answer_start: int
@@ -92,6 +97,13 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
     payload_probe = PayloadAnswerProbe(cfg.memory_dim, hidden_size, bundle.model.get_output_embeddings()).to(
         bundle.device, dtype=bundle.dtype
     )
+    lm_head_lora = LMHeadFastWeightProjector(
+        cfg.memory_dim,
+        hidden_size,
+        bundle.model.get_output_embeddings(),
+        rank=cfg.lm_head_lora_rank,
+        scale=cfg.lm_head_lora_scale,
+    ).to(bundle.device, dtype=bundle.dtype)
     projector = QKVDeltaProjector(cfg.memory_dim, hidden_size, cfg.alpha_scale, cfg.gate_bias).to(
         bundle.device, dtype=bundle.dtype
     )
@@ -115,11 +127,11 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
     train_prepared = [_prepare_example(bundle, example, cfg) for example in train_examples]
     eval_prepared = [_prepare_example(bundle, example, cfg) for example in eval_examples]
     optimizer = torch.optim.AdamW(
-        _trainable_parameters(writer, projector, logit_projector, payload_probe),
+        _trainable_parameters(writer, projector, logit_projector, payload_probe, lm_head_lora),
         lr=cfg.lr,
     )
 
-    initial_eval = evaluate_prepared(writer, injector, logit_projector, payload_probe, eval_prepared, layer_ids, cfg)
+    initial_eval = evaluate_prepared(writer, injector, logit_projector, payload_probe, lm_head_lora, eval_prepared, layer_ids, cfg)
     train_rows = []
     for step in range(1, cfg.steps + 1):
         sample_idx = (step - 1) % len(train_prepared)
@@ -148,6 +160,7 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
         address_loss = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
         address_margin_value = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
         logit_bias_loss = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
+        lm_head_lora_loss = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
         payload_answer_loss = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
         payload_embedding_loss = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
         stage2_swap_loss = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
@@ -157,6 +170,9 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
         if cfg.logit_bias_loss_weight > 0.0:
             logit_bias_logits, _ = _logit_bias_readout(sample, memories, logit_projector, cfg.payload_probe_layer_strategy)
             logit_bias_loss = _answer_loss(logit_bias_logits, sample.answer_start, sample.answer_ids)
+        if cfg.lm_head_lora_loss_weight > 0.0:
+            lm_head_lora_logits, _ = _lm_head_lora_readout(sample, memories, lm_head_lora, cfg.payload_probe_layer_strategy)
+            lm_head_lora_loss = _answer_loss(lm_head_lora_logits, sample.answer_start, sample.answer_ids)
         if cfg.payload_answer_loss_weight > 0.0:
             payload_answer_loss = _payload_answer_loss(payload_probe, memories, sample.answer_ids, cfg.payload_probe_layer_strategy)
         if cfg.payload_embedding_loss_weight > 0.0:
@@ -182,6 +198,7 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
                 foreign_memories,
                 payload_probe,
                 logit_projector,
+                lm_head_lora,
                 cfg.stage2_swap_mode,
                 cfg.stage2_swap_margin,
                 cfg.payload_probe_layer_strategy,
@@ -265,12 +282,13 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
             + cfg.oracle_contrastive_weight * oracle_contrastive_loss
             + cfg.address_margin_weight * address_loss
             + cfg.logit_bias_loss_weight * logit_bias_loss
+            + cfg.lm_head_lora_loss_weight * lm_head_lora_loss
             + cfg.payload_answer_loss_weight * payload_answer_loss
             + cfg.payload_embedding_loss_weight * payload_embedding_loss
             + cfg.stage2_swap_loss_weight * stage2_swap_loss
         )
         loss.backward()
-        grad_norm = _grad_norm(_trainable_parameters(writer, projector, logit_projector, payload_probe))
+        grad_norm = _grad_norm(_trainable_parameters(writer, projector, logit_projector, payload_probe, lm_head_lora))
         optimizer.step()
         train_rows.append(
             {
@@ -285,6 +303,7 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
                 "address_loss": float(address_loss.detach().cpu()),
                 "address_margin": float(address_margin_value.detach().cpu()),
                 "logit_bias_loss": float(logit_bias_loss.detach().cpu()),
+                "lm_head_lora_loss": float(lm_head_lora_loss.detach().cpu()),
                 "payload_answer_loss": float(payload_answer_loss.detach().cpu()),
                 "payload_embedding_loss": float(payload_embedding_loss.detach().cpu()),
                 "stage2_swap_loss": float(stage2_swap_loss.detach().cpu()),
@@ -297,10 +316,10 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
             }
         )
 
-    final_train = evaluate_prepared(writer, injector, logit_projector, payload_probe, train_prepared, layer_ids, cfg)
-    final_eval = evaluate_prepared(writer, injector, logit_projector, payload_probe, eval_prepared, layer_ids, cfg)
+    final_train = evaluate_prepared(writer, injector, logit_projector, payload_probe, lm_head_lora, train_prepared, layer_ids, cfg)
+    final_eval = evaluate_prepared(writer, injector, logit_projector, payload_probe, lm_head_lora, eval_prepared, layer_ids, cfg)
     conflict_margins = (
-        evaluate_conflict_margins(bundle, writer, injector, logit_projector, payload_probe, eval_prepared, layer_ids, cfg)
+        evaluate_conflict_margins(bundle, writer, injector, logit_projector, payload_probe, lm_head_lora, eval_prepared, layer_ids, cfg)
         if cfg.conflict_margins
         else None
     )
@@ -367,6 +386,7 @@ def evaluate_prepared(
     injector: GemmaAttentionInjector,
     logit_projector: PayloadLogitProjector,
     payload_probe: PayloadAnswerProbe,
+    lm_head_lora: LMHeadFastWeightProjector,
     prepared: list[PreparedDeltaExample],
     layer_ids: list[int],
     cfg: DeltaExperimentConfig,
@@ -413,6 +433,8 @@ def evaluate_prepared(
                 sample_rows[mode] = row
                 by_mode[mode].append(row)
                 continue
+            elif mode == "lm_head_lora":
+                logits, trace = _lm_head_lora_readout(sample, memories, lm_head_lora, cfg.payload_probe_layer_strategy)
             elif mode == "oracle_logit_answer_embedding":
                 logits, trace = _oracle_answer_embedding_bias(
                     sample.base_logits,
@@ -446,6 +468,7 @@ def evaluate_conflict_margins(
     injector: GemmaAttentionInjector,
     logit_projector: PayloadLogitProjector,
     payload_probe: PayloadAnswerProbe,
+    lm_head_lora: LMHeadFastWeightProjector,
     prepared: list[PreparedDeltaExample],
     layer_ids: list[int],
     cfg: DeltaExperimentConfig,
@@ -469,6 +492,10 @@ def evaluate_conflict_margins(
         "payload_probe_oracle_paired",
         "payload_probe_correct_address_paired_payload",
         "payload_probe_paired_address_correct_payload",
+        "lm_head_lora_oracle_correct",
+        "lm_head_lora_oracle_paired",
+        "lm_head_lora_correct_address_paired_payload",
+        "lm_head_lora_paired_address_correct_payload",
     ]
     by_mode: dict[str, list[float]] = {mode: [] for mode in modes}
     token_by_mode: dict[str, list[dict[str, float]]] = {mode: [] for mode in modes}
@@ -547,11 +574,23 @@ def evaluate_conflict_margins(
             elif mode == "payload_probe_paired_address_correct_payload":
                 memories = oracle_paired_address_correct_payload
                 injection_mode = "payload_probe"
+            elif mode == "lm_head_lora_oracle_correct":
+                memories = oracle_correct_memories
+                injection_mode = "lm_head_lora"
+            elif mode == "lm_head_lora_oracle_paired":
+                memories = oracle_paired_memories
+                injection_mode = "lm_head_lora"
+            elif mode == "lm_head_lora_correct_address_paired_payload":
+                memories = oracle_correct_address_paired_payload
+                injection_mode = "lm_head_lora"
+            elif mode == "lm_head_lora_paired_address_correct_payload":
+                memories = oracle_paired_address_correct_payload
+                injection_mode = "lm_head_lora"
             else:
                 memories = correct_memories
                 injection_mode = mode
-            correct = _score_candidate_answer(bundle, injector, logit_projector, payload_probe, sample.example.question, sample.example.answer, memories, injection_mode, cfg.payload_probe_layer_strategy)
-            foreign_score = _score_candidate_answer(bundle, injector, logit_projector, payload_probe, sample.example.question, foreign.example.answer, memories, injection_mode, cfg.payload_probe_layer_strategy)
+            correct = _score_candidate_answer(bundle, injector, logit_projector, payload_probe, lm_head_lora, sample.example.question, sample.example.answer, memories, injection_mode, cfg.payload_probe_layer_strategy)
+            foreign_score = _score_candidate_answer(bundle, injector, logit_projector, payload_probe, lm_head_lora, sample.example.question, foreign.example.answer, memories, injection_mode, cfg.payload_probe_layer_strategy)
             margin = foreign_score["answer_nll"] - correct["answer_nll"]
             by_mode[mode].append(margin)
             token_row = _answer_token_discrimination(
@@ -559,6 +598,7 @@ def evaluate_conflict_margins(
                 injector,
                 logit_projector,
                 payload_probe,
+                lm_head_lora,
                 sample.example.question,
                 sample.example.answer,
                 foreign.example.answer,
@@ -798,6 +838,7 @@ def _stage2_swap_loss(
     foreign_memories_by_layer: dict[int, list[AttentionMemoryItem]],
     payload_probe: PayloadAnswerProbe,
     logit_projector: PayloadLogitProjector,
+    lm_head_lora: LMHeadFastWeightProjector,
     mode: str,
     margin: float,
     layer_strategy: str = "mean_all",
@@ -819,6 +860,12 @@ def _stage2_swap_loss(
         logit_pos = sample.answer_start - 1
         correct_log_probs = torch.log_softmax(correct_logits[0, logit_pos].float(), dim=-1)
         paired_log_probs = torch.log_softmax(paired_logits[0, logit_pos].float(), dim=-1)
+    elif mode == "lm_head_lora":
+        correct_logits, _ = _lm_head_lora_readout(sample, memories_by_layer, lm_head_lora, layer_strategy)
+        paired_logits, _ = _lm_head_lora_readout(sample, foreign_memories_by_layer, lm_head_lora, layer_strategy)
+        logit_pos = sample.answer_start - 1
+        correct_log_probs = torch.log_softmax(correct_logits[0, logit_pos].float(), dim=-1)
+        paired_log_probs = torch.log_softmax(paired_logits[0, logit_pos].float(), dim=-1)
     else:
         raise ValueError(f"unsupported stage2 swap mode: {mode}")
     binding_margin = correct_log_probs[correct_id] - correct_log_probs[paired_id]
@@ -833,6 +880,7 @@ def _score_candidate_answer(
     injector: GemmaAttentionInjector,
     logit_projector: PayloadLogitProjector,
     payload_probe: PayloadAnswerProbe,
+    lm_head_lora: LMHeadFastWeightProjector,
     question: str,
     answer: str,
     memories_by_layer: dict[int, list[AttentionMemoryItem]],
@@ -861,6 +909,16 @@ def _score_candidate_answer(
                 use_cache=False,
             )
         logits, _ = _apply_logit_bias(out.logits, memories_by_layer, logit_projector, layer_strategy)
+    elif mode == "lm_head_lora":
+        with torch.no_grad():
+            out = bundle.model(
+                input_ids=prompt["input_ids"],
+                attention_mask=prompt["attention_mask"],
+                output_hidden_states=True,
+                output_attentions=False,
+                use_cache=False,
+            )
+        logits, _ = _apply_lm_head_lora(out.logits, out.hidden_states[-1], memories_by_layer, lm_head_lora, layer_strategy)
     elif mode == "payload_probe":
         logits, _ = _payload_probe_logits(memories_by_layer, payload_probe, layer_strategy)
         if not answer_ids:
@@ -890,6 +948,7 @@ def _answer_token_discrimination(
     injector: GemmaAttentionInjector,
     logit_projector: PayloadLogitProjector,
     payload_probe: PayloadAnswerProbe,
+    lm_head_lora: LMHeadFastWeightProjector,
     question: str,
     correct_answer: str,
     paired_answer: str,
@@ -920,6 +979,16 @@ def _answer_token_discrimination(
                 use_cache=False,
             )
         logits, _ = _apply_logit_bias(out.logits, memories_by_layer, logit_projector, layer_strategy)
+    elif mode == "lm_head_lora":
+        with torch.no_grad():
+            out = bundle.model(
+                input_ids=prompt["input_ids"],
+                attention_mask=prompt["attention_mask"],
+                output_hidden_states=True,
+                output_attentions=False,
+                use_cache=False,
+            )
+        logits, _ = _apply_lm_head_lora(out.logits, out.hidden_states[-1], memories_by_layer, lm_head_lora, layer_strategy)
     elif mode == "payload_probe":
         logits, _ = _payload_probe_logits(memories_by_layer, payload_probe, layer_strategy)
         log_probs = torch.log_softmax(logits.float(), dim=-1)
@@ -1137,6 +1206,7 @@ def _prepare_example(bundle, example: DeltaExample, cfg: DeltaExperimentConfig) 
         context_out=detached,
         prompt=prompt,
         base_logits=base.logits.detach(),
+        base_hidden=base.hidden_states[-1].detach(),
         query_hidden=query_hidden,
         snippets=snippets,
         answer_start=answer_start,
@@ -1389,6 +1459,29 @@ def _logit_bias_readout(
     return _apply_logit_bias(sample.base_logits, memories_by_layer, logit_projector, layer_strategy)
 
 
+def _lm_head_lora_readout(
+    sample: PreparedDeltaExample,
+    memories_by_layer: dict[int, list[AttentionMemoryItem]],
+    lm_head_lora: LMHeadFastWeightProjector,
+    layer_strategy: str = "mean_all",
+) -> tuple[torch.Tensor, dict[str, float]]:
+    return _apply_lm_head_lora(sample.base_logits, sample.base_hidden, memories_by_layer, lm_head_lora, layer_strategy)
+
+
+def _apply_lm_head_lora(
+    base_logits: torch.Tensor,
+    hidden: torch.Tensor,
+    memories_by_layer: dict[int, list[AttentionMemoryItem]],
+    lm_head_lora: LMHeadFastWeightProjector,
+    layer_strategy: str = "mean_all",
+) -> tuple[torch.Tensor, dict[str, float]]:
+    payload, payload_trace = _payload_vector(memories_by_layer, lm_head_lora, layer_strategy)
+    if payload.numel() == 0:
+        return base_logits, {}
+    logits, trace = lm_head_lora(base_logits, hidden, payload)
+    return logits, payload_trace | trace
+
+
 def _apply_logit_bias(
     base_logits: torch.Tensor,
     memories_by_layer: dict[int, list[AttentionMemoryItem]],
@@ -1491,7 +1584,16 @@ def _aggregate_by_mode(by_mode: dict[str, list[dict[str, Any]]]) -> dict[str, di
     aggregate: dict[str, dict[str, float]] = {}
     for mode, rows in by_mode.items():
         metrics = {"answer_nll": [], "answer_rank": [], "top10": [], "answer_logprob": []}
-        traces = {"q_delta_norm": [], "v_delta_norm": [], "gate_v": [], "identity_gate": [], "injected_layers": []}
+        traces = {
+            "q_delta_norm": [],
+            "v_delta_norm": [],
+            "gate_v": [],
+            "identity_gate": [],
+            "injected_layers": [],
+            "lm_head_lora_update_norm": [],
+            "lm_head_lora_u_norm": [],
+            "lm_head_lora_v_norm": [],
+        }
         for row in rows:
             for key in metrics:
                 value = row["metrics"].get(key)
@@ -1585,6 +1687,9 @@ def _markdown(summary: dict[str, Any]) -> str:
         "stage2_swap_loss_weight",
         "stage2_swap_margin",
         "stage2_swap_mode",
+        "lm_head_lora_loss_weight",
+        "lm_head_lora_rank",
+        "lm_head_lora_scale",
         "eval_injection_modes",
         "control_margin_min",
     ]:
