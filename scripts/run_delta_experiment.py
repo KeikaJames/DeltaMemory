@@ -45,6 +45,10 @@ def main() -> int:
     parser.add_argument("--logit-bias-scale", type=float, default=1.0)
     parser.add_argument("--payload-answer-loss-weight", type=float, default=0.0)
     parser.add_argument("--payload-probe-layer-strategy", default="mean_all", choices=["mean_all","last_layer","first_layer"])
+    parser.add_argument("--payload-embedding-loss-weight", type=float, default=0.0)
+    parser.add_argument("--stage2-swap-loss-weight", type=float, default=0.0)
+    parser.add_argument("--stage2-swap-margin", type=float, default=2.0)
+    parser.add_argument("--stage2-swap-mode", default="payload_probe", choices=["payload_probe","logit_bias"])
     parser.add_argument("--eval-injection-modes", default="all", help="Comma-separated eval modes, or 'all'. no_memory is always included.")
     parser.add_argument("--control-margin-min", type=float, default=0.05)
     parser.add_argument("--report-dir", default="reports/experiments/delta_experiment")
@@ -80,6 +84,10 @@ def main() -> int:
         logit_bias_scale=args.logit_bias_scale,
         payload_answer_loss_weight=args.payload_answer_loss_weight,
         payload_probe_layer_strategy=args.payload_probe_layer_strategy,
+        payload_embedding_loss_weight=args.payload_embedding_loss_weight,
+        stage2_swap_loss_weight=args.stage2_swap_loss_weight,
+        stage2_swap_margin=args.stage2_swap_margin,
+        stage2_swap_mode=args.stage2_swap_mode,
         eval_injection_modes=args.eval_injection_modes,
         control_margin_min=args.control_margin_min,
         report_dir=args.report_dir,

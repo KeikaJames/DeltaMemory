@@ -58,6 +58,10 @@ class DeltaExperimentConfig:
     logit_bias_scale: float = 1.0
     payload_answer_loss_weight: float = 0.0
     payload_probe_layer_strategy: str = "mean_all"  # mean_all | last_layer | first_layer | best_layer
+    payload_embedding_loss_weight: float = 0.0
+    stage2_swap_loss_weight: float = 0.0
+    stage2_swap_margin: float = 2.0
+    stage2_swap_mode: str = "payload_probe"  # payload_probe | logit_bias
     eval_injection_modes: str = "all"
     control_margin_min: float = 0.05
     report_dir: str = "reports/experiments/delta_experiment"
@@ -145,12 +149,43 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
         address_margin_value = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
         logit_bias_loss = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
         payload_answer_loss = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
+        payload_embedding_loss = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
+        stage2_swap_loss = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
+        stage2_binding_margin_value = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
+        stage2_swap_margin_value = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
         foreign = _foreign_sample(train_prepared, sample_idx) if len(train_prepared) > 1 else sample
         if cfg.logit_bias_loss_weight > 0.0:
-            logit_bias_logits, _ = _logit_bias_readout(sample, memories, logit_projector)
+            logit_bias_logits, _ = _logit_bias_readout(sample, memories, logit_projector, cfg.payload_probe_layer_strategy)
             logit_bias_loss = _answer_loss(logit_bias_logits, sample.answer_start, sample.answer_ids)
         if cfg.payload_answer_loss_weight > 0.0:
             payload_answer_loss = _payload_answer_loss(payload_probe, memories, sample.answer_ids, cfg.payload_probe_layer_strategy)
+        if cfg.payload_embedding_loss_weight > 0.0:
+            payload_embedding_loss = _payload_embedding_loss(
+                payload_probe,
+                memories,
+                sample.answer_ids,
+                cfg.payload_probe_layer_strategy,
+            )
+        if cfg.stage2_swap_loss_weight > 0.0 and len(train_prepared) > 1:
+            foreign_query = _query_key(writer, foreign)
+            foreign_memories = _select_topk_by_layer(
+                train_pool if train_pool is not None else _live_memories(writer, foreign, layer_ids, cfg),
+                foreign_query,
+                cfg.top_k,
+                cfg.identity_gate_beta,
+                cfg.identity_gate_tau,
+            )
+            stage2_swap_loss, stage2_binding_margin_value, stage2_swap_margin_value = _stage2_swap_loss(
+                sample,
+                foreign,
+                memories,
+                foreign_memories,
+                payload_probe,
+                logit_projector,
+                cfg.stage2_swap_mode,
+                cfg.stage2_swap_margin,
+                cfg.payload_probe_layer_strategy,
+            )
         if cfg.address_margin_weight > 0.0 and len(train_prepared) > 1:
             address_loss, address_margin_value = _address_ranking_loss(writer, sample, train_prepared, layer_ids, cfg)
         if cfg.contrastive_margin_weight > 0.0 and len(train_prepared) > 1:
@@ -231,6 +266,8 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
             + cfg.address_margin_weight * address_loss
             + cfg.logit_bias_loss_weight * logit_bias_loss
             + cfg.payload_answer_loss_weight * payload_answer_loss
+            + cfg.payload_embedding_loss_weight * payload_embedding_loss
+            + cfg.stage2_swap_loss_weight * stage2_swap_loss
         )
         loss.backward()
         grad_norm = _grad_norm(_trainable_parameters(writer, projector, logit_projector, payload_probe))
@@ -249,6 +286,10 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
                 "address_margin": float(address_margin_value.detach().cpu()),
                 "logit_bias_loss": float(logit_bias_loss.detach().cpu()),
                 "payload_answer_loss": float(payload_answer_loss.detach().cpu()),
+                "payload_embedding_loss": float(payload_embedding_loss.detach().cpu()),
+                "stage2_swap_loss": float(stage2_swap_loss.detach().cpu()),
+                "stage2_binding_margin": float(stage2_binding_margin_value.detach().cpu()),
+                "stage2_swap_margin": float(stage2_swap_margin_value.detach().cpu()),
                 "grad_norm": grad_norm,
                 "q_delta_norm": result.trace.q_delta_norm,
                 "v_delta_norm": result.trace.v_delta_norm,
@@ -310,9 +351,11 @@ class PayloadAnswerProbe(nn.Module):
         for param in self.output_embeddings.parameters():
             param.requires_grad_(False)
 
+    def project_hidden(self, payload: torch.Tensor) -> torch.Tensor:
+        return self.to_hidden(self.norm(payload))
+
     def forward(self, payload: torch.Tensor) -> torch.Tensor:
-        hidden = self.to_hidden(self.norm(payload))
-        return self.output_embeddings(hidden)
+        return self.output_embeddings(self.project_hidden(payload))
 
 
 def _trainable_parameters(*modules: nn.Module) -> list[torch.nn.Parameter]:
@@ -360,7 +403,7 @@ def evaluate_prepared(
             elif mode == "retrieved_attention":
                 logits, trace = _retrieved_attention_readout(sample, memories, injector)
             elif mode == "logit_bias":
-                logits, trace = _logit_bias_readout(sample, memories, logit_projector)
+                logits, trace = _logit_bias_readout(sample, memories, logit_projector, cfg.payload_probe_layer_strategy)
             elif mode == "payload_probe":
                 logits, trace = _payload_probe_logits(memories, payload_probe, cfg.payload_probe_layer_strategy)
                 row = {
@@ -734,6 +777,57 @@ def _payload_answer_loss(
     return F.cross_entropy(logits.view(1, -1).float(), target)
 
 
+def _payload_embedding_loss(
+    payload_probe: PayloadAnswerProbe,
+    memories_by_layer: dict[int, list[AttentionMemoryItem]],
+    answer_ids: list[int],
+    layer_strategy: str = "mean_all",
+) -> torch.Tensor:
+    payload, _ = _payload_vector(memories_by_layer, payload_probe, layer_strategy)
+    if not answer_ids:
+        raise ValueError("payload embedding loss requires at least one answer token")
+    hidden = payload_probe.project_hidden(payload)
+    target = payload_probe.output_embeddings.weight[int(answer_ids[0])].to(hidden.device, hidden.dtype)
+    return 1.0 - F.cosine_similarity(hidden.float(), target.float(), dim=0).mean()
+
+
+def _stage2_swap_loss(
+    sample: PreparedDeltaExample,
+    foreign: PreparedDeltaExample,
+    memories_by_layer: dict[int, list[AttentionMemoryItem]],
+    foreign_memories_by_layer: dict[int, list[AttentionMemoryItem]],
+    payload_probe: PayloadAnswerProbe,
+    logit_projector: PayloadLogitProjector,
+    mode: str,
+    margin: float,
+    layer_strategy: str = "mean_all",
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    if not sample.answer_ids or not foreign.answer_ids:
+        device = next(payload_probe.parameters()).device
+        zero = torch.zeros((), device=device)
+        return zero, zero, zero
+    correct_id = int(sample.answer_ids[0])
+    paired_id = int(foreign.answer_ids[0])
+    if mode == "payload_probe":
+        correct_logits, _ = _payload_probe_logits(memories_by_layer, payload_probe, layer_strategy)
+        paired_logits, _ = _payload_probe_logits(foreign_memories_by_layer, payload_probe, layer_strategy)
+        correct_log_probs = torch.log_softmax(correct_logits.view(-1).float(), dim=-1)
+        paired_log_probs = torch.log_softmax(paired_logits.view(-1).float(), dim=-1)
+    elif mode == "logit_bias":
+        correct_logits, _ = _apply_logit_bias(sample.base_logits, memories_by_layer, logit_projector, layer_strategy)
+        paired_logits, _ = _apply_logit_bias(sample.base_logits, foreign_memories_by_layer, logit_projector, layer_strategy)
+        logit_pos = sample.answer_start - 1
+        correct_log_probs = torch.log_softmax(correct_logits[0, logit_pos].float(), dim=-1)
+        paired_log_probs = torch.log_softmax(paired_logits[0, logit_pos].float(), dim=-1)
+    else:
+        raise ValueError(f"unsupported stage2 swap mode: {mode}")
+    binding_margin = correct_log_probs[correct_id] - correct_log_probs[paired_id]
+    swap_margin = paired_log_probs[paired_id] - paired_log_probs[correct_id]
+    target = torch.as_tensor(float(margin), device=binding_margin.device, dtype=binding_margin.dtype)
+    loss = F.relu(target - binding_margin) + F.relu(target - swap_margin)
+    return loss, binding_margin.detach(), swap_margin.detach()
+
+
 def _score_candidate_answer(
     bundle,
     injector: GemmaAttentionInjector,
@@ -766,7 +860,7 @@ def _score_candidate_answer(
                 output_attentions=False,
                 use_cache=False,
             )
-        logits, _ = _apply_logit_bias(out.logits, memories_by_layer, logit_projector)
+        logits, _ = _apply_logit_bias(out.logits, memories_by_layer, logit_projector, layer_strategy)
     elif mode == "payload_probe":
         logits, _ = _payload_probe_logits(memories_by_layer, payload_probe, layer_strategy)
         if not answer_ids:
@@ -825,7 +919,7 @@ def _answer_token_discrimination(
                 output_attentions=False,
                 use_cache=False,
             )
-        logits, _ = _apply_logit_bias(out.logits, memories_by_layer, logit_projector)
+        logits, _ = _apply_logit_bias(out.logits, memories_by_layer, logit_projector, layer_strategy)
     elif mode == "payload_probe":
         logits, _ = _payload_probe_logits(memories_by_layer, payload_probe, layer_strategy)
         log_probs = torch.log_softmax(logits.float(), dim=-1)
@@ -1290,22 +1384,25 @@ def _logit_bias_readout(
     sample: PreparedDeltaExample,
     memories_by_layer: dict[int, list[AttentionMemoryItem]],
     logit_projector: PayloadLogitProjector,
+    layer_strategy: str = "mean_all",
 ) -> tuple[torch.Tensor, dict[str, float]]:
-    return _apply_logit_bias(sample.base_logits, memories_by_layer, logit_projector)
+    return _apply_logit_bias(sample.base_logits, memories_by_layer, logit_projector, layer_strategy)
 
 
 def _apply_logit_bias(
     base_logits: torch.Tensor,
     memories_by_layer: dict[int, list[AttentionMemoryItem]],
     logit_projector: PayloadLogitProjector,
+    layer_strategy: str = "mean_all",
 ) -> tuple[torch.Tensor, dict[str, float]]:
-    memories = [item for layer_memories in memories_by_layer.values() for item in layer_memories]
-    if not memories:
+    payload, payload_trace = _payload_vector(memories_by_layer, logit_projector, layer_strategy)
+    if payload.numel() == 0:
         return base_logits, {}
-    payload = torch.stack([item.raw_value.to(base_logits.device, base_logits.dtype) for item in memories], dim=0).mean(dim=0)
+    payload = payload.to(base_logits.device, base_logits.dtype)
     bias = logit_projector(payload).to(base_logits.device, base_logits.dtype).view(1, 1, -1)
     logits = base_logits + bias
     return logits, {
+        **payload_trace,
         "logit_bias_norm": float(bias.detach().float().norm().cpu()),
         "logit_bias_max": float(bias.detach().float().max().cpu()),
     }
@@ -1341,9 +1438,20 @@ def _payload_probe_logits(
     payload_probe: PayloadAnswerProbe,
     layer_strategy: str = "mean_all",
 ) -> tuple[torch.Tensor, dict[str, float]]:
+    payload, trace = _payload_vector(memories_by_layer, payload_probe, layer_strategy)
+    logits = payload_probe(payload)
+    trace["payload_probe_logit_norm"] = float(logits.detach().float().norm().cpu())
+    return logits, trace
+
+
+def _payload_vector(
+    memories_by_layer: dict[int, list[AttentionMemoryItem]],
+    payload_probe: PayloadAnswerProbe,
+    layer_strategy: str = "mean_all",
+) -> tuple[torch.Tensor, dict[str, float]]:
     if not memories_by_layer:
         param = next(payload_probe.parameters())
-        return torch.zeros(1, device=param.device, dtype=param.dtype), {}
+        return torch.zeros(payload_probe.norm.normalized_shape[0], device=param.device, dtype=param.dtype), {}
     sorted_layers = sorted(memories_by_layer.keys())
     if layer_strategy == "last_layer":
         layers_to_use = [sorted_layers[-1]]
@@ -1354,13 +1462,11 @@ def _payload_probe_logits(
     memories = [item for lid in layers_to_use for item in memories_by_layer[lid]]
     if not memories:
         param = next(payload_probe.parameters())
-        return torch.zeros(1, device=param.device, dtype=param.dtype), {}
+        return torch.zeros(payload_probe.norm.normalized_shape[0], device=param.device, dtype=param.dtype), {}
     device = next(payload_probe.parameters()).device
     dtype = next(payload_probe.parameters()).dtype
     payload = torch.stack([item.raw_value.to(device, dtype) for item in memories], dim=0).mean(dim=0)
-    logits = payload_probe(payload)
-    return logits, {
-        "payload_probe_logit_norm": float(logits.detach().float().norm().cpu()),
+    return payload, {
         "payload_probe_layer_strategy": layer_strategy,
         "payload_probe_layers_used": float(len(layers_to_use)),
     }
@@ -1475,6 +1581,10 @@ def _markdown(summary: dict[str, Any]) -> str:
         "logit_bias_scale",
         "payload_answer_loss_weight",
         "payload_probe_layer_strategy",
+        "payload_embedding_loss_weight",
+        "stage2_swap_loss_weight",
+        "stage2_swap_margin",
+        "stage2_swap_mode",
         "eval_injection_modes",
         "control_margin_min",
     ]:

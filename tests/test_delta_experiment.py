@@ -190,11 +190,18 @@ def test_delta_experiment_logit_bias_training_records_loss(tmp_path):
         conflict_margins=True,
         logit_bias_loss_weight=1.0,
         payload_answer_loss_weight=1.0,
+        payload_embedding_loss_weight=0.1,
+        stage2_swap_loss_weight=0.1,
+        stage2_swap_mode="payload_probe",
         report_dir=str(tmp_path / "report"),
     )
     summary = run_delta_experiment(cfg)
     assert summary["train"][0]["logit_bias_loss"] >= 0.0
     assert summary["train"][0]["payload_answer_loss"] >= 0.0
+    assert summary["train"][0]["payload_embedding_loss"] >= 0.0
+    assert summary["train"][0]["stage2_swap_loss"] >= 0.0
+    assert "stage2_binding_margin" in summary["train"][0]
+    assert "stage2_swap_margin" in summary["train"][0]
     assert "logit_bias" in summary["final_eval"]["aggregate"]
     assert "payload_probe" in summary["final_eval"]["aggregate"]
     assert "logit_bias_oracle_correct" in summary["conflict_margins"]["aggregate"]
