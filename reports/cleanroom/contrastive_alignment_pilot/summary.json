@@ -1,0 +1,34 @@
+{
+  "isolated_contrastive": {
+    "contrastive_margin": 0.5,
+    "contrastive_margin_weight": 1.0,
+    "delta_margin": -0.21310202521272004,
+    "delta_margin_advantage_vs_wrong_query": -0.00951439538039267,
+    "delta_qv_nll": 5.45974102569744,
+    "mechanism_supported_on_eval": true,
+    "no_memory_nll": 12.334102682769299,
+    "shared_memory_retrieval": false,
+    "shuffled_nll": 13.442100383341312,
+    "wrong_query_margin": -0.20358762983232737,
+    "wrong_query_nll": 5.433351420797408
+  },
+  "isolated_non_contrastive_baseline": {
+    "delta_margin_advantage_vs_wrong_query": 0.009380289353430271,
+    "delta_qv_nll": 4.683554180432111,
+    "no_memory_nll": 12.334102682769299,
+    "wrong_query_nll": 4.660934621933848
+  },
+  "shared_contrastive": {
+    "contrastive_margin": 0.5,
+    "contrastive_margin_weight": 1.0,
+    "delta_margin": -0.10871413117274642,
+    "delta_margin_advantage_vs_wrong_query": 0.02953507425263524,
+    "delta_qv_nll": 5.29606674099341,
+    "mechanism_supported_on_eval": false,
+    "no_memory_nll": 12.334102682769299,
+    "shared_memory_retrieval": true,
+    "shuffled_nll": 5.29286877065897,
+    "wrong_query_margin": -0.13824920542538166,
+    "wrong_query_nll": 5.327681832946837
+  }
+}
