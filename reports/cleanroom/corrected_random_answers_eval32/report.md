@@ -1,5 +1,10 @@
 # Delta Memory Corrected Random-Answer Eval32
 
+> Superseded note: this report fixed deterministic train/eval answer patterns,
+> but still used retrieval queries computed from teacher-forced prompts that
+> included answer tokens. The current credible rerun is
+> `reports/cleanroom/question_only_query_eval32/report.md`.
+
 ## Question
 
 Does layerwise Delta Memory injection still beat ordinary frozen Gemma
@@ -78,4 +83,3 @@ The next rigorous step is not more seeds on this same suite. It is a conflict
 suite where foreign memories contain plausible but different answer values and
 where injecting a foreign Delta should push the model toward the wrong answer if
 query-memory alignment is not enforced.
-

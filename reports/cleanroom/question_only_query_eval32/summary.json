@@ -1,0 +1,22 @@
+{
+  "all_base_frozen": true,
+  "all_injected_15_layers": true,
+  "any_prompt_insertion": false,
+  "any_retrieval_query_uses_answer": false,
+  "mean_delta_drop_vs_no_memory": 7.255675794626586,
+  "mean_delta_qv_nll": 5.536637833085843,
+  "mean_no_memory_nll": 12.792313627712428,
+  "mean_per_example_delta_beats_no_memory_rate": 1.0,
+  "mean_per_example_delta_beats_wrong_query_rate": 0.5,
+  "mean_random_nll": 12.659596355631948,
+  "mean_raw_memory_nll": 15.401104706898332,
+  "mean_shuffled_nll": 8.431543858908118,
+  "mean_wrong_layer_nll": 6.790806431998499,
+  "mean_wrong_query_drop_vs_no_memory": 7.252430342114531,
+  "mean_wrong_query_minus_delta_nll": 0.0032454525120556355,
+  "mean_wrong_query_nll": 5.539883285597898,
+  "mean_zero_nll": 12.733603873476387,
+  "num_tasks": 5,
+  "tasks_delta_beats_wrong_query": 3,
+  "total_eval_examples": 160
+}
