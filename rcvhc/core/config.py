@@ -17,6 +17,7 @@ QKV_MODES = {
     "delta_qv_random",
     "delta_qv_shuffled",
     "delta_qv_wrong_layer",
+    "delta_qv_wrong_query",
     "delta_qv_force_gate",
 }
 
@@ -42,6 +43,7 @@ class RCVHCCleanConfig:
         "delta_qv_random",
         "delta_qv_shuffled",
         "delta_qv_wrong_layer",
+        "delta_qv_wrong_query",
         "delta_qv_force_gate",
     )
 

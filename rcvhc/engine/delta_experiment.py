@@ -140,8 +140,14 @@ def evaluate_prepared(
 ) -> dict[str, Any]:
     per_sample = []
     by_mode: dict[str, list[dict[str, Any]]] = {mode: [] for mode in TRAIN_EVAL_MODES}
-    for sample in prepared:
+    for sample_idx, sample in enumerate(prepared):
         memories = _select_topk_by_layer(_live_memories(writer, sample, layer_ids, cfg), sample.query, cfg.top_k)
+        wrong_query_sample = prepared[(sample_idx + 1) % len(prepared)] if len(prepared) > 1 else sample
+        wrong_query_memories = _select_topk_by_layer(
+            _live_memories(writer, sample, layer_ids, cfg),
+            wrong_query_sample.query,
+            cfg.top_k,
+        )
         sample_rows = {}
         for mode in TRAIN_EVAL_MODES:
             if mode == "no_memory":
@@ -150,10 +156,11 @@ def evaluate_prepared(
             elif mode == "raw_memory":
                 logits, trace = _raw_late_readout(sample, memories, injector)
             else:
+                selected_memories = wrong_query_memories if mode == "delta_qv_wrong_query" else memories
                 result = injector.forward_layers(
                     input_ids=sample.prompt["input_ids"],
                     attention_mask=sample.prompt["attention_mask"],
-                    memories_by_layer=memories,
+                    memories_by_layer=selected_memories,
                     mode=mode,
                 )
                 logits = result.logits

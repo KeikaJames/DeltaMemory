@@ -21,6 +21,7 @@ QKV_INTERVENTION_MODES = {
     "delta_qv_random",
     "delta_qv_shuffled",
     "delta_qv_wrong_layer",
+    "delta_qv_wrong_query",
     "delta_qv_force_gate",
 }
 
@@ -86,7 +87,7 @@ class QKVDeltaProjector(nn.Module):
         gate_k = torch.ones_like(gate_q) if force_gate else torch.sigmoid(self.gate_k(z))
         gate_v = torch.ones_like(gate_q) if force_gate else torch.sigmoid(self.gate_v(z))
         update = torch.zeros_like(base)
-        if kind == "q" and mode in {"delta_qv", "delta_qkv", "delta_qv_shuffled", "delta_qv_zero", "delta_qv_random", "delta_qv_wrong_layer", "delta_qv_force_gate"}:
+        if kind == "q" and mode in {"delta_qv", "delta_qkv", "delta_qv_shuffled", "delta_qv_zero", "delta_qv_random", "delta_qv_wrong_layer", "delta_qv_wrong_query", "delta_qv_force_gate"}:
             update = self.alpha_scale * gate_q * self._project_kind("q", z, base.shape[-1], base.device, base.dtype)
         elif kind == "k" and mode in {"delta_kv", "delta_qkv"}:
             update = self.alpha_scale * gate_k * self._project_kind("k", z, base.shape[-1], base.device, base.dtype)
