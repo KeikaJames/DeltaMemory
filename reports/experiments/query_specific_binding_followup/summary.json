@@ -1,0 +1,41 @@
+{
+  "conclusion": "Follow-up attempts strengthened the Delta channel but did not prove query-specific binding. Query-address ranking remains poor, shuffled/wrong-query controls remain tied, and oracle payload controls show the payload is not reliably answer-specific.",
+  "experiments": [
+    {
+      "address_rank": 4.375,
+      "delta_nll": 2.5695081500452943,
+      "name": "query_address_projector_pilot",
+      "no_memory_nll": 12.13698160648346,
+      "shuffled_gap": -0.016695582424290478,
+      "wrong_query_gap": -0.0002505629672668874
+    },
+    {
+      "address_rank": 4.5,
+      "delta_nll": 5.188063342124224,
+      "name": "oracle_address_control_pilot",
+      "no_memory_nll": 12.13698160648346,
+      "oracle_margin_advantage": 0.016637133434414864,
+      "shuffled_gap": 0.005001685582101345,
+      "wrong_query_gap": -0.01715487986803111
+    },
+    {
+      "address_rank": 4.375,
+      "delta_nll": 3.915135237388313,
+      "name": "oracle_payload_contrastive_pilot",
+      "no_memory_nll": 12.13698160648346,
+      "oracle_margin_advantage": -0.007489784620702267,
+      "shuffled_gap": 0.003888762556016445,
+      "wrong_query_gap": 0.014405108988285065
+    },
+    {
+      "address_rank": 4.5,
+      "delta_nll": 2.9874346097931266,
+      "name": "binding_stress_pilot",
+      "no_memory_nll": 12.13698160648346,
+      "oracle_margin_advantage": -0.01782633364200592,
+      "shuffled_gap": 0.0013651726767420769,
+      "wrong_query_gap": 0.003673486411571381
+    }
+  ],
+  "support_rate": 0.0
+}

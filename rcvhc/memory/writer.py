@@ -37,6 +37,7 @@ class RCVHCWriter(nn.Module):
         self.eps = float(eps)
         self.raw_key = nn.Linear(hidden_size, memory_dim)
         self.address_key = nn.Linear(hidden_size, memory_dim)
+        self.address_query = nn.Linear(hidden_size, memory_dim)
         self.raw_value = nn.Linear(hidden_size, memory_dim)
         self.self_proj = nn.Linear(hidden_size * 2, memory_dim)
         self.use_proj = nn.Linear(hidden_size, memory_dim)

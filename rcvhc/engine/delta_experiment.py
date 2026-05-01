@@ -42,8 +42,10 @@ class DeltaExperimentConfig:
     conflict_margins: bool = False
     contrastive_margin_weight: float = 0.0
     contrastive_margin: float = 0.5
+    oracle_contrastive_weight: float = 0.0
     address_margin_weight: float = 0.0
     address_margin: float = 0.1
+    address_score_scale: float = 16.0
     shared_memory_retrieval: bool = False
     identity_gate_beta: float = 64.0
     identity_gate_tau: float = 0.01
@@ -57,7 +59,7 @@ class PreparedDeltaExample:
     context_out: Any
     prompt: dict[str, torch.Tensor]
     base_logits: torch.Tensor
-    query: torch.Tensor
+    query_hidden: torch.Tensor
     snippets: list[str]
     answer_start: int
     answer_ids: list[int]
@@ -99,9 +101,10 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
         sample = train_prepared[sample_idx]
         optimizer.zero_grad(set_to_none=True)
         train_pool = _memory_pool(writer, train_prepared, layer_ids, cfg) if cfg.shared_memory_retrieval else None
+        sample_query = _query_key(writer, sample)
         memories = _select_topk_by_layer(
             train_pool if train_pool is not None else _live_memories(writer, sample, layer_ids, cfg),
-            sample.query,
+            sample_query,
             cfg.top_k,
             cfg.identity_gate_beta,
             cfg.identity_gate_tau,
@@ -114,16 +117,19 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
         )
         answer_loss = _answer_loss(result.logits, sample.answer_start, sample.answer_ids)
         contrastive_loss = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
+        oracle_contrastive_loss = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
+        oracle_margin_advantage = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
         margin_advantage = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
         address_loss = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
         address_margin_value = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
         foreign = _foreign_sample(train_prepared, sample_idx) if len(train_prepared) > 1 else sample
         if cfg.address_margin_weight > 0.0 and len(train_prepared) > 1:
-            address_loss, address_margin_value = _address_ranking_loss(writer, sample, foreign, layer_ids, cfg)
+            address_loss, address_margin_value = _address_ranking_loss(writer, sample, train_prepared, layer_ids, cfg)
         if cfg.contrastive_margin_weight > 0.0 and len(train_prepared) > 1:
+            foreign_query = _query_key(writer, foreign)
             foreign_memories = _select_topk_by_layer(
                 train_pool if train_pool is not None else _live_memories(writer, foreign, layer_ids, cfg),
-                foreign.query,
+                foreign_query,
                 cfg.top_k,
                 cfg.identity_gate_beta,
                 cfg.identity_gate_tau,
@@ -157,9 +163,43 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
             margin_advantage = correct_margin - foreign_margin
             target_margin = torch.as_tensor(cfg.contrastive_margin, device=answer_loss.device, dtype=answer_loss.dtype)
             contrastive_loss = F.relu(target_margin - margin_advantage)
+        if cfg.oracle_contrastive_weight > 0.0 and len(train_prepared) > 1:
+            oracle_correct = _select_sample_topk_by_layer(
+                train_pool if train_pool is not None else _live_memories(writer, sample, layer_ids, cfg),
+                sample_query,
+                sample.example.sample_id,
+                cfg.top_k,
+            )
+            paired_id = sample.example.paired_sample_id if sample.example.paired_sample_id is not None else foreign.example.sample_id
+            oracle_foreign = _select_sample_topk_by_layer(
+                train_pool if train_pool is not None else _live_memories(writer, foreign, layer_ids, cfg),
+                sample_query,
+                paired_id,
+                cfg.top_k,
+            )
+            correct_with_correct = _candidate_answer_loss(
+                bundle, injector, sample.example.question, sample.example.answer, oracle_correct, "delta_qv"
+            )
+            foreign_with_correct = _candidate_answer_loss(
+                bundle, injector, sample.example.question, foreign.example.answer, oracle_correct, "delta_qv"
+            )
+            correct_with_foreign = _candidate_answer_loss(
+                bundle, injector, sample.example.question, sample.example.answer, oracle_foreign, "delta_qv"
+            )
+            foreign_with_foreign = _candidate_answer_loss(
+                bundle, injector, sample.example.question, foreign.example.answer, oracle_foreign, "delta_qv"
+            )
+            correct_memory_margin = foreign_with_correct - correct_with_correct
+            foreign_memory_margin = correct_with_foreign - foreign_with_foreign
+            target_margin = torch.as_tensor(cfg.contrastive_margin, device=answer_loss.device, dtype=answer_loss.dtype)
+            oracle_contrastive_loss = F.relu(target_margin - correct_memory_margin) + F.relu(
+                target_margin - foreign_memory_margin
+            )
+            oracle_margin_advantage = correct_memory_margin + foreign_memory_margin
         loss = (
             answer_loss
             + cfg.contrastive_margin_weight * contrastive_loss
+            + cfg.oracle_contrastive_weight * oracle_contrastive_loss
             + cfg.address_margin_weight * address_loss
         )
         loss.backward()
@@ -173,6 +213,8 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
                 "answer_loss": float(answer_loss.detach().cpu()),
                 "contrastive_loss": float(contrastive_loss.detach().cpu()),
                 "contrastive_margin_advantage": float(margin_advantage.detach().cpu()),
+                "oracle_contrastive_loss": float(oracle_contrastive_loss.detach().cpu()),
+                "oracle_margin_advantage": float(oracle_margin_advantage.detach().cpu()),
                 "address_loss": float(address_loss.detach().cpu()),
                 "address_margin": float(address_margin_value.detach().cpu()),
                 "grad_norm": grad_norm,
@@ -195,7 +237,7 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
         "trainable_base_params": trainable_base_params(bundle.model),
         "prompt_insertion_used": False,
         "retrieval_query_uses_answer": False,
-        "retrieval_key": "address_key",
+        "retrieval_key": "address_query_to_address_key",
         "address_key_separate_from_payload": True,
         "source_text_debug_only": True,
         "train_examples": [example.as_dict() for example in train_examples],
@@ -222,17 +264,19 @@ def evaluate_prepared(
     by_mode: dict[str, list[dict[str, Any]]] = {mode: [] for mode in TRAIN_EVAL_MODES}
     shared_pool = _memory_pool(writer, prepared, layer_ids, cfg) if cfg.shared_memory_retrieval else None
     for sample_idx, sample in enumerate(prepared):
+        sample_query = _query_key(writer, sample)
         memories = _select_topk_by_layer(
             shared_pool if shared_pool is not None else _live_memories(writer, sample, layer_ids, cfg),
-            sample.query,
+            sample_query,
             cfg.top_k,
             cfg.identity_gate_beta,
             cfg.identity_gate_tau,
         )
         wrong_query_sample = _foreign_sample(prepared, sample_idx)
+        wrong_query = _query_key(writer, wrong_query_sample)
         wrong_query_memories = _select_topk_by_layer(
             shared_pool if shared_pool is not None else _live_memories(writer, wrong_query_sample, layer_ids, cfg),
-            wrong_query_sample.query,
+            wrong_query,
             cfg.top_k,
             cfg.identity_gate_beta,
             cfg.identity_gate_tau,
@@ -274,7 +318,14 @@ def evaluate_conflict_margins(
 ) -> dict[str, Any]:
     if len(prepared) < 2:
         return {"aggregate": {}, "samples": []}
-    modes = ["no_memory", "delta_qv", "delta_qv_identity_gate", "delta_qv_wrong_query"]
+    modes = [
+        "no_memory",
+        "delta_qv",
+        "delta_qv_identity_gate",
+        "delta_qv_wrong_query",
+        "delta_qv_oracle_correct",
+        "delta_qv_oracle_paired",
+    ]
     by_mode: dict[str, list[float]] = {mode: [] for mode in modes}
     address_rows: list[dict[str, float]] = []
     samples: list[dict[str, Any]] = []
@@ -284,32 +335,46 @@ def evaluate_conflict_margins(
         diagnostic_pool = shared_pool if shared_pool is not None else (
             _live_memories(writer, sample, layer_ids, cfg) + _live_memories(writer, foreign, layer_ids, cfg)
         )
-        address_diagnostics = _address_diagnostics(diagnostic_pool, sample.query, sample, foreign)
+        sample_query = _query_key(writer, sample)
+        foreign_query = _query_key(writer, foreign)
+        address_diagnostics = _address_diagnostics(diagnostic_pool, sample_query, sample, foreign)
         address_rows.append(address_diagnostics)
         correct_memories = _select_topk_by_layer(
             shared_pool if shared_pool is not None else _live_memories(writer, sample, layer_ids, cfg),
-            sample.query,
+            sample_query,
             cfg.top_k,
             cfg.identity_gate_beta,
             cfg.identity_gate_tau,
         )
         foreign_memories = _select_topk_by_layer(
             shared_pool if shared_pool is not None else _live_memories(writer, foreign, layer_ids, cfg),
-            foreign.query,
+            foreign_query,
             cfg.top_k,
             cfg.identity_gate_beta,
             cfg.identity_gate_tau,
         )
+        oracle_correct_memories = _select_sample_topk_by_layer(diagnostic_pool, sample_query, sample.example.sample_id, cfg.top_k)
+        paired_id = sample.example.paired_sample_id if sample.example.paired_sample_id is not None else foreign.example.sample_id
+        oracle_paired_memories = _select_sample_topk_by_layer(diagnostic_pool, sample_query, paired_id, cfg.top_k)
         sample_modes: dict[str, dict[str, float]] = {}
         for mode in modes:
             if mode == "no_memory":
                 memories = {}
+                injection_mode = mode
             elif mode == "delta_qv_wrong_query":
                 memories = foreign_memories
+                injection_mode = "delta_qv"
+            elif mode == "delta_qv_oracle_correct":
+                memories = oracle_correct_memories
+                injection_mode = "delta_qv"
+            elif mode == "delta_qv_oracle_paired":
+                memories = oracle_paired_memories
+                injection_mode = "delta_qv"
             else:
                 memories = correct_memories
-            correct = _score_candidate_answer(bundle, injector, sample.example.question, sample.example.answer, memories, mode)
-            foreign_score = _score_candidate_answer(bundle, injector, sample.example.question, foreign.example.answer, memories, mode)
+                injection_mode = mode
+            correct = _score_candidate_answer(bundle, injector, sample.example.question, sample.example.answer, memories, injection_mode)
+            foreign_score = _score_candidate_answer(bundle, injector, sample.example.question, foreign.example.answer, memories, injection_mode)
             margin = foreign_score["answer_nll"] - correct["answer_nll"]
             by_mode[mode].append(margin)
             sample_modes[mode] = {
@@ -400,33 +465,50 @@ def _foreign_sample(prepared: list[PreparedDeltaExample], sample_idx: int) -> Pr
 def _address_ranking_loss(
     writer: RCVHCWriter,
     sample: PreparedDeltaExample,
-    foreign: PreparedDeltaExample,
+    prepared: list[PreparedDeltaExample],
     layer_ids: list[int],
     cfg: DeltaExperimentConfig,
 ) -> tuple[torch.Tensor, torch.Tensor]:
-    correct_items = _live_memories(writer, sample, layer_ids, cfg)
-    foreign_items = _live_memories(writer, foreign, layer_ids, cfg)
-    if not correct_items or not foreign_items:
+    pool = _memory_pool(writer, prepared, layer_ids, cfg)
+    if not pool:
         device = next(writer.parameters()).device
         zero = torch.zeros((), device=device)
         return zero, zero
-    query = sample.query.to(next(writer.parameters()).device).float()
+    query = _query_key(writer, sample)
     query = F.normalize(query, dim=0)
     losses = []
     margins = []
     target = torch.as_tensor(cfg.address_margin, device=query.device, dtype=query.dtype)
+    sample_ids = sorted({int(item.metadata["sample_id"]) for item in pool})
+    if sample.example.sample_id not in sample_ids:
+        zero = torch.zeros((), device=query.device, dtype=query.dtype)
+        return zero, zero
+    target_idx = torch.tensor([sample_ids.index(sample.example.sample_id)], device=query.device)
     for layer_id in layer_ids:
-        correct_layer = [item for item in correct_items if item.layer_id == layer_id]
-        foreign_layer = [item for item in foreign_items if item.layer_id == layer_id]
-        if not correct_layer or not foreign_layer:
+        per_sample_scores = []
+        for sample_id in sample_ids:
+            layer_items = [
+                item
+                for item in pool
+                if item.layer_id == layer_id and int(item.metadata.get("sample_id", -1)) == sample_id
+            ]
+            if not layer_items:
+                per_sample_scores.append(torch.tensor(-1e4, device=query.device, dtype=query.dtype))
+                continue
+            keys = torch.stack([item.address_key.float() for item in layer_items], dim=0)
+            per_sample_scores.append(F.normalize(keys, dim=-1).matmul(query).max())
+        if not per_sample_scores:
             continue
-        correct_keys = torch.stack([item.address_key.float() for item in correct_layer], dim=0)
-        foreign_keys = torch.stack([item.address_key.float() for item in foreign_layer], dim=0)
-        correct_score = F.normalize(correct_keys, dim=-1).matmul(query).max()
-        foreign_score = F.normalize(foreign_keys, dim=-1).matmul(query).max()
-        margin = correct_score - foreign_score
+        scores = torch.stack(per_sample_scores)
+        correct_score = scores[target_idx.item()]
+        negative_scores = torch.cat([scores[: target_idx.item()], scores[target_idx.item() + 1 :]])
+        if negative_scores.numel() == 0:
+            continue
+        margin = correct_score - negative_scores.max()
         margins.append(margin)
-        losses.append(F.relu(target - margin))
+        margin_loss = F.relu(target - margin)
+        class_loss = F.cross_entropy((cfg.address_score_scale * scores).view(1, -1), target_idx)
+        losses.append(class_loss + margin_loss)
     if not losses:
         zero = torch.zeros((), device=query.device, dtype=query.dtype)
         return zero, zero
@@ -546,7 +628,6 @@ def _prepare_example(bundle, example: DeltaExample, cfg: DeltaExperimentConfig) 
             output_attentions=False,
             use_cache=False,
         )
-    query = fit_memory_dim(query_base.hidden_states[-1].mean(dim=(0, 1)).detach().float().cpu(), cfg.memory_dim)
     snippets = split_source_snippets(bundle.tokenizer, context["input_ids"], cfg.block_size)
     detached = SimpleNamespace(
         hidden_states=tuple(t.detach() for t in out.hidden_states),
@@ -557,7 +638,7 @@ def _prepare_example(bundle, example: DeltaExample, cfg: DeltaExperimentConfig) 
         context_out=detached,
         prompt=prompt,
         base_logits=base.logits.detach(),
-        query=query,
+        query_hidden=query_base.hidden_states[-1].mean(dim=(0, 1)).detach().float().cpu(),
         snippets=snippets,
         answer_start=answer_start,
         answer_ids=answer_ids,
@@ -607,6 +688,12 @@ def _memory_pool(
     return items
 
 
+def _query_key(writer: RCVHCWriter, sample: PreparedDeltaExample) -> torch.Tensor:
+    param = next(writer.parameters())
+    query_hidden = sample.query_hidden.to(device=param.device, dtype=param.dtype)
+    return writer.address_query(query_hidden).float()
+
+
 def _select_topk_by_layer(
     memories: list[AttentionMemoryItem],
     query: torch.Tensor,
@@ -618,6 +705,20 @@ def _select_topk_by_layer(
     for layer_id in sorted({item.layer_id for item in memories}):
         layer_memories = [item for item in memories if item.layer_id == layer_id]
         selected[layer_id] = _select_topk(layer_memories, query, top_k, identity_gate_beta, identity_gate_tau)
+    return selected
+
+
+def _select_sample_topk_by_layer(
+    memories: list[AttentionMemoryItem],
+    query: torch.Tensor,
+    sample_id: int,
+    top_k: int,
+) -> dict[int, list[AttentionMemoryItem]]:
+    selected: dict[int, list[AttentionMemoryItem]] = {}
+    scoped = [item for item in memories if int(item.metadata.get("sample_id", -1)) == int(sample_id)]
+    for layer_id in sorted({item.layer_id for item in scoped}):
+        layer_memories = [item for item in scoped if item.layer_id == layer_id]
+        selected[layer_id] = _select_topk(layer_memories, query, top_k)
     return selected
 
 
@@ -742,6 +843,8 @@ def _markdown(summary: dict[str, Any]) -> str:
         "top_k",
         "address_margin_weight",
         "address_margin",
+        "address_score_scale",
+        "oracle_contrastive_weight",
         "identity_gate_beta",
         "identity_gate_tau",
         "control_margin_min",

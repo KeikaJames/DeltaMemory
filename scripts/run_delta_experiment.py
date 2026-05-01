@@ -33,8 +33,10 @@ def main() -> int:
     parser.add_argument("--conflict-margins", action="store_true")
     parser.add_argument("--contrastive-margin-weight", type=float, default=0.0)
     parser.add_argument("--contrastive-margin", type=float, default=0.5)
+    parser.add_argument("--oracle-contrastive-weight", type=float, default=0.0)
     parser.add_argument("--address-margin-weight", type=float, default=0.0)
     parser.add_argument("--address-margin", type=float, default=0.1)
+    parser.add_argument("--address-score-scale", type=float, default=16.0)
     parser.add_argument("--shared-memory-retrieval", action="store_true")
     parser.add_argument("--identity-gate-beta", type=float, default=64.0)
     parser.add_argument("--identity-gate-tau", type=float, default=0.01)
@@ -60,8 +62,10 @@ def main() -> int:
         conflict_margins=args.conflict_margins,
         contrastive_margin_weight=args.contrastive_margin_weight,
         contrastive_margin=args.contrastive_margin,
+        oracle_contrastive_weight=args.oracle_contrastive_weight,
         address_margin_weight=args.address_margin_weight,
         address_margin=args.address_margin,
+        address_score_scale=args.address_score_scale,
         shared_memory_retrieval=args.shared_memory_retrieval,
         identity_gate_beta=args.identity_gate_beta,
         identity_gate_tau=args.identity_gate_tau,

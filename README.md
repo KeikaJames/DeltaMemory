@@ -81,6 +81,10 @@ keeps the base model frozen, and does not insert retrieved text into the prompt.
 | Address-supervised pilot | `3.9278` vs `11.6111` NLL | address ranking loss improves channel but not binding; wrong-query and shuffled remain tied | [report](reports/experiments/address_supervised_pilot) |
 | Address-token contrastive pilot | `3.0843` vs `12.1370` NLL | explicit address tokens plus contrastive loss still fail the `0.05` shuffled/wrong-query gate | [report](reports/experiments/address_token_contrastive_pilot) |
 | Final address-bound multiseed | mean `4.0965` vs no-memory `12.1111` NLL over 3 seeds | support rate `0.0`; shuffled gap `0.0031`, wrong-query gap `0.0027`, address rank `4.9167` | [report](reports/experiments/address_bound_final_multiseed) |
+| Query-address projector pilot | `2.5695` vs `12.1370` NLL | trainable query projection strengthens the channel but still fails shuffled/wrong-query; address rank `4.375` | [report](reports/experiments/query_address_projector_pilot) |
+| Oracle payload control pilot | `5.1881` vs `12.1370` NLL | even forced correct-address payload barely beats forced paired payload; oracle margin advantage `0.0166` | [report](reports/experiments/oracle_address_control_pilot) |
+| Binding stress pilot | `2.9874` vs `12.1370` NLL | high LR/weight stress test still fails; address scores collapse and oracle margin advantage is `-0.0178` | [report](reports/experiments/binding_stress_pilot) |
+| Query-specific binding follow-up | best Delta NLL `2.5695` vs no-memory `12.1370` | all follow-ups fail binding; forced oracle payload also fails to separate paired answers | [report](reports/experiments/query_specific_binding_followup) |
 | Hidden retrieval baseline | `5.8246` vs `12.2118` NLL | hidden late-fusion baseline is weak (`14.5274`) | [report](reports/experiments/hidden_retrieval_baseline_pilot) |
 | Long-distance NoLiMa-style | `4.9367` vs `11.8879` NLL | fails shuffled gate (`4.8210`) | [report](reports/experiments/long_distance_nolima_pilot) |
 

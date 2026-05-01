@@ -182,3 +182,23 @@ Each report must include:
 7. Only if gates pass, unblock larger-seed confirmation. **Closed as a
    negative multiseed confirmation: the final 3-seed run preserves the strong
    Delta channel but support rate remains 0.0 for query-specific binding.**
+
+## Follow-up binding attempts
+
+- Added a trainable query-address projector so question-only query hidden states
+  and memory `address_key` records share an optimized address space.
+- Added in-batch address classification over the shared memory pool.
+- Added oracle-address controls that force correct-sample or paired-foreign
+  memory selection, separating retrieval failure from payload failure.
+- Added oracle payload contrastive pressure and a high-LR/high-weight stress
+  pilot.
+
+These follow-up attempts still fail the binding proof. The query-address pilot
+keeps a strong Delta channel (`delta_qv` NLL `2.5695` vs no-memory `12.1370`) but
+wrong-query/shuffled controls remain tied. The oracle payload control shows that
+even forced correct-address memory barely differs from paired-foreign memory
+(`0.0166` margin advantage), and the stress pilot collapses address scores
+(`top1` and `top2` are nearly identical) while preserving the generic channel.
+
+Current conclusion: the architecture needs a different binding mechanism, not
+more seeds or heavier loss on the current mean-pooled query/address path.
