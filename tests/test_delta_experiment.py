@@ -114,3 +114,24 @@ def test_delta_experiment_contrastive_training_records_margin(tmp_path):
     summary = run_delta_experiment(cfg)
     assert summary["train"][0]["contrastive_loss"] >= 0.0
     assert "contrastive_margin_advantage" in summary["train"][0]
+
+
+def test_delta_experiment_shared_memory_retrieval(tmp_path):
+    cfg = DeltaExperimentConfig(
+        model="mock-gemma",
+        device="cpu",
+        dtype="float32",
+        steps=1,
+        train_samples=2,
+        eval_samples=2,
+        task_suite="paired_conflict_binding",
+        block_size=16,
+        memory_dim=32,
+        top_k=2,
+        shared_memory_retrieval=True,
+        conflict_margins=True,
+        report_dir=str(tmp_path / "report"),
+    )
+    summary = run_delta_experiment(cfg)
+    assert summary["config"]["shared_memory_retrieval"] is True
+    assert summary["conflict_margins"]["aggregate"]["delta_qv"]

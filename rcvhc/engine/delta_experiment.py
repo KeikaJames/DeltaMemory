@@ -42,6 +42,7 @@ class DeltaExperimentConfig:
     conflict_margins: bool = False
     contrastive_margin_weight: float = 0.0
     contrastive_margin: float = 0.5
+    shared_memory_retrieval: bool = False
     report_dir: str = "reports/cleanroom/delta_experiment"
 
 
@@ -92,7 +93,12 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
         sample_idx = (step - 1) % len(train_prepared)
         sample = train_prepared[sample_idx]
         optimizer.zero_grad(set_to_none=True)
-        memories = _select_topk_by_layer(_live_memories(writer, sample, layer_ids, cfg), sample.query, cfg.top_k)
+        train_pool = _memory_pool(writer, train_prepared, layer_ids, cfg) if cfg.shared_memory_retrieval else None
+        memories = _select_topk_by_layer(
+            train_pool if train_pool is not None else _live_memories(writer, sample, layer_ids, cfg),
+            sample.query,
+            cfg.top_k,
+        )
         result = injector.forward_layers(
             input_ids=sample.prompt["input_ids"],
             attention_mask=sample.prompt["attention_mask"],
@@ -104,7 +110,11 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
         margin_advantage = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
         if cfg.contrastive_margin_weight > 0.0 and len(train_prepared) > 1:
             foreign = _foreign_sample(train_prepared, sample_idx)
-            foreign_memories = _select_topk_by_layer(_live_memories(writer, foreign, layer_ids, cfg), foreign.query, cfg.top_k)
+            foreign_memories = _select_topk_by_layer(
+                train_pool if train_pool is not None else _live_memories(writer, foreign, layer_ids, cfg),
+                foreign.query,
+                cfg.top_k,
+            )
             foreign_answer_with_correct_memory = _candidate_answer_loss(
                 bundle,
                 injector,
@@ -189,11 +199,16 @@ def evaluate_prepared(
 ) -> dict[str, Any]:
     per_sample = []
     by_mode: dict[str, list[dict[str, Any]]] = {mode: [] for mode in TRAIN_EVAL_MODES}
+    shared_pool = _memory_pool(writer, prepared, layer_ids, cfg) if cfg.shared_memory_retrieval else None
     for sample_idx, sample in enumerate(prepared):
-        memories = _select_topk_by_layer(_live_memories(writer, sample, layer_ids, cfg), sample.query, cfg.top_k)
+        memories = _select_topk_by_layer(
+            shared_pool if shared_pool is not None else _live_memories(writer, sample, layer_ids, cfg),
+            sample.query,
+            cfg.top_k,
+        )
         wrong_query_sample = _foreign_sample(prepared, sample_idx)
         wrong_query_memories = _select_topk_by_layer(
-            _live_memories(writer, wrong_query_sample, layer_ids, cfg),
+            shared_pool if shared_pool is not None else _live_memories(writer, wrong_query_sample, layer_ids, cfg),
             wrong_query_sample.query,
             cfg.top_k,
         )
@@ -237,10 +252,19 @@ def evaluate_conflict_margins(
     modes = ["no_memory", "delta_qv", "delta_qv_wrong_query"]
     by_mode: dict[str, list[float]] = {mode: [] for mode in modes}
     samples: list[dict[str, Any]] = []
+    shared_pool = _memory_pool(writer, prepared, layer_ids, cfg) if cfg.shared_memory_retrieval else None
     for sample_idx, sample in enumerate(prepared):
         foreign = _foreign_sample(prepared, sample_idx)
-        correct_memories = _select_topk_by_layer(_live_memories(writer, sample, layer_ids, cfg), sample.query, cfg.top_k)
-        foreign_memories = _select_topk_by_layer(_live_memories(writer, foreign, layer_ids, cfg), foreign.query, cfg.top_k)
+        correct_memories = _select_topk_by_layer(
+            shared_pool if shared_pool is not None else _live_memories(writer, sample, layer_ids, cfg),
+            sample.query,
+            cfg.top_k,
+        )
+        foreign_memories = _select_topk_by_layer(
+            shared_pool if shared_pool is not None else _live_memories(writer, foreign, layer_ids, cfg),
+            foreign.query,
+            cfg.top_k,
+        )
         sample_modes: dict[str, dict[str, float]] = {}
         for mode in modes:
             if mode == "no_memory":
@@ -430,6 +454,18 @@ def _live_memories(
                 source_text_by_block=sample.snippets,
             )
         )
+    return items
+
+
+def _memory_pool(
+    writer: RCVHCWriter,
+    prepared: list[PreparedDeltaExample],
+    layer_ids: list[int],
+    cfg: DeltaExperimentConfig,
+) -> list[AttentionMemoryItem]:
+    items: list[AttentionMemoryItem] = []
+    for sample in prepared:
+        items.extend(_live_memories(writer, sample, layer_ids, cfg))
     return items
 
 
