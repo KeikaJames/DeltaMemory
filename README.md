@@ -141,16 +141,59 @@ because later experiments found and fixed stronger controls.
 
 ## Literature Positioning and Causal Proof Plan
 
-Recent memory-system work points to a stricter bar than "NLL improves":
+Recent memory-system work points to a stricter bar than "NLL improves". The
+important papers also disagree with each other in useful ways:
 
-- **Memorizing Transformers / RetrievalAttention / LongMem-style systems** make
-  retrieval identity central: a query should select specific external KV/hidden
-  records and the selected record should control the answer.
-- **Titans-style neural long-term memory** emphasizes test-time memory updates
-  and explicit interaction between short-term attention and long-term memory.
-- **Mamba/SSM hybrids** are a different axis: they improve long-sequence
-  efficiency by changing the backbone/state update, while Delta Memory keeps the
-  Transformer backbone frozen and injects external memory into attention.
+| line of work | what it solves | what it fails to settle for Delta Memory |
+| --- | --- | --- |
+| Memorizing Transformers, RETRO, LongMem, RetrievalAttention | explicit external retrieval and KV/hidden record selection | retrieval can be approximate, brittle under near-collisions, or not causally tied to answer identity |
+| Titans / MIRAS-style neural long-term memory | adaptive neural memory updated at test time, combining short-term attention and persistent memory | memory is powerful but opaque; a learned memory channel can improve loss without proving address-level binding |
+| Mamba / SSM hybrids | efficient long-sequence state propagation without quadratic attention | compressed recurrent state is efficient but weak for exact content-addressed key-value recall |
+| Infini-attention / compressive memory | bounded-memory streaming attention with local and long-term components | compression helps scale, but compression can erase the identity needed for counterfactual factual swaps |
+| NoLiMa / RULER-style benchmarks | expose literal-match shortcuts and long-context binding failures | ordinary NLL gains are insufficient; controls must remove lexical overlap, answer leakage, and isolated-memory shortcuts |
+| DeltaNet / fast-weight delta-rule views | frame attention-like lookup as associative memory update/readout | suggests Delta Memory should learn binding and anti-interference, not only inject a generic residual vector |
+
+### Synthesis: Address-Bound Delta Memory
+
+The contradiction is this:
+
+```text
+Attention/KV retrieval gives explicit addresses but is expensive and brittle.
+Mamba/SSM/neural-memory compression is efficient but weak at exact binding.
+Delta injection is powerful but can become a generic activation channel.
+```
+
+The proposed unification is **Address-Bound Delta Memory**:
+
+```text
+memory item = (address key, payload delta, anti-key metadata)
+query      -> address competition -> causal gate -> payload injection
+```
+
+Instead of asking only whether `Delta` lowers answer NLL, the next architecture
+should separate two roles:
+
+1. **Address binding**: a query must select the correct memory identity from a
+   shared pool containing near-collision and foreign memories.
+2. **Payload effect**: only after the address gate wins should the Delta payload
+   be allowed to affect Q/V.
+
+This changes the mechanism from:
+
+```text
+retrieved Delta -> Q/V residual
+```
+
+to:
+
+```text
+query-address margin -> identity gate -> signed Delta payload -> Q/V residual
+```
+
+The practical consequence is that wrong memories should not merely be "less
+helpful"; they should be detectably unable to open the correct gate, or should
+move the model toward the paired foreign answer in a counterfactual swap. This
+is the missing causal test in the current reports.
 
 For Delta Memory, the missing causal proof is query-specific binding. The next
 valid proof should use these gates:
@@ -169,6 +212,42 @@ valid proof should use these gates:
    not only the lightweight hidden late-fusion `hidden_retrieval` baseline.
 
 Until those gates pass, larger-seed confirmation is intentionally deferred.
+
+### Concrete next implementation direction
+
+The next implementation should not just add another loss term to the current
+adapter. It should add an explicit address-binding path:
+
+1. **Memory records**
+   - keep the current Delta payload (`delta_q`, `delta_v`);
+   - add a learned `address_key` optimized for retrieval identity;
+   - record paired negative ids for conflict suites.
+2. **Retriever**
+   - retrieve from a shared store;
+   - compute a top-1 vs top-2 address margin;
+   - expose `address_margin`, `correct_address_rank`, and `paired_negative_rank`
+     in reports.
+3. **Identity gate**
+   - gate Delta injection by address confidence:
+     `gate_identity = sigmoid(beta * (score_top1 - score_top2 - tau))`;
+   - wrong-query or shuffled retrieval should close this gate.
+4. **Signed counterfactual training**
+   - correct memory: maximize
+     `foreign_answer_nll - correct_answer_nll`;
+   - paired foreign memory: minimize or reverse that margin;
+   - null memory: match no-memory behavior.
+5. **Pass criterion**
+   - `delta_qv` must beat no-memory and hidden/KV baselines;
+   - `delta_qv` must beat shuffled/wrong-query controls;
+   - correct memory must show a positive margin advantage over paired foreign
+     memory;
+   - reports must include address-rank evidence, not only answer NLL.
+
+This is the "对立统一" outcome of the literature read: keep the Transformer
+attention path for precise Q/K/V intervention, borrow explicit identity
+competition from retrieval/KV memory, borrow anti-interference pressure from
+fast-weight/delta-rule memory, and reject pure compressed-state memory as
+insufficient for exact binding.
 
 ## Repository Layout
 
