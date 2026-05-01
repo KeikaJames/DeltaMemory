@@ -1,7 +1,8 @@
-# RCV-HC
+# Delta Memory
 
-RCV-HC is a cleanroom prototype for **external attention memory on frozen
-Gemma-style decoder language models**.
+Delta Memory is a cleanroom prototype for **layerwise external memory injection
+inside frozen Gemma-style decoder attention layers**. The Python package is still
+named `rcvhc` for compatibility with earlier experiments.
 
 The current research path is:
 
@@ -11,16 +12,16 @@ long context
 -> per-block Raw/Delta attention memory
 -> external CPU/disk store
 -> top-k memory retrieval
--> Gemma Q/K/V attention intervention
+-> per-layer Gemma Q/K/V residual injection
 -> answer metrics and attention-memory trace
 ```
 
 It is not a RAG prompt-insertion system. Retrieved `source_text` is kept only as
-debug metadata and is not appended to the answer prompt in the RCV-HC path.
+debug metadata and is not appended to the answer prompt in the Delta Memory path.
 
 ## Delta Memory
 
-The core memory signal is the original DeltaMemory idea:
+The core memory signal is:
 
 ```text
 source block b = [start, end)
@@ -34,7 +35,8 @@ v2[b]     = sum_i U[b,i] * c_use[i]
 Delta[b]  = RMSNorm(v2[b] - c_self[b])
 ```
 
-For attention-path intervention, Delta is projected into Q/K/V residuals:
+For attention-path intervention, retrieved Delta is projected into Q/K/V
+residuals at each enabled attention layer:
 
 ```text
 q' = q + alpha_q * gate_q * P_q(Delta[b])
@@ -42,16 +44,16 @@ k' = k + alpha_k * gate_k * P_k(Delta[b])
 v' = v + alpha_v * gate_v * P_v(Delta[b])
 ```
 
-The base Gemma model is frozen. Only the RCV-HC writer, gates, and Q/K/V
+The base Gemma model is frozen. Only the Delta Memory writer, gates, and Q/K/V
 projection adapters are trainable.
 
 ## Quick Start
 
-Install dependencies:
+Install dependencies in a local virtual environment:
 
 ```bash
 python3 -m venv .venv-mac
-.venv-mac/bin/python -m pip install -r requirements-macos.txt
+.venv-mac/bin/python -m pip install torch transformers accelerate safetensors tokenizers pytest
 ```
 
 Run tests:
@@ -83,7 +85,7 @@ Run the real Gemma4 E2B wiring demo:
   --report-dir reports/cleanroom/gemma4_real
 ```
 
-Train only the RCV-HC Delta Q/V adapter:
+Train only the Delta Memory writer and Q/V adapter:
 
 ```bash
 .venv-mac/bin/python scripts/train_delta_qv_prototype.py \
@@ -114,7 +116,7 @@ The current real Gemma4 run shows engineering success:
 
 - base model frozen,
 - `trainable_base_params = 0`,
-- Q/V Delta intervention has non-zero norm,
+- layerwise Q/V Delta injection has non-zero norm,
 - zero/random/shuffled/force-gate controls run,
 - no retrieved source text is inserted into the prompt.
 
@@ -168,9 +170,9 @@ It is still not a broad benchmark result.
 
 The project should prove the mechanism in this order:
 
-1. **Wiring proof**: frozen Gemma accepts external attention memory and Q/V
-   Delta injection; zero/random/shuffled controls run.
-2. **Optimization proof**: train only RCV-HC adapters and show trained
+1. **Wiring proof**: frozen Gemma accepts external Delta Memory and layerwise
+   Q/V injection; zero/random/shuffled controls run.
+2. **Optimization proof**: train only Delta Memory adapters and show trained
    `delta_qv` improves answer-token NLL/rank while base parameters remain
    frozen.
 3. **Alignment proof**: trained `delta_qv` must beat `delta_qv_zero`,
@@ -185,14 +187,11 @@ The project should prove the mechanism in this order:
 
 ```text
 rcvhc/core/       config and shared typed records
-rcvhc/memory/     external attention-memory store and writer
-rcvhc/gemma/      Gemma-style model adapter and Q/K/V injector
+rcvhc/memory/     external Delta Memory store and writer
+rcvhc/gemma/      Gemma-style model adapter and layerwise Q/K/V injector
 rcvhc/engine/     ingest, ask, prototype, and adapter-training runners
 scripts/          runnable demos
 docs/             design and evidence boundary
 reports/          minimal tracked cleanroom reports only
 tests/            cleanroom tests; no Gemma download required
 ```
-
-Ignored local artifacts include `runs/`, `stores/`, `cache/`, checkpoints,
-model weights, JSONL logs, virtualenvs, and pycache files.

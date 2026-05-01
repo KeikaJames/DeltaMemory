@@ -1,4 +1,4 @@
-"""Command line interface for the cleanroom RCV-HC prototype."""
+"""Command line interface for the cleanroom Delta Memory prototype."""
 
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ def main(argv: list[str] | None = None) -> int:
     ingest.add_argument("--model", default="mock-gemma")
     ingest.add_argument("--input", required=True)
     ingest.add_argument("--store", required=True)
-    ingest.add_argument("--layers", default="max_exposed")
+    ingest.add_argument("--layers", default="all")
     ingest.add_argument("--block-size", type=int, default=128)
     ingest.add_argument("--memory-dim", type=int, default=128)
     ingest.add_argument("--device", default="cpu")

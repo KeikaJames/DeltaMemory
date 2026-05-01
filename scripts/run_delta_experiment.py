@@ -23,10 +23,11 @@ def main() -> int:
     parser.add_argument("--train-samples", type=int, default=4)
     parser.add_argument("--eval-samples", type=int, default=4)
     parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--task-suite", default="single_fact_late_reference")
     parser.add_argument("--block-size", type=int, default=64)
     parser.add_argument("--memory-dim", type=int, default=128)
     parser.add_argument("--top-k", type=int, default=2)
-    parser.add_argument("--layers", default="max_exposed")
+    parser.add_argument("--layers", default="all")
     parser.add_argument("--alpha-scale", type=float, default=0.2)
     parser.add_argument("--gate-bias", type=float, default=-1.0)
     parser.add_argument("--report-dir", default="reports/cleanroom/delta_experiment")
@@ -40,6 +41,7 @@ def main() -> int:
         train_samples=args.train_samples,
         eval_samples=args.eval_samples,
         seed=args.seed,
+        task_suite=args.task_suite,
         block_size=args.block_size,
         memory_dim=args.memory_dim,
         top_k=args.top_k,

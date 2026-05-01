@@ -1,4 +1,4 @@
-"""Raw/Delta attention-memory writer."""
+"""Raw/Delta Memory writer."""
 
 from __future__ import annotations
 

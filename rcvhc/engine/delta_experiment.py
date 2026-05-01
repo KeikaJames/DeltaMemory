@@ -14,8 +14,9 @@ import torch.nn.functional as F
 from rcvhc.core.config import resolve_layer_policy
 from rcvhc.core.types import AttentionMemoryItem
 from rcvhc.engine.attention_memory_engine import compute_answer_metrics
-from rcvhc.engine.delta_dataset import DeltaExample, make_later_reference_examples
+from rcvhc.engine.delta_dataset import DeltaExample, make_delta_memory_examples
 from rcvhc.engine.delta_training import TRAIN_EVAL_MODES, _answer_loss, _grad_norm
+from rcvhc.engine.statistics import primary_delta_memory_statistics
 from rcvhc.gemma.attention_injector import GemmaAttentionInjector, QKVDeltaProjector
 from rcvhc.gemma.model_adapter import exposed_qkv_layers, get_hidden_size, load_model_bundle, trainable_base_params
 from rcvhc.memory.writer import RCVHCWriter, fit_memory_dim, split_source_snippets
@@ -31,10 +32,11 @@ class DeltaExperimentConfig:
     train_samples: int = 4
     eval_samples: int = 4
     seed: int = 0
+    task_suite: str = "single_fact_late_reference"
     block_size: int = 64
     memory_dim: int = 128
     top_k: int = 2
-    layers: str = "max_exposed"
+    layers: str = "all"
     alpha_scale: float = 0.2
     gate_bias: float = -1.0
     report_dir: str = "reports/cleanroom/delta_experiment"
@@ -62,8 +64,8 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
     )
     injector = GemmaAttentionInjector(bundle.model, projector)
 
-    train_examples = make_later_reference_examples(cfg.train_samples, seed=cfg.seed, start_id=0)
-    eval_examples = make_later_reference_examples(cfg.eval_samples, seed=cfg.seed + 10_000, start_id=10_000)
+    train_examples = make_delta_memory_examples(cfg.task_suite, cfg.train_samples, seed=cfg.seed, start_id=0)
+    eval_examples = make_delta_memory_examples(cfg.task_suite, cfg.eval_samples, seed=cfg.seed + 10_000, start_id=10_000)
     first_context = _encode(bundle.tokenizer, train_examples[0].text, bundle.device)
     with torch.no_grad():
         first_out = bundle.model(
@@ -74,24 +76,23 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
             use_cache=False,
         )
     exposed = exposed_qkv_layers(bundle.model) or list(range(max(0, len(first_out.hidden_states) - 1)))
-    layer_id = resolve_layer_policy(cfg.layers, exposed)[-1]
-    injector.materialize_for_layer(layer_id, bundle.device, bundle.dtype)
+    layer_ids = resolve_layer_policy(cfg.layers, exposed)
+    injector.materialize_for_layers(layer_ids, bundle.device, bundle.dtype)
 
-    train_prepared = [_prepare_example(bundle, example, cfg, layer_id) for example in train_examples]
-    eval_prepared = [_prepare_example(bundle, example, cfg, layer_id) for example in eval_examples]
+    train_prepared = [_prepare_example(bundle, example, cfg) for example in train_examples]
+    eval_prepared = [_prepare_example(bundle, example, cfg) for example in eval_examples]
     optimizer = torch.optim.AdamW(list(writer.parameters()) + list(projector.parameters()), lr=cfg.lr)
 
-    initial_eval = evaluate_prepared(writer, injector, eval_prepared, layer_id, cfg)
+    initial_eval = evaluate_prepared(writer, injector, eval_prepared, layer_ids, cfg)
     train_rows = []
     for step in range(1, cfg.steps + 1):
         sample = train_prepared[(step - 1) % len(train_prepared)]
         optimizer.zero_grad(set_to_none=True)
-        memories = _select_topk(_live_memories(writer, sample, layer_id, cfg), sample.query, cfg.top_k)
-        result = injector.forward(
+        memories = _select_topk_by_layer(_live_memories(writer, sample, layer_ids, cfg), sample.query, cfg.top_k)
+        result = injector.forward_layers(
             input_ids=sample.prompt["input_ids"],
             attention_mask=sample.prompt["attention_mask"],
-            layer_id=layer_id,
-            memories=memories,
+            memories_by_layer=memories,
             mode="delta_qv",
         )
         loss = _answer_loss(result.logits, sample.answer_start, sample.answer_ids)
@@ -110,11 +111,11 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
             }
         )
 
-    final_train = evaluate_prepared(writer, injector, train_prepared, layer_id, cfg)
-    final_eval = evaluate_prepared(writer, injector, eval_prepared, layer_id, cfg)
+    final_train = evaluate_prepared(writer, injector, train_prepared, layer_ids, cfg)
+    final_eval = evaluate_prepared(writer, injector, eval_prepared, layer_ids, cfg)
     summary = {
         "config": asdict(cfg),
-        "layer_id": layer_id,
+        "layer_ids": layer_ids,
         "trainable_base_params": trainable_base_params(bundle.model),
         "prompt_insertion_used": False,
         "source_text_debug_only": True,
@@ -124,6 +125,7 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
         "train": train_rows,
         "final_train": final_train,
         "final_eval": final_eval,
+        "statistics": primary_delta_memory_statistics(final_eval, seed=cfg.seed),
         "diagnosis": diagnose_experiment(initial_eval, final_eval),
     }
     return summary
@@ -133,24 +135,25 @@ def evaluate_prepared(
     writer: RCVHCWriter,
     injector: GemmaAttentionInjector,
     prepared: list[PreparedDeltaExample],
-    layer_id: int,
+    layer_ids: list[int],
     cfg: DeltaExperimentConfig,
 ) -> dict[str, Any]:
     per_sample = []
     by_mode: dict[str, list[dict[str, Any]]] = {mode: [] for mode in TRAIN_EVAL_MODES}
     for sample in prepared:
-        memories = _select_topk(_live_memories(writer, sample, layer_id, cfg), sample.query, cfg.top_k)
+        memories = _select_topk_by_layer(_live_memories(writer, sample, layer_ids, cfg), sample.query, cfg.top_k)
         sample_rows = {}
         for mode in TRAIN_EVAL_MODES:
             if mode == "no_memory":
                 logits = sample.base_logits
                 trace = {}
+            elif mode == "raw_memory":
+                logits, trace = _raw_late_readout(sample, memories, injector)
             else:
-                result = injector.forward(
+                result = injector.forward_layers(
                     input_ids=sample.prompt["input_ids"],
                     attention_mask=sample.prompt["attention_mask"],
-                    layer_id=layer_id,
-                    memories=memories,
+                    memories_by_layer=memories,
                     mode=mode,
                 )
                 logits = result.logits
@@ -190,7 +193,7 @@ def write_delta_experiment_report(summary: dict[str, Any], report_dir: str | Pat
     return {"summary": str(summary_path), "report": str(report_path)}
 
 
-def _prepare_example(bundle, example: DeltaExample, cfg: DeltaExperimentConfig, layer_id: int) -> PreparedDeltaExample:
+def _prepare_example(bundle, example: DeltaExample, cfg: DeltaExperimentConfig) -> PreparedDeltaExample:
     context = _encode(bundle.tokenizer, example.text, bundle.device)
     with torch.no_grad():
         out = bundle.model(
@@ -233,17 +236,30 @@ def _prepare_example(bundle, example: DeltaExample, cfg: DeltaExperimentConfig, 
 def _live_memories(
     writer: RCVHCWriter,
     sample: PreparedDeltaExample,
-    layer_id: int,
+    layer_ids: list[int],
     cfg: DeltaExperimentConfig,
 ) -> list[AttentionMemoryItem]:
-    return writer.write_layer(
-        layer_id=layer_id,
-        h_in=sample.context_out.hidden_states[layer_id],
-        h_out=sample.context_out.hidden_states[layer_id + 1],
-        attn=sample.context_out.attentions[layer_id],
-        token_offset=0,
-        source_text_by_block=sample.snippets,
-    )
+    items: list[AttentionMemoryItem] = []
+    for layer_id in layer_ids:
+        items.extend(
+            writer.write_layer(
+                layer_id=layer_id,
+                h_in=sample.context_out.hidden_states[layer_id],
+                h_out=sample.context_out.hidden_states[layer_id + 1],
+                attn=sample.context_out.attentions[layer_id],
+                token_offset=0,
+                source_text_by_block=sample.snippets,
+            )
+        )
+    return items
+
+
+def _select_topk_by_layer(memories: list[AttentionMemoryItem], query: torch.Tensor, top_k: int) -> dict[int, list[AttentionMemoryItem]]:
+    selected: dict[int, list[AttentionMemoryItem]] = {}
+    for layer_id in sorted({item.layer_id for item in memories}):
+        layer_memories = [item for item in memories if item.layer_id == layer_id]
+        selected[layer_id] = _select_topk(layer_memories, query, top_k)
+    return selected
 
 
 def _select_topk(memories: list[AttentionMemoryItem], query: torch.Tensor, top_k: int) -> list[AttentionMemoryItem]:
@@ -262,11 +278,36 @@ def _select_topk(memories: list[AttentionMemoryItem], query: torch.Tensor, top_k
     return selected
 
 
+def _raw_late_readout(
+    sample: PreparedDeltaExample,
+    memories_by_layer: dict[int, list[AttentionMemoryItem]],
+    injector: GemmaAttentionInjector,
+) -> tuple[torch.Tensor, dict[str, float]]:
+    memories = [item for layer_memories in memories_by_layer.values() for item in layer_memories]
+    if not memories:
+        return sample.base_logits, {}
+    model = injector.model
+    with torch.no_grad():
+        out = model(
+            input_ids=sample.prompt["input_ids"],
+            attention_mask=sample.prompt["attention_mask"],
+            output_hidden_states=True,
+            output_attentions=False,
+            use_cache=False,
+        )
+    hidden = out.hidden_states[-1]
+    raw = torch.stack([item.raw_value.to(hidden.device, hidden.dtype) for item in memories], dim=0).mean(dim=0)
+    update = fit_memory_dim(raw, hidden.shape[-1]).to(hidden.device, hidden.dtype)
+    hidden_prime = hidden + 0.05 * update.view(1, 1, -1)
+    logits = model.get_output_embeddings()(hidden_prime)
+    return logits, {"hidden_delta_norm": float((hidden_prime - hidden).detach().float().norm().cpu())}
+
+
 def _aggregate_by_mode(by_mode: dict[str, list[dict[str, Any]]]) -> dict[str, dict[str, float]]:
     aggregate: dict[str, dict[str, float]] = {}
     for mode, rows in by_mode.items():
         metrics = {"answer_nll": [], "answer_rank": [], "top10": [], "answer_logprob": []}
-        traces = {"q_delta_norm": [], "v_delta_norm": [], "gate_v": []}
+        traces = {"q_delta_norm": [], "v_delta_norm": [], "gate_v": [], "injected_layers": []}
         for row in rows:
             for key in metrics:
                 value = row["metrics"].get(key)
@@ -303,16 +344,16 @@ def _encode(tokenizer, text: str, device: torch.device) -> dict[str, torch.Tenso
 def _markdown(summary: dict[str, Any]) -> str:
     cfg = summary["config"]
     lines = [
-        "# RCV-HC Delta Q/V Multi-Example Experiment",
+        "# Delta Memory Q/V Multi-Example Experiment",
         "",
         "## Config",
         "",
     ]
-    for key in ["model", "device", "dtype", "steps", "lr", "train_samples", "eval_samples", "block_size", "memory_dim", "top_k"]:
+    for key in ["model", "device", "dtype", "steps", "lr", "task_suite", "train_samples", "eval_samples", "block_size", "memory_dim", "top_k"]:
         lines.append(f"- `{key}`: `{cfg[key]}`")
     lines.extend(
         [
-            f"- `layer_id`: `{summary['layer_id']}`",
+            f"- `layer_ids`: `{summary['layer_ids']}`",
             f"- `trainable_base_params`: `{summary['trainable_base_params']}`",
             f"- `prompt_insertion_used`: `{summary['prompt_insertion_used']}`",
             "",
@@ -340,12 +381,27 @@ def _markdown(summary: dict[str, Any]) -> str:
     lines.extend(["", "## Diagnosis", ""])
     for key, value in summary["diagnosis"].items():
         lines.append(f"- `{key}`: `{value}`")
+    lines.extend(["", "## Paired Statistics", ""])
+    stats = summary.get("statistics", {})
+    lines.append(f"- `strongest_non_prompt_baseline`: `{stats.get('strongest_non_prompt_baseline')}`")
+    for baseline, row in (stats.get("comparisons") or {}).items():
+        ci = row.get("bootstrap_ci95", [0.0, 0.0])
+        lines.append(
+            "- `{baseline}`: mean_delta=`{mean:.4f}`, ci95=`[{lo:.4f}, {hi:.4f}]`, win_rate=`{win:.4f}`, permutation_p=`{perm:.4f}`".format(
+                baseline=baseline,
+                mean=float(row.get("mean_delta", 0.0)),
+                lo=float(ci[0]),
+                hi=float(ci[1]),
+                win=float(row.get("win_rate", 0.0)),
+                perm=float(row.get("permutation_p", 1.0)),
+            )
+        )
     lines.extend(
         [
             "",
             "## Interpretation",
             "",
-            "This experiment trains only the RCV-HC writer and Q/V adapter while the base model remains frozen.",
+            "This experiment trains only the Delta Memory writer and Q/V adapter while the base model remains frozen.",
             "A positive result requires held-out `delta_qv` to beat zero, random, and shuffled controls.",
         ]
     )

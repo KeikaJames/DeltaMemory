@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the cleanroom RCV-HC attention-memory demo.
+"""Run the cleanroom Delta Memory attention-injection demo.
 
 The default uses the local mock Gemma-style model so CI and cleanroom tests do
 not download weights. Pass ``--model google/gemma-4-E2B`` to try the real base
@@ -34,7 +34,7 @@ def main() -> int:
     bundle = load_model_bundle(args.model, device=args.device, dtype=args.dtype)
     cfg = RCVHCCleanConfig(model_name=args.model, device=args.device, dtype=args.dtype, block_size=32, memory_dim=128)
     engine = AttentionMemoryEngine(bundle, cfg)
-    ingest_summary = engine.ingest(text, layers="max_exposed")
+    ingest_summary = engine.ingest(text, layers="all")
     engine.save_store(args.store)
     result = engine.ask(
         "What is the secret code for unit XJQ-482?",
@@ -62,7 +62,7 @@ def main() -> int:
 
 def _markdown(summary: dict) -> str:
     lines = [
-        "# RCV-HC Cleanroom Demo Report",
+        "# Delta Memory Cleanroom Demo Report",
         "",
         "## Status",
         "",

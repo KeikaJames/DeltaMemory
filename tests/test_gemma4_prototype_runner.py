@@ -32,4 +32,4 @@ def test_gemma4_prototype_runner_mock(tmp_path):
     assert summary["diagnosis"]["delta_qv_v_nonzero"] is True
     paths = write_prototype_report(summary, tmp_path / "report")
     assert Path(paths["report"]).exists()
-    assert "Gemma4 Attention-Memory Prototype" in Path(paths["report"]).read_text(encoding="utf-8")
+    assert "Delta Memory Gemma4 Layerwise Injection Prototype" in Path(paths["report"]).read_text(encoding="utf-8")

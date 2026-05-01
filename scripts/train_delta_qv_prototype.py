@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Train only RCV-HC Delta writer/QV adapters on the cleanroom demo."""
+"""Train only Delta Memory writer/QV adapters on the cleanroom demo."""
 
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ def main() -> int:
     parser.add_argument("--block-size", type=int, default=128)
     parser.add_argument("--memory-dim", type=int, default=512)
     parser.add_argument("--top-k", type=int, default=1)
-    parser.add_argument("--layers", default="max_exposed")
+    parser.add_argument("--layers", default="all")
     parser.add_argument("--alpha-scale", type=float, default=0.2)
     parser.add_argument("--gate-bias", type=float, default=-1.0)
     args = parser.parse_args()

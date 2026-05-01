@@ -1,7 +1,7 @@
-"""Train the frozen-backbone Delta Q/V adapter on a single cleanroom task.
+"""Train the frozen-backbone Delta Memory Q/V adapter on a single cleanroom task.
 
 This is deliberately small. It answers the practical question: the base Gemma
-model does not know how to use RCV-HC Delta memory by itself, so we train only
+model does not know how to use Delta Memory by itself, so we train only
 the external writer and Q/K/V intervention modules while keeping all model
 weights frozen.
 """
@@ -26,10 +26,12 @@ from rcvhc.memory.writer import RCVHCWriter, fit_memory_dim, split_source_snippe
 
 TRAIN_EVAL_MODES = [
     "no_memory",
+    "raw_memory",
     "delta_qv",
     "delta_qv_zero",
     "delta_qv_random",
     "delta_qv_shuffled",
+    "delta_qv_wrong_layer",
     "delta_qv_force_gate",
 ]
 
@@ -48,7 +50,7 @@ class DeltaTrainingConfig:
     block_size: int = 128
     memory_dim: int = 512
     top_k: int = 1
-    layers: str = "max_exposed"
+    layers: str = "all"
     alpha_scale: float = 0.2
     gate_bias: float = -1.0
 
@@ -87,8 +89,8 @@ def run_delta_training(cfg: DeltaTrainingConfig) -> dict[str, Any]:
     if context_out.hidden_states is None or context_out.attentions is None:
         raise RuntimeError("Delta training requires hidden_states and attentions")
     exposed = exposed_qkv_layers(bundle.model) or list(range(max(0, len(context_out.hidden_states) - 1)))
-    layer_id = resolve_layer_policy(cfg.layers, exposed)[-1]
-    injector.materialize_for_layer(layer_id, bundle.device, bundle.dtype)
+    layer_ids = resolve_layer_policy(cfg.layers, exposed)
+    injector.materialize_for_layers(layer_ids, bundle.device, bundle.dtype)
 
     prompt_text, answer_start, answer_ids = _metric_prompt(bundle.tokenizer, cfg.question, cfg.answer)
     prompt = _encode(bundle.tokenizer, prompt_text, bundle.device)
@@ -112,7 +114,7 @@ def run_delta_training(cfg: DeltaTrainingConfig) -> dict[str, Any]:
         base_prompt.logits,
         query,
         snippets,
-        layer_id,
+        layer_ids,
         cfg,
         answer_start,
         answer_ids,
@@ -121,13 +123,11 @@ def run_delta_training(cfg: DeltaTrainingConfig) -> dict[str, Any]:
     train_rows = []
     for step in range(1, cfg.steps + 1):
         optimizer.zero_grad(set_to_none=True)
-        memories = _live_memories(writer, context_out, snippets, layer_id, cfg)
-        selected = _select_topk(memories, query, cfg.top_k)
-        result = injector.forward(
+        selected = _select_topk_by_layer(_live_memories(writer, context_out, snippets, layer_ids, cfg), query, cfg.top_k)
+        result = injector.forward_layers(
             input_ids=prompt["input_ids"],
             attention_mask=prompt["attention_mask"],
-            layer_id=layer_id,
-            memories=selected,
+            memories_by_layer=selected,
             mode="delta_qv",
         )
         loss = _answer_loss(result.logits, answer_start, answer_ids)
@@ -153,14 +153,14 @@ def run_delta_training(cfg: DeltaTrainingConfig) -> dict[str, Any]:
         base_prompt.logits,
         query,
         snippets,
-        layer_id,
+        layer_ids,
         cfg,
         answer_start,
         answer_ids,
     )
     summary = {
         "config": asdict(cfg),
-        "layer_id": layer_id,
+        "layer_ids": layer_ids,
         "trainable_base_params": trainable_base_params(bundle.model),
         "prompt_insertion_used": False,
         "source_text_debug_only": True,
@@ -191,23 +191,24 @@ def _evaluate_modes(
     base_logits: torch.Tensor,
     query: torch.Tensor,
     snippets: list[str],
-    layer_id: int,
+    layer_ids: list[int],
     cfg: DeltaTrainingConfig,
     answer_start: int,
     answer_ids: list[int],
 ) -> dict[str, Any]:
-    memories = _select_topk(_live_memories(writer, context_out, snippets, layer_id, cfg), query, cfg.top_k)
+    memories = _select_topk_by_layer(_live_memories(writer, context_out, snippets, layer_ids, cfg), query, cfg.top_k)
     rows: dict[str, Any] = {}
     for mode in TRAIN_EVAL_MODES:
         if mode == "no_memory":
             logits = base_logits
             trace = {}
+        elif mode == "raw_memory":
+            logits, trace = _raw_late_readout(base_logits, prompt["input_ids"], memories, injector)
         else:
-            result = injector.forward(
+            result = injector.forward_layers(
                 input_ids=prompt["input_ids"],
                 attention_mask=prompt["attention_mask"],
-                layer_id=layer_id,
-                memories=memories,
+                memories_by_layer=memories,
                 mode=mode,
             )
             logits = result.logits
@@ -223,17 +224,30 @@ def _live_memories(
     writer: RCVHCWriter,
     context_out,
     snippets: list[str],
-    layer_id: int,
+    layer_ids: list[int],
     cfg: DeltaTrainingConfig,
 ) -> list[AttentionMemoryItem]:
-    return writer.write_layer(
-        layer_id=layer_id,
-        h_in=context_out.hidden_states[layer_id].detach(),
-        h_out=context_out.hidden_states[layer_id + 1].detach(),
-        attn=context_out.attentions[layer_id].detach(),
-        token_offset=0,
-        source_text_by_block=snippets,
-    )
+    items: list[AttentionMemoryItem] = []
+    for layer_id in layer_ids:
+        items.extend(
+            writer.write_layer(
+                layer_id=layer_id,
+                h_in=context_out.hidden_states[layer_id].detach(),
+                h_out=context_out.hidden_states[layer_id + 1].detach(),
+                attn=context_out.attentions[layer_id].detach(),
+                token_offset=0,
+                source_text_by_block=snippets,
+            )
+        )
+    return items
+
+
+def _select_topk_by_layer(memories: list[AttentionMemoryItem], query: torch.Tensor, top_k: int) -> dict[int, list[AttentionMemoryItem]]:
+    selected: dict[int, list[AttentionMemoryItem]] = {}
+    for layer_id in sorted({item.layer_id for item in memories}):
+        layer_memories = [item for item in memories if item.layer_id == layer_id]
+        selected[layer_id] = _select_topk(layer_memories, query, top_k)
+    return selected
 
 
 def _select_topk(memories: list[AttentionMemoryItem], query: torch.Tensor, top_k: int) -> list[AttentionMemoryItem]:
@@ -250,6 +264,26 @@ def _select_topk(memories: list[AttentionMemoryItem], query: torch.Tensor, top_k
         item.metadata["retrieval_rank"] = rank
         selected.append(item)
     return selected
+
+
+def _raw_late_readout(
+    base_logits: torch.Tensor,
+    input_ids: torch.Tensor,
+    memories_by_layer: dict[int, list[AttentionMemoryItem]],
+    injector: GemmaAttentionInjector,
+) -> tuple[torch.Tensor, dict[str, float]]:
+    memories = [item for layer_memories in memories_by_layer.values() for item in layer_memories]
+    if not memories:
+        return base_logits, {}
+    model = injector.model
+    with torch.no_grad():
+        out = model(input_ids=input_ids, attention_mask=torch.ones_like(input_ids), output_hidden_states=True, output_attentions=False, use_cache=False)
+    hidden = out.hidden_states[-1]
+    raw = torch.stack([item.raw_value.to(hidden.device, hidden.dtype) for item in memories], dim=0).mean(dim=0)
+    update = fit_memory_dim(raw, hidden.shape[-1]).to(hidden.device, hidden.dtype)
+    hidden_prime = hidden + 0.05 * update.view(1, 1, -1)
+    logits = model.get_output_embeddings()(hidden_prime)
+    return logits, {"hidden_delta_norm": float((hidden_prime - hidden).detach().float().norm().cpu())}
 
 
 def _answer_loss(logits: torch.Tensor, answer_start: int, answer_ids: list[int]) -> torch.Tensor:
@@ -312,7 +346,7 @@ def _diagnose_training(initial: dict[str, Any], final: dict[str, Any]) -> dict[s
 def _training_markdown(summary: dict[str, Any]) -> str:
     cfg = summary["config"]
     lines = [
-        "# RCV-HC Delta Q/V Adapter Training Report",
+        "# Delta Memory Q/V Adapter Training Report",
         "",
         "## Config",
         "",
@@ -321,7 +355,7 @@ def _training_markdown(summary: dict[str, Any]) -> str:
         lines.append(f"- `{key}`: `{cfg[key]}`")
     lines.extend(
         [
-            f"- `layer_id`: `{summary['layer_id']}`",
+            f"- `layer_ids`: `{summary['layer_ids']}`",
             f"- `trainable_base_params`: `{summary['trainable_base_params']}`",
             f"- `training_scope`: `{summary['training_scope']}`",
             f"- `prompt_insertion_used`: `{summary['prompt_insertion_used']}`",
@@ -354,7 +388,7 @@ def _training_markdown(summary: dict[str, Any]) -> str:
             "",
             "## Interpretation",
             "",
-            "The frozen base model is not trained. This run trains only the RCV-HC writer and Q/V intervention adapter, showing whether the external Delta path can be optimized.",
+            "The frozen base model is not trained. This run trains only the Delta Memory writer and Q/V intervention adapter, showing whether the external Delta path can be optimized.",
             "A stronger scientific claim still requires trained Delta to beat zero, random, and shuffled controls on held-out examples.",
         ]
     )

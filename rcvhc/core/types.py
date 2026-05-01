@@ -58,6 +58,7 @@ class QKVTrace:
     gate_q: float = 0.0
     gate_k: float = 0.0
     gate_v: float = 0.0
+    injected_layers: float = 0.0
 
     def as_dict(self) -> dict[str, float]:
         return {
@@ -70,4 +71,5 @@ class QKVTrace:
             "gate_q": self.gate_q,
             "gate_k": self.gate_k,
             "gate_v": self.gate_v,
+            "injected_layers": self.injected_layers,
         }

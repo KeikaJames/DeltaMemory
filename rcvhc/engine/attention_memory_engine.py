@@ -126,10 +126,21 @@ class AttentionMemoryEngine:
                 use_cache=False,
             )
         query = fit_memory_dim(base.hidden_states[-1].mean(dim=(0, 1)).detach().float().cpu(), self.cfg.memory_dim)
-        layer_id = _default_layer(self.store)
-        retrieved = self.store.retrieve_topk(query, layer_id=layer_id, k=top_k)
-        memory_ids = [record.memory_id for record in retrieved]
-        memories = self.store.load_topk_to_device(memory_ids, self.bundle.device)
+        layer_ids = _memory_layers(self.store)
+        retrieved_by_layer = {
+            layer_id: self.store.retrieve_topk(query, layer_id=layer_id, k=top_k)
+            for layer_id in layer_ids
+        }
+        retrieved = [record for layer_records in retrieved_by_layer.values() for record in layer_records]
+        memory_ids_by_layer = {
+            layer_id: [record.memory_id for record in layer_records]
+            for layer_id, layer_records in retrieved_by_layer.items()
+        }
+        memories_by_layer = {
+            layer_id: self.store.load_topk_to_device(memory_ids, self.bundle.device)
+            for layer_id, memory_ids in memory_ids_by_layer.items()
+        }
+        memories = [item for layer_memories in memories_by_layer.values() for item in layer_memories]
 
         comparisons: dict[str, dict[str, Any]] = {}
         injector = GemmaAttentionInjector(self.bundle.model, self.projector)
@@ -139,11 +150,10 @@ class AttentionMemoryEngine:
             elif mode == "no_memory":
                 logits, trace = base.logits, {}
             else:
-                result = injector.forward(
+                result = injector.forward_layers(
                     input_ids=input_ids,
                     attention_mask=attention_mask,
-                    layer_id=layer_id,
-                    memories=memories,
+                    memories_by_layer=memories_by_layer,
                     mode=mode,
                 )
                 logits, trace = result.logits, result.trace.as_dict()
@@ -177,6 +187,7 @@ class AttentionMemoryEngine:
                 "memory_blocks": self.store.memory_count(),
                 "storage_bytes": self.store.storage_bytes(),
                 "top_k": top_k,
+                "injection_layers": layer_ids,
                 "device": str(self.bundle.device),
                 "dtype": str(self.bundle.dtype).removeprefix("torch."),
                 "trainable_base_params": trainable_base_params(self.bundle.model),
@@ -263,3 +274,7 @@ def _greedy_answer(tokenizer, logits: torch.Tensor) -> str:
 def _default_layer(store: AttentionMemoryStore) -> int:
     layers = [item.layer_id for item in store._items]
     return max(layers) if layers else 0
+
+
+def _memory_layers(store: AttentionMemoryStore) -> list[int]:
+    return sorted({int(item.layer_id) for item in store._items})

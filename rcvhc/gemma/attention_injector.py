@@ -1,14 +1,11 @@
-"""Gemma-style Q/K/V attention-memory intervention."""
+"""Gemma-style layerwise Q/K/V Delta Memory intervention."""
 
 from __future__ import annotations
 
-from contextlib import ExitStack
 from dataclasses import dataclass
-from typing import Iterable
 
 import torch
 from torch import nn
-import torch.nn.functional as F
 
 from rcvhc.core.types import AttentionMemoryItem, QKVTrace
 from rcvhc.gemma.model_adapter import get_decoder
@@ -23,6 +20,7 @@ QKV_INTERVENTION_MODES = {
     "delta_qv_zero",
     "delta_qv_random",
     "delta_qv_shuffled",
+    "delta_qv_wrong_layer",
     "delta_qv_force_gate",
 }
 
@@ -88,7 +86,7 @@ class QKVDeltaProjector(nn.Module):
         gate_k = torch.ones_like(gate_q) if force_gate else torch.sigmoid(self.gate_k(z))
         gate_v = torch.ones_like(gate_q) if force_gate else torch.sigmoid(self.gate_v(z))
         update = torch.zeros_like(base)
-        if kind == "q" and mode in {"delta_qv", "delta_qkv", "delta_qv_shuffled", "delta_qv_zero", "delta_qv_random", "delta_qv_force_gate"}:
+        if kind == "q" and mode in {"delta_qv", "delta_qkv", "delta_qv_shuffled", "delta_qv_zero", "delta_qv_random", "delta_qv_wrong_layer", "delta_qv_force_gate"}:
             update = self.alpha_scale * gate_q * self._project_kind("q", z, base.shape[-1], base.device, base.dtype)
         elif kind == "k" and mode in {"delta_kv", "delta_qkv"}:
             update = self.alpha_scale * gate_k * self._project_kind("k", z, base.shape[-1], base.device, base.dtype)
@@ -132,7 +130,7 @@ class InjectionResult:
 
 
 class GemmaAttentionInjector:
-    """Hook q_proj/k_proj/v_proj on a Gemma/Llama-style decoder layer."""
+    """Hook q_proj/k_proj/v_proj on Gemma/Llama-style decoder attention layers."""
 
     def __init__(self, model: nn.Module, projector: QKVDeltaProjector) -> None:
         self.model = model
@@ -154,6 +152,10 @@ class GemmaAttentionInjector:
                 raise UnsupportedGemmaStructure(f"{module_name} does not expose out_features")
             self.projector.ensure_projection(kind, out_dim, device, dtype)
 
+    def materialize_for_layers(self, layer_ids: list[int], device: torch.device, dtype: torch.dtype) -> None:
+        for layer_id in layer_ids:
+            self.materialize_for_layer(layer_id, device, dtype)
+
     def forward(
         self,
         input_ids: torch.Tensor,
@@ -163,47 +165,90 @@ class GemmaAttentionInjector:
         memories: list[AttentionMemoryItem],
         mode: str,
     ) -> InjectionResult:
+        return self.forward_layers(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            memories_by_layer={int(layer_id): memories},
+            mode=mode,
+        )
+
+    def forward_layers(
+        self,
+        input_ids: torch.Tensor,
+        attention_mask: torch.Tensor | None,
+        *,
+        memories_by_layer: dict[int, list[AttentionMemoryItem]],
+        mode: str,
+    ) -> InjectionResult:
         if mode not in QKV_INTERVENTION_MODES:
             raise ValueError(f"unsupported qkv mode: {mode}")
         if mode == "no_memory":
             with torch.no_grad():
                 out = self.model(input_ids=input_ids, attention_mask=attention_mask, output_hidden_states=True, output_attentions=False, use_cache=False)
             return InjectionResult(out.logits, QKVTrace())
-        layer = self.layers[layer_id]
-        attn = getattr(layer, "self_attn", None)
-        if not all(hasattr(attn, name) for name in ("q_proj", "k_proj", "v_proj")):
-            raise UnsupportedGemmaStructure("target layer does not expose q_proj/k_proj/v_proj")
 
-        metrics: dict[str, float] = {}
+        memories_by_layer = _wrong_layer_memories(memories_by_layer) if mode == "delta_qv_wrong_layer" else memories_by_layer
+        layer_ids = sorted(int(layer_id) for layer_id in memories_by_layer)
+        metrics: dict[str, list[float]] = {}
+        handles = []
 
-        def hook_for(kind: str):
+        def add_metric(trace: dict[str, float]) -> None:
+            for key, value in trace.items():
+                metrics.setdefault(key, []).append(float(value))
+
+        def hook_for(layer_memories: list[AttentionMemoryItem], kind: str):
             def hook(_module: nn.Module, _inputs, output: torch.Tensor) -> torch.Tensor:
-                z = self.projector.delta_vector(memories, mode=mode, kind=kind, device=output.device, dtype=output.dtype)
+                z = self.projector.delta_vector(layer_memories, mode=mode, kind=kind, device=output.device, dtype=output.dtype)
                 updated, trace = self.projector.project(output, z, kind=kind, mode=mode)
-                metrics.update(trace)
+                add_metric(trace)
                 return updated
 
             return hook
 
-        handles = [
-            attn.q_proj.register_forward_hook(hook_for("q")),
-            attn.k_proj.register_forward_hook(hook_for("k")),
-            attn.v_proj.register_forward_hook(hook_for("v")),
-        ]
+        for layer_id in layer_ids:
+            layer = self.layers[layer_id]
+            attn = getattr(layer, "self_attn", None)
+            if not all(hasattr(attn, name) for name in ("q_proj", "k_proj", "v_proj")):
+                raise UnsupportedGemmaStructure("target layer does not expose q_proj/k_proj/v_proj")
+            layer_memories = memories_by_layer[layer_id]
+            handles.extend(
+                [
+                    attn.q_proj.register_forward_hook(hook_for(layer_memories, "q")),
+                    attn.k_proj.register_forward_hook(hook_for(layer_memories, "k")),
+                    attn.v_proj.register_forward_hook(hook_for(layer_memories, "v")),
+                ]
+            )
         try:
             out = self.model(input_ids=input_ids, attention_mask=attention_mask, output_hidden_states=True, output_attentions=False, use_cache=False)
         finally:
             for handle in handles:
                 handle.remove()
+
+        def total(key: str) -> float:
+            return sum(metrics.get(key, []))
+
+        def mean(key: str) -> float:
+            values = metrics.get(key, [])
+            return sum(values) / len(values) if values else 0.0
+
         trace = QKVTrace(
-            q_delta_norm=metrics.get("q_delta_norm", 0.0),
-            k_delta_norm=metrics.get("k_delta_norm", 0.0),
-            v_delta_norm=metrics.get("v_delta_norm", 0.0),
-            q_relative_delta_norm=metrics.get("q_relative_delta_norm", 0.0),
-            k_relative_delta_norm=metrics.get("k_relative_delta_norm", 0.0),
-            v_relative_delta_norm=metrics.get("v_relative_delta_norm", 0.0),
-            gate_q=metrics.get("gate_q", 0.0),
-            gate_k=metrics.get("gate_k", 0.0),
-            gate_v=metrics.get("gate_v", 0.0),
+            q_delta_norm=total("q_delta_norm"),
+            k_delta_norm=total("k_delta_norm"),
+            v_delta_norm=total("v_delta_norm"),
+            q_relative_delta_norm=mean("q_relative_delta_norm"),
+            k_relative_delta_norm=mean("k_relative_delta_norm"),
+            v_relative_delta_norm=mean("v_relative_delta_norm"),
+            gate_q=mean("gate_q"),
+            gate_k=mean("gate_k"),
+            gate_v=mean("gate_v"),
+            injected_layers=float(len(layer_ids)),
         )
         return InjectionResult(out.logits, trace)
+
+
+def _wrong_layer_memories(memories_by_layer: dict[int, list[AttentionMemoryItem]]) -> dict[int, list[AttentionMemoryItem]]:
+    layer_ids = sorted(memories_by_layer)
+    if len(layer_ids) < 2:
+        return memories_by_layer
+    rotated = layer_ids[1:] + layer_ids[:1]
+    return {layer_id: memories_by_layer[source_layer] for layer_id, source_layer in zip(layer_ids, rotated)}

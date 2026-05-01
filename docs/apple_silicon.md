@@ -1,8 +1,8 @@
 # Apple Silicon Runtime Notes
 
-RCV-HC needs Hugging Face / PyTorch access to hidden states, attention tensors,
-and Gemma Q/K/V projection hooks. For this prototype, the correct local runtime
-is PyTorch MPS on Apple Silicon, not Ollama or vLLM.
+Delta Memory needs Hugging Face / PyTorch access to hidden states, attention
+tensors, and Gemma Q/K/V projection hooks. For this prototype, the correct local
+runtime is PyTorch MPS on Apple Silicon, not Ollama or vLLM.
 
 ## Runtime Choice
 
@@ -15,9 +15,9 @@ is PyTorch MPS on Apple Silicon, not Ollama or vLLM.
 ## Neural Engine vs MPS
 
 Apple's Neural Engine is mainly exposed through Core ML style compiled-model
-execution. RCV-HC currently needs live PyTorch autograd over adapter modules and
-runtime hooks inside Gemma attention projections, so the practical backend is
-Metal/MPS.
+execution. Delta Memory currently needs live PyTorch autograd over adapter
+modules and runtime hooks inside Gemma attention projections, so the practical
+backend is Metal/MPS.
 
 MLX is a plausible future path for Apple Silicon, but this cleanroom prototype
 uses Transformers because it already exposes `output_hidden_states`,
@@ -45,4 +45,3 @@ print(torch.backends.mps.is_available())
 print(torch.ones(1, device="mps"))
 PY
 ```
-

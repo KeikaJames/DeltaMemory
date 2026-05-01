@@ -1,10 +1,11 @@
-# RCV-HC Cleanroom Design
+# Delta Memory Design
 
-RCV-HC is a storage-backed attention-memory prototype for frozen Gemma-style
-decoder language models.
+Delta Memory is a storage-backed, layerwise attention-memory mechanism for
+frozen Gemma-style decoder language models. The current Python package remains
+`rcvhc` for compatibility.
 
 The main path is not prompt retrieval. Retrieved `source_text` is debug/citation
-metadata only. It is never appended to the prompt in the RCV-HC path.
+metadata only. It is never appended to the prompt in the Delta Memory path.
 
 ## Symbols
 
@@ -19,7 +20,7 @@ metadata only. It is never appended to the prompt in the RCV-HC path.
 
 ## Storage-Bounded Context Claim
 
-RCV-HC targets storage-bounded context, not infinite context.
+Delta Memory targets storage-bounded context, not infinite context.
 
 GPU resident memory:
 
@@ -76,7 +77,7 @@ compressed tensors to CPU storage.
 ## Retrieval
 
 For a question, the engine computes a read query from the local window and
-retrieves top-k memory blocks per enabled layer:
+retrieves top-k memory blocks for each enabled attention layer:
 
 ```text
 R_l = topk(q_read, MemoryStore_l)
@@ -87,7 +88,7 @@ device. The full store remains on CPU or disk.
 
 ## Attention Injection
 
-For current layer `l`:
+For each enabled attention layer `l`:
 
 ```text
 q, k, v = GemmaSelfAttentionProj(h_t^l)
@@ -112,8 +113,9 @@ V_ext = concat(V_local, V_mem + gate_v * dv)
 Attention(Q', K_ext, V_ext)
 ```
 
-P0 implements the hook-based Q/K/V residual path for Gemma-style modules and a
-mock-compatible path for tests.
+The implementation hooks Q/K/V projection modules and adds these residuals
+directly inside every enabled attention layer. Single-layer injection is an
+ablation, not the main path.
 
 ## Main and Baseline Modes
 
@@ -161,8 +163,8 @@ the controls support a stronger claim.
 
 ## Optimization Boundary
 
-The frozen base model is not expected to know how to use Delta memory without
-training. The trainable RCV-HC surface is deliberately small:
+The frozen base model is not expected to know how to use Delta Memory without
+training. The trainable Delta Memory surface is deliberately small:
 
 - writer projections that compress frozen hidden/attention states into memory,
 - Delta-to-Q/K/V projection matrices,
@@ -173,4 +175,3 @@ Training minimizes answer-token loss under memory-enabled conditions while
 keeping every Gemma parameter frozen. Valid training evidence must compare the
 trained memory path against zero, random, shuffled, no-memory, and raw-memory
 controls.
-

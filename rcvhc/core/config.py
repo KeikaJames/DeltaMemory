@@ -1,4 +1,4 @@
-"""Configuration for the cleanroom RCV-HC attention-memory prototype."""
+"""Configuration for the cleanroom Delta Memory prototype."""
 
 from __future__ import annotations
 
@@ -16,6 +16,7 @@ QKV_MODES = {
     "delta_qv_zero",
     "delta_qv_random",
     "delta_qv_shuffled",
+    "delta_qv_wrong_layer",
     "delta_qv_force_gate",
 }
 
@@ -27,7 +28,7 @@ class RCVHCCleanConfig:
     block_size: int = 128
     local_window: int = 1024
     top_k: int = 4
-    layers: str = "max_exposed"
+    layers: str = "all"
     enabled_layers: list[int] = field(default_factory=list)
     alpha_scale: float = 0.2
     gate_bias: float = -1.0
@@ -40,6 +41,7 @@ class RCVHCCleanConfig:
         "delta_qv_zero",
         "delta_qv_random",
         "delta_qv_shuffled",
+        "delta_qv_wrong_layer",
         "delta_qv_force_gate",
     )
 

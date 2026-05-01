@@ -1,1 +1,1 @@
-"""Cleanroom RCV-HC engine."""
+"""Cleanroom Delta Memory engine."""

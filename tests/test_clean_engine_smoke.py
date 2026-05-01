@@ -11,6 +11,7 @@ def test_engine_ingest_ask_keeps_source_out_of_prompt(demo_text):
     engine = AttentionMemoryEngine(bundle, cfg)
     summary = engine.ingest(demo_text)
     assert summary["memory_blocks"] > 0
+    assert summary["enabled_layers"] == [0, 1, 2, 3]
     result = engine.ask(
         "What is the secret code for unit XJQ-482?",
         answer="tulip-91",
@@ -20,5 +21,7 @@ def test_engine_ingest_ask_keeps_source_out_of_prompt(demo_text):
     assert "The secret code for unit XJQ-482 is tulip-91" not in result["prompt_used"]
     assert result["comparisons"]["delta_qv"]["qkv_trace"]["q_delta_norm"] > 0
     assert result["comparisons"]["delta_qv"]["qkv_trace"]["v_delta_norm"] > 0
+    assert result["comparisons"]["delta_qv"]["qkv_trace"]["injected_layers"] == 4
+    assert result["system_stats"]["injection_layers"] == [0, 1, 2, 3]
     assert result["comparisons"]["delta_qv_zero"]["qkv_trace"]["q_delta_norm"] >= 0
     assert trainable_base_params(bundle.model) == 0

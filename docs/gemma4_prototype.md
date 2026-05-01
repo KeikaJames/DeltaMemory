@@ -1,6 +1,6 @@
-# Gemma4 RCV-HC Prototype Runbook
+# Gemma4 Delta Memory Runbook
 
-This is the practical cleanroom path for RCV-HC:
+This is the practical path for Delta Memory:
 
 ```text
 long context
@@ -8,7 +8,7 @@ long context
 -> per-layer Raw/Delta attention memory
 -> external store
 -> top-k retrieval
--> Q/K/V intervention
+-> layerwise Q/K/V residual injection
 -> answer metrics and attention-memory trace
 ```
 
@@ -58,6 +58,7 @@ Engineering success:
 
 - ingest creates memory blocks.
 - ask runs all modes.
+- `injected_layers` matches the enabled attention layers.
 - `delta_qv` has non-zero `q_delta_norm` and `v_delta_norm`.
 - `delta_qv_zero` is near no-memory.
 - `delta_qv_force_gate` changes Q/V norms.
@@ -69,4 +70,3 @@ Scientific signal:
 
 If those controls do not pass, the run is prototype wiring only, not evidence of
 effectiveness.
-

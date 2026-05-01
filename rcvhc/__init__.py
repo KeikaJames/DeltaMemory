@@ -1,8 +1,7 @@
-"""RCV-HC cleanroom prototype.
+"""Delta Memory cleanroom prototype.
 
-Main path: externalized attention memory plus frozen Gemma-style Q/K/V
-intervention. Historical phase runners are archived under
-``archive/diagnostics``.
+Main path: externalized Delta Memory plus frozen Gemma-style layerwise Q/K/V
+residual injection. The package name is retained for compatibility.
 """
 
 __all__ = ["__version__"]

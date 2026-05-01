@@ -1,4 +1,4 @@
-"""Reusable runner for the Gemma4 attention-memory prototype."""
+"""Reusable runner for the Gemma4 Delta Memory prototype."""
 
 from __future__ import annotations
 
@@ -36,7 +36,7 @@ class PrototypeRunConfig:
     block_size: int = 128
     memory_dim: int = 512
     top_k: int = 4
-    layers: str = "max_exposed"
+    layers: str = "all"
     alpha_scale: float = 0.2
     gate_bias: float = -1.0
     modes: tuple[str, ...] = tuple(DEFAULT_MODES)
@@ -149,7 +149,7 @@ def _markdown(summary: dict[str, Any]) -> str:
     cfg = summary["config"]
     diagnosis = summary["diagnosis"]
     lines = [
-        "# RCV-HC Gemma4 Attention-Memory Prototype",
+        "# Delta Memory Gemma4 Layerwise Injection Prototype",
         "",
         "## Config",
         "",
@@ -218,7 +218,7 @@ def _markdown(summary: dict[str, Any]) -> str:
             "",
             "## Interpretation",
             "",
-            "This is the first practical Gemma4-oriented RCV-HC prototype path: external attention memory, top-k retrieval, and Q/K/V injection into a frozen decoder LM.",
+            "This is the Gemma4-oriented Delta Memory path: external memory, per-layer top-k retrieval, and Q/K/V residual injection inside a frozen decoder LM.",
             "A scientific claim requires aligned Delta to beat zero, random, and shuffled controls on a real model run. Otherwise the result should be treated as engineering progress only.",
         ]
     )
