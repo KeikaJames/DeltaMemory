@@ -103,7 +103,16 @@ def run_delta_training(cfg: DeltaTrainingConfig) -> dict[str, Any]:
             output_attentions=False,
             use_cache=False,
         )
-    query = fit_memory_dim(base_prompt.hidden_states[-1].mean(dim=(0, 1)).detach().float().cpu(), cfg.memory_dim)
+    query_prompt = _encode(bundle.tokenizer, f"Question: {cfg.question}\nAnswer:", bundle.device)
+    with torch.no_grad():
+        query_base = bundle.model(
+            input_ids=query_prompt["input_ids"],
+            attention_mask=query_prompt["attention_mask"],
+            output_hidden_states=True,
+            output_attentions=False,
+            use_cache=False,
+        )
+    query = fit_memory_dim(query_base.hidden_states[-1].mean(dim=(0, 1)).detach().float().cpu(), cfg.memory_dim)
     snippets = split_source_snippets(bundle.tokenizer, context["input_ids"], cfg.block_size)
 
     optimizer = torch.optim.AdamW(list(writer.parameters()) + list(projector.parameters()), lr=cfg.lr)
@@ -164,6 +173,7 @@ def run_delta_training(cfg: DeltaTrainingConfig) -> dict[str, Any]:
         "layer_ids": layer_ids,
         "trainable_base_params": trainable_base_params(bundle.model),
         "prompt_insertion_used": False,
+        "retrieval_query_uses_answer": False,
         "source_text_debug_only": True,
         "training_scope": "writer_and_qkv_projector_only",
         "initial": initial,

@@ -49,6 +49,7 @@ def test_delta_experiment_mock_smoke(tmp_path):
     )
     summary = run_delta_experiment(cfg)
     assert summary["trainable_base_params"] == 0
+    assert summary["retrieval_query_uses_answer"] is False
     assert len(summary["train"]) == 2
     assert "delta_qv" in summary["final_eval"]["aggregate"]
     assert "raw_memory" in summary["final_eval"]["aggregate"]

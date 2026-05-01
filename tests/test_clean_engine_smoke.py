@@ -18,6 +18,7 @@ def test_engine_ingest_ask_keeps_source_out_of_prompt(demo_text):
         modes=["no_memory", "delta_qv", "delta_qv_zero", "delta_qv_random", "delta_qv_shuffled", "delta_qv_force_gate"],
     )
     assert result["source_text_used_in_prompt"] is False
+    assert result["retrieval_query_uses_answer"] is False
     assert "The secret code for unit XJQ-482 is tulip-91" not in result["prompt_used"]
     assert result["comparisons"]["delta_qv"]["qkv_trace"]["q_delta_norm"] > 0
     assert result["comparisons"]["delta_qv"]["qkv_trace"]["v_delta_norm"] > 0

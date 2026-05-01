@@ -125,7 +125,18 @@ class AttentionMemoryEngine:
                 output_attentions=False,
                 use_cache=False,
             )
-        query = fit_memory_dim(base.hidden_states[-1].mean(dim=(0, 1)).detach().float().cpu(), self.cfg.memory_dim)
+        query_encoded = self._encode(f"Question: {question}\nAnswer:")
+        query_input_ids = query_encoded["input_ids"].to(self.bundle.device)
+        query_attention_mask = query_encoded["attention_mask"].to(self.bundle.device)
+        with torch.no_grad():
+            query_base = self.bundle.model(
+                input_ids=query_input_ids,
+                attention_mask=query_attention_mask,
+                output_hidden_states=True,
+                output_attentions=False,
+                use_cache=False,
+            )
+        query = fit_memory_dim(query_base.hidden_states[-1].mean(dim=(0, 1)).detach().float().cpu(), self.cfg.memory_dim)
         layer_ids = _memory_layers(self.store)
         retrieved_by_layer = {
             layer_id: self.store.retrieve_topk(query, layer_id=layer_id, k=top_k)
@@ -168,6 +179,7 @@ class AttentionMemoryEngine:
             "answer_expected": answer,
             "prompt_used": prompt_text,
             "source_text_used_in_prompt": False,
+            "retrieval_query_uses_answer": False,
             "comparisons": comparisons,
             "retrieved_memory": [
                 {

@@ -33,6 +33,7 @@ def test_clean_cli_ingest_ask_inspect(tmp_path, capsys):
     ]) == 0
     ask_out = json.loads(capsys.readouterr().out)
     assert ask_out["source_text_used_in_prompt"] is False
+    assert ask_out["retrieval_query_uses_answer"] is False
     assert "delta_qv_force_gate" in ask_out["comparisons"]
 
     assert main(["inspect", "--store", str(store)]) == 0

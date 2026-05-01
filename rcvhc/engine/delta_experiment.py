@@ -118,6 +118,7 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
         "layer_ids": layer_ids,
         "trainable_base_params": trainable_base_params(bundle.model),
         "prompt_insertion_used": False,
+        "retrieval_query_uses_answer": False,
         "source_text_debug_only": True,
         "train_examples": [example.as_dict() for example in train_examples],
         "eval_examples": [example.as_dict() for example in eval_examples],
@@ -222,7 +223,16 @@ def _prepare_example(bundle, example: DeltaExample, cfg: DeltaExperimentConfig) 
             output_attentions=False,
             use_cache=False,
         )
-    query = fit_memory_dim(base.hidden_states[-1].mean(dim=(0, 1)).detach().float().cpu(), cfg.memory_dim)
+    query_prompt = _encode(bundle.tokenizer, _query_prompt(example.question), bundle.device)
+    with torch.no_grad():
+        query_base = bundle.model(
+            input_ids=query_prompt["input_ids"],
+            attention_mask=query_prompt["attention_mask"],
+            output_hidden_states=True,
+            output_attentions=False,
+            use_cache=False,
+        )
+    query = fit_memory_dim(query_base.hidden_states[-1].mean(dim=(0, 1)).detach().float().cpu(), cfg.memory_dim)
     snippets = split_source_snippets(bundle.tokenizer, context["input_ids"], cfg.block_size)
     detached = SimpleNamespace(
         hidden_states=tuple(t.detach() for t in out.hidden_states),
@@ -339,6 +349,10 @@ def _metric_prompt(tokenizer, question: str, answer: str) -> tuple[str, int, lis
     prompt_ids = tokenizer.encode(prompt, add_special_tokens=False)
     answer_ids = tokenizer.encode(" " + answer, add_special_tokens=False)
     return prompt + " " + answer, len(prompt_ids), answer_ids
+
+
+def _query_prompt(question: str) -> str:
+    return f"Question: {question}\nAnswer:"
 
 
 def _encode(tokenizer, text: str, device: torch.device) -> dict[str, torch.Tensor]:
