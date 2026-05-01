@@ -1,0 +1,7 @@
+.venv-mac/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+data/lama_*.jsonl
+.DS_Store

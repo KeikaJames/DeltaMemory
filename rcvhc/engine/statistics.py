@@ -125,6 +125,24 @@ def _nll(modes: dict[str, Any], mode: str) -> float | None:
     return None if value is None else float(value)
 
 
+def bootstrap_value_ci(values: list[float], seed: int = 0, rounds: int = 1000) -> dict[str, float]:
+    """Public bootstrap CI + sign test over a list of per-example values.
+
+    Use for binding margin or per-example top1 (0/1) arrays in Stage 6 reports.
+    """
+    if not values:
+        return {"mean": 0.0, "ci95_low": 0.0, "ci95_high": 0.0, "sign_test_p": 1.0, "n": 0}
+    mean_val = sum(values) / len(values)
+    ci = _bootstrap_ci(values, seed=seed, rounds=rounds)
+    return {
+        "mean": float(mean_val),
+        "ci95_low": float(ci[0]),
+        "ci95_high": float(ci[1]),
+        "sign_test_p": float(_sign_test_p([v - 0.0 for v in values])),
+        "n": len(values),
+    }
+
+
 def _comb(n: int, k: int) -> int:
     if k < 0 or k > n:
         return 0

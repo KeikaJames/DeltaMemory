@@ -68,6 +68,8 @@ class DeltaExperimentConfig:
     lm_head_lora_scale: float = 1.0
     eval_injection_modes: str = "all"
     control_margin_min: float = 0.05
+    writer_pool: str = "mean"  # mean | attn (Stage 6: token-preserving attention pool)
+    payload_answer_loss_warmup_frac: float = 0.0
     report_dir: str = "reports/experiments/delta_experiment"
 
 
@@ -174,7 +176,9 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
             lm_head_lora_logits, _ = _lm_head_lora_readout(sample, memories, lm_head_lora, cfg.payload_probe_layer_strategy)
             lm_head_lora_loss = _answer_loss(lm_head_lora_logits, sample.answer_start, sample.answer_ids)
         if cfg.payload_answer_loss_weight > 0.0:
-            payload_answer_loss = _payload_answer_loss(payload_probe, memories, sample.answer_ids, cfg.payload_probe_layer_strategy)
+            warmup_steps = max(1, int(cfg.payload_answer_loss_warmup_frac * cfg.steps))
+            warmup_factor = min(1.0, step / warmup_steps) if warmup_steps > 0 else 1.0
+            payload_answer_loss = warmup_factor * _payload_answer_loss(payload_probe, memories, sample.answer_ids, cfg.payload_probe_layer_strategy)
         if cfg.payload_embedding_loss_weight > 0.0:
             payload_embedding_loss = _payload_embedding_loss(
                 payload_probe,
@@ -1234,6 +1238,7 @@ def _live_memories(
                 value_token_range=sample.value_token_range,
                 token_offset=0,
                 source_text=sample.example.text,
+                pool=cfg.writer_pool,
             )
         else:
             layer_items = writer.write_layer(

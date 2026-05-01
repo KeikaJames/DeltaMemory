@@ -224,3 +224,37 @@ Code and project documentation are released under the [MIT License](LICENSE).
 Model weights, datasets, papers, and third-party dependencies are governed by
 their own licenses and terms. Experiments that load `google/gemma-4-E2B` require
 the user to comply with the applicable Gemma model license and access terms.
+---
+
+<!-- BEGIN AUTOGEN: stage6 -->
+## Stage 6 live experiment summary (auto-generated)
+
+Each row is one Stage 6 oracle-span-writer run. Cells are `held-out NLL / top1`.
+
+| Report | Suite | Pool | Train | Eval | Seed | no_memory | delta_qv | payload_probe | logit_bias | lm_head_lora | oracle_logit_answer_embedding |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| oracle_logit_bias_diagnostic_pilot | address_token_binding_single_token | mean | 16 | 8 | 0 | 18.658 / — | 4.500 / — | — / — | 16.078 / — | — / — | — / — |
+| oracle_span_payload_contrastive_pilot | address_token_binding | mean | 4 | 4 | 0 | 12.195 / — | 4.354 / — | — / — | — / — | — / — | — / — |
+| oracle_span_payload_pilot | address_token_binding | mean | 4 | 4 | 0 | 12.195 / — | 3.572 / — | — / — | — / — | — / — | — / — |
+| payload_answer_probe_pilot | address_token_binding_single_token | mean | 16 | 8 | 0 | 18.658 / — | 5.349 / — | — / — | 15.736 / — | — / — | — / — |
+| retrieved_attention_baseline_pilot | address_token_binding | mean | 4 | 4 | 0 | 12.195 / — | 3.572 / — | — / — | — / — | — / — | — / — |
+| stage1_writer_capacity_v1_meanpool_alpha0 | address_token_binding_single_token | mean | 16 | 16 | 0 | 19.104 / — | 19.104 / — | — / — | 19.104 / — | — / — | 0.008 / — |
+| stage1_writer_capacity_v2_lastlayer_alpha0 | address_token_binding_single_token | mean | 16 | 16 | 0 | 19.104 / — | 19.104 / — | — / — | 19.104 / — | — / — | 0.008 / — |
+| stage1_writer_capacity_v3_firstlayer_alpha0 | address_token_binding_single_token | mean | 16 | 16 | 0 | 19.104 / — | 19.104 / — | — / — | 19.104 / — | — / — | 0.008 / — |
+| stage1_writer_capacity_v4_firstlayer_long | address_token_binding_single_token | mean | 16 | 16 | 0 | 19.104 / — | 19.104 / — | — / — | 19.104 / — | — / — | 0.008 / — |
+| stage2a_binding_instrumentation_mock | address_token_binding_single_token | mean | 2 | 2 | 0 | 8.213 / — | 8.211 / — | 8.571 / — | 8.213 / — | — / — | 7.921 / — |
+| stage2a_restricted_eval_mock | address_token_binding_single_token | mean | 2 | 2 | 0 | 9.010 / — | — / — | 8.275 / — | 9.010 / — | — / — | — / — |
+| stage2b_combined_output_side_gemma | address_token_binding_single_token | mean | 16 | 16 | 0 | 19.104 / — | — / — | 4.719 / — | 23.249 / — | — / — | 0.008 / — |
+| stage2b_logit_bias_firstlayer_gemma | address_token_binding_single_token | mean | 16 | 16 | 0 | 19.104 / — | — / — | 12.363 / — | 21.953 / — | — / — | 0.008 / — |
+| stage2b_logit_bias_firstlayer_mock | address_token_binding_single_token | mean | 2 | 2 | 0 | 8.532 / — | — / — | 8.562 / — | 8.532 / — | — / — | — / — |
+| stage2b_output_side_losses_mock | address_token_binding_single_token | mean | 2 | 2 | 0 | 8.492 / — | — / — | 8.335 / — | 8.492 / — | — / — | 8.131 / — |
+| stage2b_payload_probe_embedding_swap_gemma | address_token_binding_single_token | mean | 16 | 16 | 0 | 19.104 / — | — / — | 4.654 / — | 19.104 / — | — / — | 0.008 / — |
+| stage2c_lm_head_lora_mock | address_token_binding_single_token | mean | 2 | 2 | 0 | 8.809 / — | — / — | 8.184 / — | — / — | 8.773 / — | 8.510 / — |
+| stage2c_lm_head_lora_rank1_gemma | address_token_binding_single_token | mean | 16 | 16 | 0 | 19.104 / — | — / — | 12.418 / — | 19.104 / — | 35.656 / — | 0.008 / — |
+| stage2c_lm_head_lora_rank1_norm_scale50_gemma | address_token_binding_single_token | mean | 16 | 16 | 0 | 19.104 / — | — / — | 12.191 / — | 19.104 / — | 7.588 / — | 0.008 / — |
+| stage2c_lm_head_lora_rank4_norm_scale50_gemma | address_token_binding_single_token | mean | 16 | 16 | 0 | 19.104 / — | — / — | 12.349 / — | 19.104 / — | 6.078 / — | 0.008 / — |
+
+> Pass gate (Stage 6 strict): held-out top1 >= 0.85 on at least one of `payload_probe`, `logit_bias`, `lm_head_lora`, while `delta_qv` stays < 0.5 (Story A negative reference).
+
+Regenerate with `python3 scripts/update_readme_charts.py`.
+<!-- END AUTOGEN: stage6 -->

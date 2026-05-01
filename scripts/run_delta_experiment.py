@@ -54,6 +54,8 @@ def main() -> int:
     parser.add_argument("--lm-head-lora-scale", type=float, default=1.0)
     parser.add_argument("--eval-injection-modes", default="all", help="Comma-separated eval modes, or 'all'. no_memory is always included.")
     parser.add_argument("--control-margin-min", type=float, default=0.05)
+    parser.add_argument("--writer-pool", default="mean", choices=["mean","attn"], help="Stage 6: oracle-span writer pooling.")
+    parser.add_argument("--payload-answer-loss-warmup-frac", type=float, default=0.0)
     parser.add_argument("--report-dir", default="reports/experiments/delta_experiment")
     args = parser.parse_args()
     cfg = DeltaExperimentConfig(
@@ -96,6 +98,8 @@ def main() -> int:
         lm_head_lora_scale=args.lm_head_lora_scale,
         eval_injection_modes=args.eval_injection_modes,
         control_margin_min=args.control_margin_min,
+        writer_pool=args.writer_pool,
+        payload_answer_loss_warmup_frac=args.payload_answer_loss_warmup_frac,
         report_dir=args.report_dir,
     )
     summary = run_delta_experiment(cfg)

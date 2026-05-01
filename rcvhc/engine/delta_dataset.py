@@ -64,6 +64,33 @@ SINGLE_TOKEN_CODES = [
     "tan",
 ]
 SUFFIXES = ["91", "19", "17", "44", "63", "72", "38", "85"]
+# Stage 6 Phase 2: real factual suite for LAMA-style transfer evaluation.
+# Curated country -> capital pairs likely to tokenize as a single Gemma token
+# under leading-space encoding. The runtime LAMA filter in
+# ``make_factual_capital_examples`` will reject any pair whose answer is not
+# single-token under the active tokenizer.
+LAMA_CAPITAL_PAIRS = [
+    ("France", "Paris"), ("Japan", "Tokyo"), ("Spain", "Madrid"),
+    ("Italy", "Rome"), ("Germany", "Berlin"), ("Ireland", "Dublin"),
+    ("Austria", "Vienna"), ("Egypt", "Cairo"), ("Greece", "Athens"),
+    ("Portugal", "Lisbon"), ("Poland", "Warsaw"), ("Russia", "Moscow"),
+    ("China", "Beijing"), ("Thailand", "Bangkok"), ("Korea", "Seoul"),
+    ("India", "Delhi"), ("Belgium", "Brussels"), ("Sweden", "Stockholm"),
+    ("Norway", "Oslo"), ("Finland", "Helsinki"), ("Denmark", "Copenhagen"),
+    ("Netherlands", "Amsterdam"), ("Canada", "Ottawa"), ("Peru", "Lima"),
+    ("Cuba", "Havana"), ("Iran", "Tehran"), ("Afghanistan", "Kabul"),
+    ("Philippines", "Manila"), ("Indonesia", "Jakarta"),
+    ("Vietnam", "Hanoi"), ("Iraq", "Baghdad"), ("Syria", "Damascus"),
+    ("Qatar", "Doha"), ("Libya", "Tripoli"), ("Tunisia", "Tunis"),
+    ("Algeria", "Algiers"), ("Kenya", "Nairobi"), ("Venezuela", "Caracas"),
+    ("Colombia", "Bogota"), ("Ecuador", "Quito"), ("Chile", "Santiago"),
+    ("Uruguay", "Montevideo"), ("Romania", "Bucharest"),
+    ("Bulgaria", "Sofia"), ("Serbia", "Belgrade"), ("Croatia", "Zagreb"),
+    ("Hungary", "Budapest"), ("Czechia", "Prague"), ("Slovakia", "Bratislava"),
+    ("Estonia", "Tallinn"), ("Latvia", "Riga"), ("Lithuania", "Vilnius"),
+    ("Ukraine", "Kyiv"), ("Belarus", "Minsk"), ("Australia", "Canberra"),
+    ("Argentina", "Buenos"),
+]
 DELTA_TASK_SUITES = {
     "single_fact_late_reference",
     "multi_hop_binding",
@@ -74,6 +101,7 @@ DELTA_TASK_SUITES = {
     "address_token_binding",
     "address_token_binding_single_token",
     "long_distance_nolima_style",
+    "factual_capital_binding",
 }
 
 
@@ -101,7 +129,73 @@ def make_delta_memory_examples(
         return make_address_token_binding_examples(num_examples, seed=seed, start_id=start_id, single_token_answers=True)
     if task_suite == "long_distance_nolima_style":
         return make_long_distance_nolima_examples(num_examples, seed=seed, start_id=start_id)
+    if task_suite == "factual_capital_binding":
+        return make_factual_capital_examples(num_examples, seed=seed, start_id=start_id)
     raise ValueError(f"unknown Delta Memory task suite: {task_suite}")
+
+
+def make_factual_capital_examples(
+    num_examples: int, seed: int = 0, start_id: int = 0
+) -> list[DeltaExample]:
+    """Real country->capital binding suite (Phase 2 LAMA-style transfer).
+
+    Examples are emitted as paired same-format address cards so the binding
+    metrics from ``address_token_binding_single_token`` (paired flip, swap
+    margin) are directly comparable.
+    """
+    rng = random.Random(seed)
+    examples: list[DeltaExample] = []
+    pool = list(LAMA_CAPITAL_PAIRS)
+    rng.shuffle(pool)
+    pool_idx = 0
+    while len(examples) < num_examples and pool_idx + 1 < len(pool):
+        country_a, capital_a = pool[pool_idx]
+        country_b, capital_b = pool[pool_idx + 1]
+        pool_idx += 2
+        sample_ids = [start_id + len(examples) + offset for offset in range(2)]
+        group_id = f"capital-pair-{country_a}-{country_b}"
+        pair = [(country_a, capital_a), (country_b, capital_b)]
+        for pair_idx, (country, capital) in enumerate(pair):
+            if len(examples) >= num_examples:
+                break
+            other_country, other_capital = pair[1 - pair_idx]
+            paired_sample_id = sample_ids[1 - pair_idx]
+            address = f"ADDR::country::{country}"
+            foreign_address = f"ADDR::country::{other_country}"
+            value_text = f"capital = {capital}"
+            foreign_value = f"capital = {other_capital}"
+            text = "\n".join(
+                [
+                    "Atlas card format: each card has an ADDRESS line and one PAYLOAD line.",
+                    f"ADDRESS: {address}",
+                    f"PAYLOAD: {value_text}",
+                    f"VALIDATION: use the full address {address}; do not answer from continent or region alone.",
+                    "The payload is intentionally not repeated outside this atlas card.",
+                ]
+            )
+            address_start = text.index(address)
+            value_start = text.index(value_text)
+            question = f"For ADDRESS {address}, what is the capital payload?"
+            examples.append(
+                DeltaExample(
+                    sample_ids[pair_idx],
+                    country,
+                    capital,
+                    text,
+                    question,
+                    "factual_capital_binding",
+                    paired_sample_id=paired_sample_id,
+                    collision_group_id=group_id,
+                    foreign_answer=other_capital,
+                    address_text=address,
+                    value_text=value_text,
+                    foreign_address_text=foreign_address,
+                    foreign_value_text=foreign_value,
+                    address_char_range=[address_start, address_start + len(address)],
+                    value_char_range=[value_start, value_start + len(value_text)],
+                )
+            )
+    return examples
 
 
 def make_later_reference_examples(num_examples: int, seed: int = 0, start_id: int = 0) -> list[DeltaExample]:

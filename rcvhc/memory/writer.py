@@ -45,6 +45,10 @@ class RCVHCWriter(nn.Module):
         self.delta_k = nn.Linear(memory_dim, memory_dim)
         self.delta_v = nn.Linear(memory_dim, memory_dim)
         self.norm = RMSNorm(memory_dim, eps=eps)
+        # Stage 6: token-preserving attention pooling. Learned query reads
+        # value-span hidden states with an fp32 softmax (MPS/bf16 safe).
+        self.attn_pool_query = nn.Parameter(torch.zeros(hidden_size))
+        nn.init.normal_(self.attn_pool_query, std=hidden_size ** -0.5)
 
     def write_layer(
         self,
@@ -117,6 +121,7 @@ class RCVHCWriter(nn.Module):
         value_token_range: tuple[int, int],
         token_offset: int = 0,
         source_text: str = "",
+        pool: str = "mean",
     ) -> list[AttentionMemoryItem]:
         if h_out.dim() != 3:
             raise ValueError("h_out must have shape [batch, seq, hidden]")
@@ -124,8 +129,16 @@ class RCVHCWriter(nn.Module):
             raise ValueError("oracle span writer currently supports batch size 1")
         address_start, address_end = _clamped_span(address_token_range, h_out.shape[1])
         value_start, value_end = _clamped_span(value_token_range, h_out.shape[1])
-        address_summary = h_out[0, address_start:address_end].mean(dim=0)
-        value_summary = h_out[0, value_start:value_end].mean(dim=0)
+        address_tokens = h_out[0, address_start:address_end]
+        value_tokens = h_out[0, value_start:value_end]
+        if pool == "attn":
+            address_summary = self._attn_pool(address_tokens)
+            value_summary = self._attn_pool(value_tokens)
+        elif pool == "mean":
+            address_summary = address_tokens.mean(dim=0)
+            value_summary = value_tokens.mean(dim=0)
+        else:
+            raise ValueError(f"unsupported writer pool: {pool}")
         raw_key = self.raw_key(address_summary)
         address_key = self.address_key(address_summary)
         raw_value = self.raw_value(value_summary)
@@ -145,6 +158,7 @@ class RCVHCWriter(nn.Module):
             "usage_mass": 1.0,
             "block_size": self.block_size,
             "oracle_span_writer": True,
+            "writer_pool": pool,
         }
         return [
             AttentionMemoryItem(
@@ -163,6 +177,22 @@ class RCVHCWriter(nn.Module):
                 metadata=metadata,
             )
         ]
+
+    def _attn_pool(self, tokens: torch.Tensor) -> torch.Tensor:
+        """Token-preserving attention pool over a span.
+
+        ``tokens`` has shape ``[span_len, hidden]``. Computes softmax in fp32
+        for MPS/bf16 numerical safety, then casts back to the input dtype.
+        """
+        if tokens.numel() == 0:
+            return torch.zeros(self.hidden_size, device=tokens.device, dtype=tokens.dtype)
+        if tokens.shape[0] == 1:
+            return tokens[0]
+        query = self.attn_pool_query.to(device=tokens.device, dtype=tokens.dtype)
+        scores = (tokens.float() @ query.float()) / math.sqrt(self.hidden_size)
+        weights = torch.softmax(scores, dim=0).to(tokens.dtype)
+        return (weights.unsqueeze(-1) * tokens).sum(dim=0)
+
 
     def _delta_value(
         self,

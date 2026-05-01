@@ -300,3 +300,75 @@ def test_delta_experiment_shared_memory_retrieval(tmp_path):
     summary = run_delta_experiment(cfg)
     assert summary["config"]["shared_memory_retrieval"] is True
     assert summary["conflict_margins"]["aggregate"]["delta_qv"]
+
+
+def test_factual_capital_examples_have_paired_metadata():
+    examples = make_delta_memory_examples(num_examples=8, seed=0, task_suite="factual_capital_binding")
+    assert len(examples) == 8
+    for example in examples:
+        assert example.task_type == "factual_capital_binding"
+        assert example.address_text and example.address_text in example.text
+        assert example.value_text and example.value_text in example.text
+        assert example.foreign_answer and example.foreign_answer != example.answer
+        assert example.unit in example.question
+
+
+def test_writer_attn_pool_runs_in_mock_smoke(tmp_path):
+    cfg = DeltaExperimentConfig(
+        model="mock-gemma",
+        device="cpu",
+        dtype="float32",
+        steps=2,
+        train_samples=2,
+        eval_samples=2,
+        block_size=16,
+        memory_dim=32,
+        top_k=1,
+        task_suite="address_token_binding_single_token",
+        oracle_span_writer=True,
+        payload_probe_layer_strategy="first_layer",
+        payload_answer_loss_weight=1.0,
+        payload_answer_loss_warmup_frac=0.5,
+        writer_pool="attn",
+        eval_injection_modes="no_memory,payload_probe",
+        report_dir=str(tmp_path / "report"),
+    )
+    summary = run_delta_experiment(cfg)
+    assert summary["trainable_base_params"] == 0
+    assert summary["config"]["writer_pool"] == "attn"
+    assert "payload_probe" in summary["final_eval"]["aggregate"]
+
+
+def test_update_readme_charts_round_trip(tmp_path):
+    import json as _json
+    import sys as _sys
+    import importlib.util
+    repo_root = Path(__file__).resolve().parents[1]
+    spec = importlib.util.spec_from_file_location(
+        "update_readme_charts", repo_root / "scripts" / "update_readme_charts.py"
+    )
+    mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)  # type: ignore
+    reports_dir = tmp_path / "reports"
+    run_dir = reports_dir / "stage6_dummy"
+    run_dir.mkdir(parents=True)
+    (run_dir / "delta_experiment_summary.json").write_text(_json.dumps({
+        "config": {"oracle_span_writer": True, "task_suite": "address_token_binding_single_token",
+                   "writer_pool": "attn", "train_samples": 8, "eval_samples": 8, "seed": 0},
+        "final_eval": {"aggregate": {
+            "delta_qv": {"answer_nll": 4.5, "top1_correct_rate": 0.3},
+            "payload_probe": {"answer_nll": 3.1, "top1_correct_rate": 0.85},
+        }},
+        "stage2_binding_summary": {"channels": {
+            "payload_probe": {"top1_correct_rate": 0.85},
+        }},
+    }))
+    rows = mod.collect_summaries(reports_dir)
+    block = mod.render_block(rows)
+    assert "stage6_dummy" in block
+    assert "payload_probe" in block
+    readme = tmp_path / "README.md"
+    readme.write_text("Existing\n", encoding="utf-8")
+    assert mod.rewrite_readme(readme, block) is True
+    text = readme.read_text(encoding="utf-8")
+    assert mod.BEGIN_MARK in text and mod.END_MARK in text
+    assert mod.rewrite_readme(readme, block) is False  # idempotent
