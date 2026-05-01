@@ -249,6 +249,37 @@ competition from retrieval/KV memory, borrow anti-interference pressure from
 fast-weight/delta-rule memory, and reject pure compressed-state memory as
 insufficient for exact binding.
 
+The implementation plan is tracked in
+[`docs/address_bound_delta_memory_plan.md`](docs/address_bound_delta_memory_plan.md).
+
+## References
+
+This project is an experimental cleanroom prototype. The following papers and
+benchmarks motivate the current design and the stricter causal gates:
+
+| topic | reference |
+| --- | --- |
+| Retrieval-augmented language modeling | RETRO: Improving Language Models by Retrieving from Trillions of Tokens, arXiv:2112.04426 |
+| External kNN memory | Memorizing Transformers, arXiv:2203.08913 |
+| Long-context memory transformers | LongMem: Scaling Language Models with Long Context Using Memory Augmented Transformer, arXiv:2307.02486 |
+| Selective state-space models | Mamba: Linear-Time Sequence Modeling with Selective State Spaces, arXiv:2312.00752 |
+| Bounded compressive memory | Leave No Context Behind: Efficient Infinite Context Transformers with Infini-attention, arXiv:2404.07143 |
+| Real context-size evaluation | RULER: What's the Real Context Size of Your Long-Context Language Models?, arXiv:2404.06654 |
+| Long-context beyond literal matching | NoLiMa: Long-Context Evaluation Beyond Literal Matching, arXiv:2502.05167 |
+| Test-time neural long-term memory | Titans: Learning to Memorize at Test Time, arXiv:2501.00663 |
+| Delta-rule / fast-weight memory | Parallelizing Linear Transformers with the Delta Rule over Sequence Length, arXiv:2406.06484 |
+| KV-cache retrieval baseline direction | RetrievalAttention: Accelerating Long-Context LLM Inference via Vector Retrieval, OpenReview |
+
+## License
+
+The code and project documentation in this repository are released under the
+[MIT License](LICENSE).
+
+Model weights, datasets, papers, and third-party dependencies are governed by
+their own licenses and terms. In particular, experiments that load
+`google/gemma-4-E2B` require the user to comply with the applicable Gemma model
+license and access terms.
+
 ## Repository Layout
 
 ```text
