@@ -137,9 +137,13 @@ Baselines:
 
 - `no_memory`
 - `raw_memory`
+- `retrieved_attention`
 
-`raw_memory` is a compressed-memory baseline. RAG prompt insertion is not part
-of the main path and must be implemented only as a separate baseline if needed.
+`raw_memory` is a compressed-memory baseline. `retrieved_attention` treats
+retrieved memory records as external K/V slots and applies a non-prompt
+attention readout over the frozen prompt hidden states before the LM head. RAG
+prompt insertion is not part of the main path and must be implemented only as a
+separate baseline if needed.
 
 ## Trace Requirements
 

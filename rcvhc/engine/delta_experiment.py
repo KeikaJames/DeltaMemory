@@ -292,6 +292,8 @@ def evaluate_prepared(
                 trace = {}
             elif mode in {"raw_memory", "hidden_retrieval"}:
                 logits, trace = _raw_late_readout(sample, memories, injector)
+            elif mode == "retrieved_attention":
+                logits, trace = _retrieved_attention_readout(sample, memories, injector)
             else:
                 selected_memories = wrong_query_memories if mode == "delta_qv_wrong_query" else memories
                 result = injector.forward_layers(
@@ -907,6 +909,39 @@ def _raw_late_readout(
     return logits, {"hidden_delta_norm": float((hidden_prime - hidden).detach().float().norm().cpu())}
 
 
+def _retrieved_attention_readout(
+    sample: PreparedDeltaExample,
+    memories_by_layer: dict[int, list[AttentionMemoryItem]],
+    injector: GemmaAttentionInjector,
+) -> tuple[torch.Tensor, dict[str, float]]:
+    memories = [item for layer_memories in memories_by_layer.values() for item in layer_memories]
+    if not memories:
+        return sample.base_logits, {}
+    model = injector.model
+    with torch.no_grad():
+        out = model(
+            input_ids=sample.prompt["input_ids"],
+            attention_mask=sample.prompt["attention_mask"],
+            output_hidden_states=True,
+            output_attentions=False,
+            use_cache=False,
+        )
+    hidden = out.hidden_states[-1]
+    keys = torch.stack([item.address_key.to(hidden.device, hidden.dtype) for item in memories], dim=0)
+    values = torch.stack([item.raw_value.to(hidden.device, hidden.dtype) for item in memories], dim=0)
+    query = _fit_last_dim(hidden, keys.shape[-1])
+    scores = torch.matmul(F.normalize(query.float(), dim=-1), F.normalize(keys.float(), dim=-1).transpose(0, 1))
+    weights = torch.softmax(scores, dim=-1).to(values.dtype)
+    context = torch.matmul(weights, values)
+    update = _fit_last_dim(context, hidden.shape[-1]).to(hidden.device, hidden.dtype)
+    hidden_prime = hidden + 0.2 * update
+    logits = model.get_output_embeddings()(hidden_prime)
+    return logits, {
+        "retrieved_attention_delta_norm": float((hidden_prime - hidden).detach().float().norm().cpu()),
+        "retrieved_attention_entropy": float((-(weights.float() * weights.float().clamp_min(1e-8).log()).sum(dim=-1).mean()).detach().cpu()),
+    }
+
+
 def _aggregate_by_mode(by_mode: dict[str, list[dict[str, Any]]]) -> dict[str, dict[str, float]]:
     aggregate: dict[str, dict[str, float]] = {}
     for mode, rows in by_mode.items():
@@ -921,6 +956,14 @@ def _aggregate_by_mode(by_mode: dict[str, list[dict[str, Any]]]) -> dict[str, di
                 traces[key].append(float(row["qkv_trace"].get(key, 0.0)))
         aggregate[mode] = {key: _mean(values) for key, values in (metrics | traces).items()}
     return aggregate
+
+
+def _fit_last_dim(tensor: torch.Tensor, target_dim: int) -> torch.Tensor:
+    if tensor.shape[-1] == target_dim:
+        return tensor
+    if tensor.shape[-1] > target_dim:
+        return tensor[..., :target_dim]
+    return F.pad(tensor, (0, target_dim - tensor.shape[-1]))
 
 
 def _mode_metric(summary: dict[str, Any], mode: str, metric: str) -> float:

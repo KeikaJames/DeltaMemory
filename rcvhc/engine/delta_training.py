@@ -28,6 +28,7 @@ TRAIN_EVAL_MODES = [
     "no_memory",
     "raw_memory",
     "hidden_retrieval",
+    "retrieved_attention",
     "delta_qv",
     "delta_qv_zero",
     "delta_qv_random",
@@ -217,6 +218,8 @@ def _evaluate_modes(
             trace = {}
         elif mode in {"raw_memory", "hidden_retrieval"}:
             logits, trace = _raw_late_readout(base_logits, prompt["input_ids"], memories, injector)
+        elif mode == "retrieved_attention":
+            logits, trace = _retrieved_attention_readout(base_logits, prompt["input_ids"], memories, injector)
         else:
             result = injector.forward_layers(
                 input_ids=prompt["input_ids"],
@@ -297,6 +300,43 @@ def _raw_late_readout(
     hidden_prime = hidden + 0.05 * update.view(1, 1, -1)
     logits = model.get_output_embeddings()(hidden_prime)
     return logits, {"hidden_delta_norm": float((hidden_prime - hidden).detach().float().norm().cpu())}
+
+
+def _retrieved_attention_readout(
+    base_logits: torch.Tensor,
+    input_ids: torch.Tensor,
+    memories_by_layer: dict[int, list[AttentionMemoryItem]],
+    injector: GemmaAttentionInjector,
+) -> tuple[torch.Tensor, dict[str, float]]:
+    memories = [item for layer_memories in memories_by_layer.values() for item in layer_memories]
+    if not memories:
+        return base_logits, {}
+    model = injector.model
+    with torch.no_grad():
+        out = model(input_ids=input_ids, attention_mask=torch.ones_like(input_ids), output_hidden_states=True, output_attentions=False, use_cache=False)
+    hidden = out.hidden_states[-1]
+    keys = torch.stack([item.address_key.to(hidden.device, hidden.dtype) for item in memories], dim=0)
+    values = torch.stack([item.raw_value.to(hidden.device, hidden.dtype) for item in memories], dim=0)
+    query = _fit_last_dim(hidden, keys.shape[-1])
+    scores = torch.matmul(F.normalize(query.float(), dim=-1), F.normalize(keys.float(), dim=-1).transpose(0, 1))
+    weights = torch.softmax(scores, dim=-1).to(values.dtype)
+    context = torch.matmul(weights, values)
+    update = _fit_last_dim(context, hidden.shape[-1]).to(hidden.device, hidden.dtype)
+    hidden_prime = hidden + 0.2 * update
+    logits = model.get_output_embeddings()(hidden_prime)
+    return logits, {
+        "retrieved_attention_delta_norm": float((hidden_prime - hidden).detach().float().norm().cpu()),
+        "retrieved_attention_entropy": float((-(weights.float() * weights.float().clamp_min(1e-8).log()).sum(dim=-1).mean()).detach().cpu()),
+    }
+
+
+def _fit_last_dim(tensor: torch.Tensor, target_dim: int) -> torch.Tensor:
+    if tensor.shape[-1] == target_dim:
+        return tensor
+    if tensor.shape[-1] > target_dim:
+        return tensor[..., :target_dim]
+    pad = target_dim - tensor.shape[-1]
+    return F.pad(tensor, (0, pad))
 
 
 def _answer_loss(logits: torch.Tensor, answer_start: int, answer_ids: list[int]) -> torch.Tensor:

@@ -158,6 +158,8 @@ class AttentionMemoryEngine:
         for mode in modes:
             if mode in {"raw_memory", "hidden_retrieval"}:
                 logits, trace = self._raw_late_readout(base.logits, base.hidden_states[-1], memories)
+            elif mode == "retrieved_attention":
+                logits, trace = self._retrieved_attention_readout(base.logits, base.hidden_states[-1], memories)
             elif mode == "no_memory":
                 logits, trace = base.logits, {}
             else:
@@ -236,6 +238,36 @@ class AttentionMemoryEngine:
         hidden_prime = hidden + 0.05 * update.view(1, 1, -1)
         logits = self.bundle.model.get_output_embeddings()(hidden_prime)
         return logits, {"hidden_delta_norm": float((hidden_prime - hidden).detach().float().norm().cpu())}
+
+    def _retrieved_attention_readout(
+        self,
+        base_logits: torch.Tensor,
+        hidden: torch.Tensor,
+        memories: list[AttentionMemoryItem],
+    ) -> tuple[torch.Tensor, dict[str, float]]:
+        if not memories:
+            return base_logits, {}
+        keys = torch.stack([item.address_key.to(hidden.device, hidden.dtype) for item in memories], dim=0)
+        values = torch.stack([item.raw_value.to(hidden.device, hidden.dtype) for item in memories], dim=0)
+        query = _fit_last_dim(hidden, keys.shape[-1])
+        scores = torch.matmul(F.normalize(query.float(), dim=-1), F.normalize(keys.float(), dim=-1).transpose(0, 1))
+        weights = torch.softmax(scores, dim=-1).to(values.dtype)
+        context = torch.matmul(weights, values)
+        update = _fit_last_dim(context, hidden.shape[-1]).to(hidden.device, hidden.dtype)
+        hidden_prime = hidden + 0.2 * update
+        logits = self.bundle.model.get_output_embeddings()(hidden_prime)
+        return logits, {
+            "retrieved_attention_delta_norm": float((hidden_prime - hidden).detach().float().norm().cpu()),
+            "retrieved_attention_entropy": float((-(weights.float() * weights.float().clamp_min(1e-8).log()).sum(dim=-1).mean()).detach().cpu()),
+        }
+
+
+def _fit_last_dim(tensor: torch.Tensor, target_dim: int) -> torch.Tensor:
+    if tensor.shape[-1] == target_dim:
+        return tensor
+    if tensor.shape[-1] > target_dim:
+        return tensor[..., :target_dim]
+    return F.pad(tensor, (0, target_dim - tensor.shape[-1]))
 
 
 def compute_answer_metrics(

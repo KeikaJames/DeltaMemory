@@ -89,6 +89,7 @@ keeps the base model frozen, and does not insert retrieved text into the prompt.
 | Query-specific binding follow-up | best Delta NLL `2.5695` vs no-memory `12.1370` | all follow-ups fail binding; forced oracle payload also fails to separate paired answers | [report](reports/experiments/query_specific_binding_followup) |
 | Oracle span payload pilot | `3.5718` vs no-memory `12.1946` NLL | oracle address/value spans preserve the channel but payload swap remains tied; margin advantage vs wrong-query `-0.0084` | [report](reports/experiments/oracle_span_payload_pilot) |
 | Oracle span contrastive pilot | `4.3541` vs no-memory `12.1946` NLL | oracle contrastive raises margin advantage only to `0.0267`, far below the `0.5` payload-specificity gate | [report](reports/experiments/oracle_span_payload_contrastive_pilot) |
+| Retrieved-attention baseline pilot | `3.5718` vs retrieved-attention `14.3560` NLL | non-prompt external K/V readout is not competitive; shuffled/wrong-query still tied with Delta | [report](reports/experiments/retrieved_attention_baseline_pilot) |
 | Hidden retrieval baseline | `5.8246` vs `12.2118` NLL | hidden late-fusion baseline is weak (`14.5274`) | [report](reports/experiments/hidden_retrieval_baseline_pilot) |
 | Long-distance NoLiMa-style | `4.9367` vs `11.8879` NLL | fails shuffled gate (`4.8210`) | [report](reports/experiments/long_distance_nolima_pilot) |
 

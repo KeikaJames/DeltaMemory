@@ -94,10 +94,12 @@ def test_delta_experiment_mock_smoke(tmp_path):
     assert "delta_qv" in summary["final_eval"]["aggregate"]
     assert "raw_memory" in summary["final_eval"]["aggregate"]
     assert "hidden_retrieval" in summary["final_eval"]["aggregate"]
+    assert "retrieved_attention" in summary["final_eval"]["aggregate"]
     assert "delta_qv_wrong_layer" in summary["final_eval"]["aggregate"]
     assert "delta_qv_wrong_query" in summary["final_eval"]["aggregate"]
     assert "statistics" in summary
     assert "no_memory" in summary["statistics"]["comparisons"]
+    assert "retrieved_attention" in summary["statistics"]["comparisons"]
     assert summary["final_eval"]["aggregate"]["delta_qv"]["q_delta_norm"] > 0.0
     paths = write_delta_experiment_report(summary, tmp_path / "report")
     assert Path(paths["report"]).exists()

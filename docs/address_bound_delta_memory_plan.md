@@ -230,11 +230,18 @@ query key. Conflict-margin reports also include payload-swap controls:
 | --- | --- | --- | --- |
 | Oracle span payload pilot | `delta_qv` NLL `3.5718` vs no-memory `12.1946` | payload swap remains tied; margin advantage vs wrong-query `-0.0084` | `reports/experiments/oracle_span_payload_pilot` |
 | Oracle span contrastive pilot | `delta_qv` NLL `4.3541` vs no-memory `12.1946` | oracle contrastive only reaches margin advantage `0.0267`, far below the `0.5` gate | `reports/experiments/oracle_span_payload_contrastive_pilot` |
+| Retrieved-attention baseline pilot | `delta_qv` NLL `3.5718` vs retrieved-attention `14.3560` | non-prompt external K/V readout is not competitive; binding controls still fail | `reports/experiments/retrieved_attention_baseline_pilot` |
 
 This is a stronger negative result than the previous address-bound pilots. Even
 when the writer sees only the labelled address/value spans, the Q/V residual
 payload still behaves mostly like a generic activation channel rather than an
 answer-specific associative payload.
+
+The added `retrieved_attention` baseline treats retrieved memory records as
+external K/V slots and applies an attention readout over frozen prompt hidden
+states before the LM head. It is a stronger non-prompt baseline than the earlier
+mean hidden late-fusion readout, but the pilot remains weak and does not alter
+the binding conclusion.
 
 ### Revised conclusion
 
