@@ -27,6 +27,7 @@ DELTA_TASK_SUITES = {
     "temporal_overwrite",
     "paraphrase_nolima_style",
     "adversarial_negative",
+    "paired_conflict_binding",
 }
 
 
@@ -46,6 +47,8 @@ def make_delta_memory_examples(
         return make_paraphrase_nolima_examples(num_examples, seed=seed, start_id=start_id)
     if task_suite == "adversarial_negative":
         return make_adversarial_negative_examples(num_examples, seed=seed, start_id=start_id)
+    if task_suite == "paired_conflict_binding":
+        return make_paired_conflict_binding_examples(num_examples, seed=seed, start_id=start_id)
     raise ValueError(f"unknown Delta Memory task suite: {task_suite}")
 
 
@@ -185,12 +188,53 @@ def make_adversarial_negative_examples(num_examples: int, seed: int = 0, start_i
     return examples
 
 
+def make_paired_conflict_binding_examples(num_examples: int, seed: int = 0, start_id: int = 0) -> list[DeltaExample]:
+    rng = random.Random(seed)
+    examples: list[DeltaExample] = []
+    used_units: set[str] = set()
+    used_codes: set[str] = set()
+    used_cases: set[str] = set()
+    while len(examples) < num_examples:
+        unit = _unique_unit(rng, used_units)
+        pair = []
+        for _ in range(2):
+            case_id = _unique_case(rng, used_cases)
+            answer = _unique_code(rng, used_codes)
+            pair.append((case_id, answer))
+        for case_id, answer in pair:
+            if len(examples) >= num_examples:
+                break
+            sample_id = start_id + len(examples)
+            distractor_unit = _unique_unit(rng, used_units)
+            distractor_case = _unique_case(rng, used_cases)
+            distractor_answer = _unique_code(rng, used_codes)
+            text = "\n".join(
+                [
+                    f"Ledger {case_id}: unit {unit} was assigned secret code {answer}.",
+                    f"Ledger {distractor_case}: unit {distractor_unit} was assigned secret code {distractor_answer}.",
+                    f"The audit later references ledger {case_id} and unit {unit} without repeating the code.",
+                    "The final lookup must use both the ledger identifier and the unit identifier.",
+                ]
+            )
+            question = f"For ledger {case_id}, what is the secret code for unit {unit}?"
+            examples.append(DeltaExample(sample_id, unit, answer, text, question, "paired_conflict_binding"))
+    return examples
+
+
 def _unique_unit(rng: random.Random, used: set[str]) -> str:
     while True:
         unit = f"XJQ-{rng.randint(100, 999)}"
         if unit not in used:
             used.add(unit)
             return unit
+
+
+def _unique_case(rng: random.Random, used: set[str]) -> str:
+    while True:
+        case_id = f"case-{rng.randint(1000, 9999)}"
+        if case_id not in used:
+            used.add(case_id)
+            return case_id
 
 
 def _unique_code(rng: random.Random, used: set[str]) -> str:

@@ -150,7 +150,7 @@ def evaluate_prepared(
     by_mode: dict[str, list[dict[str, Any]]] = {mode: [] for mode in TRAIN_EVAL_MODES}
     for sample_idx, sample in enumerate(prepared):
         memories = _select_topk_by_layer(_live_memories(writer, sample, layer_ids, cfg), sample.query, cfg.top_k)
-        wrong_query_sample = prepared[(sample_idx + 1) % len(prepared)] if len(prepared) > 1 else sample
+        wrong_query_sample = _foreign_sample(prepared, sample_idx)
         wrong_query_memories = _select_topk_by_layer(
             _live_memories(writer, wrong_query_sample, layer_ids, cfg),
             wrong_query_sample.query,
@@ -197,7 +197,7 @@ def evaluate_conflict_margins(
     by_mode: dict[str, list[float]] = {mode: [] for mode in modes}
     samples: list[dict[str, Any]] = []
     for sample_idx, sample in enumerate(prepared):
-        foreign = prepared[(sample_idx + 1) % len(prepared)]
+        foreign = _foreign_sample(prepared, sample_idx)
         correct_memories = _select_topk_by_layer(_live_memories(writer, sample, layer_ids, cfg), sample.query, cfg.top_k)
         foreign_memories = _select_topk_by_layer(_live_memories(writer, foreign, layer_ids, cfg), foreign.query, cfg.top_k)
         sample_modes: dict[str, dict[str, float]] = {}
@@ -234,6 +234,17 @@ def evaluate_conflict_margins(
             - aggregate["delta_qv_wrong_query"]["foreign_minus_correct_nll"]
         )
     return {"aggregate": aggregate, "samples": samples}
+
+
+def _foreign_sample(prepared: list[PreparedDeltaExample], sample_idx: int) -> PreparedDeltaExample:
+    sample = prepared[sample_idx]
+    if len(prepared) <= 1:
+        return sample
+    for offset in range(1, len(prepared)):
+        candidate = prepared[(sample_idx + offset) % len(prepared)]
+        if candidate.example.unit == sample.example.unit:
+            return candidate
+    return prepared[(sample_idx + 1) % len(prepared)]
 
 
 def _score_candidate_answer(

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from collections import Counter
 
 from rcvhc.engine.delta_dataset import DELTA_TASK_SUITES, make_delta_memory_examples, make_later_reference_examples
 from rcvhc.engine.delta_experiment import DeltaExperimentConfig, run_delta_experiment, write_delta_experiment_report
@@ -32,6 +33,16 @@ def test_delta_memory_answers_are_seed_dependent():
         train_like = make_delta_memory_examples(task_suite, 8, seed=4)
         eval_like = make_delta_memory_examples(task_suite, 8, seed=10_004)
         assert [example.answer for example in train_like] != [example.answer for example in eval_like]
+
+
+def test_paired_conflict_binding_has_same_unit_conflicts():
+    examples = make_delta_memory_examples("paired_conflict_binding", 4, seed=13)
+    unit_counts = Counter(example.unit for example in examples)
+    assert sorted(unit_counts.values()) == [2, 2]
+    for first, second in zip(examples[0::2], examples[1::2]):
+        assert first.unit == second.unit
+        assert first.answer != second.answer
+        assert first.question != second.question
 
 
 def test_delta_experiment_mock_smoke(tmp_path):
