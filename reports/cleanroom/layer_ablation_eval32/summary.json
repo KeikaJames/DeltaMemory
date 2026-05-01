@@ -1,0 +1,12 @@
+{
+  "mean_all_drop_vs_attention": 6.8737434783965,
+  "mean_all_layers_nll": 5.751077741941844,
+  "mean_last_drop_vs_attention": 6.061562931165099,
+  "mean_last_layer_nll": 6.563258289173246,
+  "mean_last_minus_all_nll": 0.8121805472314009,
+  "mean_ordinary_attention_nll": 12.624821220338344,
+  "num_tasks": 5,
+  "per_example_all_better_rate": 0.675,
+  "tasks_all_better": 4,
+  "total_eval_examples": 160
+}
