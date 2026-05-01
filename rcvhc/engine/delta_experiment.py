@@ -23,7 +23,7 @@ from rcvhc.gemma.model_adapter import exposed_qkv_layers, get_hidden_size, get_v
 from rcvhc.memory.writer import RCVHCWriter, fit_memory_dim, split_source_snippets
 
 
-EXPERIMENT_EVAL_MODES = [*TRAIN_EVAL_MODES, "logit_bias"]
+EXPERIMENT_EVAL_MODES = [*TRAIN_EVAL_MODES, "logit_bias", "oracle_logit_answer_embedding"]
 
 
 @dataclass
@@ -113,7 +113,7 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
         lr=cfg.lr,
     )
 
-    initial_eval = evaluate_prepared(writer, injector, logit_projector, eval_prepared, layer_ids, cfg)
+    initial_eval = evaluate_prepared(writer, injector, logit_projector, payload_probe, eval_prepared, layer_ids, cfg)
     train_rows = []
     for step in range(1, cfg.steps + 1):
         sample_idx = (step - 1) % len(train_prepared)
@@ -254,8 +254,8 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
             }
         )
 
-    final_train = evaluate_prepared(writer, injector, logit_projector, train_prepared, layer_ids, cfg)
-    final_eval = evaluate_prepared(writer, injector, logit_projector, eval_prepared, layer_ids, cfg)
+    final_train = evaluate_prepared(writer, injector, logit_projector, payload_probe, train_prepared, layer_ids, cfg)
+    final_eval = evaluate_prepared(writer, injector, logit_projector, payload_probe, eval_prepared, layer_ids, cfg)
     conflict_margins = (
         evaluate_conflict_margins(bundle, writer, injector, logit_projector, payload_probe, eval_prepared, layer_ids, cfg)
         if cfg.conflict_margins
@@ -320,6 +320,7 @@ def evaluate_prepared(
     writer: RCVHCWriter,
     injector: GemmaAttentionInjector,
     logit_projector: PayloadLogitProjector,
+    payload_probe: PayloadAnswerProbe,
     prepared: list[PreparedDeltaExample],
     layer_ids: list[int],
     cfg: DeltaExperimentConfig,
@@ -356,6 +357,13 @@ def evaluate_prepared(
                 logits, trace = _retrieved_attention_readout(sample, memories, injector)
             elif mode == "logit_bias":
                 logits, trace = _logit_bias_readout(sample, memories, logit_projector)
+            elif mode == "oracle_logit_answer_embedding":
+                logits, trace = _oracle_answer_embedding_bias(
+                    sample.base_logits,
+                    sample.answer_ids,
+                    payload_probe.output_embeddings,
+                    cfg.logit_bias_scale,
+                )
             else:
                 selected_memories = wrong_query_memories if mode == "delta_qv_wrong_query" else memories
                 result = injector.forward_layers(
@@ -1210,6 +1218,31 @@ def _apply_logit_bias(
     return logits, {
         "logit_bias_norm": float(bias.detach().float().norm().cpu()),
         "logit_bias_max": float(bias.detach().float().max().cpu()),
+    }
+
+
+def _oracle_answer_embedding_bias(
+    base_logits: torch.Tensor,
+    answer_ids: list[int],
+    output_embeddings: nn.Module,
+    scale: float = 1.0,
+) -> tuple[torch.Tensor, dict[str, float]]:
+    """Stage 0 upper-bound: feed the answer token's own output embedding as a logit bias.
+
+    This bypasses writer and projector. It is purely diagnostic and tests whether the
+    LM-head readout path can map ``W[answer]`` back to ``argmax = answer``. If this fails,
+    the bug is in the metric/readout pipeline; if it passes, the bottleneck is upstream.
+    """
+
+    if not answer_ids:
+        return base_logits, {}
+    weight = output_embeddings.weight  # (vocab, hidden)
+    target_emb = weight[int(answer_ids[0])].to(base_logits.device, base_logits.dtype)
+    bias = (weight.to(base_logits.device, base_logits.dtype) @ target_emb) * float(scale)
+    logits = base_logits + bias.view(1, 1, -1)
+    return logits, {
+        "oracle_answer_embedding_bias_norm": float(bias.detach().float().norm().cpu()),
+        "oracle_answer_embedding_bias_max": float(bias.detach().float().max().cpu()),
     }
 
 
