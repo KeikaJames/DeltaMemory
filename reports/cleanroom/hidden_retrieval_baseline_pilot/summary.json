@@ -1,0 +1,19 @@
+{
+  "base_frozen": true,
+  "delta_drop_vs_no_memory": 6.387193473987281,
+  "delta_margin_advantage_vs_wrong_query": 0.04054438415914774,
+  "delta_minus_hidden_retrieval_nll": -8.702784474007785,
+  "delta_qv_nll": 5.824624632485211,
+  "eval_examples": 16,
+  "hidden_retrieval_drop_vs_no_memory": -2.315591000020504,
+  "hidden_retrieval_nll": 14.527409106492996,
+  "mechanism_supported_on_eval": true,
+  "no_memory_nll": 12.211818106472492,
+  "prompt_insertion_used": false,
+  "raw_memory_nll": 14.527409106492996,
+  "retrieval_query_uses_answer": false,
+  "shared_memory_retrieval": true,
+  "shuffled_nll": 5.84383964817971,
+  "task": "paired_conflict_binding",
+  "wrong_query_nll": 5.856299328617752
+}
