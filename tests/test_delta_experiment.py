@@ -93,3 +93,24 @@ def test_delta_experiment_conflict_margins(tmp_path):
     assert "delta_qv" in margins["aggregate"]
     assert "delta_qv_wrong_query" in margins["aggregate"]
     assert "margin_advantage_vs_wrong_query" in margins["aggregate"]["delta_qv"]
+
+
+def test_delta_experiment_contrastive_training_records_margin(tmp_path):
+    cfg = DeltaExperimentConfig(
+        model="mock-gemma",
+        device="cpu",
+        dtype="float32",
+        steps=1,
+        train_samples=2,
+        eval_samples=2,
+        task_suite="paired_conflict_binding",
+        block_size=16,
+        memory_dim=32,
+        top_k=2,
+        contrastive_margin_weight=0.1,
+        contrastive_margin=0.2,
+        report_dir=str(tmp_path / "report"),
+    )
+    summary = run_delta_experiment(cfg)
+    assert summary["train"][0]["contrastive_loss"] >= 0.0
+    assert "contrastive_margin_advantage" in summary["train"][0]

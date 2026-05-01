@@ -31,6 +31,8 @@ def main() -> int:
     parser.add_argument("--alpha-scale", type=float, default=0.2)
     parser.add_argument("--gate-bias", type=float, default=-1.0)
     parser.add_argument("--conflict-margins", action="store_true")
+    parser.add_argument("--contrastive-margin-weight", type=float, default=0.0)
+    parser.add_argument("--contrastive-margin", type=float, default=0.5)
     parser.add_argument("--report-dir", default="reports/cleanroom/delta_experiment")
     args = parser.parse_args()
     cfg = DeltaExperimentConfig(
@@ -50,6 +52,8 @@ def main() -> int:
         alpha_scale=args.alpha_scale,
         gate_bias=args.gate_bias,
         conflict_margins=args.conflict_margins,
+        contrastive_margin_weight=args.contrastive_margin_weight,
+        contrastive_margin=args.contrastive_margin,
         report_dir=args.report_dir,
     )
     summary = run_delta_experiment(cfg)

@@ -40,6 +40,8 @@ class DeltaExperimentConfig:
     alpha_scale: float = 0.2
     gate_bias: float = -1.0
     conflict_margins: bool = False
+    contrastive_margin_weight: float = 0.0
+    contrastive_margin: float = 0.5
     report_dir: str = "reports/cleanroom/delta_experiment"
 
 
@@ -87,7 +89,8 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
     initial_eval = evaluate_prepared(writer, injector, eval_prepared, layer_ids, cfg)
     train_rows = []
     for step in range(1, cfg.steps + 1):
-        sample = train_prepared[(step - 1) % len(train_prepared)]
+        sample_idx = (step - 1) % len(train_prepared)
+        sample = train_prepared[sample_idx]
         optimizer.zero_grad(set_to_none=True)
         memories = _select_topk_by_layer(_live_memories(writer, sample, layer_ids, cfg), sample.query, cfg.top_k)
         result = injector.forward_layers(
@@ -96,7 +99,42 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
             memories_by_layer=memories,
             mode="delta_qv",
         )
-        loss = _answer_loss(result.logits, sample.answer_start, sample.answer_ids)
+        answer_loss = _answer_loss(result.logits, sample.answer_start, sample.answer_ids)
+        contrastive_loss = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
+        margin_advantage = torch.zeros((), device=answer_loss.device, dtype=answer_loss.dtype)
+        if cfg.contrastive_margin_weight > 0.0 and len(train_prepared) > 1:
+            foreign = _foreign_sample(train_prepared, sample_idx)
+            foreign_memories = _select_topk_by_layer(_live_memories(writer, foreign, layer_ids, cfg), foreign.query, cfg.top_k)
+            foreign_answer_with_correct_memory = _candidate_answer_loss(
+                bundle,
+                injector,
+                sample.example.question,
+                foreign.example.answer,
+                memories,
+                "delta_qv",
+            )
+            correct_answer_with_foreign_memory = _candidate_answer_loss(
+                bundle,
+                injector,
+                sample.example.question,
+                sample.example.answer,
+                foreign_memories,
+                "delta_qv",
+            )
+            foreign_answer_with_foreign_memory = _candidate_answer_loss(
+                bundle,
+                injector,
+                sample.example.question,
+                foreign.example.answer,
+                foreign_memories,
+                "delta_qv",
+            )
+            correct_margin = foreign_answer_with_correct_memory - answer_loss
+            foreign_margin = foreign_answer_with_foreign_memory - correct_answer_with_foreign_memory
+            margin_advantage = correct_margin - foreign_margin
+            target_margin = torch.as_tensor(cfg.contrastive_margin, device=answer_loss.device, dtype=answer_loss.dtype)
+            contrastive_loss = F.relu(target_margin - margin_advantage)
+        loss = answer_loss + cfg.contrastive_margin_weight * contrastive_loss
         loss.backward()
         grad_norm = _grad_norm(list(writer.parameters()) + list(projector.parameters()))
         optimizer.step()
@@ -105,6 +143,9 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
                 "step": step,
                 "sample_id": sample.example.sample_id,
                 "loss": float(loss.detach().cpu()),
+                "answer_loss": float(answer_loss.detach().cpu()),
+                "contrastive_loss": float(contrastive_loss.detach().cpu()),
+                "contrastive_margin_advantage": float(margin_advantage.detach().cpu()),
                 "grad_norm": grad_norm,
                 "q_delta_norm": result.trace.q_delta_norm,
                 "v_delta_norm": result.trace.v_delta_norm,
@@ -245,6 +286,25 @@ def _foreign_sample(prepared: list[PreparedDeltaExample], sample_idx: int) -> Pr
         if candidate.example.unit == sample.example.unit:
             return candidate
     return prepared[(sample_idx + 1) % len(prepared)]
+
+
+def _candidate_answer_loss(
+    bundle,
+    injector: GemmaAttentionInjector,
+    question: str,
+    answer: str,
+    memories_by_layer: dict[int, list[AttentionMemoryItem]],
+    mode: str,
+) -> torch.Tensor:
+    prompt_text, answer_start, answer_ids = _metric_prompt(bundle.tokenizer, question, answer)
+    prompt = _encode(bundle.tokenizer, prompt_text, bundle.device)
+    result = injector.forward_layers(
+        input_ids=prompt["input_ids"],
+        attention_mask=prompt["attention_mask"],
+        memories_by_layer=memories_by_layer,
+        mode=mode,
+    )
+    return _answer_loss(result.logits, answer_start, answer_ids)
 
 
 def _score_candidate_answer(
