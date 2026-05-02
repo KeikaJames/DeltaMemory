@@ -1,0 +1,26 @@
+{
+  "P36": {
+    "train": 101,
+    "holdout": 75
+  },
+  "P19": {
+    "train": 156,
+    "holdout": 20
+  },
+  "P101": {
+    "train": 154,
+    "holdout": 22
+  },
+  "P641": {
+    "train": 157,
+    "holdout": 19
+  },
+  "P39": {
+    "train": 156,
+    "holdout": 20
+  },
+  "P937": {
+    "train": 158,
+    "holdout": 18
+  }
+}

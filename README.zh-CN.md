@@ -186,6 +186,48 @@ mean_pool / attn_pool / residual_mlp 全部停在 ≈ 0.83，确认 v3 天花板
 
 完整报告见 [`reports/experiments/stage9_grand_evaluation/REPORT.md`](reports/experiments/stage9_grand_evaluation/REPORT.md)。聚合 JSON：`docs/figures/stage9_summary.json`。复现：`scripts/run_stage9_sweep.sh` + `scripts/generate_stage9_figures.py`。
 
+> **⚠️ 重要：Stage 9 的 1.000 ± 0 仅在「完全相同的 prompt」(canonical) 下成立。** Stage 10 用同样的 pipeline、同样的 bank，跑了 paraphrase / decoy / value-ablation / leave-one-relation-out / equal-budget baseline 五类对抗测试，结果表明 encoder/writer **并不能**跨 surface paraphrase 或未见 relation 泛化。**引用 Stage 9 数字前请先看 Stage 10。**
+
+## Stage 10 — 对抗验证（顶会级 stress test）
+
+> **硬件：** NVIDIA GB10（Blackwell）· CUDA · `bfloat16` · 3 seeds · LAMA-TREx N=183。
+>
+> **TL;DR.** Stage 10 把 5 个可证伪假设摆在 Stage 9 面前。**3 PASS，2 FAIL。** Bank 本身是真的，retrieval 在 1000× 干扰槽下依然锐利，equal-budget 下 DeltaMemory 仍然碾压 RAG / IKE / SFT-LoRA — **但** encoder 是按字节级指纹匹配（不是语义编码），writer 也无法在未见 relation 上 zero-shot 泛化。
+
+### 头条数字（3 seeds，mean ± std）
+
+| 测试 | prompt_hidden | multilayer | 判决 |
+|---|---|---|---|
+| 标准 retrieval @1（canonical） | 1.000 ± 0.000 | 1.000 ± 0.000 | 复现 Stage 9 |
+| **Held-out paraphrase recall @1** | **0.113 ± 0.020** | **0.307 ± 0.021** | **G10A FAIL** |
+| Decoy ×1000 bind top-1 | 1.000 ± 0.000 | 1.000 ± 0.000 | G10B PASS |
+| Random bank.v top-1 | 0.000 ± 0.000 | 0.000 ± 0.000 | G10D PASS |
+| Shuffled bank.v top-1 | 0.015 ± 0.007 | 0.015 ± 0.007 | G10D PASS |
+| **LORO holdout bind top-1**（6 个 relation 平均） | — | **0.112 ± 0.152** | **G10F FAIL** |
+
+### 等预算基线对比（SFT 1500 steps）
+
+| 方法 | edit top-1 | edit top-5 | locality drift（越低越好） |
+|---|---|---|---|
+| vector-RAG（input-embed cosine） | 0.399 ± 0.000 | 0.486 ± 0.000 | n/a |
+| IKE（in-context fact prefix） | 0.399 ± 0.000 | 0.486 ± 0.000 | 0.500 ± 0.000 |
+| SFT-LoRA r=4（1500 steps） | 0.541 ± 0.005 | 0.617 ± 0.000 | 0.556 ± 0.096 |
+| SFT-LoRA r=16（1500 steps） | 0.552 ± 0.000 | 0.617 ± 0.000 | 0.556 ± 0.096 |
+| SFT-LoRA r=64（1500 steps） | 0.552 ± 0.000 | 0.617 ± 0.000 | **0.778** ± 0.096 |
+| **DeltaMemory（canonical, prompt_hidden）** | **1.000 ± 0.000** | — | **0.000**（读时 inject） |
+
+### Stage 10 修正了什么
+
+1. **Bank 是真的。** 把 bank.v 替换为随机 / 打乱后，预测崩到 0（G10D）。
+2. **Retrieval 在大规模下依然锐利。** 加 1000× 随机干扰槽不影响 retrieval @1（G10B）。
+3. **Encoder 不是语义的。** 同一事实换一个 surface paraphrase（即使裹在同一个 Atlas-slot 模板里）就崩到 0.11 / 0.31 — encoder 学到的是训练 prompt 的近似字节级指纹（G10A FAIL）。
+4. **Writer 不能跨 relation 泛化。** Leave-one-relation-out 时 retrieval 是 1.000 但 binding 跌到 0.00–0.38（mean 0.11），即未见 relation 的 hidden state 经过 writer 后无法解码回 answer token（G10F FAIL）。
+5. **等预算下 DeltaMemory 依然碾压 RAG / IKE / SFT-LoRA**（G10C PASS）：1.000 vs 最强基线 0.552，且 SFT-LoRA 引入 56–78% 的无关 token 漂移。
+
+**诚实结论：** DeltaMemory 在 canonical prompt 上是一个真实可验证的事实存储，但它的 address encoder 和 writer **现阶段还不能跨 surface paraphrase 或未见 relation 泛化**。剩下的误差是表示问题，不是优化问题。下一阶段：(a) 用 paraphrase-augmented InfoNCE 重训 encoder；(b) 训练时就引入 relation-stratified LORO，而不是只在 eval 阶段做 LORO。
+
+完整报告见 [`reports/experiments/stage10_adversarial_validation/REPORT.md`](reports/experiments/stage10_adversarial_validation/REPORT.md)。聚合 JSON：`reports/experiments/stage10_adversarial_validation/stage10_summary.json`。复现：`scripts/run_stage10_sweep.sh` + `scripts/run_stage10_resume.sh` + `scripts/aggregate_stage10.py`。
+
 ## 主要结果 — LAMA 事实绑定命中 oracle 上界
 
 > **硬件：** Apple Silicon · MPS · `bfloat16` · M 系列单 GPU。

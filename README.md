@@ -178,6 +178,68 @@ Both retrieval and in-context editing fail at the *binding* step (RAG retrieval@
 
 Full report: [`reports/experiments/stage9_grand_evaluation/REPORT.md`](reports/experiments/stage9_grand_evaluation/REPORT.md). Aggregate JSON at `docs/figures/stage9_summary.json`. Reproducer: `scripts/run_stage9_sweep.sh` + `scripts/generate_stage9_figures.py`.
 
+> **⚠️ Important: Stage 9 is the canonical-prompt regime only.** The 1.000 ± 0
+> numbers above are valid *only* when the eval prompt is byte-identical to the
+> training prompt. Stage 10 (below) re-runs the same pipeline against held-out
+> paraphrases, distractor decoys, value-ablation, and leave-one-relation-out,
+> and finds the encoder/writer do **not** generalise across surface paraphrase
+> or unseen relations. **Read Stage 10 before citing Stage 9 numbers.**
+
+## Stage 10 — Adversarial Validation (NeurIPS-style stress tests)
+
+> **Hardware:** NVIDIA GB10 (Blackwell) · CUDA · `bfloat16` · 3 seeds · LAMA-TREx N=183.
+>
+> **TL;DR.** Stage 10 puts 5 falsifiable hypotheses in front of Stage 9.
+> **3 PASS, 2 FAIL.** The bank itself is real, retrieval is sharp at 1000×
+> distractors, and DeltaMemory still beats RAG / IKE / SFT-LoRA at equal
+> training budget — *but* the encoder is fingerprint-matching (not semantic),
+> and the writer does not generalise to unseen Wikidata relations zero-shot.
+
+### Headline numbers (3 seeds, mean ± std)
+
+| Test | prompt_hidden | multilayer | Verdict |
+|---|---|---|---|
+| Standard retrieval @1 (canonical prompt) | 1.000 ± 0.000 | 1.000 ± 0.000 | reproduces Stage 9 |
+| **Held-out paraphrase recall @1** | **0.113 ± 0.020** | **0.307 ± 0.021** | **G10A FAIL** |
+| Decoy ×1000 bind top-1 | 1.000 ± 0.000 | 1.000 ± 0.000 | G10B PASS |
+| Random bank.v top-1 | 0.000 ± 0.000 | 0.000 ± 0.000 | G10D PASS |
+| Shuffled bank.v top-1 | 0.015 ± 0.007 | 0.015 ± 0.007 | G10D PASS |
+| **LORO holdout bind top-1** (mean over 6 relations) | — | **0.112 ± 0.152** | **G10F FAIL** |
+
+### Equal-budget baseline shoot-out (1500 steps SFT)
+
+| Method | edit top-1 | edit top-5 | locality drift (lower better) |
+|---|---|---|---|
+| vector-RAG (input-embed cosine) | 0.399 ± 0.000 | 0.486 ± 0.000 | n/a |
+| IKE (in-context fact prefix) | 0.399 ± 0.000 | 0.486 ± 0.000 | 0.500 ± 0.000 |
+| SFT-LoRA r=4 (1500 steps) | 0.541 ± 0.005 | 0.617 ± 0.000 | 0.556 ± 0.096 |
+| SFT-LoRA r=16 (1500 steps) | 0.552 ± 0.000 | 0.617 ± 0.000 | 0.556 ± 0.096 |
+| SFT-LoRA r=64 (1500 steps) | 0.552 ± 0.000 | 0.617 ± 0.000 | **0.778** ± 0.096 |
+| **DeltaMemory (canonical, prompt_hidden)** | **1.000 ± 0.000** | — | **0.000** (read-time inject) |
+
+### What Stage 10 changes about the Stage 9 claim
+
+1. **The bank is real.** Random or shuffled values destroy prediction (G10D).
+2. **Retrieval is sharp at scale.** Even 1000× random distractor slots
+   do not perturb retrieval @1 (G10B).
+3. **The encoder is not yet semantic.** Held-out paraphrases of the same
+   address collapse recall to 0.11 / 0.31 — the encoder learnt a
+   near-byte-level fingerprint of the trained prompt (G10A FAIL).
+4. **The writer does not generalise across relations.** Leave-one-relation-out
+   retrieval is 1.000 but binding drops to 0.00–0.38 (mean 0.11) on never-seen
+   relations (G10F FAIL).
+5. **DeltaMemory still beats RAG / IKE / SFT-LoRA at equal training budget**
+   on the canonical regime (G10C PASS): 1.000 vs the best baseline 0.552 with
+   56–78 % collateral logit drift.
+
+**Honest summary:** DeltaMemory is a real validated factual store on canonical
+prompts, but the address encoder and the writer do not yet generalise. The
+remaining error is *representational*, not optimisation-bound. Next-stage
+fixes: (a) train the encoder with paraphrase-augmented InfoNCE; (b) train the
+writer with relation-stratified LORO during training, not just at eval.
+
+Full report: [`reports/experiments/stage10_adversarial_validation/REPORT.md`](reports/experiments/stage10_adversarial_validation/REPORT.md). Aggregate JSON at `reports/experiments/stage10_adversarial_validation/stage10_summary.json`. Reproducer: `scripts/run_stage10_sweep.sh` + `scripts/run_stage10_resume.sh` + `scripts/aggregate_stage10.py`.
+
 ## Headline results — LAMA factual binding hits the oracle upper bound
 
 > **Hardware:** Apple Silicon · MPS · `bfloat16` · M-series single GPU.

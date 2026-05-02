@@ -1,0 +1,27 @@
+{
+  "stage": "9C_baseline",
+  "args": {
+    "model": "google/gemma-4-E2B",
+    "device": "cuda",
+    "dtype": "bfloat16",
+    "method": "sft_lora",
+    "lama_jsonl": "scripts/data/lama_trex_full.jsonl",
+    "n_facts": 0,
+    "seed": 0,
+    "steps": 1500,
+    "rank": 16,
+    "report_dir": "reports/experiments/stage10C_sft_lora_r16_seed0"
+  },
+  "n_facts": 183,
+  "wall_seconds": 72.04290342330933,
+  "wall_seconds_per_fact": 0.3936770678869362,
+  "metrics": {
+    "method": "sft_lora",
+    "edit_success_top1": 0.5519125461578369,
+    "edit_success_top5": 0.617486298084259,
+    "locality_drift_top1": 0.6666666865348816,
+    "train_seconds": 71.6571216583252,
+    "rank": 16,
+    "steps": 1500
+  }
+}

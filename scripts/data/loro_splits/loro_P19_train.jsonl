@@ -1,0 +1,156 @@
+{"relation": "P36", "address": "The capital of France is", "value": "Paris"}
+{"relation": "P36", "address": "The capital of Germany is", "value": "Berlin"}
+{"relation": "P36", "address": "The capital of Japan is", "value": "Tokyo"}
+{"relation": "P36", "address": "The capital of Italy is", "value": "Rome"}
+{"relation": "P36", "address": "The capital of Spain is", "value": "Madrid"}
+{"relation": "P36", "address": "The capital of Russia is", "value": "Moscow"}
+{"relation": "P36", "address": "The capital of China is", "value": "Beijing"}
+{"relation": "P36", "address": "The capital of Egypt is", "value": "Cairo"}
+{"relation": "P36", "address": "The capital of Greece is", "value": "Athens"}
+{"relation": "P36", "address": "The capital of Sweden is", "value": "Stockholm"}
+{"relation": "P36", "address": "The capital of Norway is", "value": "Oslo"}
+{"relation": "P36", "address": "The capital of Finland is", "value": "Helsinki"}
+{"relation": "P36", "address": "The capital of Denmark is", "value": "Copenhagen"}
+{"relation": "P36", "address": "The capital of Poland is", "value": "Warsaw"}
+{"relation": "P36", "address": "The capital of Austria is", "value": "Vienna"}
+{"relation": "P36", "address": "The capital of Belgium is", "value": "Brussels"}
+{"relation": "P36", "address": "The capital of Netherlands is", "value": "Amsterdam"}
+{"relation": "P36", "address": "The capital of Portugal is", "value": "Lisbon"}
+{"relation": "P36", "address": "The capital of Ireland is", "value": "Dublin"}
+{"relation": "P36", "address": "The capital of Hungary is", "value": "Budapest"}
+{"relation": "P36", "address": "The capital of Romania is", "value": "Bucharest"}
+{"relation": "P36", "address": "The capital of Turkey is", "value": "Ankara"}
+{"relation": "P36", "address": "The capital of Iran is", "value": "Tehran"}
+{"relation": "P36", "address": "The capital of Iraq is", "value": "Baghdad"}
+{"relation": "P36", "address": "The capital of Syria is", "value": "Damascus"}
+{"relation": "P36", "address": "The capital of Lebanon is", "value": "Beirut"}
+{"relation": "P36", "address": "The capital of Israel is", "value": "Jerusalem"}
+{"relation": "P36", "address": "The capital of Jordan is", "value": "Amman"}
+{"relation": "P36", "address": "The capital of India is", "value": "Delhi"}
+{"relation": "P36", "address": "The capital of Pakistan is", "value": "Islamabad"}
+{"relation": "P36", "address": "The capital of Bangladesh is", "value": "Dhaka"}
+{"relation": "P36", "address": "The capital of Thailand is", "value": "Bangkok"}
+{"relation": "P36", "address": "The capital of Vietnam is", "value": "Hanoi"}
+{"relation": "P36", "address": "The capital of Cambodia is", "value": "Phnom"}
+{"relation": "P36", "address": "The capital of Laos is", "value": "Vientiane"}
+{"relation": "P36", "address": "The capital of Myanmar is", "value": "Naypyidaw"}
+{"relation": "P36", "address": "The capital of Philippines is", "value": "Manila"}
+{"relation": "P36", "address": "The capital of Indonesia is", "value": "Jakarta"}
+{"relation": "P36", "address": "The capital of Malaysia is", "value": "Kuala"}
+{"relation": "P36", "address": "The capital of Singapore is", "value": "Singapore"}
+{"relation": "P36", "address": "The capital of Mongolia is", "value": "Ulaanbaatar"}
+{"relation": "P36", "address": "The capital of Kazakhstan is", "value": "Astana"}
+{"relation": "P36", "address": "The capital of Uzbekistan is", "value": "Tashkent"}
+{"relation": "P36", "address": "The capital of Afghanistan is", "value": "Kabul"}
+{"relation": "P36", "address": "The capital of Nepal is", "value": "Kathmandu"}
+{"relation": "P36", "address": "The capital of Korea is", "value": "Seoul"}
+{"relation": "P36", "address": "The capital of Australia is", "value": "Canberra"}
+{"relation": "P36", "address": "The capital of Argentina is", "value": "Buenos"}
+{"relation": "P36", "address": "The capital of Brazil is", "value": "Brasilia"}
+{"relation": "P36", "address": "The capital of Chile is", "value": "Santiago"}
+{"relation": "P36", "address": "The capital of Colombia is", "value": "Bogota"}
+{"relation": "P36", "address": "The capital of Peru is", "value": "Lima"}
+{"relation": "P36", "address": "The capital of Venezuela is", "value": "Caracas"}
+{"relation": "P36", "address": "The capital of Ecuador is", "value": "Quito"}
+{"relation": "P36", "address": "The capital of Bolivia is", "value": "La Paz"}
+{"relation": "P36", "address": "The capital of Uruguay is", "value": "Montevideo"}
+{"relation": "P36", "address": "The capital of Paraguay is", "value": "Asuncion"}
+{"relation": "P36", "address": "The capital of Cuba is", "value": "Havana"}
+{"relation": "P36", "address": "The capital of Mexico is", "value": "Mexico"}
+{"relation": "P36", "address": "The capital of Canada is", "value": "Ottawa"}
+{"relation": "P36", "address": "The capital of Kenya is", "value": "Nairobi"}
+{"relation": "P36", "address": "The capital of Ethiopia is", "value": "Addis"}
+{"relation": "P36", "address": "The capital of Nigeria is", "value": "Abuja"}
+{"relation": "P36", "address": "The capital of Ghana is", "value": "Accra"}
+{"relation": "P36", "address": "The capital of Senegal is", "value": "Dakar"}
+{"relation": "P36", "address": "The capital of Morocco is", "value": "Rabat"}
+{"relation": "P36", "address": "The capital of Algeria is", "value": "Algiers"}
+{"relation": "P36", "address": "The capital of Tunisia is", "value": "Tunis"}
+{"relation": "P36", "address": "The capital of Libya is", "value": "Tripoli"}
+{"relation": "P36", "address": "The capital of Sudan is", "value": "Khartoum"}
+{"relation": "P36", "address": "The capital of Tanzania is", "value": "Dodoma"}
+{"relation": "P36", "address": "The capital of Uganda is", "value": "Kampala"}
+{"relation": "P36", "address": "The capital of Zambia is", "value": "Lusaka"}
+{"relation": "P36", "address": "The capital of Zimbabwe is", "value": "Harare"}
+{"relation": "P36", "address": "The capital of Botswana is", "value": "Gaborone"}
+{"relation": "P101", "address": "Albert Einstein worked in the field of", "value": "physics"}
+{"relation": "P101", "address": "Marie Curie worked in the field of", "value": "chemistry"}
+{"relation": "P101", "address": "Isaac Newton worked in the field of", "value": "mathematics"}
+{"relation": "P101", "address": "Charles Darwin worked in the field of", "value": "biology"}
+{"relation": "P101", "address": "Sigmund Freud worked in the field of", "value": "psychology"}
+{"relation": "P101", "address": "Carl Jung worked in the field of", "value": "psychology"}
+{"relation": "P101", "address": "Niels Bohr worked in the field of", "value": "physics"}
+{"relation": "P101", "address": "Ada Lovelace worked in the field of", "value": "computing"}
+{"relation": "P101", "address": "Alan Turing worked in the field of", "value": "computing"}
+{"relation": "P101", "address": "John von Neumann worked in the field of", "value": "mathematics"}
+{"relation": "P101", "address": "Linus Pauling worked in the field of", "value": "chemistry"}
+{"relation": "P101", "address": "Richard Feynman worked in the field of", "value": "physics"}
+{"relation": "P101", "address": "Stephen Hawking worked in the field of", "value": "physics"}
+{"relation": "P101", "address": "Carl Sagan worked in the field of", "value": "astronomy"}
+{"relation": "P101", "address": "Jane Goodall worked in the field of", "value": "biology"}
+{"relation": "P101", "address": "Rosalind Franklin worked in the field of", "value": "biology"}
+{"relation": "P101", "address": "Noam Chomsky worked in the field of", "value": "linguistics"}
+{"relation": "P101", "address": "Friedrich Nietzsche worked in the field of", "value": "philosophy"}
+{"relation": "P101", "address": "Karl Marx worked in the field of", "value": "economics"}
+{"relation": "P101", "address": "Adam Smith worked in the field of", "value": "economics"}
+{"relation": "P641", "address": "Michael Jordan plays the sport of", "value": "basketball"}
+{"relation": "P641", "address": "LeBron James plays the sport of", "value": "basketball"}
+{"relation": "P641", "address": "Kobe Bryant played the sport of", "value": "basketball"}
+{"relation": "P641", "address": "Lionel Messi plays the sport of", "value": "soccer"}
+{"relation": "P641", "address": "Cristiano Ronaldo plays the sport of", "value": "soccer"}
+{"relation": "P641", "address": "Pele played the sport of", "value": "soccer"}
+{"relation": "P641", "address": "Diego Maradona played the sport of", "value": "soccer"}
+{"relation": "P641", "address": "Roger Federer plays the sport of", "value": "tennis"}
+{"relation": "P641", "address": "Serena Williams plays the sport of", "value": "tennis"}
+{"relation": "P641", "address": "Rafael Nadal plays the sport of", "value": "tennis"}
+{"relation": "P641", "address": "Tiger Woods plays the sport of", "value": "golf"}
+{"relation": "P641", "address": "Usain Bolt competes in the sport of", "value": "athletics"}
+{"relation": "P641", "address": "Michael Phelps competes in the sport of", "value": "swimming"}
+{"relation": "P641", "address": "Simone Biles competes in the sport of", "value": "gymnastics"}
+{"relation": "P641", "address": "Wayne Gretzky played the sport of", "value": "hockey"}
+{"relation": "P641", "address": "Tom Brady plays the sport of", "value": "football"}
+{"relation": "P641", "address": "Babe Ruth played the sport of", "value": "baseball"}
+{"relation": "P641", "address": "Floyd Mayweather competes in the sport of", "value": "boxing"}
+{"relation": "P641", "address": "Conor McGregor competes in the sport of", "value": "MMA"}
+{"relation": "P140", "address": "Dalai Lama practises the religion of", "value": "Buddhism"}
+{"relation": "P140", "address": "Pope Francis practises the religion of", "value": "Christianity"}
+{"relation": "P101", "address": "Confucius taught", "value": "Confucianism"}
+{"relation": "P101", "address": "Lao Tzu taught", "value": "Taoism"}
+{"relation": "P39", "address": "Albert Einstein worked as a", "value": "physicist"}
+{"relation": "P39", "address": "Marie Curie worked as a", "value": "chemist"}
+{"relation": "P39", "address": "Charles Darwin worked as a", "value": "biologist"}
+{"relation": "P39", "address": "Sigmund Freud worked as a", "value": "psychologist"}
+{"relation": "P39", "address": "William Shakespeare worked as a", "value": "playwright"}
+{"relation": "P39", "address": "Leonardo da Vinci worked as a", "value": "painter"}
+{"relation": "P39", "address": "Vincent van Gogh worked as a", "value": "painter"}
+{"relation": "P39", "address": "Pablo Picasso worked as a", "value": "painter"}
+{"relation": "P39", "address": "Wolfgang Amadeus Mozart worked as a", "value": "composer"}
+{"relation": "P39", "address": "Johann Sebastian Bach worked as a", "value": "composer"}
+{"relation": "P39", "address": "Ludwig van Beethoven worked as a", "value": "composer"}
+{"relation": "P39", "address": "Frederic Chopin worked as a", "value": "composer"}
+{"relation": "P39", "address": "Steven Spielberg works as a", "value": "director"}
+{"relation": "P39", "address": "Martin Scorsese works as a", "value": "director"}
+{"relation": "P39", "address": "Christopher Nolan works as a", "value": "director"}
+{"relation": "P39", "address": "Stephen King works as a", "value": "author"}
+{"relation": "P39", "address": "J K Rowling works as an", "value": "author"}
+{"relation": "P39", "address": "Ernest Hemingway worked as an", "value": "author"}
+{"relation": "P39", "address": "Jane Austen worked as an", "value": "author"}
+{"relation": "P39", "address": "Charles Dickens worked as an", "value": "author"}
+{"relation": "P937", "address": "Albert Einstein worked in", "value": "Princeton"}
+{"relation": "P937", "address": "Charles Darwin worked in", "value": "London"}
+{"relation": "P937", "address": "Sigmund Freud worked in", "value": "Vienna"}
+{"relation": "P937", "address": "Marie Curie worked in", "value": "Paris"}
+{"relation": "P937", "address": "Isaac Newton worked in", "value": "Cambridge"}
+{"relation": "P937", "address": "Galileo Galilei worked in", "value": "Padua"}
+{"relation": "P937", "address": "Pablo Picasso worked in", "value": "Paris"}
+{"relation": "P937", "address": "Vincent van Gogh worked in", "value": "Arles"}
+{"relation": "P937", "address": "Claude Monet worked in", "value": "Giverny"}
+{"relation": "P937", "address": "Leonardo da Vinci worked in", "value": "Florence"}
+{"relation": "P937", "address": "Michelangelo worked in", "value": "Rome"}
+{"relation": "P937", "address": "Raphael worked in", "value": "Rome"}
+{"relation": "P937", "address": "Niels Bohr worked in", "value": "Copenhagen"}
+{"relation": "P937", "address": "Werner Heisenberg worked in", "value": "Munich"}
+{"relation": "P937", "address": "Erwin Schrodinger worked in", "value": "Dublin"}
+{"relation": "P937", "address": "Linus Pauling worked in", "value": "Pasadena"}
+{"relation": "P937", "address": "Richard Feynman worked in", "value": "Pasadena"}
+{"relation": "P937", "address": "Carl Sagan worked in", "value": "Ithaca"}

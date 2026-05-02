@@ -535,6 +535,315 @@ def evaluate(
 
 
 # ---------------------------------------------------------------------------
+# Stage 10 — adversarial stress tests (helpers)
+# ---------------------------------------------------------------------------
+
+@torch.no_grad()
+def _bank_eval_top1_nll(model, ids, am, lp, tgt, inj, alpha) -> tuple[int, int, float, int]:
+    """Single-pass forward at last position; returns (top1_correct, top10_correct, nll_sum, n)."""
+    logits = _forward_read_with_injection(model, ids, am, lp, inj, alpha)
+    log_probs = F.log_softmax(logits.float(), dim=-1)
+    tgt_lp = log_probs.gather(1, tgt.unsqueeze(1)).squeeze(1)
+    nll_sum = float((-tgt_lp).sum().item())
+    top1 = log_probs.argmax(dim=-1)
+    top10 = log_probs.topk(10, dim=-1).indices
+    top1_c = int((top1 == tgt).sum().item())
+    top10_c = int((top10 == tgt.unsqueeze(1)).any(dim=1).sum().item())
+    return top1_c, top10_c, nll_sum, int(tgt.numel())
+
+
+@torch.no_grad()
+def _stage10_paraphrase_eval(*, model, tokenizer, bank, writer, key_proj, encoder,
+                              facts, device, alpha, eval_batch_size, paraphrase_jsonl) -> dict:
+    """Stage 10A — paraphrase robustness.
+
+    For each fact we have N paraphrase templates. Bank is already trained
+    on the canonical (paraphrase[0]) read prompt of those facts (i.e. the
+    same prompts used in the LAMA-TREx training). We now use paraphrase
+    [1..K-1] as the *eval* read prompt and re-measure retrieval + binding.
+
+    Test: does the encoder's prompt_hidden / multilayer feature carry the
+    address identity across surface paraphrase, or is it a byte-level
+    fingerprint?
+    """
+    rows = [json.loads(line) for line in paraphrase_jsonl.read_text().splitlines() if line.strip()]
+    addr_to_row = {row["address"]: row for row in rows}
+    eligible = [(i, addr_to_row[f.address]) for i, f in enumerate(facts) if f.address in addr_to_row]
+    if not eligible:
+        return {"error": "no_fact_overlap_with_paraphrase_jsonl"}
+    n_para = max(len(r["paraphrases"]) for _, r in eligible)
+    out_per_para: list[dict] = []
+    for k in range(n_para):
+        # Build per-fact paraphrase k (or canonical if missing). We wrap
+        # the paraphrase in the same Atlas-slot template that the model
+        # was trained on; otherwise we'd be testing template robustness
+        # rather than address-paraphrase robustness.
+        eval_prompts = []
+        slot_idx = []
+        targets = []
+        addresses_eval = []
+        for i, row in eligible:
+            paras = row["paraphrases"]
+            p = paras[k] if k < len(paras) else paras[0]
+            wrapped = (
+                f"Atlas slot {p}\n"
+                f"Recall the payload value for this slot. The value is"
+            )
+            eval_prompts.append(wrapped)
+            addresses_eval.append(p)
+            slot_idx.append(i)
+            targets.append(facts[i].value_token_id)
+        slot_t = torch.tensor(slot_idx, device=device, dtype=torch.long)
+        tgt_t = torch.tensor(targets, device=device, dtype=torch.long)
+        ids, am, lp = _tokenize_read_prompts(tokenizer, eval_prompts, device)
+        addr_ids, addr_mask = _address_token_ids(tokenizer, addresses_eval, device)
+        if encoder is None:
+            addr_pooled = _address_key_from_embeddings(model, addr_ids, addr_mask)
+        else:
+            # IMPORTANT: encoder.encode for prompt_hidden uses the *read prompt*,
+            # so passing the paraphrased prompts here is the actual stress: the
+            # query key is built from the paraphrase, not the canonical prompt.
+            addr_pooled = encoder.encode(model, tokenizer, addresses_eval, eval_prompts)
+        q = key_proj(addr_pooled)
+        pred_slots = bank.retrieve(q)
+        recall_at_1 = float((pred_slots == slot_t).float().mean().item())
+        # Bank-inject eval using the predicted (possibly wrong) slots' v.
+        n = len(eligible)
+        t1c = t10c = 0
+        nll_sum = 0.0
+        n_count = 0
+        for start in range(0, n, eval_batch_size):
+            end = min(start + eval_batch_size, n)
+            inj = bank.read(pred_slots[start:end])
+            a, b, c, d = _bank_eval_top1_nll(
+                model, ids[start:end], am[start:end], lp[start:end], tgt_t[start:end], inj, alpha
+            )
+            t1c += a; t10c += b; nll_sum += c; n_count += d
+        out_per_para.append({
+            "paraphrase_index": k,
+            "is_canonical": (k == 0),
+            "n": n_count,
+            "recall_at_1": recall_at_1,
+            "bank_inject_retrieved_top1": t1c / n_count,
+            "bank_inject_retrieved_top10": t10c / n_count,
+            "bank_inject_retrieved_nll": nll_sum / n_count,
+        })
+    canonical = out_per_para[0]
+    held_out = out_per_para[1:]
+    held_recall_mean = sum(o["recall_at_1"] for o in held_out) / max(1, len(held_out))
+    held_top1_mean = sum(o["bank_inject_retrieved_top1"] for o in held_out) / max(1, len(held_out))
+    return {
+        "n_facts_with_paraphrases": len(eligible),
+        "n_paraphrases_per_fact": n_para,
+        "per_paraphrase": out_per_para,
+        "canonical_recall_at_1": canonical["recall_at_1"],
+        "held_out_recall_at_1_mean": held_recall_mean,
+        "held_out_bank_inject_top1_mean": held_top1_mean,
+        "G10A_pass": held_recall_mean >= 0.85,
+    }
+
+
+@torch.no_grad()
+def _stage10_decoy_eval(*, model, tokenizer, bank, writer, key_proj, encoder,
+                         facts, device, alpha, eval_batch_size, multipliers, seed) -> dict:
+    """Stage 10B — distractor stress curve.
+
+    Append K*n_facts random-init slots to the bank's k/v matrices and
+    re-run retrieval-only eval. The trained portion is preserved.
+    """
+    n = len(facts)
+    addresses_all = [f.address for f in facts]
+    read_prompts_all = [f.read_prompt for f in facts]
+    ids_all, am_all, lp_all = _tokenize_read_prompts(tokenizer, read_prompts_all, device)
+    addr_ids, addr_mask = _address_token_ids(tokenizer, addresses_all, device)
+    if encoder is None:
+        addr_pooled = _address_key_from_embeddings(model, addr_ids, addr_mask)
+    else:
+        addr_pooled = encoder.encode(model, tokenizer, addresses_all, read_prompts_all)
+    q_all = key_proj(addr_pooled)
+    tgt_all = torch.tensor([f.value_token_id for f in facts], device=device, dtype=torch.long)
+    slot_targets = torch.arange(n, device=device, dtype=torch.long)
+    # Snapshot trained bank params.
+    k_orig = bank.k.detach().clone()
+    v_orig = bank.v.detach().clone()
+    rng = torch.Generator(device="cpu").manual_seed(seed * 17 + 1)
+    results = []
+    for K in multipliers:
+        n_decoy = K * n
+        # Random-init keys with the same dim/scale as trained keys.
+        k_decoy = torch.empty(n_decoy, k_orig.shape[1], device=device, dtype=k_orig.dtype)
+        k_decoy.normal_(mean=0.0, std=k_orig.std().item(), generator=None)
+        v_decoy = torch.zeros(n_decoy, v_orig.shape[1], device=device, dtype=v_orig.dtype)
+        # Concat to bank temporarily by overriding retrieve manually.
+        full_k = torch.cat([k_orig, k_decoy], dim=0)
+        full_v = torch.cat([v_orig, v_decoy], dim=0)
+        # Recompute retrieve = argmax cosine (chunked to avoid OOM at scale).
+        q_norm = F.normalize(q_all, dim=-1)
+        k_norm = F.normalize(full_k, dim=-1)
+        chunk = max(1, 4096)
+        pred_chunks = []
+        for cs in range(0, q_norm.shape[0], chunk):
+            ce = min(cs + chunk, q_norm.shape[0])
+            sims_c = q_norm[cs:ce] @ k_norm.t()
+            pred_chunks.append(sims_c.argmax(dim=-1))
+            del sims_c
+        pred_slots = torch.cat(pred_chunks, dim=0)
+        recall_at_1 = float((pred_slots == slot_targets).float().mean().item())
+        # Bank-inject top1 using the (possibly decoy) value at the predicted slot.
+        t1c = 0
+        n_count = 0
+        for start in range(0, n, eval_batch_size):
+            end = min(start + eval_batch_size, n)
+            sl = pred_slots[start:end]
+            inj = full_v[sl]
+            top1c, _, _, cnt = _bank_eval_top1_nll(
+                model, ids_all[start:end], am_all[start:end], lp_all[start:end],
+                tgt_all[start:end], inj, alpha
+            )
+            t1c += top1c; n_count += cnt
+        results.append({
+            "decoy_multiplier": K,
+            "n_decoy_slots": n_decoy,
+            "recall_at_1": recall_at_1,
+            "bank_inject_retrieved_top1": t1c / n_count,
+        })
+    return {"curve": results}
+
+
+@torch.no_grad()
+def _stage10_value_ablation(*, model, tokenizer, bank, writer, key_proj, encoder,
+                             facts, device, alpha, eval_batch_size, seed) -> dict:
+    """Stage 10D — null control on bank values.
+
+    Two ablations:
+      1. Random-replace bank.v with same-scale random tensors. Tests
+         whether the bank's stored values carry the answer information.
+      2. Shuffle bank.v across slots (keys preserved). Same test, less
+         destructive: each slot now reads a permuted neighbour's payload.
+
+    Pass criterion: both ablations should crash bank_inject_retrieved.top1
+    well below the unablated baseline. If they don't, the bank is
+    ornamental and the win comes from the encoder + read-prompt context.
+    """
+    n = len(facts)
+    addresses_all = [f.address for f in facts]
+    read_prompts_all = [f.read_prompt for f in facts]
+    ids_all, am_all, lp_all = _tokenize_read_prompts(tokenizer, read_prompts_all, device)
+    addr_ids, addr_mask = _address_token_ids(tokenizer, addresses_all, device)
+    if encoder is None:
+        addr_pooled = _address_key_from_embeddings(model, addr_ids, addr_mask)
+    else:
+        addr_pooled = encoder.encode(model, tokenizer, addresses_all, read_prompts_all)
+    q_all = key_proj(addr_pooled)
+    pred_slots = bank.retrieve(q_all)
+    tgt_all = torch.tensor([f.value_token_id for f in facts], device=device, dtype=torch.long)
+    v_orig = bank.v.detach().clone()
+    out: dict = {}
+    rng = torch.Generator(device="cpu").manual_seed(seed * 31 + 7)
+
+    def _eval_with_v(v_use: torch.Tensor) -> float:
+        t1c = 0
+        n_count = 0
+        for start in range(0, n, eval_batch_size):
+            end = min(start + eval_batch_size, n)
+            sl = pred_slots[start:end]
+            inj = v_use[sl]
+            top1c, _, _, cnt = _bank_eval_top1_nll(
+                model, ids_all[start:end], am_all[start:end], lp_all[start:end],
+                tgt_all[start:end], inj, alpha
+            )
+            t1c += top1c; n_count += cnt
+        return t1c / n_count
+
+    # Ablation 1: random replacement.
+    v_rand = torch.empty_like(v_orig)
+    v_rand.normal_(mean=0.0, std=v_orig.std().item())
+    out["random_value_top1"] = _eval_with_v(v_rand)
+    # Ablation 2: shuffle within slots.
+    perm = torch.randperm(n, generator=rng).to(device)
+    v_shuf = v_orig[perm]
+    out["shuffled_value_top1"] = _eval_with_v(v_shuf)
+    out["unablated_top1_reference"] = _eval_with_v(v_orig)
+    out["G10D_pass"] = (out["random_value_top1"] <= 0.10) and (out["shuffled_value_top1"] <= 0.10)
+    return out
+
+
+@torch.no_grad()
+def _stage10_loro_eval(*, model, tokenizer, bank, writer, key_proj, encoder,
+                       facts, device, alpha, eval_batch_size, holdout_jsonl) -> dict:
+    """Stage 10F — leave-one-relation-out: add held-out facts to a *trained*
+    pipeline (no further fine-tuning), then evaluate retrieval + binding
+    on those new slots only.
+
+    Pass criterion: retr top-1 ≥ 0.50 (relaxed; this is genuinely zero-shot
+    for the encoder + key_proj combination).
+    """
+    rows = [json.loads(line) for line in holdout_jsonl.read_text().splitlines() if line.strip()]
+    if not rows:
+        return {"error": "empty_holdout"}
+    # Build temporary held-out facts (validate single-token).
+    new_facts: list[Fact] = []
+    skipped = 0
+    for slot, row in enumerate(rows):
+        word = row["value"].strip()
+        tid = _validate_single_token(tokenizer, word)
+        if tid is None:
+            skipped += 1
+            continue
+        new_facts.append(Fact(slot=len(facts) + len(new_facts),
+                              address=row["address"],
+                              value_token_str=word,
+                              value_token_id=tid))
+    if not new_facts:
+        return {"error": "no_single_token_holdout", "skipped": skipped}
+    n_new = len(new_facts)
+    # Encode new addresses with frozen-trained encoder + key_proj.
+    addrs_new = [f.address for f in new_facts]
+    prompts_new = [f.read_prompt for f in new_facts]
+    addr_ids, addr_mask = _address_token_ids(tokenizer, addrs_new, device)
+    if encoder is None:
+        addr_pooled = _address_key_from_embeddings(model, addr_ids, addr_mask)
+    else:
+        addr_pooled = encoder.encode(model, tokenizer, addrs_new, prompts_new)
+    new_keys = key_proj(addr_pooled)
+    # Compute new values via writer over the value-token embeddings (frozen base, frozen writer).
+    val_tids = torch.tensor([f.value_token_id for f in new_facts], device=device, dtype=torch.long)
+    val_embeds = _value_embeds(model, val_tids).float()
+    new_vals = writer(val_embeds)
+    # Append to bank.
+    n_old = bank.k.shape[0]
+    full_k = torch.cat([bank.k.detach(), new_keys], dim=0)
+    full_v = torch.cat([bank.v.detach(), new_vals], dim=0)
+    # Retrieval over new addresses against the union bank.
+    q_norm = F.normalize(new_keys, dim=-1)
+    k_norm = F.normalize(full_k, dim=-1)
+    sims = q_norm @ k_norm.t()
+    pred_slots = sims.argmax(dim=-1)
+    expected = torch.arange(n_old, n_old + n_new, device=device)
+    recall_at_1 = float((pred_slots == expected).float().mean().item())
+    # Bank-inject eval on the new prompts.
+    ids_new, am_new, lp_new = _tokenize_read_prompts(tokenizer, prompts_new, device)
+    t1c = 0
+    n_count = 0
+    for start in range(0, n_new, eval_batch_size):
+        end = min(start + eval_batch_size, n_new)
+        sl = pred_slots[start:end]
+        inj = full_v[sl]
+        top1c, _, _, cnt = _bank_eval_top1_nll(
+            model, ids_new[start:end], am_new[start:end], lp_new[start:end],
+            val_tids[start:end], inj, alpha
+        )
+        t1c += top1c; n_count += cnt
+    return {
+        "n_holdout_facts": n_new,
+        "skipped_multitoken": skipped,
+        "recall_at_1_holdout": recall_at_1,
+        "bank_inject_retrieved_top1_holdout": t1c / n_count,
+        "G10F_pass": (t1c / n_count) >= 0.50,
+    }
+
+
+# ---------------------------------------------------------------------------
 # Driver
 # ---------------------------------------------------------------------------
 
@@ -566,6 +875,15 @@ def main() -> int:
     parser.add_argument("--encoder", default="mean_pool",
                         choices=["mean_pool", "attn_pool", "multilayer", "prompt_hidden", "residual_mlp"],
                         help="Address encoder variant (Stage 9). mean_pool reproduces v3 baseline.")
+    # Stage 10 adversarial validation hooks (all post-training, idempotent).
+    parser.add_argument("--stage10-paraphrase-jsonl", default=None,
+                        help="Path to paraphrase JSONL (build_lama_trex_paraphrase.py output). Eval-only stress test.")
+    parser.add_argument("--stage10-decoy-multipliers", default=None,
+                        help="Comma-separated decoy multipliers e.g. '1,10,100'. Adds K*n_facts random slots.")
+    parser.add_argument("--stage10-value-ablation", action="store_true",
+                        help="Replace bank values with random / shuffled tensors after training; re-eval.")
+    parser.add_argument("--stage10-loro-add-jsonl", default=None,
+                        help="Path to held-out fact JSONL (LORO). Append to bank without further training and eval new slots.")
     args = parser.parse_args()
 
     torch.manual_seed(args.seed)
@@ -627,6 +945,42 @@ def main() -> int:
         eval_batch_size=args.eval_batch_size,
         encoder=encoder,
     )
+
+    # ------------------------------------------------------------------
+    # Stage 10 adversarial stress tests (post-training, all share the
+    # already-trained writer / key_proj / encoder / bank).
+    # ------------------------------------------------------------------
+    stage10: dict = {}
+    if args.stage10_paraphrase_jsonl:
+        stage10["paraphrase"] = _stage10_paraphrase_eval(
+            model=model, tokenizer=tokenizer, bank=bank, writer=writer,
+            key_proj=key_proj, encoder=encoder, facts=facts, device=device,
+            alpha=args.alpha, eval_batch_size=args.eval_batch_size,
+            paraphrase_jsonl=REPO_ROOT / args.stage10_paraphrase_jsonl,
+        )
+    if args.stage10_decoy_multipliers:
+        mults = [int(x) for x in args.stage10_decoy_multipliers.split(",") if x.strip()]
+        stage10["decoy_curve"] = _stage10_decoy_eval(
+            model=model, tokenizer=tokenizer, bank=bank, writer=writer,
+            key_proj=key_proj, encoder=encoder, facts=facts, device=device,
+            alpha=args.alpha, eval_batch_size=args.eval_batch_size,
+            multipliers=mults, seed=args.seed,
+        )
+    if args.stage10_value_ablation:
+        stage10["value_ablation"] = _stage10_value_ablation(
+            model=model, tokenizer=tokenizer, bank=bank, writer=writer,
+            key_proj=key_proj, encoder=encoder, facts=facts, device=device,
+            alpha=args.alpha, eval_batch_size=args.eval_batch_size, seed=args.seed,
+        )
+    if args.stage10_loro_add_jsonl:
+        stage10["loro_holdout"] = _stage10_loro_eval(
+            model=model, tokenizer=tokenizer, bank=bank, writer=writer,
+            key_proj=key_proj, encoder=encoder, facts=facts, device=device,
+            alpha=args.alpha, eval_batch_size=args.eval_batch_size,
+            holdout_jsonl=REPO_ROOT / args.stage10_loro_add_jsonl,
+        )
+    if stage10:
+        metrics["stage10"] = stage10
 
     g1_pass = metrics["bank_inject_retrieved"]["top1"] >= 0.80
     g6_pass = metrics["no_memory"]["top1"] <= 0.05
