@@ -125,6 +125,67 @@ Stage 8 把这个假设推到闭卷读取的极端：读取时 prompt 只含 add
 
 完整报告见 [`reports/experiments/stage8_closed_book_memory/REPORT.md`](reports/experiments/stage8_closed_book_memory/REPORT.md)。
 
+## Stage 9 — 编码器升级、真实 LAMA-TREx、头对头基线
+
+> **硬件：** NVIDIA GB10 (Blackwell, sm_120) · CUDA · `bfloat16` · 单 GPU。
+>
+> **TL;DR.** 更强的 address encoder 打破了 Stage 8 v3 在 N=4096 时的检索天花板（recall@1: 0.832 → **1.000 ± 0**，3 seeds）。同一 encoder 迁移到**跨 7 个 Wikidata relation 的真实 LAMA-TREx 事实集**上，top-1 = **1.000 ± 0**（3 seeds，swap paired-flip 0.989 ± 0.010），并且在同一事实集上 **DeltaMemory 决定性地超过 vector-RAG / IKE / SFT-LoRA**（1.000 vs ≤ 0.448）。
+
+### Phase 9A — N=4096 合成集 encoder 消融
+
+![Stage 9 encoder 比较](docs/figures/fig9_encoder_comparison.svg)
+
+| Encoder | Seeds | retr top-1 | recall@1 | swap flip |
+| --- | ---: | ---: | ---: | ---: |
+| `mean_pool` (v3 基线) | 1 | 0.838 | 0.832 | 1.000 |
+| `attn_pool` | 1 | 0.841 | 0.835 | 1.000 |
+| `residual_mlp` | 1 | 0.838 | 0.833 | 1.000 |
+| **`multilayer`** (4 层 concat) | **3** | **1.000 ± 0** | **1.000 ± 0** | 1.000 |
+| **`prompt_hidden`** (read prompt 末位 hidden) | **3** | **1.000 ± 0** | **1.000 ± 0** | 1.000 |
+
+mean_pool / attn_pool / residual_mlp 全部停在 ≈ 0.83，确认 v3 天花板是**表征性**的（address span 单一 pool 特征对 4 096 条事实信息量不足），不是优化导致。改变 *key 来源* 的两种 encoder 在检索上达到饱和。
+
+### Phase 9B — 真实事实：LAMA-TREx，7 relation，3 seeds
+
+![Stage 9 LAMA-TREx](docs/figures/fig10_lama_trex.svg)
+
+数据：183 条 LAMA-TREx curated 事实，覆盖 P36 / P19 / P101 / P641 / P140 / P39 / P937。Encoder：`prompt_hidden`。
+
+| 指标 | mean ± σ |
+| --- | ---: |
+| `bank_inject_retrieved.top1` | **1.000 ± 0** |
+| `address_retrieval_recall_at_1` | 1.000 ± 0 |
+| `swap_paired.paired_flip_rate` | 0.989 ± 0.010 |
+
+跨 relation 的 top-1 σ = 0 说明 encoder 没有 relation 偏好；paired-flip 接近 1 说明替换 address 时答案被干净改写、无泄漏。
+
+### Phase 9C — 与检索 / in-context / 参数微调三类基线头对头
+
+![Stage 9 基线雷达](docs/figures/fig11_baselines_radar.svg)
+
+同样 183 条 LAMA-TREx 事实、同样冻结 base、同样 target token。
+
+| 方法 | Edit success top-1 | Edit success top-5 | Locality drift |
+| --- | ---: | ---: | ---: |
+| vector-RAG（input-embed mean-pool 余弦） | 0.399 | 0.486 | n/a |
+| IKE（in-context editing，top-1 事实前置） | 0.399 | 0.486 | 0.50 |
+| SFT-LoRA（`lm_head` 上 rank-16，200 步） | 0.448 | 0.557 | 0.50 |
+| **DeltaMemory (Phase 9B, prompt_hidden)** | **1.000** | **1.000** | n/a（base 冻结） |
+
+检索和 in-context 都在 *binding* 步失败（RAG retrieval@1 = 1.000，但 Gemma-4-E2B 不能可靠从前缀复制检索到的值）。SFT-LoRA 略有提升但在 neutral prompts 上 logit 漂移高达 50%，且只换来 0.448 成功率。
+
+### 硬性 gate
+
+| Gate | 状态 |
+| --- | --- |
+| GR9 — N=4k recall@1 ≥ 0.95 | ✅ multilayer / prompt_hidden = 1.000 |
+| GR14 — swap paired-flip ≥ 0.85（真实事实） | ✅ 0.989 |
+| GR17 — 超过 vector-RAG | ✅ 在 N=183 LAMA-TREx |
+| GR18 — ≥ IKE 的 generality | ✅ |
+| GR10 (N=65k)、GR11–13 (全 TREx 30k+)、GR15–16 (ROME/MEMIT) | ⏸ 留给下一次会话 |
+
+完整报告见 [`reports/experiments/stage9_grand_evaluation/REPORT.md`](reports/experiments/stage9_grand_evaluation/REPORT.md)。聚合 JSON：`docs/figures/stage9_summary.json`。复现：`scripts/run_stage9_sweep.sh` + `scripts/generate_stage9_figures.py`。
+
 ## 主要结果 — LAMA 事实绑定命中 oracle 上界
 
 > **硬件：** Apple Silicon · MPS · `bfloat16` · M 系列单 GPU。

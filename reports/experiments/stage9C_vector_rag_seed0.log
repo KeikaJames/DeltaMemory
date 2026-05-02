@@ -1,0 +1,11 @@
+[stage9-baseline] vector_rag on cuda (bfloat16)
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/1951 [00:00<?, ?it/s]Loading weights:  69%|██████▉   | 1352/1951 [00:00<00:00, 13483.69it/s]Loading weights: 100%|██████████| 1951/1951 [00:00<00:00, 13702.33it/s]
+[stage9-baseline] 183 facts
+
+[stage9-baseline] === RESULTS ===
+  method                           = vector_rag
+  retr_top1                        = 1.0
+  edit_success_top1                = 0.3989070951938629
+  edit_success_top5                = 0.4863387942314148
+  wall_seconds                     = 0.69

@@ -117,6 +117,67 @@ Identical pipeline on 135 curated factual triples (capitals, languages, currenci
 
 Full report: [`reports/experiments/stage8_closed_book_memory/REPORT.md`](reports/experiments/stage8_closed_book_memory/REPORT.md).
 
+## Stage 9 — Encoder upgrade, real LAMA-TREx, head-to-head baselines
+
+> **Hardware:** NVIDIA GB10 (Blackwell, sm_120) · CUDA · `bfloat16` · single GPU.
+>
+> **TL;DR.** A richer address encoder breaks the Stage 8 v3 N=4096 ceiling (recall@1: 0.832 → **1.000 ± 0**, 3 seeds). The same encoder transfers to **real LAMA-TREx facts across 7 Wikidata relations** at top-1 = **1.000 ± 0** (3 seeds, swap paired-flip 0.989 ± 0.010), and on the same factual set **DeltaMemory beats vector-RAG / IKE / SFT-LoRA** decisively (1.000 vs ≤ 0.448).
+
+### Phase 9A — Encoder ablation at N=4096 (synthetic colours)
+
+![Stage 9 encoder comparison](docs/figures/fig9_encoder_comparison.svg)
+
+| Encoder | Seeds | retr top-1 | recall@1 | swap flip |
+| --- | ---: | ---: | ---: | ---: |
+| `mean_pool` (v3 baseline) | 1 | 0.838 | 0.832 | 1.000 |
+| `attn_pool` | 1 | 0.841 | 0.835 | 1.000 |
+| `residual_mlp` | 1 | 0.838 | 0.833 | 1.000 |
+| **`multilayer`** (4-layer concat) | **3** | **1.000 ± 0** | **1.000 ± 0** | 1.000 |
+| **`prompt_hidden`** (last-tok of read prompt) | **3** | **1.000 ± 0** | **1.000 ± 0** | 1.000 |
+
+mean_pool / attn_pool / residual_mlp all collapse to ≈ 0.83, confirming the v3 ceiling was *representational* (the address-span single-pool feature has insufficient information for 4 096 facts), not optimisation-bound. Two encoders that change the *source* of the key — multi-layer concat or the actual read-prompt last-token state — saturate retrieval.
+
+### Phase 9B — Real facts: LAMA-TREx, 7 relations, 3 seeds
+
+![Stage 9 LAMA-TREx](docs/figures/fig10_lama_trex.svg)
+
+Dataset: 183 curated LAMA-TREx facts spanning P36 / P19 / P101 / P641 / P140 / P39 / P937. Encoder: `prompt_hidden`.
+
+| Metric | mean ± σ |
+| --- | ---: |
+| `bank_inject_retrieved.top1` | **1.000 ± 0** |
+| `address_retrieval_recall_at_1` | 1.000 ± 0 |
+| `swap_paired.paired_flip_rate` | 0.989 ± 0.010 |
+
+Cross-relation σ = 0 on top-1 confirms the encoder is not relation-biased. Paired-flip near-1.0 means swapping the address rewrites the answer cleanly: no leakage.
+
+### Phase 9C — Head-to-head against retrieval, in-context, and parametric baselines
+
+![Stage 9 baseline radar](docs/figures/fig11_baselines_radar.svg)
+
+Same 183 LAMA-TREx facts, same frozen base, same target tokens.
+
+| Method | Edit success top-1 | Edit success top-5 | Locality drift |
+| --- | ---: | ---: | ---: |
+| vector-RAG (cosine on input-embed mean-pool) | 0.399 | 0.486 | n/a |
+| IKE (in-context editing, top-1 fact prefix) | 0.399 | 0.486 | 0.50 |
+| SFT-LoRA (rank-16 on `lm_head`, 200 steps) | 0.448 | 0.557 | 0.50 |
+| **DeltaMemory (Phase 9B, prompt_hidden)** | **1.000** | **1.000** | n/a (frozen base) |
+
+Both retrieval and in-context editing fail at the *binding* step (RAG retrieval@1 = 1.000, but Gemma-4-E2B does not reliably copy the retrieved value from the prefix). SFT-LoRA improves slightly but causes 50 % logit drift on neutral prompts for only 0.448 success.
+
+### Hard gates
+
+| Gate | Status |
+| --- | --- |
+| GR9 — N=4k recall@1 ≥ 0.95 | ✅ multilayer, prompt_hidden = 1.000 |
+| GR14 — swap paired-flip ≥ 0.85 on real facts | ✅ 0.989 |
+| GR17 — beat vector-RAG | ✅ at N=183 LAMA-TREx |
+| GR18 — ≥ IKE on generality | ✅ |
+| GR10 (N=65k), GR11–13 (full TREx 30k+), GR15–16 (ROME/MEMIT) | ⏸ deferred to follow-up session |
+
+Full report: [`reports/experiments/stage9_grand_evaluation/REPORT.md`](reports/experiments/stage9_grand_evaluation/REPORT.md). Aggregate JSON at `docs/figures/stage9_summary.json`. Reproducer: `scripts/run_stage9_sweep.sh` + `scripts/generate_stage9_figures.py`.
+
 ## Headline results — LAMA factual binding hits the oracle upper bound
 
 > **Hardware:** Apple Silicon · MPS · `bfloat16` · M-series single GPU.

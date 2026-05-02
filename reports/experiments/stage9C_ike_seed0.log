@@ -1,0 +1,11 @@
+[stage9-baseline] ike on cuda (bfloat16)
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/1951 [00:00<?, ?it/s]Loading weights:  65%|██████▌   | 1270/1951 [00:00<00:00, 12697.38it/s]Loading weights: 100%|██████████| 1951/1951 [00:00<00:00, 12640.43it/s]
+[stage9-baseline] 183 facts
+
+[stage9-baseline] === RESULTS ===
+  method                           = ike
+  edit_success_top1                = 0.3989070951938629
+  edit_success_top5                = 0.4863387942314148
+  locality_drift_top1              = 0.5
+  wall_seconds                     = 0.72

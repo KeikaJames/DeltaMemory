@@ -45,6 +45,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
 from rcvhc.gemma.model_adapter import load_model_bundle  # noqa: E402
+from rcvhc.encoders import build_encoder  # noqa: E402
 
 # Curated single-token color vocabulary (validated under Gemma tokenizer with
 # leading space). 32 entries; we draw from this for the value side.
@@ -328,8 +329,11 @@ def train(
     retrieval_loss_weight: float,
     retrieval_temperature: float,
     retrieval_hard_negatives: int = 0,
+    encoder=None,
 ) -> list[StepStats]:
     params = list(writer.parameters()) + list(key_proj.parameters())
+    if encoder is not None:
+        params += list(encoder.parameters())
     optim = torch.optim.AdamW(params, lr=lr, betas=(0.9, 0.95), weight_decay=0.0)
     n = len(facts)
     rng = random.Random(seed + 7919)
@@ -339,11 +343,21 @@ def train(
     addresses_all = [f.address for f in facts]
     input_ids_all, attn_all, last_pos_all = _tokenize_read_prompts(tokenizer, read_prompts_all, device)
     addr_ids_all, addr_mask_all = _address_token_ids(tokenizer, addresses_all, device)
-    # Pre-cache mean-pooled address embeddings (frozen base, no grad). This
-    # lets us cheaply pull global negatives without rerunning the embedding
-    # table for every step.
-    with torch.no_grad():
-        addr_pooled_all = _address_key_from_embeddings(model, addr_ids_all, addr_mask_all)
+    # Pre-cache address representations from the configured encoder. For
+    # parameter-free encoders this is a one-shot frozen-base computation;
+    # for learnable encoders we re-run encode() inside the loop so gradients
+    # flow.
+    encoder_has_params = encoder is not None and any(
+        p.requires_grad for p in encoder.parameters()
+    )
+    if encoder is None or not encoder_has_params:
+        with torch.no_grad():
+            if encoder is None:
+                addr_pooled_all = _address_key_from_embeddings(model, addr_ids_all, addr_mask_all)
+            else:
+                addr_pooled_all = encoder.encode(model, tokenizer, addresses_all, read_prompts_all)
+    else:
+        addr_pooled_all = None  # recomputed per step
 
     log_every = max(1, steps // 20)
     for step in range(1, steps + 1):
@@ -361,19 +375,40 @@ def train(
         # InfoNCE retrieval. Anchors = batch slots; candidates = batch slots
         # (in-batch negatives) + optional K extra global random slots
         # (extra random negatives shared across the batch).
-        anchor_pooled = addr_pooled_all[slots]
+        if encoder_has_params:
+            # Re-encode the relevant slot subset with gradients flowing.
+            batch_addrs = [addresses_all[i] for i in idxs]
+            batch_prompts = [read_prompts_all[i] for i in idxs]
+            anchor_pooled = encoder.encode(model, tokenizer, batch_addrs, batch_prompts)
+            if retrieval_hard_negatives > 0:
+                batch_set = set(idxs)
+                extras: list[int] = []
+                while len(extras) < retrieval_hard_negatives:
+                    cand = rng.randrange(n)
+                    if cand not in batch_set:
+                        extras.append(cand)
+                        batch_set.add(cand)
+                ex_addrs = [addresses_all[i] for i in extras]
+                ex_prompts = [read_prompts_all[i] for i in extras]
+                extra_pooled = encoder.encode(model, tokenizer, ex_addrs, ex_prompts)
+            else:
+                extra_pooled = None
+        else:
+            anchor_pooled = addr_pooled_all[slots]
+            if retrieval_hard_negatives > 0:
+                batch_set = set(idxs)
+                extras = []
+                while len(extras) < retrieval_hard_negatives:
+                    cand = rng.randrange(n)
+                    if cand not in batch_set:
+                        extras.append(cand)
+                        batch_set.add(cand)
+                extra_slots = torch.tensor(extras, device=device, dtype=torch.long)
+                extra_pooled = addr_pooled_all[extra_slots]
+            else:
+                extra_pooled = None
         keys_anchor = key_proj(anchor_pooled)
-        if retrieval_hard_negatives > 0:
-            # Sample K extra slots not in the current batch.
-            batch_set = set(idxs)
-            extras: list[int] = []
-            while len(extras) < retrieval_hard_negatives:
-                cand = rng.randrange(n)
-                if cand not in batch_set:
-                    extras.append(cand)
-                    batch_set.add(cand)
-            extra_slots = torch.tensor(extras, device=device, dtype=torch.long)
-            extra_pooled = addr_pooled_all[extra_slots]
+        if extra_pooled is not None:
             keys_extra = key_proj(extra_pooled)
             cand_keys = torch.cat([keys_anchor, keys_extra], dim=0)
         else:
@@ -409,6 +444,7 @@ def evaluate(
     device,
     alpha: float,
     eval_batch_size: int,
+    encoder=None,
 ) -> dict:
     n = len(facts)
     value_token_ids_all = torch.tensor([f.value_token_id for f in facts], device=device, dtype=torch.long)
@@ -418,22 +454,24 @@ def evaluate(
     addr_ids_all, addr_mask_all = _address_token_ids(tokenizer, addresses_all, device)
 
     # Phase A: WRITE — populate bank.v from writer, bank.k from key_proj.
+    # Pre-compute address representations once (no_grad context already).
+    if encoder is None:
+        addr_pooled_all = _address_key_from_embeddings(model, addr_ids_all, addr_mask_all)
+    else:
+        addr_pooled_all = encoder.encode(model, tokenizer, addresses_all, read_prompts_all)
     for start in range(0, n, eval_batch_size):
         end = min(start + eval_batch_size, n)
         slots = torch.arange(start, end, device=device, dtype=torch.long)
         value_embeds = _value_embeds(model, value_token_ids_all[slots]).float()
         v = writer(value_embeds)
-        addr_pooled = _address_key_from_embeddings(model, addr_ids_all[slots], addr_mask_all[slots])
-        k = key_proj(addr_pooled)
+        k = key_proj(addr_pooled_all[start:end])
         bank.write(slots, v, k)
 
     # Pre-compute predicted slots from address-content retrieval.
     pred_slots_all = torch.empty(n, device=device, dtype=torch.long)
     for start in range(0, n, eval_batch_size):
         end = min(start + eval_batch_size, n)
-        slots = torch.arange(start, end, device=device, dtype=torch.long)
-        addr_pooled = _address_key_from_embeddings(model, addr_ids_all[slots], addr_mask_all[slots])
-        q = key_proj(addr_pooled)
+        q = key_proj(addr_pooled_all[start:end])
         pred_slots_all[start:end] = bank.retrieve(q)
     retrieval_recall_at_1 = (pred_slots_all == torch.arange(n, device=device)).float().mean().item()
 
@@ -525,6 +563,9 @@ def main() -> int:
     parser.add_argument("--lama-jsonl", default="scripts/data/lama_curated.jsonl",
                         help="Path to LAMA curated JSONL (used when --dataset=lama_curated).")
     parser.add_argument("--report-dir", required=True)
+    parser.add_argument("--encoder", default="mean_pool",
+                        choices=["mean_pool", "attn_pool", "multilayer", "prompt_hidden", "residual_mlp"],
+                        help="Address encoder variant (Stage 9). mean_pool reproduces v3 baseline.")
     args = parser.parse_args()
 
     torch.manual_seed(args.seed)
@@ -549,6 +590,8 @@ def main() -> int:
     bank = FastWeightBank(n_slots=len(facts), hidden=hidden, key_dim=args.key_dim).to(device=device, dtype=torch.float32)
     writer = Writer(hidden=hidden).to(device=device, dtype=torch.float32)
     key_proj = KeyProjector(hidden=hidden, key_dim=args.key_dim).to(device=device, dtype=torch.float32)
+    encoder = build_encoder(args.encoder, hidden=hidden).to(device=device, dtype=torch.float32) if args.encoder != "mean_pool" else None
+    print(f"[stage8] encoder={args.encoder}", flush=True)
 
     t0 = time.time()
     history = train(
@@ -568,6 +611,7 @@ def main() -> int:
         retrieval_loss_weight=args.retrieval_loss_weight,
         retrieval_temperature=args.retrieval_temperature,
         retrieval_hard_negatives=args.retrieval_hard_negatives,
+        encoder=encoder,
     )
     train_secs = time.time() - t0
 
@@ -581,6 +625,7 @@ def main() -> int:
         device=device,
         alpha=args.alpha,
         eval_batch_size=args.eval_batch_size,
+        encoder=encoder,
     )
 
     g1_pass = metrics["bank_inject_retrieved"]["top1"] >= 0.80

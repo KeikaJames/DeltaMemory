@@ -1,0 +1,134 @@
+{
+  "phase_9A": {
+    "mean_pool": {
+      "retr_top1": {
+        "mean": 0.837890625,
+        "std": 0.0,
+        "n": 1
+      },
+      "recall_at_1": {
+        "mean": 0.832275390625,
+        "std": 0.0,
+        "n": 1
+      },
+      "swap_flip": {
+        "mean": 1.0,
+        "std": 0.0,
+        "n": 1
+      }
+    },
+    "attn_pool": {
+      "retr_top1": {
+        "mean": 0.84130859375,
+        "std": 0.0,
+        "n": 1
+      },
+      "recall_at_1": {
+        "mean": 0.835205078125,
+        "std": 0.0,
+        "n": 1
+      },
+      "swap_flip": {
+        "mean": 1.0,
+        "std": 0.0,
+        "n": 1
+      }
+    },
+    "multilayer": {
+      "retr_top1": {
+        "mean": 1.0,
+        "std": 0.0,
+        "n": 3
+      },
+      "recall_at_1": {
+        "mean": 1.0,
+        "std": 0.0,
+        "n": 3
+      },
+      "swap_flip": {
+        "mean": 1.0,
+        "std": 0.0,
+        "n": 3
+      }
+    },
+    "prompt_hidden": {
+      "retr_top1": {
+        "mean": 1.0,
+        "std": 0.0,
+        "n": 3
+      },
+      "recall_at_1": {
+        "mean": 1.0,
+        "std": 0.0,
+        "n": 3
+      },
+      "swap_flip": {
+        "mean": 1.0,
+        "std": 0.0,
+        "n": 3
+      }
+    },
+    "residual_mlp": {
+      "retr_top1": {
+        "mean": 0.838134765625,
+        "std": 0.0,
+        "n": 1
+      },
+      "recall_at_1": {
+        "mean": 0.83251953125,
+        "std": 0.0,
+        "n": 1
+      },
+      "swap_flip": {
+        "mean": 1.0,
+        "std": 0.0,
+        "n": 1
+      }
+    }
+  },
+  "phase_9B": {
+    "retr_top1": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 3
+    },
+    "recall_at_1": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 3
+    },
+    "oracle_top1": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 3
+    },
+    "swap_flip": {
+      "mean": 0.9893162393162394,
+      "std": 0.009791828408025312,
+      "n": 3
+    }
+  },
+  "phase_9C": {
+    "vector_rag": {
+      "method": "vector_rag",
+      "retr_top1": 1.0,
+      "edit_success_top1": 0.3989070951938629,
+      "edit_success_top5": 0.4863387942314148
+    },
+    "ike": {
+      "method": "ike",
+      "edit_success_top1": 0.3989070951938629,
+      "edit_success_top5": 0.4863387942314148,
+      "locality_drift_top1": 0.5
+    },
+    "sft_lora": {
+      "method": "sft_lora",
+      "edit_success_top1": 0.4480874240398407,
+      "edit_success_top5": 0.5573770403862,
+      "locality_drift_top1": 0.5,
+      "train_seconds": 9.576803922653198,
+      "rank": 16,
+      "steps": 200
+    }
+  }
+}

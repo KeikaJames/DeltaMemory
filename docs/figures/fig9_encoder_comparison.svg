@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 460" font-family="Helvetica, Arial, sans-serif" font-size="13">
+  <rect width="880" height="460" fill="#ffffff"/>
+  <text x="440.0" y="22" text-anchor="middle" font-size="16" font-weight="bold">Stage 9A — Encoder variants @ N=4096 (mean ± std over seeds)</text>
+  <line x1="60" y1="380" x2="860" y2="380" stroke="#333"/>
+  <line x1="60" y1="60" x2="60" y2="380" stroke="#333"/>
+  <line x1="56" y1="380" x2="60" y2="380" stroke="#333"/>
+  <text x="52" y="384" text-anchor="end">0.00</text>
+  <line x1="56" y1="300.0" x2="60" y2="300.0" stroke="#333"/>
+  <text x="52" y="304.0" text-anchor="end">0.25</text>
+  <line x1="56" y1="220.0" x2="60" y2="220.0" stroke="#333"/>
+  <text x="52" y="224.0" text-anchor="end">0.50</text>
+  <line x1="56" y1="140.0" x2="60" y2="140.0" stroke="#333"/>
+  <text x="52" y="144.0" text-anchor="end">0.75</text>
+  <line x1="56" y1="60.0" x2="60" y2="60.0" stroke="#333"/>
+  <text x="52" y="64.0" text-anchor="end">1.00</text>
+  <text x="140.0" y="398" text-anchor="middle">mean-pool (v3 baseline)</text>
+  <rect x="100.0" y="111.875" width="34.0" height="268.125" fill="#1f77b4" opacity="0.85"/>
+  <text x="117.0" y="108.875" text-anchor="middle" font-size="10">0.84</text>
+  <rect x="140.0" y="113.671875" width="34.0" height="266.328125" fill="#2ca02c" opacity="0.85"/>
+  <text x="157.0" y="110.671875" text-anchor="middle" font-size="10">0.83</text>
+  <rect x="180.0" y="60.0" width="34.0" height="320.0" fill="#d62728" opacity="0.85"/>
+  <text x="197.0" y="57.0" text-anchor="middle" font-size="10">1.00</text>
+  <text x="300.0" y="398" text-anchor="middle">attn-pool</text>
+  <rect x="260.0" y="110.78125" width="34.0" height="269.21875" fill="#1f77b4" opacity="0.85"/>
+  <text x="277.0" y="107.78125" text-anchor="middle" font-size="10">0.84</text>
+  <rect x="300.0" y="112.734375" width="34.0" height="267.265625" fill="#2ca02c" opacity="0.85"/>
+  <text x="317.0" y="109.734375" text-anchor="middle" font-size="10">0.84</text>
+  <rect x="340.0" y="60.0" width="34.0" height="320.0" fill="#d62728" opacity="0.85"/>
+  <text x="357.0" y="57.0" text-anchor="middle" font-size="10">1.00</text>
+  <text x="460.0" y="398" text-anchor="middle">multi-layer</text>
+  <rect x="420.0" y="60.0" width="34.0" height="320.0" fill="#1f77b4" opacity="0.85"/>
+  <text x="437.0" y="57.0" text-anchor="middle" font-size="10">1.00</text>
+  <rect x="460.0" y="60.0" width="34.0" height="320.0" fill="#2ca02c" opacity="0.85"/>
+  <text x="477.0" y="57.0" text-anchor="middle" font-size="10">1.00</text>
+  <rect x="500.0" y="60.0" width="34.0" height="320.0" fill="#d62728" opacity="0.85"/>
+  <text x="517.0" y="57.0" text-anchor="middle" font-size="10">1.00</text>
+  <text x="620.0" y="398" text-anchor="middle">prompt-hidden (query-cond)</text>
+  <rect x="580.0" y="60.0" width="34.0" height="320.0" fill="#1f77b4" opacity="0.85"/>
+  <text x="597.0" y="57.0" text-anchor="middle" font-size="10">1.00</text>
+  <rect x="620.0" y="60.0" width="34.0" height="320.0" fill="#2ca02c" opacity="0.85"/>
+  <text x="637.0" y="57.0" text-anchor="middle" font-size="10">1.00</text>
+  <rect x="660.0" y="60.0" width="34.0" height="320.0" fill="#d62728" opacity="0.85"/>
+  <text x="677.0" y="57.0" text-anchor="middle" font-size="10">1.00</text>
+  <text x="780.0" y="398" text-anchor="middle">residual-mlp</text>
+  <rect x="740.0" y="111.796875" width="34.0" height="268.203125" fill="#1f77b4" opacity="0.85"/>
+  <text x="757.0" y="108.796875" text-anchor="middle" font-size="10">0.84</text>
+  <rect x="780.0" y="113.59375" width="34.0" height="266.40625" fill="#2ca02c" opacity="0.85"/>
+  <text x="797.0" y="110.59375" text-anchor="middle" font-size="10">0.83</text>
+  <rect x="820.0" y="60.0" width="34.0" height="320.0" fill="#d62728" opacity="0.85"/>
+  <text x="837.0" y="57.0" text-anchor="middle" font-size="10">1.00</text>
+  <rect x="70" y="68" width="14" height="14" fill="#1f77b4"/>
+  <text x="88" y="79">retrieved top-1</text>
+  <rect x="250" y="68" width="14" height="14" fill="#2ca02c"/>
+  <text x="268" y="79">recall@1</text>
+  <rect x="430" y="68" width="14" height="14" fill="#d62728"/>
+  <text x="448" y="79">swap flip-rate</text>
+</svg>
