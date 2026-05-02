@@ -261,6 +261,9 @@ Each row is one Stage 6 oracle-span-writer run. Cells are `held-out NLL / top1`.
 | phase1_pool-mean_swap-off_seed-1 | address_token_binding_single_token | mean | 24 | 24 | 1 | 19.224 / 0.000 | 4.203 / 0.042 | 3.797 / 0.458 | 8.085 / 0.208 | 4.028 / 0.125 | 0.005 / 1.000 |
 | phase1_pool-mean_swap-on_seed-0 | address_token_binding_single_token | mean | 24 | 24 | 0 | 19.497 / 0.000 | 4.835 / 0.000 | 3.560 / 0.500 | 9.543 / 0.333 | 4.494 / 0.083 | 0.006 / 1.000 |
 | phase1_pool-mean_swap-on_seed-1 | address_token_binding_single_token | mean | 24 | 24 | 1 | 19.224 / 0.000 | 4.203 / 0.042 | 3.559 / 0.167 | 7.615 / 0.208 | 3.941 / 0.167 | 0.005 / 1.000 |
+| phase2_pool-attn_swap-on_seed-0 | factual_capital_binding | attn | 56 | 56 | 0 | 17.162 / 0.000 | 0.001 / 1.000 | 0.027 / 1.000 | 0.217 / 0.964 | 0.003 / 1.000 | 0.793 / 0.964 |
+| phase2_pool-attn_swap-on_seed-1 | factual_capital_binding | attn | 56 | 56 | 1 | 17.162 / 0.000 | 0.001 / 1.000 | 0.030 / 1.000 | 0.203 / 0.964 | 0.005 / 1.000 | 0.793 / 0.964 |
+| phase2_pool-attn_swap-on_seed-2 | factual_capital_binding | attn | 56 | 56 | 2 | 17.162 / 0.000 | 0.001 / 1.000 | 0.025 / 1.000 | 0.214 / 0.964 | 0.003 / 1.000 | 0.793 / 0.964 |
 
 > Pass gate (Stage 6 strict): held-out top1 >= 0.85 on at least one of `payload_probe`, `logit_bias`, `lm_head_lora`, while `delta_qv` stays < 0.5 (Story A negative reference).
 
