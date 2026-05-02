@@ -1,0 +1,135 @@
+{"address": "The capital of France is", "value": "Paris"}
+{"address": "The capital of Germany is", "value": "Berlin"}
+{"address": "The capital of Japan is", "value": "Tokyo"}
+{"address": "The capital of Italy is", "value": "Rome"}
+{"address": "The capital of Spain is", "value": "Madrid"}
+{"address": "The capital of Russia is", "value": "Moscow"}
+{"address": "The capital of China is", "value": "Beijing"}
+{"address": "The capital of Egypt is", "value": "Cairo"}
+{"address": "The capital of India is", "value": "Delhi"}
+{"address": "The capital of Greece is", "value": "Athens"}
+{"address": "The capital of Turkey is", "value": "Ankara"}
+{"address": "The capital of Portugal is", "value": "Lisbon"}
+{"address": "The capital of Austria is", "value": "Vienna"}
+{"address": "The capital of Hungary is", "value": "Budapest"}
+{"address": "The capital of Poland is", "value": "Warsaw"}
+{"address": "The capital of Sweden is", "value": "Stockholm"}
+{"address": "The capital of Norway is", "value": "Oslo"}
+{"address": "The capital of Denmark is", "value": "Copenhagen"}
+{"address": "The capital of Finland is", "value": "Helsinki"}
+{"address": "The capital of Iceland is", "value": "Reykjavik"}
+{"address": "The capital of Ireland is", "value": "Dublin"}
+{"address": "The capital of Belgium is", "value": "Brussels"}
+{"address": "The capital of Netherlands is", "value": "Amsterdam"}
+{"address": "The capital of Switzerland is", "value": "Bern"}
+{"address": "The capital of Czechia is", "value": "Prague"}
+{"address": "The capital of Romania is", "value": "Bucharest"}
+{"address": "The capital of Bulgaria is", "value": "Sofia"}
+{"address": "The capital of Ukraine is", "value": "Kyiv"}
+{"address": "The capital of Belarus is", "value": "Minsk"}
+{"address": "The capital of Croatia is", "value": "Zagreb"}
+{"address": "The capital of Serbia is", "value": "Belgrade"}
+{"address": "The capital of Iran is", "value": "Tehran"}
+{"address": "The capital of Iraq is", "value": "Baghdad"}
+{"address": "The capital of Israel is", "value": "Jerusalem"}
+{"address": "The capital of Lebanon is", "value": "Beirut"}
+{"address": "The capital of Jordan is", "value": "Amman"}
+{"address": "The capital of Syria is", "value": "Damascus"}
+{"address": "The capital of Pakistan is", "value": "Islamabad"}
+{"address": "The capital of Bangladesh is", "value": "Dhaka"}
+{"address": "The capital of Thailand is", "value": "Bangkok"}
+{"address": "The capital of Vietnam is", "value": "Hanoi"}
+{"address": "The capital of Cambodia is", "value": "Phnom"}
+{"address": "The capital of Indonesia is", "value": "Jakarta"}
+{"address": "The capital of Malaysia is", "value": "Kuala"}
+{"address": "The capital of Singapore is", "value": "Singapore"}
+{"address": "The capital of Philippines is", "value": "Manila"}
+{"address": "The capital of Korea is", "value": "Seoul"}
+{"address": "The capital of Afghanistan is", "value": "Kabul"}
+{"address": "The capital of Mexico is", "value": "Mexico"}
+{"address": "The capital of Cuba is", "value": "Havana"}
+{"address": "The capital of Argentina is", "value": "Buenos"}
+{"address": "The capital of Chile is", "value": "Santiago"}
+{"address": "The capital of Peru is", "value": "Lima"}
+{"address": "The capital of Venezuela is", "value": "Caracas"}
+{"address": "The capital of Uruguay is", "value": "Montevideo"}
+{"address": "The capital of Bolivia is", "value": "La"}
+{"address": "The capital of Ecuador is", "value": "Quito"}
+{"address": "The capital of Canada is", "value": "Ottawa"}
+{"address": "The capital of Australia is", "value": "Canberra"}
+{"address": "The capital of Kenya is", "value": "Nairobi"}
+{"address": "The capital of Ethiopia is", "value": "Addis"}
+{"address": "The capital of Nigeria is", "value": "Abuja"}
+{"address": "The capital of Ghana is", "value": "Accra"}
+{"address": "The capital of Senegal is", "value": "Dakar"}
+{"address": "The capital of Morocco is", "value": "Rabat"}
+{"address": "The capital of Tunisia is", "value": "Tunis"}
+{"address": "The capital of Libya is", "value": "Tripoli"}
+{"address": "The country France is located in", "value": "Europe"}
+{"address": "The country Japan is located in", "value": "Asia"}
+{"address": "The country Brazil is located in", "value": "Americas"}
+{"address": "The country Egypt is located in", "value": "Africa"}
+{"address": "The country Australia is located in", "value": "Oceania"}
+{"address": "The currency of Japan is", "value": "yen"}
+{"address": "The currency of China is", "value": "yuan"}
+{"address": "The currency of India is", "value": "rupee"}
+{"address": "The currency of Mexico is", "value": "peso"}
+{"address": "The currency of Turkey is", "value": "lira"}
+{"address": "The currency of Korea is", "value": "won"}
+{"address": "The currency of Vietnam is", "value": "dong"}
+{"address": "The currency of Thailand is", "value": "baht"}
+{"address": "The currency of UK is", "value": "pound"}
+{"address": "The currency of US is", "value": "dollar"}
+{"address": "The official language of France is", "value": "French"}
+{"address": "The official language of Germany is", "value": "German"}
+{"address": "The official language of Japan is", "value": "Japanese"}
+{"address": "The official language of Italy is", "value": "Italian"}
+{"address": "The official language of Spain is", "value": "Spanish"}
+{"address": "The official language of Russia is", "value": "Russian"}
+{"address": "The official language of China is", "value": "Chinese"}
+{"address": "The official language of Greece is", "value": "Greek"}
+{"address": "The official language of Turkey is", "value": "Turkish"}
+{"address": "The official language of Portugal is", "value": "Portuguese"}
+{"address": "The official language of Sweden is", "value": "Swedish"}
+{"address": "The official language of Norway is", "value": "Norwegian"}
+{"address": "The official language of Denmark is", "value": "Danish"}
+{"address": "The official language of Finland is", "value": "Finnish"}
+{"address": "The official language of Poland is", "value": "Polish"}
+{"address": "The official language of Hungary is", "value": "Hungarian"}
+{"address": "The official language of Romania is", "value": "Romanian"}
+{"address": "The official language of Vietnam is", "value": "Vietnamese"}
+{"address": "The official language of Thailand is", "value": "Thai"}
+{"address": "The official language of Indonesia is", "value": "Indonesian"}
+{"address": "The official language of Korea is", "value": "Korean"}
+{"address": "The official language of Mongolia is", "value": "Mongolian"}
+{"address": "The official language of Iran is", "value": "Persian"}
+{"address": "The official language of Egypt is", "value": "Arabic"}
+{"address": "The official language of Israel is", "value": "Hebrew"}
+{"address": "The color of grass is", "value": "green"}
+{"address": "The color of the sun is", "value": "yellow"}
+{"address": "The color of snow is", "value": "white"}
+{"address": "The color of coal is", "value": "black"}
+{"address": "The number of days in a week is", "value": "seven"}
+{"address": "The number of months in a year is", "value": "twelve"}
+{"address": "The number of continents is", "value": "seven"}
+{"address": "The number of planets is", "value": "eight"}
+{"address": "The author of Hamlet is", "value": "Shakespeare"}
+{"address": "The author of Inferno is", "value": "Dante"}
+{"address": "The author of Faust is", "value": "Goethe"}
+{"address": "The author of Iliad is", "value": "Homer"}
+{"address": "The composer of the Ninth Symphony is", "value": "Beethoven"}
+{"address": "The composer of the Magic Flute is", "value": "Mozart"}
+{"address": "The chemical symbol H stands for", "value": "hydrogen"}
+{"address": "The chemical symbol O stands for", "value": "oxygen"}
+{"address": "The chemical symbol N stands for", "value": "nitrogen"}
+{"address": "The chemical symbol C stands for", "value": "carbon"}
+{"address": "The chemical symbol Fe stands for", "value": "iron"}
+{"address": "The chemical symbol Au stands for", "value": "gold"}
+{"address": "The chemical symbol Ag stands for", "value": "silver"}
+{"address": "The chemical symbol Cu stands for", "value": "copper"}
+{"address": "The most popular ball sport in the US is", "value": "football"}
+{"address": "The most popular sport in India is", "value": "cricket"}
+{"address": "The longest river in Egypt is", "value": "Nile"}
+{"address": "The longest river in Brazil is", "value": "Amazon"}
+{"address": "The longest river in China is", "value": "Yangtze"}
+{"address": "The highest mountain on Earth is", "value": "Everest"}

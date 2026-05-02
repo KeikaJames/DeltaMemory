@@ -3,14 +3,21 @@
 </p>
 
 <p align="center">
-  <strong>Layerwise external memory injection inside frozen Transformer attention.</strong>
+  <strong>Persistent external memory injection inside frozen Transformer attention &amp; LM head.</strong>
 </p>
 
 <p align="center">
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
   <img alt="Python" src="https://img.shields.io/badge/Python-3.11+-3776AB.svg">
-  <img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-MPS%2FCPU-EE4C2C.svg">
+  <img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-MPS%20%7C%20CUDA-EE4C2C.svg">
+  <img alt="Hardware" src="https://img.shields.io/badge/Hardware-Apple%20Silicon%20MPS%20%7C%20NVIDIA%20GB10%20Blackwell-555">
   <img alt="Status" src="https://img.shields.io/badge/status-research%20prototype-orange.svg">
+</p>
+
+<p align="center">
+  <strong>🌐 Languages:</strong>
+  <a href="README.md">English</a> ·
+  <a href="README.zh-CN.md">中文 (简体)</a>
 </p>
 
 <p align="center">
@@ -22,23 +29,37 @@
 
 ---
 
-Delta Memory is an experimental research prototype for injecting external memory
-directly into frozen Gemma-style decoder attention layers. The package is still
-named `rcvhc` for compatibility with earlier experiments.
+Delta Memory is a research prototype that turns a frozen `google/gemma-4-E2B`
+into a system with **real, persistent, address-keyed memory** — not RAG, not
+prompt-insertion, not MCP. Different stages of this work probe different
+slices of the question "can you give an LLM real memory":
 
-It is **not RAG**, **not MCP**, and **not prompt insertion**. Retrieved source
-text is retained only as debug metadata; it is not appended to the answer
-prompt in the Delta Memory path.
+- **Stages 0–7** (Apple Silicon MPS, bf16): in-context binding via Q/V
+  residuals and LM-head rank-4 LoRA on LAMA factual cards. Answer top-1 hits
+  the oracle upper bound.
+- **Stage 8** (NVIDIA GB10 Blackwell, CUDA, bf16): **closed-book**
+  address-keyed fast-weight bank. The read prompt at evaluation time
+  contains only the address — the value token is absent — so retrieval has
+  to come from a persistent parametric slot, not from copying.
+
+The package is still named `rcvhc` for compatibility with earlier
+experiments.
+
+It is **not RAG**, **not MCP**, **not prompt insertion**. The Stage 8
+closed-book test makes this concrete: at evaluation time the read prompt
+contains only the address — no retrieved text, no value token, no card.
+The answer is recovered from a persistent parametric slot via learned
+address-key retrieval.
 
 ## At a glance
 
 | Question | Current answer |
 | --- | --- |
-| What is changed? | Q/V residuals inside every enabled attention layer. |
-| What stays frozen? | The base Gemma model; only writer/projector/gates train. |
-| What is proven? | A strong in-attention memory-channel effect over ordinary frozen attention. |
-| What is not proven yet? | Query-specific retrieval/binding as the causal source. |
-| Next direction | **Token/Span-Bound Delta Memory**: separate address spans, value spans, and payload injection. |
+| What is changed? | (Stages 0–7) Q/V residuals + LM-head rank-4 LoRA, supervised end-to-end. (Stage 8) per-slot fast-weight bank read at the LM-head input via address-content cosine retrieval. |
+| What stays frozen? | The base Gemma-4-E2B; only Writer / KeyProjector / Q-V projectors / LoRA train. |
+| What is proven? | (Stages 0–7) end-to-end binding hits the oracle upper bound on LAMA factual cards. (Stage 8) closed-book recall, swap-binding, and no-leakage gates pass at N up to 4096 on a frozen Gemma. |
+| What is not yet proven | Retrieval recall@1 ≥ 0.95 at N=4096 (Stage 8 GR gate); 3-seed reproducibility of Stage 8; head-to-head dominance over a matched RAG baseline; long-horizon interference. |
+| Next direction | **Stage 8 v3**: KeyProjector tuning, 3-seed runs, RAG/MEMIT head-to-head, sequential-write interference curve, curated LAMA single-token transfer. |
 
 ## Mechanism
 
@@ -64,6 +85,8 @@ for the next experiment plan.
 
 ## Closed-book memory (Stage 8) — address-keyed fast-weight bank
 
+> **Hardware:** NVIDIA GB10 (Blackwell) · CUDA · `bfloat16` · single GPU.
+>
 > **TL;DR.** Frozen `google/gemma-4-E2B` plus a Writer + KeyProjector + per-slot fast-weight bank recalls single-token answers in **closed-book mode (value tokens absent from the prompt at read time)** at scale up to **N=4096** on a single NVIDIA GB10 GPU. Retrieved-slot top-1 is **0.969 / 0.934 / 0.838** at N = 128 / 1024 / 4096. The `no_memory` baseline stays at **0.000** at every scale (no leakage) and the swap-paired flip is **1.000** (the bank carries the identity, not the in-context tokens). This is the first result here where the prompt at read time contains *only* the address — not the value — so the test is **persistent address-keyed memory**, not in-context binding.
 
 ![Stage 8 closed-book capacity](docs/figures/fig6_stage8_capacity.svg)
@@ -80,6 +103,8 @@ Pending: 3-seed confirmation, RAG / MEMIT head-to-head (G2), Stage 8.3 interfere
 
 ## Headline results — LAMA factual binding hits the oracle upper bound
 
+> **Hardware:** Apple Silicon · MPS · `bfloat16` · M-series single GPU.
+>
 > **TL;DR.** With a frozen `google/gemma-4-E2B`, an end-to-end trained **rank-4 LM-head LoRA** driven by an external writer reaches **top-1 = 1.000 ± 0.000** on the LAMA `factual_capital_binding` suite across 3 seeds, matching the oracle answer-embedding upper bound (0.964) while the `no_memory` baseline stays at **0.000** (no leakage). This closes the central Stage 6 strict gate on real factual data. Swap-control binding remains partial (paired-flip ≈ 0.50) and is the next refinement target.
 
 ### Figure 1 — channel top-1 on LAMA (in-distribution, n=56, 3 seeds)
@@ -228,49 +253,62 @@ Pass/fail gates before larger scaling:
 
 ## Quick start
 
+### Apple Silicon (Stages 0–7, MPS)
+
 ```bash
 python3 -m venv .venv-mac
 .venv-mac/bin/python -m pip install torch transformers accelerate safetensors tokenizers pytest
 .venv-mac/bin/python -m pytest -q
 ```
 
-Run a fast mock demo:
+Fast mock demo (no model download):
 
 ```bash
 .venv-mac/bin/python scripts/run_gemma4_prototype.py \
-  --model mock-gemma \
-  --device cpu \
-  --dtype float32 \
-  --block-size 32 \
-  --memory-dim 128
+  --model mock-gemma --device cpu --dtype float32 \
+  --block-size 32 --memory-dim 128
 ```
 
-Run a real Gemma/MPS experiment outside restricted sandboxes:
+LAMA factual binding (Stage 6 Phase 2) on Apple MPS:
 
 ```bash
 .venv-mac/bin/python scripts/run_delta_experiment.py \
-  --model google/gemma-4-E2B \
-  --device mps \
-  --dtype bfloat16 \
-  --steps 12 \
-  --train-samples 16 \
-  --eval-samples 16 \
+  --model google/gemma-4-E2B --device mps --dtype bfloat16 \
+  --steps 12 --train-samples 16 --eval-samples 16 \
   --task-suite paired_conflict_binding \
-  --shared-memory-retrieval \
-  --conflict-margins
+  --shared-memory-retrieval --conflict-margins
 ```
 
 See [`docs/apple_silicon.md`](docs/apple_silicon.md) for MPS/Metal notes.
+
+### NVIDIA GB10 / CUDA (Stage 8 closed-book)
+
+```bash
+python3 -m venv .venv-gb10
+.venv-gb10/bin/pip install torch transformers accelerate safetensors tokenizers
+# offline mode — pre-populate the HF cache once before going off-net
+HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
+  .venv-gb10/bin/python scripts/run_stage8.py \
+    --model google/gemma-4-E2B --device cuda --dtype bfloat16 \
+    --n-facts 4096 --steps 1500 --seed 0 \
+    --report-dir reports/experiments/stage8_v2_n4096_seed0
+```
+
+Wall-clock on GB10: N=128 ≈ 5 min, N=1024 ≈ 12 min, N=4096 ≈ 25 min
+(single seed, 1500 steps, bf16). Sub-experiments: `run_stage8_interference.py`
+(retention curve), `run_stage8_rag_baseline.py` (vector / text-RAG
+head-to-head).
 
 ## Documentation
 
 | Document | Purpose |
 | --- | --- |
-| [`docs/address_bound_delta_memory_plan.md`](docs/address_bound_delta_memory_plan.md) | next experimental plan |
-| [`docs/design.md`](docs/design.md) | architecture and evidence boundary |
+| [`docs/address_bound_delta_memory_plan.md`](docs/address_bound_delta_memory_plan.md) | Earlier-stage experimental plan |
+| [`docs/design.md`](docs/design.md) | Architecture and evidence boundary |
 | [`docs/gemma4_prototype.md`](docs/gemma4_prototype.md) | Gemma prototype runbook |
-| [`docs/apple_silicon.md`](docs/apple_silicon.md) | Apple Silicon / MPS setup |
-| [`reports/experiments`](reports/experiments) | tracked experiment artifacts |
+| [`docs/apple_silicon.md`](docs/apple_silicon.md) | Apple Silicon / MPS setup (Stages 0–7) |
+| [`reports/experiments/stage8_closed_book_memory/REPORT.md`](reports/experiments/stage8_closed_book_memory/REPORT.md) | Stage 8 closed-book memory full report (NVIDIA GB10) |
+| [`reports/experiments`](reports/experiments) | All tracked experiment artifacts |
 
 ## References
 

@@ -1,0 +1,354 @@
+<p align="center">
+  <h1 align="center">Delta Memory</h1>
+</p>
+
+<p align="center">
+  <strong>在冻结 Transformer 注意力与 LM head 内注入持久化外部记忆。</strong>
+</p>
+
+<p align="center">
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
+  <img alt="Python" src="https://img.shields.io/badge/Python-3.11+-3776AB.svg">
+  <img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-MPS%20%7C%20CUDA-EE4C2C.svg">
+  <img alt="Hardware" src="https://img.shields.io/badge/Hardware-Apple%20Silicon%20MPS%20%7C%20NVIDIA%20GB10%20Blackwell-555">
+  <img alt="Status" src="https://img.shields.io/badge/status-research%20prototype-orange.svg">
+</p>
+
+<p align="center">
+  <strong>🌐 语言:</strong>
+  <a href="README.md">English</a> ·
+  <a href="README.zh-CN.md">中文 (简体)</a>
+</p>
+
+<p align="center">
+  <a href="docs/address_bound_delta_memory_plan.md">研究计划</a> ·
+  <a href="docs/design.md">设计</a> ·
+  <a href="docs/apple_silicon.md">Apple Silicon</a> ·
+  <a href="reports/experiments">实验报告</a>
+</p>
+
+---
+
+Delta Memory 是一个研究原型，目标是把冻结的 `google/gemma-4-E2B` 改造成
+具备**真实、持久、地址键控**记忆的系统——它不是 RAG，不是 prompt
+注入，也不是 MCP。本仓库的不同 Stage 探索"能否给 LLM 真正的记忆"的
+不同切片：
+
+- **Stage 0–7**（Apple Silicon MPS, bf16）：通过 Q/V 残差和 LM-head
+  rank-4 LoRA 在 LAMA 事实卡片上做 in-context binding。answer top-1 命中
+  oracle 上界。
+- **Stage 8**（NVIDIA GB10 Blackwell，CUDA, bf16）：**闭卷**
+  地址键控 fast-weight bank。读取阶段 prompt 里只剩地址，value token
+  完全不在上下文中——所以答案只能从持久化的参数化 slot 检索而来，
+  不可能是上下文复制。
+
+软件包仍叫 `rcvhc`，是为了和早期实验保持兼容。
+
+它**不是 RAG、不是 MCP、也不是 prompt 注入**。Stage 8 的闭卷测试把
+这一点变得具体：评估时读取 prompt 只含 address——没有检索到的文本，
+没有 value token，没有 card。答案是通过学到的地址键检索从持久化参数
+slot 取出的。
+
+## 概览
+
+| 问题 | 当前回答 |
+| --- | --- |
+| 改了什么？ | (Stage 0–7) Q/V 残差 + LM-head rank-4 LoRA，端到端有监督训练。(Stage 8) 在 LM-head 输入处通过基于地址内容的余弦检索读取 per-slot fast-weight bank。 |
+| 什么保持冻结？ | Gemma-4-E2B 基座；只训练 Writer / KeyProjector / Q-V projector / LoRA。 |
+| 已证明的部分 | (Stage 0–7) 端到端 binding 在 LAMA 事实卡片上命中 oracle 上界。(Stage 8) 闭卷召回、swap binding、no-leakage 三个 gate 在 N 最高到 4096 上全部通过（基座冻结）。 |
+| 尚未证明 | Stage 8 在 N=4096 时的 retrieval recall@1 ≥ 0.95（GR gate）；Stage 8 三 seed 复现；vs RAG 头对头领先；长程顺序写入下的干扰耐受。 |
+| 下一步 | **Stage 8 v3**：KeyProjector 调优、3-seed、RAG/MEMIT 头对头、顺序写入干扰曲线、curated LAMA 单 token 迁移。 |
+
+## 机制
+
+Delta Memory 从源上下文写入 per-block 的 Raw/Delta 注意力记忆，由查询
+检索记忆块，再把检索到的 Delta payload 投影回注意力内部残差：
+
+```text
+q' = q + alpha_q * gate_q * P_q(Delta)
+v' = v + alpha_v * gate_v * P_v(Delta)
+```
+
+更严格的研究假设：
+
+```text
+question address span -> memory address key
+source value span     -> signed payload Delta
+address classifier    -> identity gate -> Q/V residual
+```
+
+Stage 8 把这个假设推到闭卷读取的极端：读取时 prompt 只含 address span。
+答案只能来自一个**持久化、address-key 检索得到的、参数化的 slot**——
+没有任何形式的上下文复制可用。
+
+详细计划见 [`docs/address_bound_delta_memory_plan.md`](docs/address_bound_delta_memory_plan.md)。
+
+## 闭卷记忆 (Stage 8) — 地址键控 fast-weight bank
+
+> **硬件：** NVIDIA GB10 (Blackwell) · CUDA · `bfloat16` · 单 GPU。
+>
+> **TL;DR.** 冻结的 `google/gemma-4-E2B` 加上 Writer + KeyProjector + per-slot
+> fast-weight bank 在**闭卷模式**（读取 prompt 中没有 value token）
+> 下能召回单 token 答案，规模到 **N=4096**，在单台 NVIDIA GB10 上完成。
+> 在 N = 128 / 1024 / 4096 时 retrieved-slot top-1 分别为
+> **0.969 / 0.934 / 0.838**。`no_memory` 基线在每个规模都是 **0.000**
+> （无泄漏），swap-paired flip 是 **1.000**（bank 携带的是身份信息，
+> 而不是上下文 token）。这是仓库内第一次"读取时 prompt 只含 address，
+> 不含 value"的结果——测的是**持久化地址键控记忆**，而不是 in-context
+> binding。
+
+![Stage 8 闭卷容量曲线](docs/figures/fig6_stage8_capacity.svg)
+
+| N facts | bank inject (oracle slot) top1 | bank inject (retrieved slot) top1 | address recall@1 | swap-paired flip | no-memory top1 |
+|---:|---:|---:|---:|---:|---:|
+|  128 | 1.000 | 0.969 | 0.969 | 1.000 | 0.000 |
+| 1024 | 1.000 | 0.934 | 0.931 | 1.000 | 0.000 |
+| 4096 | 1.000 | 0.838 | 0.832 | 1.000 | 0.000 |
+
+硬指标 G1（闭卷召回 ≥ 0.80）、G5（paired-flip ≥ 0.80）、G6（no-memory
+泄漏 ≤ 0.05）**在三个规模上全部通过**。retrieval recall gate（GR ≥
+0.95）从 N ≥ 1024 开始失守；oracle-slot top-1 永远是 1.000，所以
+失败定位在 in-batch InfoNCE 训练下的 key projector，而不是 bank 本身。
+完整报告见 [`reports/experiments/stage8_closed_book_memory/REPORT.md`](reports/experiments/stage8_closed_book_memory/REPORT.md)。
+
+仍待完成：3-seed 复现、RAG / MEMIT 头对头（G2）、Stage 8.3 干扰曲线、
+KeyProjector 调优让 N = 4096 上 GR ≥ 0.95。
+
+## 主要结果 — LAMA 事实绑定命中 oracle 上界
+
+> **硬件：** Apple Silicon · MPS · `bfloat16` · M 系列单 GPU。
+>
+> **TL;DR.** 用冻结的 `google/gemma-4-E2B`，端到端训练的 **rank-4 LM-head
+> LoRA**（由外部 writer 驱动）在 LAMA `factual_capital_binding` 套件上
+> 跨 3 seed 达到 **top-1 = 1.000 ± 0.000**，匹配 oracle answer-embedding
+> 上界（0.964），同时 `no_memory` 基线保持 **0.000**（无泄漏）。这关闭了
+> Stage 6 在真实事实数据上的核心 strict gate。Swap 控制下的 binding 仍是
+> 部分通过（paired-flip ≈ 0.50），是下一个细化目标。
+
+### 图 1 — LAMA 上的 channel top-1（in-distribution, n=56, 3 seeds）
+
+![LAMA Phase 2 channel top-1](docs/figures/fig1_channel_top1_lama.svg)
+
+三个训练通道（`payload_probe`、`logit_bias`、`lm_head_lora`）跨过
+0.85 strict gate；`lm_head_lora` 和 `payload_probe` 实际饱和到 1.000。
+`oracle_logit_answer_embedding` 通道——直接把答案的 output-embedding 加
+到 logits——在 0.964，所以训练得到的 LoRA 已在上界。`no_memory` 基线
+= 0.000 确认 address tokens（`ADDR::country::France`）没有任何事实
+信息泄漏穿过冻结基座。
+
+### 图 2 — 同一 pipeline, 两个数据集
+
+![Synthetic vs LAMA](docs/figures/fig2_synthetic_vs_lama.svg)
+
+完全相同的 pipeline（oracle-span attention writer → answer-token CE →
+LM-head rank-4 LoRA + Q/V 残差 + payload probe）在合成单 token 码字
+（`address_token_binding_single_token`, Stage 6 Phase 1）上崩盘，但在
+LAMA 事实绑定上干净解决。先前所谓"合成墙"是**任务模式问题，不是
+架构问题**：当冻结基座本身已经编码了对应关联（ROME 风格），Delta
+Memory pipeline 就成为一个近乎完美的检索/绑定 writer。
+
+### 图 3 — Swap 控制（绑定特异性，遗留问题）
+
+![Swap controls](docs/figures/fig3_swap_binding.svg)
+
+如果把上下文 payload 换成 paired card 的 payload，理想的绑定通道应该
+100% 输出对方的答案。当前 `lm_head_lora` paired-flip rate ≈ 0.50——远
+高于随机水平（≈ 0.018），但低于 strict 0.80 gate。LoRA 部分绑定
+payload→answer，但混入了 address 条件下的 default direction。**这是
+下一个细化目标**：更强 swap loss、更长 warmup、通道消融。
+
+### 图 4 — Stage 7A 线性探针负结果
+
+![Stage 7A probe negative](docs/figures/fig4_stage7a_probe.svg)
+
+我们独立测试了一个小线性分类器能否从 Gemma 隐藏状态恢复 answer-token
+身份（也即原本的 `payload_probe` gate）。在 16 条合成 cell（held-out
+top-1 最高 0.094）和 120 条 LAMA-disjoint cell（最高 0.000）上，没有任何
+探针配置跨过 0.85 gate。合成情况是表征极限；LAMA-disjoint 是 closed-vocab
+projector 的设计缺陷，详见 `reports/experiments/stage7a_lama_capital/REPORT.md`。
+正确做法是**跳过探针 gate**，端到端有监督训练 LoRA 通道，正如图 1
+所示。
+
+### 图 5 — 各通道 answer NLL
+
+![Answer NLL](docs/figures/fig5_channel_nll.svg)
+
+held-out answer NLL 在 `no_memory`（≈ 17.16）和 `lm_head_lora`（≈ 0.003）
+之间跨越**四个数量级**。三个训练通道把 NLL 都压到 1 nat 以内。
+
+### 数值汇总
+
+| Channel | top-1 (mean ± std) | top-10 | answer NLL | answer rank | n (seeds) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `no_memory`（基线） | 0.000 ± 0.000 | 0.000 | 17.162 | 12354 | 3 |
+| `oracle_logit_answer_embedding`（上界） | 0.964 ± 0.000 | 0.982 | 0.793 | 42.6 | 3 |
+| `delta_qv`（Q/V 残差） | 1.000 ± 0.000 | 1.000 | 0.001 | 1.0 | 3 |
+| `payload_probe`（full-vocab CE） | **1.000 ± 0.000** | 1.000 | 0.027 | 1.0 | 3 |
+| `logit_bias` | 0.964 ± 0.000 | 1.000 | 0.211 | 1.0 | 3 |
+| **`lm_head_lora` (rank-4)** | **1.000 ± 0.000** | 1.000 | 0.003 | 1.0 | 3 |
+
+| Swap control (LAMA Phase 2) | binding margin (foreign − correct NLL) | paired-flip rate |
+| --- | ---: | ---: |
+| `lm_head_lora_oracle_correct` | +23.20 | correct = 1.000 |
+| `lm_head_lora_oracle_paired` | **−9.56 ± 1.70** | **paired = 0.506 ± 0.008** |
+| `lm_head_lora_correct_address_paired_payload` | +2.71 | paired = 0.500 |
+| `logit_bias_oracle_paired` | −24.70 | paired = 0.482 |
+
+### 结论
+
+1. **机制在真实事实数据上工作。** 通过 writer + LM-head rank-4 LoRA 的
+   端到端 answer-token CE 监督，在 LAMA `factual_capital_binding` 上命中
+   oracle 上界，address 端零泄漏。
+2. **早期"合成墙"是任务模式墙。** 同一 pipeline 在合成单 token 码字
+   上 top-1 ≈ 0.17–0.44，在 LAMA 上达到 1.000。未来合成套件要么
+   对齐冻结基座已编码的结构，要么接受 fast-weight only 监督（不要
+   probe gate）。
+3. **泛化与绑定是不同问题。** Phase 2 是 in-distribution 绑定测试
+   （train ≡ eval = 56 LAMA pair；池子太小，不能切 disjoint，详见
+   Stage 7A REPORT）。它干净地说明 Delta Memory 通道**对 in-context
+   binding 达到最优**。要泛化到 held-out 事实，要么扩大事实池
+   （LAMA-UHN / T-REx / WikiData ≥ 1k），要么换协议；这是显式的
+   下一步——而 Stage 8 已经把这一步推到了 N=4096 闭卷。
+4. **Swap 绑定是部分通过。** strict ≥ 0.80 paired-flip gate 在 0.50
+   miss。可调：增大 `--stage2-swap-loss-weight` 0.5 → 1.5–2.0、更长
+   warmup、通道消融。
+
+### 复现这些图
+
+```bash
+python3 scripts/generate_paper_figures.py
+```
+
+图都是纯 SVG（不依赖 matplotlib），从 `reports/experiments/stage6_phase2_lama/`、
+`stage7a_pool_quick/`、`stage7a_lama_capital/` 和 `reports/experiments/`
+下任何 `phase1_*` cell 重新派生。汇总数字写到 `docs/figures/summary.json`
+便于核对。
+
+## 当前证据
+
+Stage 0–7 的真实模型证据都用 `google/gemma-4-E2B` on Apple Metal/MPS，
+基座保持冻结，retrieved 文本不会被插回 prompt。Stage 8 的真实模型
+证据全部在 NVIDIA GB10 Blackwell / CUDA 上跑。
+
+> **Claim 边界：** Delta Q/V 注入是强力记忆通道，但当前的 Stage 0–7
+> 控制还没完全孤立"query-specific 检索/绑定"作为唯一因果源。Stage 8
+> 的 swap 测试（paired-flip = 1.000）在闭卷设置下首次给出干净的
+> 因果证据。
+
+详细的 Stage 0–7 实验列表见 [English README](README.md#current-evidence)（暂未翻译，因
+所有早期实验报告均已在原文链接中保留）。
+
+## 研究方向
+
+文献张力：
+
+| 工作线 | 优势 | 与 Delta Memory 的差距 |
+| --- | --- | --- |
+| RETRO / Memorizing Transformers / LongMem / RetrievalAttention | 显式外部记录 | 检索身份仍可能脆弱或非因果 |
+| Titans / 神经长期记忆 | 自适应记忆通道 | 记忆强但不可解释 |
+| Mamba / SSMs | 高效长状态传播 | 对精确内容寻址绑定弱 |
+| Infini-attention / 压缩记忆 | 受限流式记忆 | 压缩可擦除反事实身份 |
+| NoLiMa / RULER | 暴露长上下文 shortcut | 仅看 NLL 不够 |
+| Delta-rule / fast-weight 视角 | 绑定与抗干扰框架 | 当前 Delta 路径需要显式 address 监督 |
+
+合成提案现在是 **Token/Span-Bound Delta Memory**：
+
+```text
+memory item = (address span key, value span payload delta, anti-key metadata)
+query      -> address span competition -> causal gate -> payload injection
+```
+
+更大规模前的硬指标：
+
+| Gate | 要求 |
+| --- | --- |
+| Channel | Delta 击败 no-memory、zero、random 控制。|
+| Address | 在共享池中，正确记忆排名高于 paired 负样本。|
+| Shuffled | correct-address Delta 击败 shuffled-address Delta。|
+| Wrong-query | correct-address Delta 击败 wrong-query/foreign-address Delta。|
+| Margin | 正确记忆改善 `foreign_nll - correct_nll`。|
+| Payload swap | correct address + foreign payload 与 correct address + correct payload 不同。|
+| Oracle span | oracle value-span payload 在学到的检索可信前击败 paired value-span payload。|
+| Logit-side diagnostic | 直接 payload-to-logit 注入在尝试 fast weights 前翻转 answer-token 偏好。|
+| Baseline | Delta 击败 hidden retrieval 和真实的 retrieved-KV/attention 基线。|
+
+## 快速开始
+
+### Apple Silicon（Stage 0–7, MPS）
+
+```bash
+python3 -m venv .venv-mac
+.venv-mac/bin/python -m pip install torch transformers accelerate safetensors tokenizers pytest
+.venv-mac/bin/python -m pytest -q
+```
+
+快速 mock demo（不下载模型）：
+
+```bash
+.venv-mac/bin/python scripts/run_gemma4_prototype.py \
+  --model mock-gemma --device cpu --dtype float32 \
+  --block-size 32 --memory-dim 128
+```
+
+LAMA 事实绑定（Stage 6 Phase 2）on Apple MPS：
+
+```bash
+.venv-mac/bin/python scripts/run_delta_experiment.py \
+  --model google/gemma-4-E2B --device mps --dtype bfloat16 \
+  --steps 12 --train-samples 16 --eval-samples 16 \
+  --task-suite paired_conflict_binding \
+  --shared-memory-retrieval --conflict-margins
+```
+
+参见 [`docs/apple_silicon.md`](docs/apple_silicon.md) MPS/Metal 笔记。
+
+### NVIDIA GB10 / CUDA（Stage 8 闭卷）
+
+```bash
+python3 -m venv .venv-gb10
+.venv-gb10/bin/pip install torch transformers accelerate safetensors tokenizers
+# offline 模式 — 在断网前先 populate HF cache
+HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
+  .venv-gb10/bin/python scripts/run_stage8.py \
+    --model google/gemma-4-E2B --device cuda --dtype bfloat16 \
+    --n-facts 4096 --steps 1500 --seed 0 \
+    --report-dir reports/experiments/stage8_v2_n4096_seed0
+```
+
+GB10 实测 wall-clock：N=128 ≈ 5 分钟、N=1024 ≈ 12 分钟、N=4096 ≈ 25 分钟
+（单 seed, 1500 steps, bf16）。子实验：`run_stage8_interference.py`
+（保留率曲线）、`run_stage8_rag_baseline.py`（vector / text-RAG 头对头）。
+
+## 文档
+
+| 文档 | 用途 |
+| --- | --- |
+| [`docs/address_bound_delta_memory_plan.md`](docs/address_bound_delta_memory_plan.md) | 早期阶段实验计划 |
+| [`docs/design.md`](docs/design.md) | 架构与证据边界 |
+| [`docs/gemma4_prototype.md`](docs/gemma4_prototype.md) | Gemma 原型 runbook |
+| [`docs/apple_silicon.md`](docs/apple_silicon.md) | Apple Silicon / MPS 配置（Stage 0–7） |
+| [`reports/experiments/stage8_closed_book_memory/REPORT.md`](reports/experiments/stage8_closed_book_memory/REPORT.md) | Stage 8 闭卷记忆完整报告（NVIDIA GB10） |
+| [`reports/experiments`](reports/experiments) | 全部已跟踪实验 artifact |
+
+## 仓库布局
+
+```text
+rcvhc/core/       config 和共享 typed records
+rcvhc/memory/     外部 Delta Memory store 与 writer
+rcvhc/gemma/      Gemma 风格 adapter 与 layerwise Q/K/V injector
+rcvhc/engine/     ingest, ask, training, experiments, statistics
+scripts/          可运行 demo 与实验 CLI（含 run_stage8*.py）
+scripts/data/     curated 数据集（如 lama_curated.jsonl）
+docs/             设计笔记与研究计划
+docs/figures/     paper 风格 SVG 图
+reports/          已跟踪实验报告
+tests/            CI-safe mock 测试；不需要下载 Gemma
+```
+
+## License
+
+代码采用 [MIT License](LICENSE)。
+
+模型权重、数据集、论文、第三方依赖各有自己的协议与条款。加载
+`google/gemma-4-E2B` 的实验需用户自行遵守适用 Gemma 模型协议与
+访问条款。

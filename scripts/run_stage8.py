@@ -115,6 +115,42 @@ def build_facts(tokenizer, n_facts: int, seed: int) -> list[Fact]:
     return facts
 
 
+def build_facts_lama(tokenizer, jsonl_path: Path, seed: int, n_facts: int | None = None) -> list[Fact]:
+    """Load curated LAMA-style triples from JSONL.
+
+    Each line: {"address": "<question template>", "value": "<answer word>"}.
+    Validates that ``value`` tokenizes to a single token under the model's
+    tokenizer (with a leading space). The slot id is the row index.
+    """
+    rng = random.Random(seed)
+    rows: list[dict] = []
+    with jsonl_path.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            rows.append(json.loads(line))
+    rng.shuffle(rows)
+    if n_facts is not None:
+        rows = rows[:n_facts]
+    facts: list[Fact] = []
+    skipped = 0
+    for slot, row in enumerate(rows):
+        addr = row["address"]
+        word = row["value"].strip()
+        tid = _validate_single_token(tokenizer, word)
+        if tid is None:
+            skipped += 1
+            continue
+        facts.append(Fact(slot=slot, address=addr, value_token_str=word, value_token_id=tid))
+    if skipped:
+        print(f"[stage8] WARN: skipped {skipped}/{len(rows)} LAMA rows (multi-token answer under tokenizer)", flush=True)
+    # Re-number slot ids contiguously.
+    facts = [Fact(slot=i, address=f.address, value_token_str=f.value_token_str, value_token_id=f.value_token_id)
+             for i, f in enumerate(facts)]
+    return facts
+
+
 # ---------------------------------------------------------------------------
 # Bank + Writer
 # ---------------------------------------------------------------------------
@@ -291,6 +327,7 @@ def train(
     seed: int,
     retrieval_loss_weight: float,
     retrieval_temperature: float,
+    retrieval_hard_negatives: int = 0,
 ) -> list[StepStats]:
     params = list(writer.parameters()) + list(key_proj.parameters())
     optim = torch.optim.AdamW(params, lr=lr, betas=(0.9, 0.95), weight_decay=0.0)
@@ -302,6 +339,11 @@ def train(
     addresses_all = [f.address for f in facts]
     input_ids_all, attn_all, last_pos_all = _tokenize_read_prompts(tokenizer, read_prompts_all, device)
     addr_ids_all, addr_mask_all = _address_token_ids(tokenizer, addresses_all, device)
+    # Pre-cache mean-pooled address embeddings (frozen base, no grad). This
+    # lets us cheaply pull global negatives without rerunning the embedding
+    # table for every step.
+    with torch.no_grad():
+        addr_pooled_all = _address_key_from_embeddings(model, addr_ids_all, addr_mask_all)
 
     log_every = max(1, steps // 20)
     for step in range(1, steps + 1):
@@ -316,12 +358,30 @@ def train(
         logits = _forward_read_with_injection(model, ids, am, lp, bank_vectors, alpha)
         ce = F.cross_entropy(logits.float(), targets)
 
-        # InfoNCE retrieval over the in-batch pool (slots are the labels).
-        addr_pooled = _address_key_from_embeddings(model, addr_ids_all[slots], addr_mask_all[slots]).detach()
-        keys = key_proj(addr_pooled)  # (B, key_dim)
-        keys_n = F.normalize(keys, dim=-1)
-        sim = keys_n @ keys_n.t() / retrieval_temperature
-        labels = torch.arange(keys.shape[0], device=device)
+        # InfoNCE retrieval. Anchors = batch slots; candidates = batch slots
+        # (in-batch negatives) + optional K extra global random slots
+        # (extra random negatives shared across the batch).
+        anchor_pooled = addr_pooled_all[slots]
+        keys_anchor = key_proj(anchor_pooled)
+        if retrieval_hard_negatives > 0:
+            # Sample K extra slots not in the current batch.
+            batch_set = set(idxs)
+            extras: list[int] = []
+            while len(extras) < retrieval_hard_negatives:
+                cand = rng.randrange(n)
+                if cand not in batch_set:
+                    extras.append(cand)
+                    batch_set.add(cand)
+            extra_slots = torch.tensor(extras, device=device, dtype=torch.long)
+            extra_pooled = addr_pooled_all[extra_slots]
+            keys_extra = key_proj(extra_pooled)
+            cand_keys = torch.cat([keys_anchor, keys_extra], dim=0)
+        else:
+            cand_keys = keys_anchor
+        a_n = F.normalize(keys_anchor, dim=-1)
+        c_n = F.normalize(cand_keys, dim=-1)
+        sim = a_n @ c_n.t() / retrieval_temperature  # (B, B+K)
+        labels = torch.arange(keys_anchor.shape[0], device=device)
         retr_loss = F.cross_entropy(sim, labels)
         loss = ce + retrieval_loss_weight * retr_loss
 
@@ -457,6 +517,13 @@ def main() -> int:
     parser.add_argument("--key-dim", type=int, default=256)
     parser.add_argument("--retrieval-loss-weight", type=float, default=1.0)
     parser.add_argument("--retrieval-temperature", type=float, default=0.07)
+    parser.add_argument("--retrieval-hard-negatives", type=int, default=0,
+                        help="Per step, also sample K extra global slots as InfoNCE negatives.")
+    parser.add_argument("--dataset", default="synthetic_colors",
+                        choices=["synthetic_colors", "lama_curated"],
+                        help="Source of (address, value) facts.")
+    parser.add_argument("--lama-jsonl", default="scripts/data/lama_curated.jsonl",
+                        help="Path to LAMA curated JSONL (used when --dataset=lama_curated).")
     parser.add_argument("--report-dir", required=True)
     args = parser.parse_args()
 
@@ -476,8 +543,8 @@ def main() -> int:
     text_cfg = getattr(cfg, "text_config", cfg)
     hidden = getattr(text_cfg, "hidden_size", None) or getattr(cfg, "hidden_size")
 
-    facts = build_facts(tokenizer, n_facts=args.n_facts, seed=args.seed)
-    print(f"[stage8] built {len(facts)} facts; hidden={hidden}", flush=True)
+    facts = build_facts(tokenizer, n_facts=args.n_facts, seed=args.seed) if args.dataset == "synthetic_colors" else build_facts_lama(tokenizer, REPO_ROOT / args.lama_jsonl, seed=args.seed, n_facts=args.n_facts)
+    print(f"[stage8] dataset={args.dataset} built {len(facts)} facts; hidden={hidden}", flush=True)
 
     bank = FastWeightBank(n_slots=len(facts), hidden=hidden, key_dim=args.key_dim).to(device=device, dtype=torch.float32)
     writer = Writer(hidden=hidden).to(device=device, dtype=torch.float32)
@@ -500,6 +567,7 @@ def main() -> int:
         seed=args.seed,
         retrieval_loss_weight=args.retrieval_loss_weight,
         retrieval_temperature=args.retrieval_temperature,
+        retrieval_hard_negatives=args.retrieval_hard_negatives,
     )
     train_secs = time.time() - t0
 
