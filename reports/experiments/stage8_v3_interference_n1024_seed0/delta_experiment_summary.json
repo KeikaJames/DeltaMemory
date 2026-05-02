@@ -1,0 +1,73 @@
+{
+  "stage": "8.3_interference_retention",
+  "args": {
+    "model": "google/gemma-4-E2B",
+    "device": "cuda",
+    "dtype": "bfloat16",
+    "n_facts": 1024,
+    "steps": 1500,
+    "batch_size": 16,
+    "eval_batch_size": 64,
+    "lr": 0.0005,
+    "alpha": 1.0,
+    "grad_clip": 1.0,
+    "seed": 0,
+    "key_dim": 256,
+    "retrieval_loss_weight": 1.0,
+    "retrieval_temperature": 0.07,
+    "retrieval_hard_negatives": 0,
+    "checkpoints": "0.125,0.25,0.5,0.75,1.0",
+    "report_dir": "reports/experiments/stage8_v3_interference_n1024_seed0"
+  },
+  "n_facts": 1024,
+  "hidden_size": 1536,
+  "train_seconds": 106.54693675041199,
+  "history": [
+    {
+      "checkpoint_slots_written": 128,
+      "earliest_subset_size": 128,
+      "earliest_top1": 0.96875,
+      "earliest_recall_at_1": 0.96875,
+      "all_written_top1": 0.96875,
+      "all_written_recall_at_1": 0.96875
+    },
+    {
+      "checkpoint_slots_written": 256,
+      "earliest_subset_size": 128,
+      "earliest_top1": 0.96875,
+      "earliest_recall_at_1": 0.96875,
+      "all_written_top1": 0.96484375,
+      "all_written_recall_at_1": 0.96484375
+    },
+    {
+      "checkpoint_slots_written": 512,
+      "earliest_subset_size": 128,
+      "earliest_top1": 0.96875,
+      "earliest_recall_at_1": 0.96875,
+      "all_written_top1": 0.953125,
+      "all_written_recall_at_1": 0.953125
+    },
+    {
+      "checkpoint_slots_written": 768,
+      "earliest_subset_size": 128,
+      "earliest_top1": 0.96875,
+      "earliest_recall_at_1": 0.96875,
+      "all_written_top1": 0.9453125,
+      "all_written_recall_at_1": 0.94140625
+    },
+    {
+      "checkpoint_slots_written": 1024,
+      "earliest_subset_size": 128,
+      "earliest_top1": 0.96875,
+      "earliest_recall_at_1": 0.96875,
+      "all_written_top1": 0.93359375,
+      "all_written_recall_at_1": 0.9306640625
+    }
+  ],
+  "gates": {
+    "G3_earliest_retention_top1_ge_0.80": {
+      "value": 0.96875,
+      "pass": true
+    }
+  }
+}

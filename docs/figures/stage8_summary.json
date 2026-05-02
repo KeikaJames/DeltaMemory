@@ -1,28 +1,46 @@
 {
-  "runs": [
+  "capacity_runs": [
     {
       "n": 128,
-      "retrieved_top1": 0.96875,
+      "n_seeds": 3,
+      "retrieved_top1": 0.9791666666666666,
+      "retrieved_top1_std": 0.009021097956087902,
       "oracle_top1": 1.0,
-      "retrieval_at_1": 0.96875,
+      "oracle_top1_std": 0.0,
+      "retrieval_at_1": 0.9791666666666666,
+      "retrieval_at_1_std": 0.009021097956087902,
       "no_memory_top1": 0.0,
-      "swap_flip": 1.0
+      "no_memory_top1_std": 0.0,
+      "swap_flip": 1.0,
+      "swap_flip_std": 0.0
     },
     {
       "n": 1024,
-      "retrieved_top1": 0.93359375,
+      "n_seeds": 3,
+      "retrieved_top1": 0.9306640625,
+      "retrieved_top1_std": 0.004256737249551439,
       "oracle_top1": 1.0,
-      "retrieval_at_1": 0.9306640625,
+      "oracle_top1_std": 0.0,
+      "retrieval_at_1": 0.9293619791666666,
+      "retrieval_at_1_std": 0.003429574789340084,
       "no_memory_top1": 0.0,
-      "swap_flip": 1.0
+      "no_memory_top1_std": 0.0,
+      "swap_flip": 1.0,
+      "swap_flip_std": 0.0
     },
     {
       "n": 4096,
-      "retrieved_top1": 0.837646484375,
+      "n_seeds": 3,
+      "retrieved_top1": 0.8313802083333334,
+      "retrieved_top1_std": 0.005659289925362535,
       "oracle_top1": 1.0,
-      "retrieval_at_1": 0.83203125,
+      "oracle_top1_std": 0.0,
+      "retrieval_at_1": 0.8260904947916666,
+      "retrieval_at_1_std": 0.005378486862584084,
       "no_memory_top1": 0.0,
-      "swap_flip": 1.0
+      "no_memory_top1_std": 0.0,
+      "swap_flip": 1.0,
+      "swap_flip_std": 0.0
     }
   ],
   "gates_passed_at_n": {

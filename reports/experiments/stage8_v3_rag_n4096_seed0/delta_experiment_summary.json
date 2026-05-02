@@ -1,0 +1,41 @@
+{
+  "stage": "8.5_rag_head_to_head",
+  "args": {
+    "model": "google/gemma-4-E2B",
+    "device": "cuda",
+    "dtype": "bfloat16",
+    "n_facts": 4096,
+    "steps": 1500,
+    "batch_size": 16,
+    "eval_batch_size": 64,
+    "lr": 0.0005,
+    "alpha": 1.0,
+    "seed": 0,
+    "key_dim": 256,
+    "retrieval_temperature": 0.07,
+    "retrieval_hard_negatives": 0,
+    "ours_summary": "reports/experiments/stage8_v3_n4096_seed0/delta_experiment_summary.json",
+    "report_dir": "reports/experiments/stage8_v3_rag_n4096_seed0"
+  },
+  "n_facts": 4096,
+  "hidden_size": 1536,
+  "train_seconds": 3.8993468284606934,
+  "vector_rag": {
+    "top1": 0.837646484375,
+    "recall_at_1": 0.83203125,
+    "n": 4096
+  },
+  "text_rag_open_book_ceiling": {
+    "top1": 0.128173828125,
+    "recall_at_1": 0.83203125,
+    "n": 4096
+  },
+  "ours_retrieved_top1": 0.837890625,
+  "gates": {
+    "G2_ours_ge_vector_rag": {
+      "value_ours": 0.837890625,
+      "value_vector_rag": 0.837646484375,
+      "pass": true
+    }
+  }
+}

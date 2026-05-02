@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" font-family="ui-sans-serif, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="13">
+<rect width="720" height="380" fill="white"/>
+<text x="360.0" y="26" text-anchor="middle" font-size="16" font-weight="600">Stage 8 closed-book: synthetic colors (N=128) vs LAMA curated (3 seeds, GB10/CUDA)</text>
+<line x1="70" y1="60" x2="70" y2="300" stroke="#333"/>
+<line x1="70" y1="300" x2="690" y2="300" stroke="#333"/>
+<line x1="66" y1="300.0" x2="70" y2="300.0" stroke="#333"/>
+<text x="62" y="304.0" text-anchor="end">0.00</text>
+<line x1="70" y1="300.0" x2="690" y2="300.0" stroke="#eee"/>
+<line x1="66" y1="240.0" x2="70" y2="240.0" stroke="#333"/>
+<text x="62" y="244.0" text-anchor="end">0.25</text>
+<line x1="70" y1="240.0" x2="690" y2="240.0" stroke="#eee"/>
+<line x1="66" y1="180.0" x2="70" y2="180.0" stroke="#333"/>
+<text x="62" y="184.0" text-anchor="end">0.50</text>
+<line x1="70" y1="180.0" x2="690" y2="180.0" stroke="#eee"/>
+<line x1="66" y1="120.0" x2="70" y2="120.0" stroke="#333"/>
+<text x="62" y="124.0" text-anchor="end">0.75</text>
+<line x1="70" y1="120.0" x2="690" y2="120.0" stroke="#eee"/>
+<line x1="66" y1="60.0" x2="70" y2="60.0" stroke="#333"/>
+<text x="62" y="64.0" text-anchor="end">1.00</text>
+<line x1="70" y1="60.0" x2="690" y2="60.0" stroke="#eee"/>
+<rect x="90.3" y="65.0" width="39.7" height="235.0" fill="#06c" opacity="0.85"/>
+<rect x="134.0" y="60.0" width="39.7" height="240.0" fill="#0a7" opacity="0.85"/>
+<text x="110.2" y="61.0" text-anchor="middle" font-size="10">0.979</text>
+<text x="153.8" y="56.0" text-anchor="middle" font-size="10">1.000</text>
+<text x="132.0" y="318" text-anchor="middle" font-size="11">retrieved top1</text>
+<rect x="214.3" y="65.0" width="39.7" height="235.0" fill="#06c" opacity="0.85"/>
+<rect x="258.0" y="60.0" width="39.7" height="240.0" fill="#0a7" opacity="0.85"/>
+<text x="234.2" y="61.0" text-anchor="middle" font-size="10">0.979</text>
+<text x="277.8" y="56.0" text-anchor="middle" font-size="10">1.000</text>
+<text x="256.0" y="318" text-anchor="middle" font-size="11">recall@1</text>
+<rect x="338.3" y="60.0" width="39.7" height="240.0" fill="#06c" opacity="0.85"/>
+<rect x="382.0" y="60.0" width="39.7" height="240.0" fill="#0a7" opacity="0.85"/>
+<text x="358.2" y="56.0" text-anchor="middle" font-size="10">1.000</text>
+<text x="401.8" y="56.0" text-anchor="middle" font-size="10">1.000</text>
+<text x="380.0" y="318" text-anchor="middle" font-size="11">oracle slot top1</text>
+<rect x="462.3" y="60.0" width="39.7" height="240.0" fill="#06c" opacity="0.85"/>
+<rect x="506.0" y="60.6" width="39.7" height="239.4" fill="#0a7" opacity="0.85"/>
+<text x="482.2" y="56.0" text-anchor="middle" font-size="10">1.000</text>
+<text x="525.8" y="56.6" text-anchor="middle" font-size="10">0.997</text>
+<text x="504.0" y="318" text-anchor="middle" font-size="11">swap-paired flip</text>
+<rect x="586.3" y="300.0" width="39.7" height="0.0" fill="#06c" opacity="0.85"/>
+<rect x="630.0" y="300.0" width="39.7" height="0.0" fill="#0a7" opacity="0.85"/>
+<text x="606.2" y="296.0" text-anchor="middle" font-size="10">0.000</text>
+<text x="649.8" y="296.0" text-anchor="middle" font-size="10">0.000</text>
+<text x="628.0" y="318" text-anchor="middle" font-size="11">no-memory baseline</text>
+<rect x="82" y="338" width="14" height="14" fill="#06c" opacity="0.85"/>
+<text x="102" y="350" font-size="12">Synthetic colors (N=128)</text>
+<rect x="282" y="338" width="14" height="14" fill="#0a7" opacity="0.85"/>
+<text x="302" y="350" font-size="12">LAMA curated (N=135 single-token facts)</text>
+</svg>

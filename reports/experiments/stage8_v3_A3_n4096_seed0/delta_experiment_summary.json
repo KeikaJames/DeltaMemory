@@ -1,0 +1,181 @@
+{
+  "stage": "8.1_closed_book_pilot",
+  "args": {
+    "model": "google/gemma-4-E2B",
+    "device": "cuda",
+    "dtype": "bfloat16",
+    "n_facts": 4096,
+    "steps": 1500,
+    "batch_size": 16,
+    "eval_batch_size": 32,
+    "lr": 0.0005,
+    "alpha": 1.0,
+    "grad_clip": 1.0,
+    "seed": 0,
+    "key_dim": 256,
+    "retrieval_loss_weight": 1.0,
+    "retrieval_temperature": 0.03,
+    "retrieval_hard_negatives": 0,
+    "dataset": "synthetic_colors",
+    "lama_jsonl": "scripts/data/lama_curated.jsonl",
+    "report_dir": "reports/experiments/stage8_v3_A3_n4096_seed0"
+  },
+  "n_facts": 4096,
+  "hidden_size": 1536,
+  "train_seconds": 107.8172607421875,
+  "training_history": [
+    {
+      "step": 1,
+      "loss": 24.49088478088379,
+      "top1": 0.0
+    },
+    {
+      "step": 75,
+      "loss": 0.0009588676039129496,
+      "top1": 1.0
+    },
+    {
+      "step": 150,
+      "loss": 0.0003458590363152325,
+      "top1": 1.0
+    },
+    {
+      "step": 225,
+      "loss": 0.0038291998207569122,
+      "top1": 1.0
+    },
+    {
+      "step": 300,
+      "loss": 0.00016277232498396188,
+      "top1": 1.0
+    },
+    {
+      "step": 375,
+      "loss": 0.01795637235045433,
+      "top1": 1.0
+    },
+    {
+      "step": 450,
+      "loss": 0.0004477722686715424,
+      "top1": 1.0
+    },
+    {
+      "step": 525,
+      "loss": 0.00017234389088116586,
+      "top1": 1.0
+    },
+    {
+      "step": 600,
+      "loss": 0.002566911280155182,
+      "top1": 1.0
+    },
+    {
+      "step": 675,
+      "loss": 5.863824480911717e-05,
+      "top1": 1.0
+    },
+    {
+      "step": 750,
+      "loss": 0.0003179163904860616,
+      "top1": 1.0
+    },
+    {
+      "step": 825,
+      "loss": 0.012544934637844563,
+      "top1": 1.0
+    },
+    {
+      "step": 900,
+      "loss": 5.333995068212971e-05,
+      "top1": 1.0
+    },
+    {
+      "step": 975,
+      "loss": 2.05554642889183e-05,
+      "top1": 1.0
+    },
+    {
+      "step": 1050,
+      "loss": 0.0008623949834145606,
+      "top1": 1.0
+    },
+    {
+      "step": 1125,
+      "loss": 0.0002965648891404271,
+      "top1": 1.0
+    },
+    {
+      "step": 1200,
+      "loss": 0.0010258296970278025,
+      "top1": 1.0
+    },
+    {
+      "step": 1275,
+      "loss": 0.0007825408829376101,
+      "top1": 1.0
+    },
+    {
+      "step": 1350,
+      "loss": 0.00014302476483862847,
+      "top1": 1.0
+    },
+    {
+      "step": 1425,
+      "loss": 0.004564741626381874,
+      "top1": 1.0
+    },
+    {
+      "step": 1500,
+      "loss": 0.002232954604551196,
+      "top1": 1.0
+    }
+  ],
+  "metrics": {
+    "bank_inject_oracle": {
+      "top1": 1.0,
+      "top10": 1.0,
+      "nll": 3.6146953891896816e-08,
+      "n": 4096
+    },
+    "bank_inject_retrieved": {
+      "top1": 0.83740234375,
+      "top10": 0.84375,
+      "nll": 4.107200625207042,
+      "n": 4096
+    },
+    "no_memory": {
+      "top1": 0.0,
+      "top10": 0.0,
+      "nll": 22.28973563015461,
+      "n": 4096
+    },
+    "swap_paired": {
+      "top1": 0.030029296875,
+      "top10": 0.06884765625,
+      "nll": 24.597667694091797,
+      "n": 4096,
+      "paired_flip_rate": 1.0
+    },
+    "address_retrieval_recall_at_1": 0.831787109375
+  },
+  "gates": {
+    "G1_closed_book_retrieved_top1_ge_0.80": {
+      "value": 0.83740234375,
+      "pass": true
+    },
+    "G6_no_memory_top1_le_0.05": {
+      "value": 0.0,
+      "pass": true
+    },
+    "G5_swap_paired_flip_ge_0.80": {
+      "value": 1.0,
+      "pass": true
+    },
+    "GR_address_recall_at_1_ge_0.95": {
+      "value": 0.831787109375,
+      "pass": false
+    }
+  },
+  "writer_params": 18885120,
+  "key_proj_params": 459264
+}

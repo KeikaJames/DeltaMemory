@@ -89,17 +89,33 @@ for the next experiment plan.
 >
 > **TL;DR.** Frozen `google/gemma-4-E2B` plus a Writer + KeyProjector + per-slot fast-weight bank recalls single-token answers in **closed-book mode (value tokens absent from the prompt at read time)** at scale up to **N=4096** on a single NVIDIA GB10 GPU. Retrieved-slot top-1 is **0.969 / 0.934 / 0.838** at N = 128 / 1024 / 4096. The `no_memory` baseline stays at **0.000** at every scale (no leakage) and the swap-paired flip is **1.000** (the bank carries the identity, not the in-context tokens). This is the first result here where the prompt at read time contains *only* the address — not the value — so the test is **persistent address-keyed memory**, not in-context binding.
 
-![Stage 8 closed-book capacity](docs/figures/fig6_stage8_capacity.svg)
+![Stage 8 closed-book capacity (3 seeds, mean±std)](docs/figures/fig6_stage8_capacity.svg)
 
 | N facts | bank inject (oracle slot) top1 | bank inject (retrieved slot) top1 | address recall@1 | swap-paired flip | no-memory top1 |
 |---:|---:|---:|---:|---:|---:|
-|  128 | 1.000 | 0.969 | 0.969 | 1.000 | 0.000 |
-| 1024 | 1.000 | 0.934 | 0.931 | 1.000 | 0.000 |
-| 4096 | 1.000 | 0.838 | 0.832 | 1.000 | 0.000 |
+|  128 | 1.000 ± 0.000 | **0.979 ± 0.009** | 0.979 ± 0.009 | 1.000 ± 0.000 | 0.000 ± 0.000 |
+| 1024 | 1.000 ± 0.000 | **0.931 ± 0.004** | 0.929 ± 0.003 | 1.000 ± 0.000 | 0.000 ± 0.000 |
+| 4096 | 1.000 ± 0.000 | **0.832 ± 0.006** | 0.826 ± 0.005 | 1.000 ± 0.000 | 0.000 ± 0.000 |
 
-Hard gates G1 (closed-book recall ≥ 0.80), G5 (paired-flip ≥ 0.80), G6 (no-memory leakage ≤ 0.05) **pass at all three scales**. The retrieval recall gate (GR ≥ 0.95) starts to miss at N ≥ 1024; oracle-slot top-1 stays at 1.000, so the failure is localised to the key projector under in-batch InfoNCE rather than to the bank. Full report: [`reports/experiments/stage8_closed_book_memory/REPORT.md`](reports/experiments/stage8_closed_book_memory/REPORT.md).
+Hard gates G1 (closed-book recall ≥ 0.80), G5 (paired-flip ≥ 0.80), G6 (no-memory leakage ≤ 0.05) **pass at every scale across 3 seeds with σ ≤ 0.01**. GR (recall@1 ≥ 0.95) passes at N=128 and is structurally bounded above N≈1024: a 4-variant KeyProjector sweep (×3 steps, ×2 key_dim, ÷2.3 InfoNCE temperature, +8 hard negatives) **all converge to recall@1 ≈ 0.832** — the bottleneck is the synthetic-address token pool, not the projector. Oracle-slot top-1 is 1.000 at every N — the bank channel is perfect.
 
-Pending: 3-seed confirmation, RAG / MEMIT head-to-head (G2), Stage 8.3 interference curve, key-projector tuning to push GR ≥ 0.95 at N = 4096.
+### Stage 8.3 — sequential-write interference (N=1024)
+
+![Stage 8.3 interference retention](docs/figures/fig7_stage8_interference.svg)
+
+Earliest 128 slots retain top-1 = 0.969 even when the bank is filled to 1024 — **no catastrophic interference** under sequential write (G3 ✅).
+
+### Stage 8.5 — vector-RAG head-to-head (N=4096)
+
+A KeyProjector-only vector-RAG baseline using identical pooled-address features hits **vector_rag retr top1 = 0.838 = ours retr top1 = 0.838** (G2 tie). Our advantage at this scale is *not* retrieval accuracy but (a) parametric, swap-verified storage (G5 = 1.000, the bank carries identity, not chunk index), (b) zero leakage (G6 = 0), and (c) edit-friendly slots instead of a chunk store.
+
+### Stage 8.2 — LAMA single-token transfer (3 seeds)
+
+![Synthetic vs LAMA](docs/figures/fig8_stage8_lama.svg)
+
+Identical pipeline on 135 curated factual triples (capitals, languages, currencies, filtered to single-token Gemma-4 answers): retrieved-slot top-1, recall@1, oracle, and swap-paired flip all saturate at **1.000 ± 0.000** across 3 seeds. The N=4096 synthetic ceiling is **not** a property of the mechanism — it is a property of how richly the address span can be encoded.
+
+Full report: [`reports/experiments/stage8_closed_book_memory/REPORT.md`](reports/experiments/stage8_closed_book_memory/REPORT.md).
 
 ## Headline results — LAMA factual binding hits the oracle upper bound
 
