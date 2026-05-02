@@ -62,6 +62,22 @@ address classifier    -> identity gate -> Q/V residual
 See [`docs/address_bound_delta_memory_plan.md`](docs/address_bound_delta_memory_plan.md)
 for the next experiment plan.
 
+## Closed-book memory (Stage 8) — address-keyed fast-weight bank
+
+> **TL;DR.** Frozen `google/gemma-4-E2B` plus a Writer + KeyProjector + per-slot fast-weight bank recalls single-token answers in **closed-book mode (value tokens absent from the prompt at read time)** at scale up to **N=4096** on a single NVIDIA GB10 GPU. Retrieved-slot top-1 is **0.969 / 0.934 / 0.838** at N = 128 / 1024 / 4096. The `no_memory` baseline stays at **0.000** at every scale (no leakage) and the swap-paired flip is **1.000** (the bank carries the identity, not the in-context tokens). This is the first result here where the prompt at read time contains *only* the address — not the value — so the test is **persistent address-keyed memory**, not in-context binding.
+
+![Stage 8 closed-book capacity](docs/figures/fig6_stage8_capacity.svg)
+
+| N facts | bank inject (oracle slot) top1 | bank inject (retrieved slot) top1 | address recall@1 | swap-paired flip | no-memory top1 |
+|---:|---:|---:|---:|---:|---:|
+|  128 | 1.000 | 0.969 | 0.969 | 1.000 | 0.000 |
+| 1024 | 1.000 | 0.934 | 0.931 | 1.000 | 0.000 |
+| 4096 | 1.000 | 0.838 | 0.832 | 1.000 | 0.000 |
+
+Hard gates G1 (closed-book recall ≥ 0.80), G5 (paired-flip ≥ 0.80), G6 (no-memory leakage ≤ 0.05) **pass at all three scales**. The retrieval recall gate (GR ≥ 0.95) starts to miss at N ≥ 1024; oracle-slot top-1 stays at 1.000, so the failure is localised to the key projector under in-batch InfoNCE rather than to the bank. Full report: [`reports/experiments/stage8_closed_book_memory/REPORT.md`](reports/experiments/stage8_closed_book_memory/REPORT.md).
+
+Pending: 3-seed confirmation, RAG / MEMIT head-to-head (G2), Stage 8.3 interference curve, key-projector tuning to push GR ≥ 0.95 at N = 4096.
+
 ## Headline results — LAMA factual binding hits the oracle upper bound
 
 > **TL;DR.** With a frozen `google/gemma-4-E2B`, an end-to-end trained **rank-4 LM-head LoRA** driven by an external writer reaches **top-1 = 1.000 ± 0.000** on the LAMA `factual_capital_binding` suite across 3 seeds, matching the oracle answer-embedding upper bound (0.964) while the `no_memory` baseline stays at **0.000** (no leakage). This closes the central Stage 6 strict gate on real factual data. Swap-control binding remains partial (paired-flip ≈ 0.50) and is the next refinement target.

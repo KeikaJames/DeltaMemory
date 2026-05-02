@@ -1,0 +1,48 @@
+{
+  "runs": [
+    {
+      "n": 128,
+      "retrieved_top1": 0.96875,
+      "oracle_top1": 1.0,
+      "retrieval_at_1": 0.96875,
+      "no_memory_top1": 0.0,
+      "swap_flip": 1.0
+    },
+    {
+      "n": 1024,
+      "retrieved_top1": 0.93359375,
+      "oracle_top1": 1.0,
+      "retrieval_at_1": 0.9306640625,
+      "no_memory_top1": 0.0,
+      "swap_flip": 1.0
+    },
+    {
+      "n": 4096,
+      "retrieved_top1": 0.837646484375,
+      "oracle_top1": 1.0,
+      "retrieval_at_1": 0.83203125,
+      "no_memory_top1": 0.0,
+      "swap_flip": 1.0
+    }
+  ],
+  "gates_passed_at_n": {
+    "128": {
+      "G1_retrieved_top1>=0.80": true,
+      "G5_swap_flip>=0.80": true,
+      "G6_no_memory<=0.05": true,
+      "GR_retrieval@1>=0.95": true
+    },
+    "1024": {
+      "G1_retrieved_top1>=0.80": true,
+      "G5_swap_flip>=0.80": true,
+      "G6_no_memory<=0.05": true,
+      "GR_retrieval@1>=0.95": false
+    },
+    "4096": {
+      "G1_retrieved_top1>=0.80": true,
+      "G5_swap_flip>=0.80": true,
+      "G6_no_memory<=0.05": true,
+      "GR_retrieval@1>=0.95": false
+    }
+  }
+}
