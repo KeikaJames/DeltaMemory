@@ -1,0 +1,154 @@
+{
+  "phase2_top1": {
+    "delta_qv": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 3
+    },
+    "lm_head_lora": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 3
+    },
+    "logit_bias": {
+      "mean": 0.9642857142857143,
+      "std": 0.0,
+      "n": 3
+    },
+    "no_memory": {
+      "mean": 0.0,
+      "std": 0.0,
+      "n": 3
+    },
+    "oracle_logit_answer_embedding": {
+      "mean": 0.9642857142857143,
+      "std": 0.0,
+      "n": 3
+    },
+    "payload_probe": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 3
+    }
+  },
+  "phase2_swap_paired": {
+    "delta_qv": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "delta_qv_identity_gate": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "delta_qv_oracle_correct": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "delta_qv_oracle_correct_address_paired_payload": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "delta_qv_oracle_paired": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "delta_qv_oracle_paired_address_correct_payload": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "delta_qv_wrong_query": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "lm_head_lora_correct_address_paired_payload": {
+      "mean": 0.5,
+      "std": 0.0
+    },
+    "lm_head_lora_oracle_correct": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "lm_head_lora_oracle_paired": {
+      "mean": 0.5059523809523809,
+      "std": 0.008417937871268445
+    },
+    "lm_head_lora_paired_address_correct_payload": {
+      "mean": 0.005952380952380952,
+      "std": 0.008417937871268422
+    },
+    "logit_bias_correct_address_paired_payload": {
+      "mean": 0.49404761904761907,
+      "std": 0.008417937871268419
+    },
+    "logit_bias_oracle_correct": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "logit_bias_oracle_paired": {
+      "mean": 0.49404761904761907,
+      "std": 0.008417937871268419
+    },
+    "logit_bias_paired_address_correct_payload": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "no_memory": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "payload_probe_correct_address_paired_payload": {
+      "mean": 0.5,
+      "std": 0.0
+    },
+    "payload_probe_oracle_correct": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "payload_probe_oracle_paired": {
+      "mean": 0.5,
+      "std": 0.0
+    },
+    "payload_probe_paired_address_correct_payload": {
+      "mean": 0.0,
+      "std": 0.0
+    }
+  },
+  "phase1_synthetic_top1": {
+    "no_memory": {
+      "mean": 0.0,
+      "n": 8
+    },
+    "delta_qv": {
+      "mean": 0.015625,
+      "n": 8
+    },
+    "payload_probe": {
+      "mean": 0.4427083333333333,
+      "n": 8
+    },
+    "logit_bias": {
+      "mean": 0.2708333333333333,
+      "n": 8
+    },
+    "lm_head_lora": {
+      "mean": 0.16666666666666666,
+      "n": 8
+    },
+    "oracle_logit_answer_embedding": {
+      "mean": 1.0,
+      "n": 8
+    }
+  },
+  "stage7a_probe_top1": {
+    "synthetic": {
+      "max": 0.09375,
+      "mean": 0.033203125,
+      "n": 16
+    },
+    "lama_disjoint": {
+      "max": 0.0,
+      "mean": 0.0,
+      "n": 120
+    }
+  }
+}

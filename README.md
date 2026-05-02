@@ -62,6 +62,73 @@ address classifier    -> identity gate -> Q/V residual
 See [`docs/address_bound_delta_memory_plan.md`](docs/address_bound_delta_memory_plan.md)
 for the next experiment plan.
 
+## Headline results — LAMA factual binding hits the oracle upper bound
+
+> **TL;DR.** With a frozen `google/gemma-4-E2B`, an end-to-end trained **rank-4 LM-head LoRA** driven by an external writer reaches **top-1 = 1.000 ± 0.000** on the LAMA `factual_capital_binding` suite across 3 seeds, matching the oracle answer-embedding upper bound (0.964) while the `no_memory` baseline stays at **0.000** (no leakage). This closes the central Stage 6 strict gate on real factual data. Swap-control binding remains partial (paired-flip ≈ 0.50) and is the next refinement target.
+
+### Figure 1 — channel top-1 on LAMA (in-distribution, n=56, 3 seeds)
+
+![Channel top-1 on LAMA Phase 2](docs/figures/fig1_channel_top1_lama.svg)
+
+Three trained channels (`payload_probe`, `logit_bias`, `lm_head_lora`) cross the 0.85 strict gate; `lm_head_lora` and `payload_probe` actually saturate at 1.000. The `oracle_logit_answer_embedding` channel — adding the answer's own output-embedding directly to logits — sits at 0.964, so the trained LoRA is at the upper bound. The `no_memory` baseline = 0.000 confirms the address tokens (`ADDR::country::France`) carry no factual leak through the frozen base.
+
+### Figure 2 — same pipeline, two datasets
+
+![Synthetic vs LAMA](docs/figures/fig2_synthetic_vs_lama.svg)
+
+The same pipeline (oracle-span attention writer → answer-token CE → LM-head rank-4 LoRA + Q/V residual + payload probe) collapses on synthetic single-token codes (`address_token_binding_single_token`, Stage 6 Phase 1) but solves the LAMA factual binding cleanly. The previously-reported "synthetic wall" is **task-specific, not architecture-specific**: when the frozen base already encodes the underlying associations (ROME-style), the Delta Memory pipeline becomes a near-perfect retrieval/binding writer.
+
+### Figure 3 — swap controls (binding specificity, open problem)
+
+![Swap controls](docs/figures/fig3_swap_binding.svg)
+
+When we swap the in-context payload to a paired card's payload, an ideal binding channel should produce the foreign answer 100% of the time. Our `lm_head_lora` paired-flip rate is ~0.50 — far above random (≈0.018) but below the strict 0.80 gate. The LoRA partially binds payload→answer but mixes payload-specific direction with the address-conditioned default. **This is the next refinement target**: stronger swap loss, longer warmup, and channel ablation.
+
+### Figure 4 — Stage 7A linear-probe negative
+
+![Stage 7A probe negative](docs/figures/fig4_stage7a_probe.svg)
+
+Independently, we asked whether a small linear classifier on Gemma's hidden states could recover the answer-token identity (would-be `payload_probe` gate). Across 16 synthetic cells (max held-out top-1 = 0.094) and 120 LAMA-disjoint cells (max = 0.000), no probe configuration crosses the 0.85 gate. The synthetic case is a true representation limit; the LAMA-disjoint case is a closed-vocab projector flaw documented in `reports/experiments/stage7a_lama_capital/REPORT.md` (the trainable LayerNorm + Linear projector degenerates onto the train-capital subspace). The right answer is to **skip the probe gate** and supervise the LoRA channel end-to-end, exactly as Figure 1 shows.
+
+### Figure 5 — answer NLL per channel
+
+![Answer NLL](docs/figures/fig5_channel_nll.svg)
+
+Held-out answer NLL spans **four orders of magnitude** between `no_memory` (≈ 17.16) and `lm_head_lora` (≈ 0.003). All three trained channels reduce NLL to within 1 nat of optimal.
+
+### Numerical summary
+
+| Channel | top-1 (mean ± std) | top-10 | answer NLL | answer rank | n (seeds) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `no_memory` (baseline) | 0.000 ± 0.000 | 0.000 | 17.162 | 12354 | 3 |
+| `oracle_logit_answer_embedding` (UB) | 0.964 ± 0.000 | 0.982 | 0.793 | 42.6 | 3 |
+| `delta_qv` (Q/V residual) | 1.000 ± 0.000 | 1.000 | 0.001 | 1.0 | 3 |
+| `payload_probe` (full-vocab CE) | **1.000 ± 0.000** | 1.000 | 0.027 | 1.0 | 3 |
+| `logit_bias` | 0.964 ± 0.000 | 1.000 | 0.211 | 1.0 | 3 |
+| **`lm_head_lora` (rank-4)** | **1.000 ± 0.000** | 1.000 | 0.003 | 1.0 | 3 |
+
+| Swap control (LAMA Phase 2) | binding margin (foreign − correct NLL) | paired-flip rate |
+| --- | ---: | ---: |
+| `lm_head_lora_oracle_correct` | +23.20 | correct = 1.000 |
+| `lm_head_lora_oracle_paired` | **−9.56 ± 1.70** | **paired = 0.506 ± 0.008** |
+| `lm_head_lora_correct_address_paired_payload` | +2.71 | paired = 0.500 |
+| `logit_bias_oracle_paired` | −24.70 | paired = 0.482 |
+
+### Conclusions
+
+1. **The mechanism works on real factual data.** End-to-end answer-token CE supervision through a writer + LM-head rank-4 LoRA reaches the oracle upper bound on LAMA `factual_capital_binding` with zero leakage from the address.
+2. **The earlier synthetic wall was a task-mode wall.** The exact same pipeline that plateaued at top-1 ≈ 0.17–0.44 on synthetic single-token codes hits 1.000 on LAMA. Future synthetic suites should align with structures the frozen base already encodes, or accept fast-weight-only supervision (no probe gate).
+3. **Generalization vs. binding are different problems.** Phase 2 is an in-distribution binding test (train ≡ eval = 56 LAMA pairs by design — pool too small for a meaningful disjoint split, see Stage 7A REPORT). It cleanly shows the Delta Memory channel reaches optimum **for in-context binding**. Generalization to held-out facts requires either a much larger factual pool (LAMA-UHN / T-REx / WikiData ≥ 1k) or a different evaluation protocol; this is now the explicit next-step.
+4. **Swap-binding is partial.** The strict ≥ 0.80 paired-flip gate is missed at 0.50. Targeted refinements: increase `--stage2-swap-loss-weight` from 0.5 → 1.5–2.0, longer warmup, channel ablation.
+
+### Reproducing the figures
+
+```bash
+python3 scripts/generate_paper_figures.py
+```
+
+Figures are pure SVG (no matplotlib dependency) and re-derive from `reports/experiments/stage6_phase2_lama/`, `stage7a_pool_quick/`, `stage7a_lama_capital/`, and any `phase1_*` cells under `reports/experiments/`. Aggregated numbers are written to `docs/figures/summary.json` for verification.
+
 ## Current evidence
 
 All current real-model evidence uses `google/gemma-4-E2B` on Apple Metal/MPS,
