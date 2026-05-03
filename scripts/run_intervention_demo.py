@@ -92,6 +92,56 @@ FACTS = [
 ]
 
 
+# Counter-prior facts: the object is *intentionally wrong*. The base LLM's
+# prior assigns near-zero probability to the target. If DeltaMemory can lift
+# the wrong target's log-prob meaningfully, that proves the bank is
+# *injecting* information into the model — not just letting the model emit
+# what it already knows. This is the gold-standard test for memory
+# intervention: forcing the model to contradict its own prior.
+FALSE_FACTS = [
+    {
+        "fact_id": "ff1_paris_mayor_napoleon",
+        "subject": "the mayor of Paris",
+        "object": "Napoleon Bonaparte",
+        "write": "Fact: The mayor of Paris is Napoleon Bonaparte.",
+        "read":  "Q: Who is the mayor of Paris?\nA:",
+        "target": " Napoleon",
+    },
+    {
+        "fact_id": "ff2_eiffel_arch_picasso",
+        "subject": "the architect of the Eiffel Tower",
+        "object": "Pablo Picasso",
+        "write": "Fact: The architect of the Eiffel Tower is Pablo Picasso.",
+        "read":  "Q: Who designed the Eiffel Tower?\nA:",
+        "target": " Pablo",
+    },
+    {
+        "fact_id": "ff3_mona_lisa_van_gogh",
+        "subject": "the painter of the Mona Lisa",
+        "object": "Vincent van Gogh",
+        "write": "Fact: The Mona Lisa was painted by Vincent van Gogh.",
+        "read":  "Q: Who painted the Mona Lisa?\nA:",
+        "target": " Vincent",
+    },
+    {
+        "fact_id": "ff4_relativity_newton",
+        "subject": "the discoverer of general relativity",
+        "object": "Isaac Newton",
+        "write": "Fact: General relativity was developed by Isaac Newton.",
+        "read":  "Q: Who developed general relativity?\nA:",
+        "target": " Isaac",
+    },
+    {
+        "fact_id": "ff5_python_lovelace",
+        "subject": "the creator of the Python language",
+        "object": "Ada Lovelace",
+        "write": "Fact: Python was created by Ada Lovelace.",
+        "read":  "Q: Who created the Python programming language?\nA:",
+        "target": " Ada",
+    },
+]
+
+
 def short_name(model_id: str) -> str:
     return model_id.split("/")[-1].lower().replace("_", "-")
 
@@ -135,13 +185,20 @@ def main():
     ap.add_argument("--device", default=None)
     ap.add_argument("--dtype", default="bfloat16",
                     choices=["bfloat16", "float16", "float32"])
-    ap.add_argument("--alpha", type=float, default=1.0)
+    ap.add_argument("--alpha", type=float, default=None,
+                    help="Bank injection scale. If omitted, uses the per-arch "
+                         "ArchAdapter.default_alpha (Gemma=1.0, Qwen3=0.05, "
+                         "Llama/Qwen2=0.05, GLM-4=0.05).")
     ap.add_argument("--out-dir", default=None)
     ap.add_argument("--capture-policy", default="period")
     ap.add_argument("--kproj", default=None,
                     help="Path to a trained KProjectorBank .pt (default: identity-init / v3 raw bank)")
     ap.add_argument("--label", default="v3",
                     help="Label for the bank condition column in the report (default: v3)")
+    ap.add_argument("--false-facts", action="store_true",
+                    help="Use FALSE_FACTS (counter-prior) instead of FACTS. "
+                         "Tests whether the bank can override the LLM's prior "
+                         "(e.g. claim Mona Lisa was painted by van Gogh).")
     args = ap.parse_args()
 
     if args.device is None:
@@ -154,7 +211,11 @@ def main():
     dtype = {"bfloat16": torch.bfloat16, "float16": torch.float16,
              "float32": torch.float32}[args.dtype]
 
-    out_dir = Path(args.out_dir or f"transcripts/v3_intervention/{short_name(args.model)}")
+    facts_tag = "FALSE" if args.false_facts else "TRUE"
+    out_dir = Path(
+        args.out_dir
+        or f"transcripts/v31_intervention/{short_name(args.model)}-{args.device}-{facts_tag}"
+    )
     out_dir.mkdir(parents=True, exist_ok=True)
 
     print(f"=== loading {args.model} on {args.device} ({args.dtype}) ===", flush=True)
@@ -170,6 +231,12 @@ def main():
     print(f"  adapter = {patcher.adapter.name}, num_layers = {patcher.num_layers}",
           flush=True)
 
+    if args.alpha is None:
+        args.alpha = float(patcher.adapter.default_alpha)
+        print(f"  alpha (auto from adapter.default_alpha) = {args.alpha}", flush=True)
+    else:
+        print(f"  alpha (user override) = {args.alpha}", flush=True)
+
     kproj = None
     if args.kproj:
         from deltamemory.memory.k_projector import KProjectorBank
@@ -178,7 +245,10 @@ def main():
         print(f"  k-projector loaded from {args.kproj}", flush=True)
 
     results = []
-    for fact in FACTS:
+    facts_list = FALSE_FACTS if args.false_facts else FACTS
+    print(f"  facts mode = {'FALSE (counter-prior)' if args.false_facts else 'TRUE'}; "
+          f"{len(facts_list)} facts", flush=True)
+    for fact in facts_list:
         print(f"\n--- {fact['fact_id']}: {fact['subject']} -> {fact['object']} ---",
               flush=True)
         b0 = baseline_logits(model, tok, fact["read"], args.device)

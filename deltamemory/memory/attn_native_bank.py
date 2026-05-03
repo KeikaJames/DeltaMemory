@@ -618,6 +618,6 @@ def forward_with_bank(
     ids = enc["input_ids"].to(device)
     am = enc["attention_mask"].to(device)
     with patcher.patched(), patcher.injecting(bank, alpha=alpha), torch.no_grad():
-        out = patcher.model(input_ids=ids, attention_mask=am, use_cache=False)
+        out = patcher.model(input_ids=ids, attention_mask=am, use_cache=True)
     last = am.sum(dim=1).item() - 1
     return out.logits[0, last].detach()

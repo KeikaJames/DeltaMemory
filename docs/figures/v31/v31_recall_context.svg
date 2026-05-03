@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1088" height="560" viewBox="0 0 1088 560" role="img">
+  <style>
+    .title { font: 700 28px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #1D1D1F; }
+    .subtitle { font: 500 14px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #6E6E73; }
+    .label { font: 600 13px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #1D1D1F; }
+    .small { font: 500 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #6E6E73; }
+    .tiny { font: 500 10px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #6E6E73; }
+    .value { font: 700 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #1D1D1F; }
+  </style>
+  <text x="40" y="48" class="title">Held-out recall context</text>
+  <text x="40" y="75" class="subtitle">Gemma-4 dev_v31 recall@1: v3.1 materially lifts the raw bank, but prompt/RAG remain the upper bar.</text>
+  <rect x="24" y="94" width="1040" height="424" rx="34" fill="#F5F5F7"/>
+  <line x1="96" y1="432.0" x2="946" y2="432.0" stroke="#E8EAED" stroke-width="1"/>
+  <text x="50" y="436.0" class="tiny">0.00</text>
+  <line x1="96" y1="332.0" x2="946" y2="332.0" stroke="#E8EAED" stroke-width="1"/>
+  <text x="50" y="336.0" class="tiny">0.33</text>
+  <line x1="96" y1="232.0" x2="946" y2="232.0" stroke="#E8EAED" stroke-width="1"/>
+  <text x="50" y="236.0" class="tiny">0.67</text>
+  <line x1="96" y1="132.0" x2="946" y2="132.0" stroke="#E8EAED" stroke-width="1"/>
+  <text x="50" y="136.0" class="tiny">1.00</text>
+  <rect x="144.0" y="326.6" width="82" height="105.4" rx="15" fill="#6E6E73"/>
+  <text x="185.0" y="314.6" text-anchor="middle" class="value">0.351</text>
+  <text x="185.0" y="466" text-anchor="middle" class="label">No memory</text>
+  <rect x="314.0" y="428.3" width="82" height="3.7" rx="15" fill="#FBBC05"/>
+  <text x="355.0" y="416.3" text-anchor="middle" class="value">0.012</text>
+  <text x="355.0" y="466" text-anchor="middle" class="label">Raw bank</text>
+  <rect x="484.0" y="264.4" width="82" height="167.6" rx="15" fill="#007AFF"/>
+  <text x="525.0" y="252.4" text-anchor="middle" class="value">0.559</text>
+  <text x="525.0" y="466" text-anchor="middle" class="label">K-projector</text>
+  <rect x="654.0" y="241.0" width="82" height="191.0" rx="15" fill="#34A853"/>
+  <text x="695.0" y="229.0" text-anchor="middle" class="value">0.637</text>
+  <text x="695.0" y="466" text-anchor="middle" class="label">Prompt</text>
+  <rect x="824.0" y="235.2" width="82" height="196.8" rx="15" fill="#4285F4"/>
+  <text x="865.0" y="223.2" text-anchor="middle" class="value">0.656</text>
+  <text x="865.0" y="466" text-anchor="middle" class="label">RAG oracle</text>
+  <text x="96" y="486" class="small">Source: reports/cleanroom/stage15_dev_v31/summary.json.</text>
+
+</svg>

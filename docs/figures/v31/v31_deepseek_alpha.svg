@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1088" height="600" viewBox="0 0 1088 600" role="img">
+  <style>
+    .title { font: 700 28px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #1D1D1F; }
+    .subtitle { font: 500 14px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #6E6E73; }
+    .label { font: 600 13px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #1D1D1F; }
+    .small { font: 500 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #6E6E73; }
+    .tiny { font: 500 10px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #6E6E73; }
+    .value { font: 700 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #1D1D1F; }
+  </style>
+  <text x="40" y="48" class="title">DeepSeek-32B counter-prior α sweep</text>
+  <text x="40" y="75" class="subtitle">A stronger 32B prior is not fully overridden by the identity-init bank; this remains the main limitation.</text>
+  <rect x="24" y="94" width="1040" height="470" rx="34" fill="#F5F5F7"/>
+  <line x1="92" y1="466.0" x2="962" y2="466.0" stroke="#E8EAED" stroke-width="1"/>
+  <text x="44" y="470.0" class="tiny">-2</text>
+  <line x1="92" y1="383.5" x2="962" y2="383.5" stroke="#E8EAED" stroke-width="1"/>
+  <text x="44" y="387.5" class="tiny">-1</text>
+  <line x1="92" y1="301.0" x2="962" y2="301.0" stroke="#1D1D1F" stroke-width="1"/>
+  <text x="44" y="305.0" class="tiny">+0</text>
+  <line x1="92" y1="218.5" x2="962" y2="218.5" stroke="#E8EAED" stroke-width="1"/>
+  <text x="44" y="222.5" class="tiny">+1</text>
+  <line x1="92" y1="136.0" x2="962" y2="136.0" stroke="#E8EAED" stroke-width="1"/>
+  <text x="44" y="140.0" class="tiny">+2</text>
+  <rect x="112.0" y="296.0" width="27" height="5.0" rx="7" fill="#6E6E73"/>
+  <rect x="143.0" y="295.5" width="27" height="5.5" rx="7" fill="#FBBC05"/>
+  <rect x="174.0" y="270.0" width="27" height="31.0" rx="7" fill="#FF9500"/>
+  <rect x="205.0" y="290.5" width="27" height="10.5" rx="7" fill="#EA4335"/>
+  <text x="173.0" y="500" text-anchor="middle" class="label">Napoleon</text>
+  <rect x="286.0" y="301.0" width="27" height="12.1" rx="7" fill="#6E6E73"/>
+  <rect x="317.0" y="283.9" width="27" height="17.1" rx="7" fill="#FBBC05"/>
+  <rect x="348.0" y="265.8" width="27" height="35.2" rx="7" fill="#FF9500"/>
+  <rect x="379.0" y="285.3" width="27" height="15.7" rx="7" fill="#EA4335"/>
+  <text x="347.0" y="500" text-anchor="middle" class="label">Pablo</text>
+  <rect x="460.0" y="301.0" width="27" height="119.1" rx="7" fill="#6E6E73"/>
+  <rect x="491.0" y="301.0" width="27" height="122.6" rx="7" fill="#FBBC05"/>
+  <rect x="522.0" y="301.0" width="27" height="150.4" rx="7" fill="#FF9500"/>
+  <rect x="553.0" y="301.0" width="27" height="74.6" rx="7" fill="#EA4335"/>
+  <text x="521.0" y="500" text-anchor="middle" class="label">Vincent</text>
+  <rect x="634.0" y="301.0" width="27" height="57.9" rx="7" fill="#6E6E73"/>
+  <rect x="665.0" y="301.0" width="27" height="71.0" rx="7" fill="#FBBC05"/>
+  <rect x="696.0" y="301.0" width="27" height="93.7" rx="7" fill="#FF9500"/>
+  <rect x="727.0" y="301.0" width="27" height="85.2" rx="7" fill="#EA4335"/>
+  <text x="695.0" y="500" text-anchor="middle" class="label">Isaac</text>
+  <rect x="808.0" y="301.0" width="27" height="60.1" rx="7" fill="#6E6E73"/>
+  <rect x="839.0" y="301.0" width="27" height="24.5" rx="7" fill="#FBBC05"/>
+  <rect x="870.0" y="301.0" width="27" height="25.3" rx="7" fill="#FF9500"/>
+  <rect x="901.0" y="290.5" width="27" height="10.5" rx="7" fill="#EA4335"/>
+  <text x="869.0" y="500" text-anchor="middle" class="label">Ada</text>
+  <rect x="750" y="115" width="14" height="14" rx="4" fill="#6E6E73"/>
+  <text x="772" y="127" class="small">α=0.05</text>
+  <rect x="750" y="139" width="14" height="14" rx="4" fill="#FBBC05"/>
+  <text x="772" y="151" class="small">α=0.10</text>
+  <rect x="750" y="163" width="14" height="14" rx="4" fill="#FF9500"/>
+  <text x="772" y="175" class="small">α=0.20</text>
+  <rect x="750" y="187" width="14" height="14" rx="4" fill="#EA4335"/>
+  <text x="772" y="199" class="small">α=0.30</text>
+  <text x="92" y="532" class="small">Source: transcripts/v31_intervention/deepseek-r1-distill-qwen-32b-gb10-FALSE*/demo.json.</text>
+
+</svg>
