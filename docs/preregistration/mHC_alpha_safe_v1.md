@@ -62,7 +62,17 @@ Each H reports: point estimate, paired Wilcoxon signed-rank p, bootstrap (1000-r
   - mHC GPT-2: plateau / sub-linear (near-flat on log-y).
   - HC GPT-2: third arm, expected somewhere in between or also exponential.
   Quantitative gate: `‖x_L‖_F / ‖x_0‖_F` for mHC is at least **10×** smaller than for Residual at α=1.5, with non-overlapping bootstrap 95% CI across 5 seeds × 32 prompts.
-- **H6 (α=0 bit-equal regression)**. All three architectures at α=0 reproduce no-bank logits with `max_abs_diff < 1e-5` over a fixed 1024-token × full-vocab probe (MarcoDotIO logits-equivalent conversion claim). Failure here halts the entire phase.
+- **H6 (α=0 bank-injection bit-equal regression)**. For each of the three
+  architectures, the DeltaMemory bank-augmented forward at α=0 reproduces the
+  same architecture's *no-bank* logits with `max_abs_diff < 1e-5` over a fixed
+  1024-token × full-vocab probe. (This is the standard pass-through gate
+  already used by `tests/conservation_real_models.py` for v3.1; mHC inherits
+  it via the `MhcGpt2Adapter` written in mHC1.3.) Failure halts the entire
+  phase. **Note**: H6 is independent of the *upstream* GPT-2 ↔ mHC
+  logits-equivalent initialisation claim from MarcoDotIO; the latter is a
+  soft-bound regression sanity check (transformers <5: atol=1e-4; transformers
+  ≥5: atol=0.5 due to a documented upstream GPT-2 internals shift unrelated to
+  the mHC path).
 
 **Decision gate** (between mHC2 and mHC3): of {H1, H2, H5}, at least **2 of 3** must show the predicted direction (uncorrected p < 0.05) on the pure-perturbation Phase mHC2 dataset before Phase mHC3 (bank-injection) launches. This conserves GB10 budget if the architecture-only spectral shield doesn't manifest.
 
