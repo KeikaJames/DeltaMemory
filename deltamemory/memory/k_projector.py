@@ -52,10 +52,17 @@ class KProjectorBank(nn.Module):
 
     @classmethod
     def identity_for(cls, model: Any) -> "KProjectorBank":
-        """Build an identity projector matching a model's per-layer head_dim."""
+        """Build an identity projector matching a model's per-layer head_dim.
+
+        Uses :class:`AttnNativePatcher`'s attention-module discovery so the
+        projector works on every architecture the bank supports
+        (Gemma-4 / Gemma-3 / Llama / Qwen / DeepSeek / GLM-4).
+        """
+        from deltamemory.memory.attn_native_bank import AttnNativePatcher
+
+        probe = AttnNativePatcher(model)
         dims: list[int] = []
-        for layer in model.model.layers:
-            attn = layer.self_attn
+        for attn in probe.attn_modules:
             d = getattr(attn, "head_dim", None)
             if d is None:
                 d = attn.q_proj.out_features // attn.num_heads
