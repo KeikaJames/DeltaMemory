@@ -5,3 +5,5 @@ __pycache__/
 .pytest_cache/
 data/lama_*.jsonl
 .DS_Store
+reports/experiments/*.log
+reports/experiments/delta_experiment_summary.json

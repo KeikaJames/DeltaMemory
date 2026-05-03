@@ -1,0 +1,516 @@
+{
+  "models": [
+    "gemma4_e2b"
+  ],
+  "summaries": [
+    {
+      "model": "google/gemma-4-E2B",
+      "short": "gemma4_e2b",
+      "status": "ok",
+      "n_facts": 100,
+      "steps": 500,
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "P1_paraphrase_holdout": {
+        "mean": 1.0,
+        "std": 0.0,
+        "n": 3
+      },
+      "P2_adversarial_per_transform": {
+        "typo": {
+          "DM_top1": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "no_DM_top1": {
+            "mean": 0.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "DM_lift": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "retrieval": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          }
+        },
+        "fragment": {
+          "DM_top1": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "no_DM_top1": {
+            "mean": 0.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "DM_lift": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "retrieval": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          }
+        },
+        "lowercase_no_punct": {
+          "DM_top1": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "no_DM_top1": {
+            "mean": 0.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "DM_lift": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "retrieval": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          }
+        },
+        "prefix_inject": {
+          "DM_top1": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "no_DM_top1": {
+            "mean": 0.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "DM_lift": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "retrieval": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          }
+        },
+        "suffix_inject": {
+          "DM_top1": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "no_DM_top1": {
+            "mean": 0.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "DM_lift": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "retrieval": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          }
+        },
+        "instruction_conflict": {
+          "DM_top1": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "no_DM_top1": {
+            "mean": 0.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "DM_lift": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "retrieval": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          }
+        },
+        "noise_pad": {
+          "DM_top1": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "no_DM_top1": {
+            "mean": 0.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "DM_lift": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "retrieval": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          }
+        },
+        "wrong_lang": {
+          "DM_top1": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "no_DM_top1": {
+            "mean": 0.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "DM_lift": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "retrieval": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          }
+        },
+        "double_negative": {
+          "DM_top1": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "no_DM_top1": {
+            "mean": 0.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "DM_lift": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "retrieval": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          }
+        },
+        "polite_misdirect": {
+          "DM_top1": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "no_DM_top1": {
+            "mean": 0.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "DM_lift": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          },
+          "retrieval": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n": 3
+          }
+        }
+      },
+      "P3_output_tampering": {
+        "base_top1": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3
+        },
+        "DM_top1": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3
+        },
+        "override_rate": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3
+        },
+        "locality_drift": {
+          "mean": 0.75,
+          "std": 0.0,
+          "n": 3
+        }
+      },
+      "raw_per_seed": [
+        {
+          "seed": 0,
+          "P1": {
+            "per_template_recall_at_1": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "mean_recall_at_1": 1.0
+          },
+          "P2": {
+            "typo": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            },
+            "fragment": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            },
+            "lowercase_no_punct": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            },
+            "prefix_inject": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            },
+            "suffix_inject": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            },
+            "instruction_conflict": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            },
+            "noise_pad": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            },
+            "wrong_lang": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            },
+            "double_negative": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            },
+            "polite_misdirect": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            }
+          },
+          "P3": {
+            "base_top1": 0.0,
+            "DM_top1": 1.0,
+            "override_rate_on_wrong": 1.0,
+            "locality_drift_rate": 0.75,
+            "n_facts": 100,
+            "n_base_wrong": 100
+          }
+        },
+        {
+          "seed": 1,
+          "P1": {
+            "per_template_recall_at_1": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "mean_recall_at_1": 1.0
+          },
+          "P2": {
+            "typo": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            },
+            "fragment": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            },
+            "lowercase_no_punct": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            },
+            "prefix_inject": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            },
+            "suffix_inject": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            },
+            "instruction_conflict": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            },
+            "noise_pad": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            },
+            "wrong_lang": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            },
+            "double_negative": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            },
+            "polite_misdirect": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            }
+          },
+          "P3": {
+            "base_top1": 0.0,
+            "DM_top1": 1.0,
+            "override_rate_on_wrong": 1.0,
+            "locality_drift_rate": 0.75,
+            "n_facts": 100,
+            "n_base_wrong": 100
+          }
+        },
+        {
+          "seed": 2,
+          "P1": {
+            "per_template_recall_at_1": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "mean_recall_at_1": 1.0
+          },
+          "P2": {
+            "typo": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            },
+            "fragment": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            },
+            "lowercase_no_punct": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            },
+            "prefix_inject": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            },
+            "suffix_inject": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            },
+            "instruction_conflict": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            },
+            "noise_pad": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            },
+            "wrong_lang": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            },
+            "double_negative": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            },
+            "polite_misdirect": {
+              "retrieval_at_1": 1.0,
+              "answer_top1_with_DM": 1.0,
+              "answer_top1_no_DM": 0.0,
+              "DM_lift": 1.0
+            }
+          },
+          "P3": {
+            "base_top1": 0.0,
+            "DM_top1": 1.0,
+            "override_rate_on_wrong": 1.0,
+            "locality_drift_rate": 0.75,
+            "n_facts": 100,
+            "n_base_wrong": 100
+          }
+        }
+      ]
+    }
+  ]
+}

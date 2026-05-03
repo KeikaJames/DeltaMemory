@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="320" viewBox="0 0 720 320" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+<rect width="720" height="320" fill="#ffffff"/>
+<text x="360.0" y="24" font-size="15" font-weight="600" text-anchor="middle">Stage 11A — held-out paraphrase recall@1 (gate G11A ≥ 0.85)</text>
+<line x1="90" x2="690" y1="220.0" y2="220.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="82" y="224.0" font-size="10" text-anchor="end" fill="#6b7280">0.00</text>
+<line x1="90" x2="690" y1="177.5" y2="177.5" stroke="#e5e7eb" stroke-width="1"/>
+<text x="82" y="181.5" font-size="10" text-anchor="end" fill="#6b7280">0.25</text>
+<line x1="90" x2="690" y1="135.0" y2="135.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="82" y="139.0" font-size="10" text-anchor="end" fill="#6b7280">0.50</text>
+<line x1="90" x2="690" y1="92.5" y2="92.5" stroke="#e5e7eb" stroke-width="1"/>
+<text x="82" y="96.5" font-size="10" text-anchor="end" fill="#6b7280">0.75</text>
+<line x1="90" x2="690" y1="50.0" y2="50.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="82" y="54.0" font-size="10" text-anchor="end" fill="#6b7280">1.00</text>
+<line x1="90" x2="690" y1="75.5" y2="75.5" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,3"/>
+<text x="686" y="71.5" font-size="10" text-anchor="end" fill="#dc2626">gate 0.85</text>
+<rect x="150.0" y="196.46502399610148" width="180.0" height="23.53497600389851" fill="#ef4444" opacity="0.85"/>
+<line x1="240.0" x2="240.0" y1="197.17592517534894" y2="195.99537032345933" stroke="#1f2937" stroke-width="1.5"/>
+<line x1="235.0" x2="245.0" y1="197.17592517534894" y2="197.17592517534894" stroke="#1f2937" stroke-width="1.5"/>
+<line x1="235.0" x2="245.0" y1="195.99537032345933" y2="195.99537032345933" stroke="#1f2937" stroke-width="1.5"/>
+<text x="240.0" y="190.46502399610148" font-size="11" text-anchor="middle" font-weight="600">0.138</text>
+<text x="240.0" y="234" font-size="11" text-anchor="end" transform="rotate(-30 240.0 234)">multilayer</text>
+<rect x="450.0" y="211.0609837807715" width="180.0" height="8.939016219228506" fill="#ef4444" opacity="0.85"/>
+<line x1="540.0" x2="540.0" y1="211.67832177132368" y2="210.16203693735105" stroke="#1f2937" stroke-width="1.5"/>
+<line x1="535.0" x2="545.0" y1="211.67832177132368" y2="211.67832177132368" stroke="#1f2937" stroke-width="1.5"/>
+<line x1="535.0" x2="545.0" y1="210.16203693735105" y2="210.16203693735105" stroke="#1f2937" stroke-width="1.5"/>
+<text x="540.0" y="205.0609837807715" font-size="11" text-anchor="middle" font-weight="600">0.053</text>
+<text x="540.0" y="234" font-size="11" text-anchor="end" transform="rotate(-30 540.0 234)">prompt_hidden</text>
+</svg>

@@ -1,0 +1,199 @@
+{
+  "stage": "8.1_closed_book_pilot",
+  "args": {
+    "model": "google/gemma-4-E2B",
+    "device": "cuda",
+    "dtype": "bfloat16",
+    "n_facts": 176,
+    "steps": 1500,
+    "batch_size": 16,
+    "eval_batch_size": 32,
+    "lr": 0.0005,
+    "alpha": 1.0,
+    "grad_clip": 1.0,
+    "seed": 0,
+    "key_dim": 256,
+    "retrieval_loss_weight": 1.0,
+    "retrieval_temperature": 0.07,
+    "retrieval_hard_negatives": 8,
+    "dataset": "lama_curated",
+    "lama_jsonl": "scripts/data/lama_trex_full.jsonl",
+    "report_dir": "reports/experiments/stage11B_loro_P937_seed0",
+    "encoder": "multilayer",
+    "stage10_paraphrase_jsonl": null,
+    "stage10_decoy_multipliers": null,
+    "stage10_value_ablation": false,
+    "stage10_loro_add_jsonl": "scripts/data/loro_splits/loro_P937_holdout.jsonl",
+    "stage11_paraphrase_train_jsonl": "scripts/data/lama_stage11_train_paraphrase.jsonl",
+    "stage11_loro_exclude_relation": "P937",
+    "stage11_relation_adversary_weight": 0.1,
+    "stage11_deterministic": false
+  },
+  "n_facts": 133,
+  "hidden_size": 1536,
+  "train_seconds": 98.38145065307617,
+  "training_history": [
+    {
+      "step": 1,
+      "loss": 19.39922523498535,
+      "top1": 0.0
+    },
+    {
+      "step": 75,
+      "loss": 0.09809288382530212,
+      "top1": 1.0
+    },
+    {
+      "step": 150,
+      "loss": 0.010943688452243805,
+      "top1": 1.0
+    },
+    {
+      "step": 225,
+      "loss": 0.08936765044927597,
+      "top1": 1.0
+    },
+    {
+      "step": 300,
+      "loss": 0.2362801879644394,
+      "top1": 1.0
+    },
+    {
+      "step": 375,
+      "loss": 0.24060963094234467,
+      "top1": 1.0
+    },
+    {
+      "step": 450,
+      "loss": 0.10708171874284744,
+      "top1": 1.0
+    },
+    {
+      "step": 525,
+      "loss": 0.16277781128883362,
+      "top1": 1.0
+    },
+    {
+      "step": 600,
+      "loss": 0.11319153755903244,
+      "top1": 1.0
+    },
+    {
+      "step": 675,
+      "loss": 0.005072078667581081,
+      "top1": 1.0
+    },
+    {
+      "step": 750,
+      "loss": 0.17437675595283508,
+      "top1": 1.0
+    },
+    {
+      "step": 825,
+      "loss": 0.04448525980114937,
+      "top1": 1.0
+    },
+    {
+      "step": 900,
+      "loss": 0.013757562264800072,
+      "top1": 1.0
+    },
+    {
+      "step": 975,
+      "loss": 0.06281808018684387,
+      "top1": 1.0
+    },
+    {
+      "step": 1050,
+      "loss": 0.0020163601730018854,
+      "top1": 1.0
+    },
+    {
+      "step": 1125,
+      "loss": 0.4818791449069977,
+      "top1": 1.0
+    },
+    {
+      "step": 1200,
+      "loss": 0.011212002485990524,
+      "top1": 1.0
+    },
+    {
+      "step": 1275,
+      "loss": 0.26654303073883057,
+      "top1": 1.0
+    },
+    {
+      "step": 1350,
+      "loss": 0.09257687628269196,
+      "top1": 1.0
+    },
+    {
+      "step": 1425,
+      "loss": 0.09722921252250671,
+      "top1": 1.0
+    },
+    {
+      "step": 1500,
+      "loss": 0.2605424225330353,
+      "top1": 1.0
+    }
+  ],
+  "metrics": {
+    "bank_inject_oracle": {
+      "top1": 1.0,
+      "top10": 1.0,
+      "nll": 0.000374884299121629,
+      "n": 133
+    },
+    "bank_inject_retrieved": {
+      "top1": 1.0,
+      "top10": 1.0,
+      "nll": 0.000374884299121629,
+      "n": 133
+    },
+    "no_memory": {
+      "top1": 0.0,
+      "top10": 0.007518796992481203,
+      "nll": 21.37247667814556,
+      "n": 133
+    },
+    "swap_paired": {
+      "top1": 0.0,
+      "top10": 0.045112781954887216,
+      "nll": 23.221160429760925,
+      "n": 133,
+      "paired_flip_rate": 0.9849624060150376
+    },
+    "address_retrieval_recall_at_1": 1.0,
+    "stage10": {
+      "loro_holdout": {
+        "n_holdout_facts": 16,
+        "skipped_multitoken": 2,
+        "recall_at_1_holdout": 1.0,
+        "bank_inject_retrieved_top1_holdout": 0.4375,
+        "G10F_pass": false
+      }
+    }
+  },
+  "gates": {
+    "G1_closed_book_retrieved_top1_ge_0.80": {
+      "value": 1.0,
+      "pass": true
+    },
+    "G6_no_memory_top1_le_0.05": {
+      "value": 0.0,
+      "pass": true
+    },
+    "G5_swap_paired_flip_ge_0.80": {
+      "value": 0.9849624060150376,
+      "pass": true
+    },
+    "GR_address_recall_at_1_ge_0.95": {
+      "value": 1.0,
+      "pass": true
+    }
+  },
+  "writer_params": 18885120,
+  "key_proj_params": 459264
+}

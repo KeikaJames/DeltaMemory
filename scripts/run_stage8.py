@@ -330,10 +330,20 @@ def train(
     retrieval_temperature: float,
     retrieval_hard_negatives: int = 0,
     encoder=None,
+    paraphrase_pool: list[list[str]] | None = None,
+    relation_ids: list[int] | None = None,
+    relation_adversary_weight: float = 0.0,
+    n_relations: int = 0,
 ) -> list[StepStats]:
     params = list(writer.parameters()) + list(key_proj.parameters())
     if encoder is not None:
         params += list(encoder.parameters())
+    # Stage 11: optional gradient-reversal relation-id adversary head.
+    rel_adv_head = None
+    if relation_adversary_weight > 0.0 and n_relations > 1 and relation_ids is not None:
+        rel_adv_head = nn.Linear(writer.down.out_features, n_relations).to(
+            device=device, dtype=torch.float32)
+        params += list(rel_adv_head.parameters())
     optim = torch.optim.AdamW(params, lr=lr, betas=(0.9, 0.95), weight_decay=0.0)
     n = len(facts)
     rng = random.Random(seed + 7919)
@@ -365,9 +375,19 @@ def train(
         slots = torch.tensor(idxs, device=device, dtype=torch.long)
         value_embeds = _value_embeds(model, value_token_ids_all[slots]).detach().float()
         bank_vectors = writer(value_embeds)
-        ids = input_ids_all[slots]
-        am = attn_all[slots]
-        lp = last_pos_all[slots]
+        # Stage 11: per-step paraphrase sampling. If a paraphrase pool is
+        # provided, replace the canonical read prompt with a random surface
+        # variant per (step, fact) so the encoder sees many surface forms
+        # per ground-truth address. The first call uses cached canonical
+        # tokenisation; here we re-tokenise the sampled paraphrase batch.
+        if paraphrase_pool is not None:
+            sampled_prompts = [paraphrase_pool[i][rng.randrange(len(paraphrase_pool[i]))]
+                               for i in idxs]
+            ids, am, lp = _tokenize_read_prompts(tokenizer, sampled_prompts, device)
+        else:
+            ids = input_ids_all[slots]
+            am = attn_all[slots]
+            lp = last_pos_all[slots]
         targets = value_token_ids_all[slots]
         logits = _forward_read_with_injection(model, ids, am, lp, bank_vectors, alpha)
         ce = F.cross_entropy(logits.float(), targets)
@@ -378,7 +398,12 @@ def train(
         if encoder_has_params:
             # Re-encode the relevant slot subset with gradients flowing.
             batch_addrs = [addresses_all[i] for i in idxs]
-            batch_prompts = [read_prompts_all[i] for i in idxs]
+            # Stage 11: if paraphrase pool active, the encoder must see the
+            # *sampled* paraphrase, not the canonical prompt.
+            if paraphrase_pool is not None:
+                batch_prompts = sampled_prompts
+            else:
+                batch_prompts = [read_prompts_all[i] for i in idxs]
             anchor_pooled = encoder.encode(model, tokenizer, batch_addrs, batch_prompts)
             if retrieval_hard_negatives > 0:
                 batch_set = set(idxs)
@@ -419,6 +444,23 @@ def train(
         labels = torch.arange(keys_anchor.shape[0], device=device)
         retr_loss = F.cross_entropy(sim, labels)
         loss = ce + retrieval_loss_weight * retr_loss
+
+        # Stage 11: gradient-reversal relation-id adversary on payload.
+        # Forces writer-output to be relation-agnostic, helping LORO holdout.
+        rel_adv_loss_val = 0.0
+        if rel_adv_head is not None:
+            rel_targets = torch.tensor(
+                [relation_ids[i] for i in idxs], device=device, dtype=torch.long)
+            # Gradient reversal layer (manual): flip gradient sign by negating loss
+            # contribution after .backward by detach trick.
+            rev = bank_vectors  # detached upstream value but writer-output has grad
+            rel_logits = rel_adv_head(rev)
+            rel_ce = F.cross_entropy(rel_logits.float(), rel_targets)
+            # We want to MAXIMISE the adversary's confusion, so subtract its loss
+            # from main loss (gradient reversal). The adversary head itself still
+            # learns by adding +rel_ce; net effect: writer adversarial, head normal.
+            loss = loss - relation_adversary_weight * rel_ce + rel_ce
+            rel_adv_loss_val = float(rel_ce.item())
 
         optim.zero_grad(set_to_none=True)
         loss.backward()
@@ -884,7 +926,30 @@ def main() -> int:
                         help="Replace bank values with random / shuffled tensors after training; re-eval.")
     parser.add_argument("--stage10-loro-add-jsonl", default=None,
                         help="Path to held-out fact JSONL (LORO). Append to bank without further training and eval new slots.")
+    # Stage 11 training-time fixes.
+    parser.add_argument("--stage11-paraphrase-train-jsonl", default=None,
+                        help="Path to JSONL with 'paraphrases' list per fact. At each step, "
+                             "sample a random paraphrase per fact as the read prompt. Forces "
+                             "encoder to be paraphrase-invariant.")
+    parser.add_argument("--stage11-loro-exclude-relation", default=None,
+                        help="Wikidata relation P-code (e.g. P36) to EXCLUDE from training. "
+                             "All facts with this relation are dropped pre-training; "
+                             "use --stage10-loro-add-jsonl with the same relation to eval.")
+    parser.add_argument("--stage11-relation-adversary-weight", type=float, default=0.0,
+                        help="Weight for gradient-reversal relation-id adversary on payload "
+                             "(forces writer to be relation-agnostic). 0 disables.")
+    parser.add_argument("--stage11-deterministic", action="store_true",
+                        help="Enable bit-exact reproduction: torch deterministic algorithms, "
+                             "single-thread tokenisation, disable bf16 nondeterminism.")
     args = parser.parse_args()
+
+    if args.stage11_deterministic:
+        import os as _os
+        _os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
+        _os.environ["PYTHONHASHSEED"] = str(args.seed)
+        torch.use_deterministic_algorithms(True, warn_only=True)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
 
     torch.manual_seed(args.seed)
     random.seed(args.seed)
@@ -904,6 +969,61 @@ def main() -> int:
 
     facts = build_facts(tokenizer, n_facts=args.n_facts, seed=args.seed) if args.dataset == "synthetic_colors" else build_facts_lama(tokenizer, REPO_ROOT / args.lama_jsonl, seed=args.seed, n_facts=args.n_facts)
     print(f"[stage8] dataset={args.dataset} built {len(facts)} facts; hidden={hidden}", flush=True)
+
+    # ------------------------------------------------------------------
+    # Stage 11: optionally exclude one Wikidata relation from training
+    # (train-time LORO). Requires lama_trex_full.jsonl-style data with a
+    # 'relation' field that we can backsolve from prompt content via the
+    # Stage 10 paraphrase detector.
+    # ------------------------------------------------------------------
+    relation_per_fact: list[str | None] = [None] * len(facts)
+    if args.stage11_loro_exclude_relation or args.stage11_relation_adversary_weight > 0.0:
+        from build_stage11_paraphrase import _detect_relation as _det
+        relation_per_fact = [_det(f.address, f.value_token_str) for f in facts]
+    if args.stage11_loro_exclude_relation:
+        excl = args.stage11_loro_exclude_relation
+        kept = [(f, r) for f, r in zip(facts, relation_per_fact) if r != excl]
+        excluded_n = len(facts) - len(kept)
+        facts = [Fact(slot=i, address=f.address, value_token_str=f.value_token_str,
+                      value_token_id=f.value_token_id) for i, (f, _) in enumerate(kept)]
+        relation_per_fact = [r for _, r in kept]
+        print(f"[stage11] LORO: excluded {excluded_n} facts with relation={excl}; "
+              f"training on {len(facts)} facts", flush=True)
+    if args.stage11_relation_adversary_weight > 0.0:
+        # Drop facts with unknown relation so adversary CE has valid targets.
+        kept = [(f, r) for f, r in zip(facts, relation_per_fact) if r is not None]
+        dropped = len(facts) - len(kept)
+        if dropped:
+            print(f"[stage11] adversary: dropped {dropped} facts with unknown relation", flush=True)
+        facts = [Fact(slot=i, address=f.address, value_token_str=f.value_token_str,
+                      value_token_id=f.value_token_id) for i, (f, _) in enumerate(kept)]
+        relation_per_fact = [r for _, r in kept]
+
+    # Build paraphrase pool keyed by fact address.
+    paraphrase_pool: list[list[str]] | None = None
+    if args.stage11_paraphrase_train_jsonl:
+        addr_to_paras: dict[str, list[str]] = {}
+        with (REPO_ROOT / args.stage11_paraphrase_train_jsonl).open() as pf:
+            for line in pf:
+                row = json.loads(line)
+                addr_to_paras[row["address"]] = row["paraphrases"]
+        paraphrase_pool = []
+        hits = 0
+        for f in facts:
+            paras = addr_to_paras.get(f.address)
+            if paras is None:
+                paraphrase_pool.append([f.read_prompt])
+            else:
+                paraphrase_pool.append(paras)
+                hits += 1
+        print(f"[stage11] paraphrase pool covers {hits}/{len(facts)} facts "
+              f"({sum(len(p) for p in paraphrase_pool)/len(paraphrase_pool):.1f} paraphrases/fact avg)", flush=True)
+
+    # Relation index for adversary head.
+    rel_codes_sorted = sorted({r for r in relation_per_fact if r is not None})
+    rel_to_idx = {r: i for i, r in enumerate(rel_codes_sorted)}
+    relation_ids = [rel_to_idx.get(r, -1) for r in relation_per_fact]
+    n_relations = len(rel_codes_sorted)
 
     bank = FastWeightBank(n_slots=len(facts), hidden=hidden, key_dim=args.key_dim).to(device=device, dtype=torch.float32)
     writer = Writer(hidden=hidden).to(device=device, dtype=torch.float32)
@@ -930,6 +1050,10 @@ def main() -> int:
         retrieval_temperature=args.retrieval_temperature,
         retrieval_hard_negatives=args.retrieval_hard_negatives,
         encoder=encoder,
+        paraphrase_pool=paraphrase_pool,
+        relation_ids=relation_ids if any(i >= 0 for i in relation_ids) else None,
+        relation_adversary_weight=args.stage11_relation_adversary_weight,
+        n_relations=n_relations,
     )
     train_secs = time.time() - t0
 

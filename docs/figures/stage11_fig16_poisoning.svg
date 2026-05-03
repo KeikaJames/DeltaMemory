@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="320" viewBox="0 0 720 320" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+<rect width="720" height="320" fill="#ffffff"/>
+<text x="360.0" y="24" font-size="15" font-weight="600" text-anchor="middle">Stage 11D-3 — prompt-injection / poisoning resistance (3 gates)</text>
+<line x1="90" x2="690" y1="220.0" y2="220.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="82" y="224.0" font-size="10" text-anchor="end" fill="#6b7280">0.00</text>
+<line x1="90" x2="690" y1="177.5" y2="177.5" stroke="#e5e7eb" stroke-width="1"/>
+<text x="82" y="181.5" font-size="10" text-anchor="end" fill="#6b7280">0.25</text>
+<line x1="90" x2="690" y1="135.0" y2="135.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="82" y="139.0" font-size="10" text-anchor="end" fill="#6b7280">0.50</text>
+<line x1="90" x2="690" y1="92.5" y2="92.5" stroke="#e5e7eb" stroke-width="1"/>
+<text x="82" y="96.5" font-size="10" text-anchor="end" fill="#6b7280">0.75</text>
+<line x1="90" x2="690" y1="50.0" y2="50.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="82" y="54.0" font-size="10" text-anchor="end" fill="#6b7280">1.00</text>
+<rect x="130.0" y="220.0" width="120.0" height="0.0" fill="#10b981" opacity="0.85"/>
+<text x="190.0" y="214.0" font-size="11" text-anchor="middle" font-weight="600">0.000</text>
+<text x="190.0" y="234" font-size="11" text-anchor="end" transform="rotate(-30 190.0 234)">overwrite rate</text>
+<rect x="330.0" y="220.0" width="120.0" height="0.0" fill="#ef4444" opacity="0.85"/>
+<text x="390.0" y="214.0" font-size="11" text-anchor="middle" font-weight="600">0.000</text>
+<text x="390.0" y="234" font-size="11" text-anchor="end" transform="rotate(-30 390.0 234)">benign accept</text>
+<rect x="530.0" y="52.833333333333314" width="120.0" height="167.16666666666669" fill="#ef4444" opacity="0.85"/>
+<line x1="590.0" x2="590.0" y1="58.50000000000003" y2="50.0" stroke="#1f2937" stroke-width="1.5"/>
+<line x1="585.0" x2="595.0" y1="58.50000000000003" y2="58.50000000000003" stroke="#1f2937" stroke-width="1.5"/>
+<line x1="585.0" x2="595.0" y1="50.0" y2="50.0" stroke="#1f2937" stroke-width="1.5"/>
+<text x="590.0" y="46.833333333333314" font-size="11" text-anchor="middle" font-weight="600">0.983</text>
+<text x="590.0" y="234" font-size="11" text-anchor="end" transform="rotate(-30 590.0 234)">recall after attack</text>
+</svg>

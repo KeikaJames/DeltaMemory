@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="320" viewBox="0 0 720 320" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+<rect width="720" height="320" fill="#ffffff"/>
+<text x="360.0" y="24" font-size="15" font-weight="600" text-anchor="middle">Stage 11D-2 — chat-as-write-API top-1 (DM vs RAG, equal-budget)</text>
+<line x1="90" x2="690" y1="220.0" y2="220.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="82" y="224.0" font-size="10" text-anchor="end" fill="#6b7280">0.00</text>
+<line x1="90" x2="690" y1="177.5" y2="177.5" stroke="#e5e7eb" stroke-width="1"/>
+<text x="82" y="181.5" font-size="10" text-anchor="end" fill="#6b7280">0.25</text>
+<line x1="90" x2="690" y1="135.0" y2="135.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="82" y="139.0" font-size="10" text-anchor="end" fill="#6b7280">0.50</text>
+<line x1="90" x2="690" y1="92.5" y2="92.5" stroke="#e5e7eb" stroke-width="1"/>
+<text x="82" y="96.5" font-size="10" text-anchor="end" fill="#6b7280">0.75</text>
+<line x1="90" x2="690" y1="50.0" y2="50.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="82" y="54.0" font-size="10" text-anchor="end" fill="#6b7280">1.00</text>
+<rect x="150.0" y="55.66666666666666" width="180.0" height="164.33333333333334" fill="#3b82f6" opacity="0.85"/>
+<line x1="240.0" x2="240.0" y1="58.50000000000003" y2="50.0" stroke="#1f2937" stroke-width="1.5"/>
+<line x1="235.0" x2="245.0" y1="58.50000000000003" y2="58.50000000000003" stroke="#1f2937" stroke-width="1.5"/>
+<line x1="235.0" x2="245.0" y1="50.0" y2="50.0" stroke="#1f2937" stroke-width="1.5"/>
+<text x="240.0" y="49.66666666666666" font-size="11" text-anchor="middle" font-weight="600">0.967</text>
+<text x="240.0" y="234" font-size="11" text-anchor="end" transform="rotate(-30 240.0 234)">DM (chat-API)</text>
+<rect x="450.0" y="173.25" width="180.0" height="46.74999999999999" fill="#3b82f6" opacity="0.85"/>
+<line x1="540.0" x2="540.0" y1="190.25" y2="156.25" stroke="#1f2937" stroke-width="1.5"/>
+<line x1="535.0" x2="545.0" y1="190.25" y2="190.25" stroke="#1f2937" stroke-width="1.5"/>
+<line x1="535.0" x2="545.0" y1="156.25" y2="156.25" stroke="#1f2937" stroke-width="1.5"/>
+<text x="540.0" y="167.25" font-size="11" text-anchor="middle" font-weight="600">0.275</text>
+<text x="540.0" y="234" font-size="11" text-anchor="end" transform="rotate(-30 540.0 234)">RAG baseline</text>
+</svg>

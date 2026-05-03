@@ -228,6 +228,69 @@ mean_pool / attn_pool / residual_mlp 全部停在 ≈ 0.83，确认 v3 天花板
 
 完整报告见 [`reports/experiments/stage10_adversarial_validation/REPORT.md`](reports/experiments/stage10_adversarial_validation/REPORT.md)。聚合 JSON：`reports/experiments/stage10_adversarial_validation/stage10_summary.json`。复现：`scripts/run_stage10_sweep.sh` + `scripts/run_stage10_resume.sh` + `scripts/aggregate_stage10.py`。
 
+## Stage 11 — 针对 Stage 10 失败模式的重训练 + 对话基线（NVIDIA GB10）
+
+> **硬件：** NVIDIA GB10（Blackwell, 128 GB unified, CUDA 13）· `bfloat16` · `google/gemma-4-E2B`。3 seeds。Gate 用 paired bootstrap（10 000 重采样）的 **CI 下界**判定（不是均值）。
+
+Stage 11 直接攻击 Stage 10 暴露的两个失败模式：
+**(a)** 用 paraphrase-augmented InfoNCE 重训 encoder；
+**(b)** 训练时就做 relation-stratified LORO（不只是评估时），并在 relation-id 判别器上加 gradient-reversal 对抗头。
+
+并补：**(c)** 对话场景基线（多轮 ConvQA / 用对话当 write-API vs RAG / prompt-injection 中毒攻击），**(d)** bit-exact 复现哈希。
+
+### 核心数字（3 seeds，paired bootstrap 95% CI）
+
+| 测试 | 指标 | 均值 | 95% CI | Gate | 结论 |
+| --- | --- | ---: | --- | --- | --- |
+| **11A** paraphrase-augmented InfoNCE，未见模板（`multilayer`） | recall@1 | 0.138 | [0.134, 0.141] | ≥ 0.85 | ❌ 失败 |
+| **11A** paraphrase-augmented InfoNCE，未见模板（`prompt_hidden`） | recall@1 | 0.053 | [0.049, 0.058] | ≥ 0.85 | ❌ 失败 |
+| **11A** decoy ×1000 回归 | top-1 | 1.000 | [1.000, 1.000] | ≥ 0.80 | ✅ |
+| **11A** value 消融（random / shuffled） | top-1 | 0.000 / 0.009 | — | ≤ 0.10 | ✅ |
+| **11B** 训练时 LORO + 对抗头，未见 relation | bind top-1 | 0.108 | [0.046, 0.178] | ≥ 0.50 | ❌ 失败 |
+| **11D** 多轮 ConvQA（k=10 干扰轮） | recall@1 | 1.000 | [1.000, 1.000] | ≥ 0.85 | ✅ |
+| **11D** 对话当 write-API vs RAG | DM − RAG | +0.692 | [0.625, 0.775] | > 0 | ✅ |
+| **11D** prompt-injection 中毒攻击，受保护槽被覆写 | rate | 0.000 | [0.000, 0.000] | ≤ 0.05 | ✅ |
+| **11E** bit-exact 复现 | SHA-256 一致 | 一致 | — | match | ✅ |
+
+### 诚实结论（Stage 11 之后）
+
+- **In-distribution 对话场景已经稳了。** 多轮干扰不破坏检索，对话当 write-API 比 RAG 高 +0.692 绝对分，受保护的槽抵御注入攻击。
+- **Out-of-distribution paraphrase 仍然失败。** 每条事实 6 个训练模板 + InfoNCE 检索，**不足以**让 encoder 在未见模板上保持 relation 不变性。这是 `multilayer` / `prompt_hidden` encoder 的真实表示局限，不是优化问题。三个具体后续方向写在 `reports/experiments/stage11_grand_evaluation/REPORT.md`：正交 bank（Givens / Householder）、稀疏自编码器 bank、ROME 风格的闭式编辑。
+- **跨 relation 泛化仍然失败。** 训练时 LORO + 权重 0.1 的 gradient-reversal 对抗头，对未见 relation 没有显著提升（6 relation × 3 seeds 均值 0.108）。DM **不是** relation 级别的 one-shot 可编辑记忆。
+- **复现性。** Stage 11E 证实两次独立确定性运行的稳定子集 SHA-256 完全一致，见 `scripts/reproduce_stage11.sh`。
+
+完整报告：[`reports/experiments/stage11_grand_evaluation/REPORT.md`](reports/experiments/stage11_grand_evaluation/REPORT.md)。方法论 / 数学辩护：[`docs/methodology.md`](docs/methodology.md)。
+
+## Stage 12 — 对抗式跨模型验证（单模型完成，多模型推迟）
+
+> **硬件：** NVIDIA GB10。仅 `gemma-4-E2B`。100 facts × 3 seeds × 500 steps × 3 个探针（P1 paraphrase / P2 十种对抗变换 / P3 输出篡改 + locality 控制）。
+
+| 探针 | 结果 | 解读 |
+| --- | --- | --- |
+| P1 paraphrase 留出 | 1.000（n=3） | **在我们用的 encoder 下结构性 trivial** — 见下方 caveat |
+| P2 十种对抗变换（typo、fragment、instruction-conflict、wrong-language、polite-misdirect 等） | DM top-1 = 1.000，无 DM = 0.000，提升 = +1.000（全部 10 项） | DM 注入能扛住 read prompt 的所有 surface 攻击 |
+| P3 强制覆盖 base 模型答错的事实 | override = 1.000；**在 12 条无关 control 上 locality drift = 0.750** | α=1.0 + 整 bank 广播注入会污染 75% 的无关回答 — 生产必须用 per-query 路由（Stage 11D 中 drift = 0/0） |
+
+**诚实 caveat：**
+- P1 用了规范 address 进 `multilayer` encoder，而 encoder 忽略 read prompt；真正的 paraphrase 留出测试是 Stage 11A（= 0.138）。
+- P2 测的是注入与 CE 的力量平衡，不是 encoder 的对抗鲁棒性。
+- 针对 Qwen3-8B / GLM-4-9B / DeepSeek-V2-Lite / gpt-oss-20b 的多模型交叉验证脚本（`scripts/run_stage12_multimodel.py`）已就绪，但本次会话**没能跑**：GB10 在我们的环境里没法访问 HuggingFace，只有 `gemma-4-E2B` 预先缓存。**DeepSeek-V4-Flash**（284B MoE FP4，约 160 GB）放不进 GB10 的 128 GB，需要 vLLM-FP4 集群。多模型证据 **推迟**而不是声明。
+
+完整报告：[`reports/experiments/stage12_gemma4_e2b/REPORT.md`](reports/experiments/stage12_gemma4_e2b/REPORT.md)。
+
+## 硬件归属
+
+| 阶段 | 硬件 | 备注 |
+| --- | --- | --- |
+| 0 – 7（小 N pilot, MPS） | Apple Silicon（M 系列, MPS, `bfloat16`） | 见 [`docs/apple_silicon.md`](docs/apple_silicon.md) |
+| 8 闭卷 pilot | NVIDIA GB10（Blackwell, 128 GB unified） | CUDA 13.x, PyTorch 2.10+ |
+| 9 LAMA-TREx + 基线 | NVIDIA GB10 | 3 seeds, full bootstrap |
+| 10 对抗验证 | NVIDIA GB10 | 70+ 次运行，幂等 sweep |
+| 11 重训 + 对话 + bitexact | NVIDIA GB10 | 29 次运行, paired bootstrap, SHA-256 稳定哈希 |
+| 12 单模型对抗 | NVIDIA GB10 | 多模型推迟（无 HF 镜像） |
+
+
+
 ## 主要结果 — LAMA 事实绑定命中 oracle 上界
 
 > **硬件：** Apple Silicon · MPS · `bfloat16` · M 系列单 GPU。

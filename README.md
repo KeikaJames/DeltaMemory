@@ -240,6 +240,70 @@ writer with relation-stratified LORO during training, not just at eval.
 
 Full report: [`reports/experiments/stage10_adversarial_validation/REPORT.md`](reports/experiments/stage10_adversarial_validation/REPORT.md). Aggregate JSON at `reports/experiments/stage10_adversarial_validation/stage10_summary.json`. Reproducer: `scripts/run_stage10_sweep.sh` + `scripts/run_stage10_resume.sh` + `scripts/aggregate_stage10.py`.
 
+## Stage 11 — Retraining response to Stage 10 + conversational benchmarks (NVIDIA GB10)
+
+> **Hardware:** NVIDIA GB10 (Blackwell, 128 GB unified, CUDA 13) · `bfloat16` · `google/gemma-4-E2B`. 3 seeds. Gates evaluated on **CI lower bound** of paired bootstrap (10 000 resamples).
+
+Stage 11 directly attacks the two failure modes Stage 10 surfaced:
+**(a)** paraphrase-augmented InfoNCE retraining of the encoder, and
+**(b)** relation-stratified LORO baked into training (not just evaluation),
+with a gradient-reversal adversary on the relation-id discriminator.
+
+We then add **(c)** conversational benchmarks (multi-turn ConvQA / chat-as-write-API vs RAG / prompt-injection poisoning) and **(d)** a bit-exact reproducibility harness.
+
+### Headline (3 seeds, paired bootstrap 95 % CI)
+
+| Test | Metric | Mean | 95 % CI | Gate | Verdict |
+| --- | --- | ---: | --- | --- | --- |
+| **11A** paraphrase-augmented InfoNCE, held-out templates (`multilayer`) | recall@1 | 0.138 | [0.134, 0.141] | ≥ 0.85 | ❌ FAIL |
+| **11A** paraphrase-augmented InfoNCE, held-out templates (`prompt_hidden`) | recall@1 | 0.053 | [0.049, 0.058] | ≥ 0.85 | ❌ FAIL |
+| **11A** decoy ×1000 regression | top-1 | 1.000 | [1.000, 1.000] | ≥ 0.80 | ✅ |
+| **11A** value ablation (random / shuffled) | top-1 | 0.000 / 0.009 | — | ≤ 0.10 | ✅ |
+| **11B** train-time LORO + adversary, held-out relation | bind top-1 | 0.108 | [0.046, 0.178] | ≥ 0.50 | ❌ FAIL |
+| **11D** multi-turn ConvQA (k=10 filler turns) | recall@1 | 1.000 | [1.000, 1.000] | ≥ 0.85 | ✅ |
+| **11D** chat-as-write-API vs RAG | DM − RAG | +0.692 | [0.625, 0.775] | > 0 | ✅ |
+| **11D** prompt-injection / poisoning, protected-slot overwrite | rate | 0.000 | [0.000, 0.000] | ≤ 0.05 | ✅ |
+| **11E** bit-exact reproduction | SHA-256 match | identical | — | match | ✅ |
+
+### Honest framing (post-Stage-11)
+
+- **Within-distribution conversational use is solid.** Multi-turn filler does not break retrieval; chat-as-write-API beats RAG by +0.692 absolute; protected slots resist injection.
+- **Out-of-distribution paraphrase still fails.** Six paraphrase templates per training fact + InfoNCE retrieval are not enough to make the encoder relation-invariant on unseen templates. This is a real limit of `multilayer` / `prompt_hidden` encoders, not an optimisation failure. Three concrete follow-ups are listed in `reports/experiments/stage11_grand_evaluation/REPORT.md`: orthogonal banks, sparse-autoencoder banks, ROME-style closed-form edits.
+- **Cross-relation generalization still fails.** Train-time LORO + gradient-reversal adversary at weight 0.1 did not move the held-out-relation needle vs Stage 10F (mean 0.108 across 6 relations × 3 seeds). DM is **not** a one-shot editable memory at the relation level.
+- **Reproducibility.** Stage 11E confirms identical SHA-256 over the stable subset of summary metrics across two deterministic runs. See `scripts/reproduce_stage11.sh`.
+
+Full report: [`reports/experiments/stage11_grand_evaluation/REPORT.md`](reports/experiments/stage11_grand_evaluation/REPORT.md). Methodology / math defense: [`docs/methodology.md`](docs/methodology.md).
+
+## Stage 12 — Adversarial cross-validation (single-model, deferred multi-model)
+
+> **Hardware:** NVIDIA GB10. `gemma-4-E2B` only. 100 facts × 3 seeds × 500 steps × 3 probes (P1 paraphrase, P2 ten adversarial transforms, P3 output-tampering with locality controls).
+
+| probe | result | reading |
+| --- | --- | --- |
+| P1 paraphrase holdout | 1.000 (n=3) | **trivial under our encoder choice** — see honest caveat below |
+| P2 ten adversarial transforms (typo, fragment, instruction-conflict, wrong-language, polite-misdirect, …) | DM top-1 = 1.000, no-DM = 0.000, lift = +1.000 across all 10 | DM injection survives every surface attack on the read prompt |
+| P3 forced output-override on facts the base model gets wrong | override = 1.000; **locality drift on 12 unrelated controls = 0.750** | DM at α=1.0 with broadcast injection corrupts 75 % of unrelated answers — production must use per-query routing (Stage 11D), where drift is 0/0 |
+
+**Honest caveats:**
+- P1 used the canonical address through the `multilayer` encoder, which ignores the read prompt; the real held-out paraphrase test is Stage 11A (= 0.138).
+- P2 exercises injection-vs-CE balance, not encoder robustness.
+- Multi-model cross-validation against Qwen3-8B, GLM-4-9B, DeepSeek-V2-Lite, and gpt-oss-20b was prepared (`scripts/run_stage12_multimodel.py`) but **could not run** in this session: GB10 has no outbound HuggingFace network access, only `gemma-4-E2B` is pre-cached. **DeepSeek-V4-Flash** (284 B MoE FP4, ~160 GB) does not fit in GB10's 128 GB and would need a vLLM-FP4 cluster. Multi-model evidence is therefore **deferred** rather than claimed.
+
+Full report: [`reports/experiments/stage12_gemma4_e2b/REPORT.md`](reports/experiments/stage12_gemma4_e2b/REPORT.md).
+
+## Hardware attribution
+
+| Stage(s) | Hardware | Notes |
+| --- | --- | --- |
+| 0 – 7 (small-N pilots, MPS) | Apple Silicon (M-series, MPS, `bfloat16`) | See [`docs/apple_silicon.md`](docs/apple_silicon.md) |
+| 8 closed-book pilots | NVIDIA GB10 (Blackwell, 128 GB unified) | CUDA 13.x, PyTorch 2.10+ |
+| 9 LAMA-TREx + baselines | NVIDIA GB10 | 3 seeds, full bootstrap |
+| 10 adversarial validation | NVIDIA GB10 | 70 + runs, idempotent sweep |
+| 11 retraining + conv + bitexact | NVIDIA GB10 | 29 runs, paired bootstrap, SHA-256 stable hash |
+| 12 single-model adversarial | NVIDIA GB10 | multi-model deferred (no HF mirror) |
+
+
+
 ## Headline results — LAMA factual binding hits the oracle upper bound
 
 > **Hardware:** Apple Silicon · MPS · `bfloat16` · M-series single GPU.

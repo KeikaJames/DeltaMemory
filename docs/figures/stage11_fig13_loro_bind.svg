@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="320" viewBox="0 0 720 320" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+<rect width="720" height="320" fill="#ffffff"/>
+<text x="360.0" y="24" font-size="15" font-weight="600" text-anchor="middle">Stage 11B — train-time LORO bind top-1 by held-out relation (gate ≥ 0.50)</text>
+<line x1="90" x2="690" y1="220.0" y2="220.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="82" y="224.0" font-size="10" text-anchor="end" fill="#6b7280">0.00</text>
+<line x1="90" x2="690" y1="177.5" y2="177.5" stroke="#e5e7eb" stroke-width="1"/>
+<text x="82" y="181.5" font-size="10" text-anchor="end" fill="#6b7280">0.25</text>
+<line x1="90" x2="690" y1="135.0" y2="135.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="82" y="139.0" font-size="10" text-anchor="end" fill="#6b7280">0.50</text>
+<line x1="90" x2="690" y1="92.5" y2="92.5" stroke="#e5e7eb" stroke-width="1"/>
+<text x="82" y="96.5" font-size="10" text-anchor="end" fill="#6b7280">0.75</text>
+<line x1="90" x2="690" y1="50.0" y2="50.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="82" y="54.0" font-size="10" text-anchor="end" fill="#6b7280">1.00</text>
+<line x1="90" x2="690" y1="135.0" y2="135.0" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,3"/>
+<text x="686" y="131.0" font-size="10" text-anchor="end" fill="#dc2626">gate 0.50</text>
+<rect x="110.0" y="220.0" width="60.0" height="0.0" fill="#ef4444" opacity="0.85"/>
+<text x="140.0" y="214.0" font-size="11" text-anchor="middle" font-weight="600">0.000</text>
+<text x="140.0" y="234" font-size="11" text-anchor="end" transform="rotate(-30 140.0 234)">P101</text>
+<rect x="210.0" y="203.0" width="60.0" height="17.000000000000004" fill="#ef4444" opacity="0.85"/>
+<text x="240.0" y="197.0" font-size="11" text-anchor="middle" font-weight="600">0.100</text>
+<text x="240.0" y="234" font-size="11" text-anchor="end" transform="rotate(-30 240.0 234)">P19</text>
+<rect x="310.0" y="203.8095238095238" width="60.0" height="16.19047619047619" fill="#ef4444" opacity="0.85"/>
+<text x="340.0" y="197.8095238095238" font-size="11" text-anchor="middle" font-weight="600">0.095</text>
+<text x="340.0" y="234" font-size="11" text-anchor="end" transform="rotate(-30 340.0 234)">P36</text>
+<rect x="410.0" y="220.0" width="60.0" height="0.0" fill="#ef4444" opacity="0.85"/>
+<text x="440.0" y="214.0" font-size="11" text-anchor="middle" font-weight="600">0.000</text>
+<text x="440.0" y="234" font-size="11" text-anchor="end" transform="rotate(-30 440.0 234)">P39</text>
+<rect x="510.0" y="214.03508771929825" width="60.0" height="5.964912280701754" fill="#ef4444" opacity="0.85"/>
+<line x1="540.0" x2="540.0" y1="220.0" y2="202.10526315789474" stroke="#1f2937" stroke-width="1.5"/>
+<line x1="535.0" x2="545.0" y1="220.0" y2="220.0" stroke="#1f2937" stroke-width="1.5"/>
+<line x1="535.0" x2="545.0" y1="202.10526315789474" y2="202.10526315789474" stroke="#1f2937" stroke-width="1.5"/>
+<text x="540.0" y="208.03508771929825" font-size="11" text-anchor="middle" font-weight="600">0.035</text>
+<text x="540.0" y="234" font-size="11" text-anchor="end" transform="rotate(-30 540.0 234)">P641</text>
+<rect x="610.0" y="149.16666666666666" width="60.0" height="70.83333333333334" fill="#ef4444" opacity="0.85"/>
+<line x1="640.0" x2="640.0" y1="156.25" y2="145.625" stroke="#1f2937" stroke-width="1.5"/>
+<line x1="635.0" x2="645.0" y1="156.25" y2="156.25" stroke="#1f2937" stroke-width="1.5"/>
+<line x1="635.0" x2="645.0" y1="145.625" y2="145.625" stroke="#1f2937" stroke-width="1.5"/>
+<text x="640.0" y="143.16666666666666" font-size="11" text-anchor="middle" font-weight="600">0.417</text>
+<text x="640.0" y="234" font-size="11" text-anchor="end" transform="rotate(-30 640.0 234)">P937</text>
+</svg>
