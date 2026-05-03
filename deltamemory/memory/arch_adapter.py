@@ -59,14 +59,7 @@ class ArchAdapter:
 
     def apply_v_norm(self, attn: nn.Module, v: torch.Tensor) -> torch.Tensor:
         fn = getattr(attn, "v_norm", None)
-        if callable(fn):
-            return fn(v)  # native RMSNorm (Gemma-4)
-        # Bank-side RMS normalization for families without native v_norm.
-        # v: [B, T, Hkv, head_dim].  Normalize per-head to unit RMS so
-        # alpha has a uniform meaning across architectures, solving the
-        # 20x cross-arch alpha spread documented in Phase Q2.
-        rms = v.norm(dim=-1, keepdim=True) / (v.size(-1) ** 0.5)
-        return v / rms.clamp_min(1e-6)
+        return fn(v) if callable(fn) else v
 
     # --- RoPE (must override) ------------------------------------------------
     def apply_rope(
