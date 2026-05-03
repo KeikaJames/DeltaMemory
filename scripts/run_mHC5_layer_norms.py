@@ -181,11 +181,15 @@ def main():
 
             # Average across segments for this seed
             n_segs = len(base_norms)
+            n_inj_segs = len(inj_norms)
             if n_segs > 0 and len(base_norms[0]) > 0:
                 avg_base = [sum(base_norms[s][l] for s in range(n_segs)) / n_segs
                            for l in range(len(base_norms[0]))]
-                avg_inj = [sum(inj_norms[s][l] for s in range(min(n_segs, len(inj_norms)))) / n_segs
-                          for l in range(len(inj_norms[0]))] if inj_norms and inj_norms[0] else []
+                if n_inj_segs > 0 and len(inj_norms[0]) > 0:
+                    avg_inj = [sum(inj_norms[s][l] for s in range(n_inj_segs)) / n_inj_segs
+                              for l in range(len(inj_norms[0]))]
+                else:
+                    avg_inj = []
             else:
                 avg_base, avg_inj = [], []
 

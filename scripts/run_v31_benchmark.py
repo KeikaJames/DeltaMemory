@@ -32,7 +32,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from scripts.run_stage14_test_eval import _load_test, _recall_with_bank
+from scripts.run_stage14_test_eval import _load_test, _recall_no_bank, _recall_with_bank
 from deltamemory.memory.attn_native_bank import AttnNativePatcher
 from deltamemory.memory.k_projector import KProjectorBank
 
@@ -111,8 +111,7 @@ def main():
             t0 = time.time()
 
             if baseline == "B0":
-                r = _recall_with_bank(patcher, tok, facts, policy="period",
-                                      k_projector=None, tau=1.0, seed=seed)
+                r = _recall_no_bank(model, tok, facts, args.device)
             elif baseline == "B1":
                 r = _prompt_insertion_recall(model, tok, facts, seed=seed)
             elif baseline == "B6":
