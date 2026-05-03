@@ -111,7 +111,6 @@ def shield_attention_weights(
     weights: torch.Tensor,
     bank_size: int,
     enabled: bool,
-    iters: int = 3,                  # kept in signature for API stability
     kappa: float = 1.0,
 ) -> torch.Tensor:
     """Apply mHC bank-column spectral cap to merged ``[seq; bank]`` weights.
@@ -128,8 +127,6 @@ def shield_attention_weights(
         bank_size: ``N``.  Must be ≥ 0.
         enabled: feature flag.  When False the input is returned
             unchanged (bit-for-bit identity).
-        iters: deprecated; ignored by the column-cap implementation.
-            Kept for API stability with the SK signature.
         kappa: maximum allowed column sum for bank columns.  Default 1.0
             corresponds to the spectral non-amplification regime
             (σ_max(W_bank) ≤ 1).
@@ -140,7 +137,6 @@ def shield_attention_weights(
         scaled down per-column iff their column sum exceeds ``kappa``.
     """
 
-    del iters  # unused under the column-cap design
     if not enabled:
         return weights
     if bank_size <= 0:

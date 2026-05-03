@@ -174,7 +174,6 @@ def run_cell(model_name: str, tok, model, alphas, shield_modes, false_facts,
                     patcher = AttnNativePatcher(model)
                     bank = fresh_bank(model)
                     bank.mhc_shield = bool(shield_on)
-                    bank.mhc_iters = 3
                     write_fact(patcher, bank, tok,
                                write_prompt=f["write"],
                                fact_id=f["fact_id"],
@@ -191,7 +190,6 @@ def run_cell(model_name: str, tok, model, alphas, shield_modes, false_facts,
                 patcher = AttnNativePatcher(model)
                 bank = fresh_bank(model)
                 bank.mhc_shield = bool(shield_on)
-                bank.mhc_iters = 3
                 write_fact(patcher, bank, tok,
                            write_prompt="Fact: The Sun is a star at the centre of the Solar System.",
                            fact_id="neutral_anchor",

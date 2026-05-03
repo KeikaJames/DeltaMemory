@@ -24,12 +24,11 @@ dtype: bfloat16
 # Stage 16: mHC spectral shield (the only delta vs v3.1)
 mhc_shield:
   enabled: true
-  iters: 3                # Sinkhorn-Knopp alternating row/col iterations
-  # Justification for iters=3: empirically (tests/test_mhc_shield.py) three
-  # iterations bring the row-sum L1 deviation below 1e-5 for typical
-  # post-softmax matrices, while keeping per-token forward overhead under
-  # 5% on Gemma-4-E2B.  Convergence sensitivity (k=3/5/10) is reported
-  # in reports/cleanroom/mhc_flagship_sweep/REPORT.md.
+  # V2 column-cap design: the shield caps each bank column's total
+  # received attention to ≤ kappa (default 1.0), bounding spectral
+  # amplification of the external-KV channel.  Zero iterations — the
+  # projection is a single closed-form column-norm rescaling.  See
+  # deltamemory/memory/mhc_shield.py:shield_attention_weights.
 
 # Inference: with the shield ON, ArchAdapter.default_alpha becomes a
 # unified value that does NOT need per-family override.  The flagship

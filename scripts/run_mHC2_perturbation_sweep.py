@@ -244,11 +244,18 @@ def _wikitext2_segments(tokenizer, num_segments: int, segment_length: int, seed:
     needed = num_segments * segment_length
     if total < needed:
         raise RuntimeError(f"Wikitext-2 val too short ({total}) for {num_segments}x{segment_length}")
-    # Deterministic, seed-locked selection.
+    # Deterministic, seed-locked, strictly non-overlapping selection.
+    # Sample from equally-spaced candidate start positions to guarantee
+    # every pair of segments is separated by at least ``segment_length``.
     g = torch.Generator(device="cpu").manual_seed(seed)
-    starts = torch.randperm(total - segment_length, generator=g)[:num_segments]
-    starts, _ = torch.sort(starts)
-    segs = torch.stack([ids[s : s + segment_length] for s in starts.tolist()])
+    candidate_starts = list(range(0, total - segment_length + 1, segment_length))
+    if len(candidate_starts) < num_segments:
+        raise RuntimeError(
+            f"Wikitext-2 val too short ({total}) for {num_segments}x{segment_length}"
+        )
+    perm = torch.randperm(len(candidate_starts), generator=g)[:num_segments]
+    starts = sorted(candidate_starts[i] for i in perm.tolist())
+    segs = torch.stack([ids[s : s + segment_length] for s in starts])
     return segs  # (num_segments, segment_length)
 
 

@@ -97,14 +97,14 @@ def test_sinkhorn_handles_4d_batched_attention_shape():
 def test_shield_disabled_is_identity():
     """enabled=False must return the input bit-for-bit (red-line: α=0 bit-equal)."""
     x = torch.rand(2, 4, 8, 12)
-    y = shield_attention_weights(x, bank_size=4, enabled=False, iters=3)
+    y = shield_attention_weights(x, bank_size=4, enabled=False)
     assert torch.equal(x, y)
 
 
 def test_shield_empty_bank_is_identity():
     """bank_size=0 must short-circuit (no injection means no shielding needed)."""
     x = torch.rand(2, 4, 8, 12)
-    y = shield_attention_weights(x, bank_size=0, enabled=True, iters=3)
+    y = shield_attention_weights(x, bank_size=0, enabled=True)
     assert torch.equal(x, y)
 
 
@@ -223,7 +223,6 @@ def test_shield_alpha_zero_bit_equal(model_bundle):
                fact_id="paris_mayor",
                address="mayor of Paris")
     bank.mhc_shield = True
-    bank.mhc_iters = 3
 
     prompt = "The capital of France is"
     base = _logits(model, tok, prompt).float()
@@ -249,7 +248,6 @@ def test_shield_alpha_one_modifies_logits(model_bundle):
                fact_id="paris_mayor",
                address="mayor of Paris")
     bank.mhc_shield = True
-    bank.mhc_iters = 3
 
     prompt = "The capital of France is"
     a0 = forward_with_bank(patcher, bank, tok, prompt, alpha=0.0).float()

@@ -15,18 +15,18 @@ under-injects on others.
 
 ### What
 A new `deltamemory/memory/mhc_shield.py` module adds the **mHC spectral
-shield** — a parameter-free Sinkhorn-Knopp projection on the merged
-`[seq; bank]` post-softmax attention weight matrix.  The projection
-sends the row-stochastic weights to the doubly-stochastic manifold,
-which bounds σ_max(W) ≤ 1 uniformly in α.  This is the same
-mathematical machinery DeepSeek's *Manifold-Constrained
-Hyper-Connections* (arXiv:2512.24880) uses for training-time stability;
-we reuse it at inference time on the bank concat path.
+shield** — a parameter-free column-norm cap on the bank columns of the
+post-softmax attention weight matrix.  Only the external-KV channel
+(the bank columns) is shielded; native sequence columns are returned
+bit-for-bit.  This bounds the spectral amplification of the injection
+operator without disturbing the frozen LLM's trained attention pattern
+(V1 full-matrix Sinkhorn-Knopp was abandoned after Gemma-4-E2B
+collapsed to +5 nats NLL drift).
 
 * `deltamemory/memory/mhc_shield.py` — `sinkhorn_knopp_projection` and
   `shield_attention_weights` (≈ 30 LOC of math).
 * `deltamemory/memory/attn_native_bank.py` — `AttnNativeBank` gains
-  `mhc_shield: bool = False` and `mhc_iters: int = 3` fields, threaded
+  `mhc_shield: bool = False` field, threaded
   through `state_dict` / `from_state_dict`.  The merged-softmax branch
   invokes the shield only when `bank.mhc_shield = True`.
 * `deltamemory/configs/v32_frozen.yaml` registers v3.2.
