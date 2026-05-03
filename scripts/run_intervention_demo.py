@@ -138,6 +138,10 @@ def main():
     ap.add_argument("--alpha", type=float, default=1.0)
     ap.add_argument("--out-dir", default=None)
     ap.add_argument("--capture-policy", default="period")
+    ap.add_argument("--kproj", default=None,
+                    help="Path to a trained KProjectorBank .pt (default: identity-init / v3 raw bank)")
+    ap.add_argument("--label", default="v3",
+                    help="Label for the bank condition column in the report (default: v3)")
     args = ap.parse_args()
 
     if args.device is None:
@@ -166,6 +170,13 @@ def main():
     print(f"  adapter = {patcher.adapter.name}, num_layers = {patcher.num_layers}",
           flush=True)
 
+    kproj = None
+    if args.kproj:
+        from deltamemory.memory.k_projector import KProjectorBank
+        kproj = KProjectorBank.load(args.kproj)
+        kproj = kproj.to(args.device)
+        print(f"  k-projector loaded from {args.kproj}", flush=True)
+
     results = []
     for fact in FACTS:
         print(f"\n--- {fact['fact_id']}: {fact['subject']} -> {fact['object']} ---",
@@ -174,6 +185,8 @@ def main():
         b1 = b1_prompt_logits(model, tok, fact, args.device)
 
         bank = fresh_bank(model)
+        if kproj is not None:
+            bank.k_projector = kproj
         write_fact(patcher, bank, tok,
                    write_prompt=fact["write"],
                    fact_id=fact["fact_id"],
