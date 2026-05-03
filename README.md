@@ -178,14 +178,14 @@ Both retrieval and in-context editing fail at the *binding* step (RAG retrieval@
 
 Full report: [`reports/experiments/stage9_grand_evaluation/REPORT.md`](reports/experiments/stage9_grand_evaluation/REPORT.md). Aggregate JSON at `docs/figures/stage9_summary.json`. Reproducer: `scripts/run_stage9_sweep.sh` + `scripts/generate_stage9_figures.py`.
 
-> **⚠️ Important: Stage 9 is the canonical-prompt regime only.** The 1.000 ± 0
+> **Important: Stage 9 is the canonical-prompt regime only.** The 1.000 ± 0
 > numbers above are valid *only* when the eval prompt is byte-identical to the
 > training prompt. Stage 10 (below) re-runs the same pipeline against held-out
 > paraphrases, distractor decoys, value-ablation, and leave-one-relation-out,
 > and finds the encoder/writer do **not** generalise across surface paraphrase
 > or unseen relations. **Read Stage 10 before citing Stage 9 numbers.**
 
-## Stage 10 — Adversarial Validation (NeurIPS-style stress tests)
+## Stage 10 — Adversarial Validation
 
 > **Hardware:** NVIDIA GB10 (Blackwell) · CUDA · `bfloat16` · 3 seeds · LAMA-TREx N=183.
 >
