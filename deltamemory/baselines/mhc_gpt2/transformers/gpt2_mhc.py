@@ -250,7 +250,7 @@ class MhcGPT2Model(MhcGPT2PreTrainedModel):
 
         # Attention mask: use PreTrainedModel helpers.
         if attention_mask is not None:
-            attention_mask = self.get_extended_attention_mask(attention_mask, input_shape, device=device)
+            attention_mask = self.get_extended_attention_mask(attention_mask, input_shape)
 
         # NOTE (vendor mod): ``get_head_mask`` was removed from
         # ``PreTrainedModel`` in transformers >=5. Replicate the legacy

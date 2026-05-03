@@ -311,8 +311,19 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
             T_full = k_pre_for_capture.size(1)
             pos = (T_full - 1) if capture_pos is None else int(capture_pos)
             ctx._capture_K[layer_idx] = k_pre_for_capture[:, pos, :, :].detach()  # [B, Hkv, d]
-            ctx._capture_V[layer_idx] = (value_states.transpose(1, 2)            # [B, T, Hkv, d]
-                                          [:, pos, :, :].detach())
+            v_captured = (value_states.transpose(1, 2)                             # [B, T, Hkv, d]
+                          [:, pos, :, :].detach())
+            # Bank-side V RMS normalization for families without native v_norm.
+            # Gemma-4 has native v_norm (RMSNorm) that normalizes V activations;
+            # Qwen3 / Llama / GLM-4 lack it, causing 6-11x larger V magnitudes
+            # and preventing a single alpha from working across architectures.
+            # We normalize captured V to unit per-head RMS so alpha has uniform
+            # meaning.  This is a bank-only operation — the LLM forward is
+            # unchanged and alpha=0 bit-equality is preserved.
+            if not hasattr(self, "v_norm") or not callable(getattr(self, "v_norm", None)):
+                rms = v_captured.norm(dim=-1, keepdim=True) / (v_captured.size(-1) ** 0.5)
+                v_captured = v_captured / rms.clamp_min(1e-6)
+            ctx._capture_V[layer_idx] = v_captured
 
         # --- standard attention ---
         scaling = getattr(self, "scaling", None) or (head_dim ** -0.5)

@@ -140,10 +140,6 @@ class Qwen3Adapter(ArchAdapter):
     def matches(cls, attn_module: nn.Module) -> bool:
         return "Qwen3" in type(attn_module).__name__
 
-    def apply_v_norm(self, attn, v):
-        # Qwen3 has no v_norm.
-        return v
-
     def is_kv_shared(self, attn):
         return False
 
