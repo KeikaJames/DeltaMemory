@@ -148,6 +148,7 @@ prompt/RAG upper bars on the full held-out recall benchmark.
 | v2 / Stage 13 | raw per-layer K/V bank concatenated into attention | none | frozen | bit-equal locality; chat recall fails without K-space bridge |
 | v3 / Stage 14 | v2 + InfoNCE K-projector | bank-side K-projector | frozen | preregistered test negative vs B0; positive vs raw v2 |
 | **v3.1 / Stage 15** | attn-native bank + per-arch α + cross-arch adapters | bank-side K-projector only | frozen | counter-prior injection reproduced on Gemma-4 and Qwen3 across GB10/Mac |
+| **v3.2 / Stage 16** | v3.1 + mHC spectral shield (Sinkhorn-Knopp on merged attention weights) | bank-side, parameter-free | frozen | bounds σ_max(W) ≤ 1 uniformly in α; targets unified α across all flagship LLMs (sweep in `reports/cleanroom/mhc_flagship_sweep/`) |
 
 ## Per-architecture α defaults
 

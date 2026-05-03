@@ -4,6 +4,51 @@ All notable changes to DeltaMemory are documented here, organised by
 research stage. Older stages are summarised; the current stage is
 documented in full enough to make the evidence and limits legible.
 
+## Stage 16 — v3.2 mHC spectral shield (universal α)
+
+### Why
+v3.1 forces per-architecture α calibration: Gemma-4 ≈ 1.0, Qwen3 / Llama
+/ GLM-4 ≈ 0.05.  That is a 20× spread driven by the absence of `v_norm`
+in non-Gemma families, which leaves the V activation magnitudes
+unbounded so a single α value over-injects on some models and
+under-injects on others.
+
+### What
+A new `deltamemory/memory/mhc_shield.py` module adds the **mHC spectral
+shield** — a parameter-free Sinkhorn-Knopp projection on the merged
+`[seq; bank]` post-softmax attention weight matrix.  The projection
+sends the row-stochastic weights to the doubly-stochastic manifold,
+which bounds σ_max(W) ≤ 1 uniformly in α.  This is the same
+mathematical machinery DeepSeek's *Manifold-Constrained
+Hyper-Connections* (arXiv:2512.24880) uses for training-time stability;
+we reuse it at inference time on the bank concat path.
+
+* `deltamemory/memory/mhc_shield.py` — `sinkhorn_knopp_projection` and
+  `shield_attention_weights` (≈ 30 LOC of math).
+* `deltamemory/memory/attn_native_bank.py` — `AttnNativeBank` gains
+  `mhc_shield: bool = False` and `mhc_iters: int = 3` fields, threaded
+  through `state_dict` / `from_state_dict`.  The merged-softmax branch
+  invokes the shield only when `bank.mhc_shield = True`.
+* `deltamemory/configs/v32_frozen.yaml` registers v3.2.
+* `tests/test_mhc_shield.py` — 11 unit + integration tests covering
+  row-sum, column-sum, σ_max bound, shape preservation, shield-off
+  identity, empty-bank short-circuit, and α=0 bit-equality on
+  Gemma-4-E2B.
+
+### Red lines preserved
+* Frozen LLM weights — the shield is a function of post-softmax
+  attention weights only; W_q/W_k/W_v/W_o/FFN/layernorm are untouched.
+* α = 0 bit-equality — the `do_inject` branch is skipped when α = 0,
+  so the shield never runs and the conservation invariant is preserved.
+* Parameter-free — zero new trainable parameters relative to v3.1.
+
+### Where to look
+* Config: `deltamemory/configs/v32_frozen.yaml`.
+* Module: `deltamemory/memory/mhc_shield.py`.
+* Tests: `tests/test_mhc_shield.py` (`pytest tests/test_mhc_shield.py -v`).
+* Cross-flagship sweep: `scripts/run_mhc_flagship_sweep.py`,
+  results under `reports/cleanroom/mhc_flagship_sweep/`.
+
 ## Stage 15 — v3.1 cross-architecture attn-native bank
 
 ### v3.1 README and figure refresh

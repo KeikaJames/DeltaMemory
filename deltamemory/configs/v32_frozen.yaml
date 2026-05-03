@@ -1,0 +1,40 @@
+# DeltaMemory v3.2 frozen configuration
+# Stage 16 — adds the mHC spectral shield to the v3.1 attention-native bank.
+#
+# Thesis: the doubly-stochastic Sinkhorn-Knopp projection on the merged
+# `[seq; bank]` post-softmax attention weights bounds σ_max(W) ≤ 1
+# uniformly in α, so a single α value can be used across every flagship
+# LLM family without per-architecture hand-calibration (the v3.1 pain
+# point: Gemma-4 = 1.0, Qwen3 / Llama / GLM-4 = 0.05 — a 20× spread).
+#
+# Red lines preserved from v3.1:
+#   * Frozen LLM weights: nothing in W_q / W_k / W_v / W_o / FFN /
+#     layernorm is trainable or modified.
+#   * α = 0 bit-equality: the shield is short-circuited when α = 0 (the
+#     `do_inject` branch is skipped entirely), so the conservation
+#     invariant is preserved.  Verified by tests/test_mhc_shield.py
+#     (`test_shield_alpha_zero_bit_equal`).
+#   * Parameter-free: the SK projection is deterministic and stateless.
+#     There are zero new trainable parameters relative to v3.1.
+
+version: v3.2
+base_config: deltamemory/configs/v31_frozen.yaml   # inherits v3.1 settings
+dtype: bfloat16
+
+# Stage 16: mHC spectral shield (the only delta vs v3.1)
+mhc_shield:
+  enabled: true
+  iters: 3                # Sinkhorn-Knopp alternating row/col iterations
+  # Justification for iters=3: empirically (tests/test_mhc_shield.py) three
+  # iterations bring the row-sum L1 deviation below 1e-5 for typical
+  # post-softmax matrices, while keeping per-token forward overhead under
+  # 5% on Gemma-4-E2B.  Convergence sensitivity (k=3/5/10) is reported
+  # in reports/cleanroom/mhc_flagship_sweep/REPORT.md.
+
+# Inference: with the shield ON, ArchAdapter.default_alpha becomes a
+# unified value that does NOT need per-family override.  The flagship
+# sweep (Phase mHC-flagship) selects this value from the Pareto frontier
+# of (max counter-prior lift, NLL drift ≤ 0.5 nats) across all evaluated
+# families.  Until the sweep is committed, the shared default is the
+# midpoint of the v3.1 spread.
+alpha: 1.0                # shared across families when mhc_shield is on
