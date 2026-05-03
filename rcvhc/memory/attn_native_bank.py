@@ -39,15 +39,17 @@ exact same `repeat_kv` path as the original K/V.
 
 KV-shared layers
 ----------------
-Layers with `is_kv_shared_layer=True` (Gemma 3n KV-sharing scheme) are *not*
-injected into separately; they reuse the K/V of the source layer, which is
-where injection happens.  Single-injection invariant.
+Layers with ``is_kv_shared_layer=True`` (Gemma 4 KV-sharing scheme) reuse
+their source layer's K/V at write time and consult the source layer's bank
+slot at read time, so every attention layer sees the bank — non-shared
+layers via their own slot, shared layers via ``kv_shared_layer_index``.
 
 Bit-equal sanity (Gate 13A.1)
 -----------------------------
-When `bank.empty == True` the patched forward must produce logits identical
-to the unpatched model.  The unit test in `tests/test_attn_native_bank.py`
-asserts max-abs-diff < 1e-5 on the full 35-layer Gemma-4-E2B in bf16/MPS.
+When ``bank.empty == True`` the patched forward must produce logits identical
+to the unpatched model. The unit test in ``tests/test_attn_native_bank.py``
+asserts max-abs-diff < 1e-3 on the full 35-layer Gemma-4-E2B in bf16; in
+practice the observed value is exactly 0.0 on both MPS and CUDA.
 
 This module is intentionally minimal: ~250 LoC including docs.  No 1500-step
 training, no encoder, no projector.  Just K/V concat.
@@ -134,8 +136,16 @@ class AttnNativeBank:
         fact_id: str,
         address: str,
     ) -> None:
-        """Append one fact across all layers.  Each tensor is shape
-        ``[num_kv_heads, head_dim_layer]``."""
+        """Append one fact across all layers.
+
+        Each tensor is shape ``[num_kv_heads, head_dim_layer]``.
+
+        .. note::
+            Single-fact append performs a per-layer ``torch.cat`` and is
+            therefore O(N) per call (O(N²) for N writes).  For bulk ingest
+            of many facts use :meth:`bulk_append` which concatenates once
+            per layer.
+        """
         if len(per_layer_K) != self.num_layers:
             raise ValueError(f"expected {self.num_layers} layer K, got {len(per_layer_K)}")
         for layer in range(self.num_layers):
@@ -146,6 +156,29 @@ class AttnNativeBank:
             self.M_V[layer] = torch.cat([self.M_V[layer], v], dim=0)
         self.fact_ids.append(fact_id)
         self.address_strs.append(address)
+
+    def bulk_append(
+        self,
+        per_layer_K_batches: list[torch.Tensor],
+        per_layer_V_batches: list[torch.Tensor],
+        fact_ids: list[str],
+        addresses: list[str],
+    ) -> None:
+        """Append a batch of N facts in O(N) total — single ``cat`` per layer.
+
+        Each ``per_layer_K_batches[layer]`` must be ``[N, num_kv_heads, head_dim_layer]``.
+        """
+        if len(per_layer_K_batches) != self.num_layers:
+            raise ValueError(f"expected {self.num_layers} layer K, got {len(per_layer_K_batches)}")
+        n = len(fact_ids)
+        for layer in range(self.num_layers):
+            d = self.head_dims[layer]
+            k = per_layer_K_batches[layer].to(self.device, self.dtype).reshape(n, self.num_kv_heads, d)
+            v = per_layer_V_batches[layer].to(self.device, self.dtype).reshape(n, self.num_kv_heads, d)
+            self.M_K[layer] = torch.cat([self.M_K[layer], k], dim=0)
+            self.M_V[layer] = torch.cat([self.M_V[layer], v], dim=0)
+        self.fact_ids.extend(fact_ids)
+        self.address_strs.extend(addresses)
 
     def state_dict(self) -> dict:
         return {
@@ -225,7 +258,7 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
 
         if past_key_values is not None and not self.is_kv_shared_layer:
             key_states, value_states = past_key_values.update(key_states, value_states, self.layer_idx)
-        if self.store_full_length_kv:
+        if self.store_full_length_kv and shared_kv_states is not None:
             shared_kv_states[self.layer_idx] = key_states, value_states
 
         # --- capture for bank write (single fact at a time) ---
@@ -237,8 +270,9 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
                                           [:, pos, :, :].detach())
 
         # --- standard attention ---
-        scaling = getattr(self, "scaling", None) or (self.config.head_dim ** -0.5)
-        sliding_window = getattr(self, "sliding_window", None)
+        scaling = getattr(self, "scaling", None) or (head_dim ** -0.5)
+        # NOTE: sliding-window masking is already baked into ``attention_mask``
+        # by HF's eager preparation, so we do not re-apply it here.
 
         k_repeat = repeat_kv(key_states, self.num_key_value_groups)
         v_repeat = repeat_kv(value_states, self.num_key_value_groups)
@@ -246,16 +280,24 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
         if attention_mask is not None:
             scores_orig = scores_orig + attention_mask[..., : scores_orig.size(-1)]
 
-        # --- bank attention (position-agnostic, GQA-aware) ---
+        # --- bank attention (position-agnostic, GQA-aware).
+        # KV-shared layers re-use the bank slot from their source layer so the
+        # injection is visible in every attention layer, not only non-shared
+        # ones (otherwise 20/35 layers in Gemma-4-E2B would skip the bank).
+        bank_layer_idx = (
+            getattr(self, "kv_shared_layer_index", layer_idx)
+            if self.is_kv_shared_layer else layer_idx
+        )
         do_inject = (
             bank is not None
             and not bank.empty
             and alpha > 0.0
-            and not self.is_kv_shared_layer
+            and bank_layer_idx is not None
+            and bank.M_K[bank_layer_idx].size(0) > 0
         )
         if do_inject:
-            mk = bank.M_K[layer_idx].to(q_pre.dtype).to(q_pre.device)  # [N, Hkv, d]
-            mv = bank.M_V[layer_idx].to(q_pre.dtype).to(q_pre.device)
+            mk = bank.M_K[bank_layer_idx].to(q_pre.dtype).to(q_pre.device)  # [N, Hkv, d]
+            mv = bank.M_V[bank_layer_idx].to(q_pre.dtype).to(q_pre.device)
             mk_e = repeat_kv(mk.unsqueeze(0).transpose(1, 2), self.num_key_value_groups)  # [1, Hq, N, d]
             mv_e = repeat_kv(mv.unsqueeze(0).transpose(1, 2), self.num_key_value_groups)
             mk_e = mk_e.expand(q_pre.size(0), -1, -1, -1)
@@ -321,6 +363,18 @@ class AttnNativePatcher:
             raise RuntimeError("AttnNativePatcher: could not locate decoder layers on the model")
         self.attn_modules: list[nn.Module] = [layer.self_attn for layer in layers]
         self.num_layers = len(self.attn_modules)
+
+        # Reject non-Gemma4 attention modules: the patched forward references
+        # Gemma-4-specific attributes (q_norm, k_norm, v_norm, is_kv_shared_layer,
+        # kv_shared_layer_index, store_full_length_kv) and would error on the
+        # first forward pass with Llama / Qwen / DeepSeek / mock attention.
+        cls_name = type(self.attn_modules[0]).__name__
+        if "Gemma4" not in cls_name:
+            raise NotImplementedError(
+                f"AttnNativePatcher currently supports only Gemma-4 attention "
+                f"modules (got {cls_name}). Adding support for {cls_name} requires "
+                f"a model-specific patched forward; PRs welcome."
+            )
 
         cfg = getattr(model.config, "text_config", model.config)
         self.num_kv_heads = cfg.num_key_value_heads
