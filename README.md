@@ -73,7 +73,18 @@ the output is **bit-for-bit** identical to the unpatched model. There is
 no encoder, no key projector, no broadcast bias, no training. One forward
 pass over a write prompt populates the bank.
 
-![DeltaMemory v1 vs v2 architecture](docs/figures/v2/stage13_architecture.svg)
+<p align="center"><img src="docs/figures/v2/stage13_architecture.svg" alt="DeltaMemory v1 vs v2 architecture" width="720"></p>
+
+### Generation comparison
+
+| Generation | Architecture | Trained modules | Modifies LLM weights? | Held-out recall@1 (LAMA paraphrase) | α=0 bit-equal? |
+|---|---|---|---|---|---|
+| v1 (Stages 8–12) | external encoder + KeyProjector + final-residual bias | encoder + projector + bias (~3M params, 1500 steps) | no, but injects via residual add | 1.000 single-point (Stage 9) / 0.138 paraphrase holdout (Stage 11A) | no — additive bias |
+| v2 (Stage 13) | concat `(M_K, M_V)` into per-layer attention; pure softmax | none — zero-shot capture | no | 0 (raw bank, no projector) | yes |
+| v3 (Stage 14, frozen) | v2 + per-layer InfoNCE K-projector | K-projector (`d_h × d_h` per layer, ~520 pairs) | no | 0.278 vs B0 = 0.359 (Phase G negative) | yes |
+| v3.1 (Stage 15, in progress) | v3 + `bank_topk` softmax gate + cross-arch K-projector | K-projector retrained (≥2.5k pairs, ≥30 relations) | no | TBD (Phase L+M) | yes |
+
+The red line across all generations from v2 onwards: **the LLM is frozen**. We do not LoRA, fine-tune, or weight-edit the LLM. Only the K-projector (a 1-matrix-per-layer side network that never enters the LLM forward path) is trained.
 
 ### What v2 changed and why it matters
 
@@ -94,9 +105,9 @@ to train. As a side effect:
   which raised single-fact target rank from 41 → 9 on the Stage 13A unit
   gate (see figure below).
 
-![Stage 13A unit gate — rank and logit lift](docs/figures/v2/stage13_recall_lift.svg)
+<p align="center"><img src="docs/figures/v2/stage13_recall_lift.svg" alt="Stage 13A unit gate — rank and logit lift" width="720"></p>
 
-### Honest limits of v2 (Stage 13B/13F negative results)
+### Documented limits of v2 (Stage 13B/13F negative results)
 
 A `Q: … A:` chat prompt does **not** retrieve from a bank that was
 written from a declarative `"X is Y."` prompt — even though the unit gate
@@ -112,7 +123,7 @@ gap. Stage 13F surfaces this with a six-scenario chat suite:
 The α scan is also instructive — there is a clear working zone before
 the bank attention overwhelms the model's fluent generation:
 
-![DeltaMemory α phase diagram](docs/figures/v2/stage13_alpha_phase.svg)
+<p align="center"><img src="docs/figures/v2/stage13_alpha_phase.svg" alt="DeltaMemory α phase diagram" width="720"></p>
 
 This is exactly the "first-cut" K-space bottleneck the maintainer
 predicted before the experiment. **Stage 14** is the planned remedy:
@@ -129,7 +140,7 @@ Full Stage 13 reports under
 [`reports/cleanroom/stage13d_locality_fix/`](reports/cleanroom/stage13d_locality_fix/),
 [`reports/cleanroom/stage13f_interactive/`](reports/cleanroom/stage13f_interactive/).
 
-## Stage 14 / v3 — preregistered held-out test (HONEST NEGATIVE)
+## Stage 14 / v3 — preregistered held-out test (negative result)
 
 We took v2's K-space bottleneck seriously and built v3:
 
@@ -188,13 +199,13 @@ The InfoNCE projector did learn something — it just wasn't enough:
 
 1. **Preregistered, sha-pinned splits** + a frozen v3 config + a one-shot
    test eval with Wilcoxon + bootstrap CI + Holm-Bonferroni.
-2. **An honest negative result.** Per the preregistration we do **not**
+2. **A preregistered negative result.** Per the preregistration we do **not**
    modify v3 to retroactively beat the test set; that would be p-hacking.
 3. **A written-down methodology amendment** with concrete v3.1
    prerequisites — see
    [`reports/cleanroom/stage14_test_gemma4_e2b/REPORT.md`](reports/cleanroom/stage14_test_gemma4_e2b/REPORT.md).
 
-### Honest claim frame going forward
+### Claim frame going forward
 
 Until v3.1 changes (training-set scale floor, cross-relation hard
 negatives, structural softmax-dilution fix, two-stage held-out gate)
@@ -259,7 +270,7 @@ for the next experiment plan.
 >
 > **TL;DR.** Frozen `google/gemma-4-E2B` plus a Writer + KeyProjector + per-slot fast-weight bank recalls single-token answers in **closed-book mode (value tokens absent from the prompt at read time)** at scale up to **N=4096** on a single NVIDIA GB10 GPU. Retrieved-slot top-1 is **0.969 / 0.934 / 0.838** at N = 128 / 1024 / 4096. The `no_memory` baseline stays at **0.000** at every scale (no leakage) and the swap-paired flip is **1.000** (the bank carries the identity, not the in-context tokens). This is the first result here where the prompt at read time contains *only* the address — not the value — so the test is **persistent address-keyed memory**, not in-context binding.
 
-![Stage 8 closed-book capacity (3 seeds, mean±std)](docs/figures/fig6_stage8_capacity.svg)
+<p align="center"><img src="docs/figures/fig6_stage8_capacity.svg" alt="Stage 8 closed-book capacity (3 seeds, mean±std)" width="720"></p>
 
 | N facts | bank inject (oracle slot) top1 | bank inject (retrieved slot) top1 | address recall@1 | swap-paired flip | no-memory top1 |
 |---:|---:|---:|---:|---:|---:|
@@ -271,7 +282,7 @@ Hard gates G1 (closed-book recall ≥ 0.80), G5 (paired-flip ≥ 0.80), G6 (no-m
 
 ### Stage 8.3 — sequential-write interference (N=1024)
 
-![Stage 8.3 interference retention](docs/figures/fig7_stage8_interference.svg)
+<p align="center"><img src="docs/figures/fig7_stage8_interference.svg" alt="Stage 8.3 interference retention" width="720"></p>
 
 Earliest 128 slots retain top-1 = 0.969 even when the bank is filled to 1024 — **no catastrophic interference** under sequential write (G3 ✅).
 
@@ -281,7 +292,7 @@ A KeyProjector-only vector-RAG baseline using identical pooled-address features 
 
 ### Stage 8.2 — LAMA single-token transfer (3 seeds)
 
-![Synthetic vs LAMA](docs/figures/fig8_stage8_lama.svg)
+<p align="center"><img src="docs/figures/fig8_stage8_lama.svg" alt="Synthetic vs LAMA" width="720"></p>
 
 Identical pipeline on 135 curated factual triples (capitals, languages, currencies, filtered to single-token Gemma-4 answers): retrieved-slot top-1, recall@1, oracle, and swap-paired flip all saturate at **1.000 ± 0.000** across 3 seeds. The N=4096 synthetic ceiling is **not** a property of the mechanism — it is a property of how richly the address span can be encoded.
 
@@ -295,7 +306,7 @@ Full report: [`reports/experiments/stage8_closed_book_memory/REPORT.md`](reports
 
 ### Phase 9A — Encoder ablation at N=4096 (synthetic colours)
 
-![Stage 9 encoder comparison](docs/figures/fig9_encoder_comparison.svg)
+<p align="center"><img src="docs/figures/fig9_encoder_comparison.svg" alt="Stage 9 encoder comparison" width="720"></p>
 
 | Encoder | Seeds | retr top-1 | recall@1 | swap flip |
 | --- | ---: | ---: | ---: | ---: |
@@ -309,7 +320,7 @@ mean_pool / attn_pool / residual_mlp all collapse to ≈ 0.83, confirming the v3
 
 ### Phase 9B — Real facts: LAMA-TREx, 7 relations, 3 seeds
 
-![Stage 9 LAMA-TREx](docs/figures/fig10_lama_trex.svg)
+<p align="center"><img src="docs/figures/fig10_lama_trex.svg" alt="Stage 9 LAMA-TREx" width="720"></p>
 
 Dataset: 183 curated LAMA-TREx facts spanning P36 / P19 / P101 / P641 / P140 / P39 / P937. Encoder: `prompt_hidden`.
 
@@ -323,7 +334,7 @@ Cross-relation σ = 0 on top-1 confirms the encoder is not relation-biased. Pair
 
 ### Phase 9C — Head-to-head against retrieval, in-context, and parametric baselines
 
-![Stage 9 baseline radar](docs/figures/fig11_baselines_radar.svg)
+<p align="center"><img src="docs/figures/fig11_baselines_radar.svg" alt="Stage 9 baseline radar" width="720"></p>
 
 Same 183 LAMA-TREx facts, same frozen base, same target tokens.
 
@@ -402,7 +413,7 @@ Full report: [`reports/experiments/stage9_grand_evaluation/REPORT.md`](reports/e
    on the canonical regime (G10C PASS): 1.000 vs the best baseline 0.552 with
    56–78 % collateral logit drift.
 
-**Honest summary:** DeltaMemory is a real validated factual store on canonical
+**Summary:** DeltaMemory is a real validated factual store on canonical
 prompts, but the address encoder and the writer do not yet generalise. The
 remaining error is *representational*, not optimisation-bound. Next-stage
 fixes: (a) train the encoder with paraphrase-augmented InfoNCE; (b) train the
@@ -435,7 +446,7 @@ We then add **(c)** conversational benchmarks (multi-turn ConvQA / chat-as-write
 | **11D** prompt-injection / poisoning, protected-slot overwrite | rate | 0.000 | [0.000, 0.000] | ≤ 0.05 | ✅ |
 | **11E** bit-exact reproduction | SHA-256 match | identical | — | match | ✅ |
 
-### Honest framing (post-Stage-11)
+### Caveat framing (post-Stage-11)
 
 - **Within-distribution conversational use is solid.** Multi-turn filler does not break retrieval; chat-as-write-API beats RAG by +0.692 absolute; protected slots resist injection.
 - **Out-of-distribution paraphrase still fails.** Six paraphrase templates per training fact + InfoNCE retrieval are not enough to make the encoder relation-invariant on unseen templates. This is a real limit of `multilayer` / `prompt_hidden` encoders, not an optimisation failure. Three concrete follow-ups are listed in `reports/experiments/stage11_grand_evaluation/REPORT.md`: orthogonal banks, sparse-autoencoder banks, ROME-style closed-form edits.
@@ -450,11 +461,11 @@ Full report: [`reports/experiments/stage11_grand_evaluation/REPORT.md`](reports/
 
 | probe | result | reading |
 | --- | --- | --- |
-| P1 paraphrase holdout | 1.000 (n=3) | **trivial under our encoder choice** — see honest caveat below |
+| P1 paraphrase holdout | 1.000 (n=3) | **trivial under our encoder choice** — see caveat below |
 | P2 ten adversarial transforms (typo, fragment, instruction-conflict, wrong-language, polite-misdirect, …) | DM top-1 = 1.000, no-DM = 0.000, lift = +1.000 across all 10 | DM injection survives every surface attack on the read prompt |
 | P3 forced output-override on facts the base model gets wrong | override = 1.000; **locality drift on 12 unrelated controls = 0.750** | DM at α=1.0 with broadcast injection corrupts 75 % of unrelated answers — production must use per-query routing (Stage 11D), where drift is 0/0 |
 
-**Honest caveats:**
+**Caveats:**
 - P1 used the canonical address through the `multilayer` encoder, which ignores the read prompt; the real held-out paraphrase test is Stage 11A (= 0.138).
 - P2 exercises injection-vs-CE balance, not encoder robustness.
 - Multi-model cross-validation against Qwen3-8B, GLM-4-9B, DeepSeek-V2-Lite, and gpt-oss-20b was prepared (`scripts/run_stage12_multimodel.py`) but **could not run** in this session: GB10 has no outbound HuggingFace network access, only `gemma-4-E2B` is pre-cached. **DeepSeek-V4-Flash** (284 B MoE FP4, ~160 GB) does not fit in GB10's 128 GB and would need a vLLM-FP4 cluster. Multi-model evidence is therefore **deferred** rather than claimed.
@@ -482,31 +493,31 @@ Full report: [`reports/experiments/stage12_gemma4_e2b/REPORT.md`](reports/experi
 
 ### Figure 1 — channel top-1 on LAMA (in-distribution, n=56, 3 seeds)
 
-![Channel top-1 on LAMA Phase 2](docs/figures/fig1_channel_top1_lama.svg)
+<p align="center"><img src="docs/figures/fig1_channel_top1_lama.svg" alt="Channel top-1 on LAMA Phase 2" width="720"></p>
 
 Three trained channels (`payload_probe`, `logit_bias`, `lm_head_lora`) cross the 0.85 strict gate; `lm_head_lora` and `payload_probe` actually saturate at 1.000. The `oracle_logit_answer_embedding` channel — adding the answer's own output-embedding directly to logits — sits at 0.964, so the trained LoRA is at the upper bound. The `no_memory` baseline = 0.000 confirms the address tokens (`ADDR::country::France`) carry no factual leak through the frozen base.
 
 ### Figure 2 — same pipeline, two datasets
 
-![Synthetic vs LAMA](docs/figures/fig2_synthetic_vs_lama.svg)
+<p align="center"><img src="docs/figures/fig2_synthetic_vs_lama.svg" alt="Synthetic vs LAMA" width="720"></p>
 
 The same pipeline (oracle-span attention writer → answer-token CE → LM-head rank-4 LoRA + Q/V residual + payload probe) collapses on synthetic single-token codes (`address_token_binding_single_token`, Stage 6 Phase 1) but solves the LAMA factual binding cleanly. The previously-reported "synthetic wall" is **task-specific, not architecture-specific**: when the frozen base already encodes the underlying associations (ROME-style), the Delta Memory pipeline becomes a near-perfect retrieval/binding writer.
 
 ### Figure 3 — swap controls (binding specificity, open problem)
 
-![Swap controls](docs/figures/fig3_swap_binding.svg)
+<p align="center"><img src="docs/figures/fig3_swap_binding.svg" alt="Swap controls" width="720"></p>
 
 When we swap the in-context payload to a paired card's payload, an ideal binding channel should produce the foreign answer 100% of the time. Our `lm_head_lora` paired-flip rate is ~0.50 — far above random (≈0.018) but below the strict 0.80 gate. The LoRA partially binds payload→answer but mixes payload-specific direction with the address-conditioned default. **This is the next refinement target**: stronger swap loss, longer warmup, and channel ablation.
 
 ### Figure 4 — Stage 7A linear-probe negative
 
-![Stage 7A probe negative](docs/figures/fig4_stage7a_probe.svg)
+<p align="center"><img src="docs/figures/fig4_stage7a_probe.svg" alt="Stage 7A probe negative" width="720"></p>
 
 Independently, we asked whether a small linear classifier on Gemma's hidden states could recover the answer-token identity (would-be `payload_probe` gate). Across 16 synthetic cells (max held-out top-1 = 0.094) and 120 LAMA-disjoint cells (max = 0.000), no probe configuration crosses the 0.85 gate. The synthetic case is a true representation limit; the LAMA-disjoint case is a closed-vocab projector flaw documented in `reports/experiments/stage7a_lama_capital/REPORT.md` (the trainable LayerNorm + Linear projector degenerates onto the train-capital subspace). The right answer is to **skip the probe gate** and supervise the LoRA channel end-to-end, exactly as Figure 1 shows.
 
 ### Figure 5 — answer NLL per channel
 
-![Answer NLL](docs/figures/fig5_channel_nll.svg)
+<p align="center"><img src="docs/figures/fig5_channel_nll.svg" alt="Answer NLL" width="720"></p>
 
 Held-out answer NLL spans **four orders of magnitude** between `no_memory` (≈ 17.16) and `lm_head_lora` (≈ 0.003). All three trained channels reduce NLL to within 1 nat of optimal.
 
