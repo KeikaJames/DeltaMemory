@@ -102,6 +102,13 @@ class AttnNativeBank:
     k_projector: Any = None
     # Stage 14D: bank-only attention temperature. 1.0 = no-op (bit-equal).
     bank_temperature: float = 1.0
+    # Stage 16 (v3.2): mHC spectral shield — bank-columns-only column-norm
+    # cap.  When True the post-softmax attention weights have each bank column's
+    # total received attention capped at ≤ kappa (default 1.0), bounding spectral
+    # amplification of the external-KV channel while leaving native sequence
+    # columns bit-for-bit unchanged.  Default False keeps v3.1 behaviour.
+    # See ``deltamemory.memory.mhc_shield.shield_attention_weights``.
+    mhc_shield: bool = False
 
     def __post_init__(self) -> None:
         if not self.head_dims:
@@ -195,6 +202,8 @@ class AttnNativeBank:
             "M_V": [t.cpu() for t in self.M_V],
             "fact_ids": list(self.fact_ids),
             "address_strs": list(self.address_strs),
+            "bank_temperature": float(self.bank_temperature),
+            "mhc_shield": bool(self.mhc_shield),
         }
 
     @classmethod
@@ -203,7 +212,9 @@ class AttnNativeBank:
                    num_kv_heads=sd["num_kv_heads"],
                    head_dim=sd["head_dim"],
                    head_dims=list(sd.get("head_dims") or [sd["head_dim"]] * sd["num_layers"]),
-                   device=device, dtype=dtype)
+                   device=device, dtype=dtype,
+                   bank_temperature=float(sd.get("bank_temperature", 1.0)),
+                   mhc_shield=bool(sd.get("mhc_shield", False)))
         bank.M_K = [t.to(device, dtype) for t in sd["M_K"]]
         bank.M_V = [t.to(device, dtype) for t in sd["M_V"]]
         bank.fact_ids = list(sd["fact_ids"])
@@ -387,6 +398,20 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
                 scores = torch.cat([scores_orig, scores_bank], dim=-1)
                 weights = F.softmax(scores, dim=-1, dtype=torch.float32).to(q_post.dtype)
                 T_orig = scores_orig.size(-1)
+                # Stage 16 (v3.2): optional mHC spectral shield.  When
+                # ``bank.mhc_shield = True`` bank-column column-sums are
+                # capped at ≤ kappa (default 1.0), bounding spectral
+                # amplification of the external-KV channel while leaving
+                # native sequence columns bit-for-bit unchanged.
+                # Default False keeps v3.1 bit-equal.
+                if bank.mhc_shield:
+                    from deltamemory.memory.mhc_shield import shield_attention_weights
+
+                    bank_n = scores_bank.size(-1)
+                    weights = shield_attention_weights(
+                        weights, bank_size=bank_n,
+                        enabled=True,
+                    )
                 out_orig = torch.matmul(weights[..., :T_orig], v_repeat)
                 out_bank = torch.matmul(weights[..., T_orig:], alpha * mv_e)
                 attn_out = (out_orig + out_bank).transpose(1, 2).contiguous()

@@ -1,0 +1,41 @@
+This directory vendors a third-party PyTorch + Hugging Face implementation of
+mHC (Manifold-Constrained Hyper-Connections) used as a baseline by Phase mHC of
+DeltaMemory.
+
+Upstream
+--------
+- Repository: https://github.com/MarcoDotIO/mhc-deepseek-implementation
+- License:    MIT (see LICENSE in this directory)
+- Vendored from upstream main branch; minor modifications described below.
+
+Paper
+-----
+DeepSeek, "Manifold-Constrained Hyper-Connections" (mHC).
+arXiv:2512.24880 (v1 2025-12-31; v2 2026-01-05).
+https://arxiv.org/abs/2512.24880
+DOI: 10.48550/arXiv.2512.24880
+
+Modifications versus upstream
+-----------------------------
+1. Top-level package import path rewritten from ``mhc`` to
+   ``deltamemory.baselines.mhc_gpt2`` so it loads as a private DeltaMemory
+   baseline without polluting the global ``mhc`` namespace.
+   Specifically, in ``transformers/gpt2_mhc.py`` the lines
+       from mhc.mhc import MhcProjector
+       from mhc.stream_ops import mhc_update, stream_weighted_sum
+   were changed to
+       from deltamemory.baselines.mhc_gpt2.mhc import MhcProjector
+       from deltamemory.baselines.mhc_gpt2.stream_ops import (
+           mhc_update, stream_weighted_sum,
+       )
+2. No algorithmic changes. Sinkhorn-Knopp projection, MhcProjector, mHC
+   GPT-2 model code, and the GPT-2 → mHC logits-equivalent conversion remain
+   bit-for-bit identical to upstream as of vendoring date.
+
+Why vendor (not pip install)
+----------------------------
+- DeltaMemory red lines require sha-pinned, audit-ready code paths. Vendoring
+  preserves the exact mHC implementation against upstream churn.
+- Phase mHC preregistration (``docs/preregistration/mHC_alpha_safe_v1.md``)
+  binds H1–H6 to specific arithmetic; we cannot let an upstream patch silently
+  shift the numerical behaviour of the third arm.

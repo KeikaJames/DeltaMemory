@@ -30,8 +30,7 @@
 ---
 
 DeltaMemory 是一个研究原型，目标是在**冻结 LLM** 里加入持久化外置记忆。
-旧命名里割裂的 `mHC`、`RCV-mC`、manifold/Sinkhorn、Hyper-Connections
-不再作为主概念；当前主线统一叫 **DeltaMemory attn-native bank**。
+当前主线统一叫 **DeltaMemory attn-native bank**。
 
 它**不是 RAG**，**不是 prompt insertion**，也**不是权重编辑**。读阶段的
 prompt 里只有问题；答案信息来自每层 attention 拼接进去的外置 K/V bank。
