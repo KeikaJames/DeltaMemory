@@ -41,8 +41,8 @@ from deltamemory.memory.attn_native_bank import (  # noqa: E402
 from deltamemory.memory.k_projector import KProjectorBank  # noqa: E402
 
 
-def _load_test() -> list[FactRecord]:
-    path = REPO_ROOT / "eval" / "splits" / "test.jsonl"
+def _load_test(split_path: Path | None = None) -> list[FactRecord]:
+    path = split_path if split_path is not None else (REPO_ROOT / "eval" / "splits" / "test.jsonl")
     out: list[FactRecord] = []
     for line in path.read_text().splitlines():
         if not line.strip():
@@ -82,7 +82,10 @@ def _recall_no_bank(model, tok, facts: list[FactRecord], device: str,
 
 
 def _recall_with_bank(patcher, tok, facts, *, policy, k_projector, tau,
-                      seed: int) -> list[float]:
+                      seed: int, bank_topk: int = 0,
+                      bank_cosine: bool = False,
+                      bank_separate_softmax: bool = False,
+                      bank_merge_beta: float = 1.0) -> list[float]:
     import random
     rng = random.Random(seed)
     order = list(range(len(facts)))
@@ -90,6 +93,10 @@ def _recall_with_bank(patcher, tok, facts, *, policy, k_projector, tau,
 
     bank = fresh_bank(patcher.model)
     bank.bank_temperature = tau
+    bank.bank_topk = bank_topk
+    bank.bank_cosine = bank_cosine
+    bank.bank_separate_softmax = bank_separate_softmax
+    bank.bank_merge_beta = bank_merge_beta
     if k_projector is not None:
         bank.k_projector = k_projector
 
@@ -121,17 +128,22 @@ def main() -> None:
                     default="reports/cleanroom/stage14_kproj/k_projector.pt")
     ap.add_argument("--seeds", default="0,1,2")
     ap.add_argument("--out", default="reports/cleanroom/stage14_test_gemma4_e2b")
+    ap.add_argument("--split", default=None,
+                    help="Path to eval split jsonl (default: eval/splits/test.jsonl)")
     args = ap.parse_args()
 
     seeds = [int(s) for s in args.seeds.split(",") if s.strip()]
-    facts = _load_test()
+    split_path = Path(args.split) if args.split else None
+    facts = _load_test(split_path)
     print(f"[test-eval] N={len(facts)} test facts", flush=True)
 
     from transformers import AutoModelForCausalLM, AutoTokenizer
     print(f"[test-eval] loading {args.model}…", flush=True)
     t0 = time.time()
     tok = AutoTokenizer.from_pretrained(args.model)
-    model = AutoModelForCausalLM.from_pretrained(args.model, torch_dtype=torch.bfloat16)
+    model = AutoModelForCausalLM.from_pretrained(
+        args.model, torch_dtype=torch.bfloat16, attn_implementation="eager"
+    )
     model.to(args.device).eval()
     print(f"[test-eval] model ready in {time.time() - t0:.1f}s", flush=True)
 

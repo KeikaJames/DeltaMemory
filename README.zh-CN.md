@@ -116,6 +116,93 @@ Stage 13F 的对话录像逐字提交在
 [`reports/cleanroom/stage13d_locality_fix/`](reports/cleanroom/stage13d_locality_fix/),
 [`reports/cleanroom/stage13f_interactive/`](reports/cleanroom/stage13f_interactive/).
 
+## Stage 14 / v3 —— 预注册 held-out 测试（诚实负面结果）
+
+我们正面对待 v2 的 K-space 瓶颈，构造了 v3：
+
+* **Stage 14A**：`KProjectorBank`，每个注意力层一个 identity-init
+  的 `Linear(d, d)`，**只**作用在 bank K 上，由 InfoNCE 在
+  (规范写入 prompt, paraphrase query) 正例上训练。
+* **Stage 14B/C**：地址条件 / 多位置写入捕获。
+* **Stage 14D**：bank 专用 softmax 温度 τ。
+* **Stage 14E**：ROME 风格的 ridge-solve 写入器 + bank-V 重建。
+* **Stage 14F**：冻结 v3 配置（[`deltamemory/configs/v3_frozen.yaml`](deltamemory/configs/v3_frozen.yaml)），
+  内嵌 projector 的 sha256。
+
+然后我们**按顶会级预注册纪律**做了实验：split sha 锁定在
+[`eval/splits/manifest.json`](eval/splits/manifest.json)，假设 / 验收
+门槛 / 统计程序提交在 [`docs/preregistration.md`](docs/preregistration.md)，
+test split 只消费一次。
+
+### Phase G 结果（Gemma-4-E2B / MPS bf16，N=39 held-out 事实 × 6 paraphrase）
+
+![Phase G recall@1 柱状图](reports/cleanroom/figures/01_test_recall_bars.png)
+
+| 条件 | recall@1 |
+|---|---:|
+| **B1 prompt-insertion** | **0.6581** |
+| B2 RAG-oracle | 0.6496 |
+| B0 no-memory | 0.3590 |
+| **v3 (frozen)** | **0.2778** |
+| v2 period-no-projector | 0.0000 |
+
+按事实配对的 Wilcoxon（Holm-Bonferroni，α=0.05）：
+
+| 比较 | Δ | 胜/负/平 | p（单边） | 95% CI |
+|---|---:|:-:|---:|:-:|
+| v3 − B0 | **−0.0812** | 5/15/19 | **p(less) = 0.0074** | [−0.150, −0.017] |
+| v3 − v2 | **+0.2778** | 11/0/28 | **p(greater) < 0.001** | [+0.188, +0.372] |
+| v3 − B1 prompt | −0.3803 | 1/19/19 | p(less) < 0.001 | [−0.470, −0.295] |
+
+* **H1（v3 > B0）**：被拒 —— 符号反向，p=0.0074 在错误方向上显著。
+* **H1b（v3 > v2）**：成立 —— InfoNCE projector 把 bank 从 0.000 拉到 0.278。
+* **H2/H3（v3 ≥ B1 prompt / B2 RAG）**：均被拒。
+
+dev/test 符号翻转（典型的"挑选时过拟合 dev"信号）：
+
+![dev/test gap](reports/cleanroom/figures/02_dev_vs_test.png)
+
+测试集上每个事实的配对差：
+
+![per-fact delta](reports/cleanroom/figures/03_v3_minus_b0_per_fact.png)
+
+InfoNCE projector 学到了东西，但还不够：
+
+![v3 vs v2](reports/cleanroom/figures/05_v3_vs_v2_lift.png)
+
+### 这次 PR 交付的、并愿意为之背书的
+
+1. **预注册 + sha 锁定的 split** + 冻结的 v3 配置 + 一次性 test
+   评测，包含 Wilcoxon + bootstrap CI + Holm-Bonferroni。
+2. **诚实的负面结果**。按预注册纪律我们**不**为了让 v3 在测试集上
+   翻盘而修改代码 —— 那是 p-hacking。
+3. **写入 REPORT 的方法论修正**，附 v3.1 的具体前置条件，参见
+   [`reports/cleanroom/stage14_test_gemma4_e2b/REPORT.md`](reports/cleanroom/stage14_test_gemma4_e2b/REPORT.md)。
+
+### 接下来的诚实表述底线
+
+在 v3.1 改动（训练集规模下限、跨关系硬负样本、softmax 稀释的结构性
+修复、双 held-out 验证 gate）落地之前，**DeltaMemory 唯一可以做出的
+表述是"在等算力和预注册 held-out split 下，至少打平 prompt-insertion"**。
+"打败 no-memory" 太弱；**B1 = 0.658 才是要超的线**。
+
+### 复现
+
+```bash
+./repro_v3.sh
+# 一键重新跑出 holdout splits / K-projector 训练 / dev sweep /
+# dev re-eval with projector / Phase G 测试评估
+```
+
+定性 side-by-side demo：
+
+```bash
+python scripts/demo_chat.py --model google/gemma-4-E2B --device mps
+```
+
+事实召回 + 长文保真度 gate 的示例 prompt 在
+[`examples/demo_prompts.md`](examples/demo_prompts.md)。
+
 
 
 ## 概览

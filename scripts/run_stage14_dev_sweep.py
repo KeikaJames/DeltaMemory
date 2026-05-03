@@ -175,7 +175,6 @@ def main() -> None:
     patcher = AttnNativePatcher(model)
 
     conditions = [
-    conditions = [
         # name, policy, tau, read_alpha
         ("B0_no_memory",       None,       1.0, 0.0),
         ("B5_v2_period",      "period",   1.0, 1.0),

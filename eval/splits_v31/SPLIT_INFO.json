@@ -1,0 +1,45 @@
+{
+  "n_facts": 305,
+  "n_pairs": 3050,
+  "n_relations": 15,
+  "relations": [
+    "P101",
+    "P103",
+    "P140",
+    "P159",
+    "P17",
+    "P176",
+    "P19",
+    "P27",
+    "P276",
+    "P36",
+    "P39",
+    "P407",
+    "P413",
+    "P641",
+    "P937"
+  ],
+  "seed": 0,
+  "splits": {
+    "dev": {
+      "n_facts": 41,
+      "n_pairs": 410,
+      "sha256": "8b3df6d4ead1b65164ace351dba4ed6fae6e66391309580b12b370448af0e9fc"
+    },
+    "test": {
+      "n_facts": 40,
+      "n_pairs": 400,
+      "sha256": "aa8b889a384583aa364ad8bfc4b8f3bb1adab43a5bd2a1a288f322454c5099b6"
+    },
+    "train": {
+      "n_facts": 183,
+      "n_pairs": 1830,
+      "sha256": "eb7daf62631750f14801f2524762376bee424bac0b39aa2478892f23dde97c88"
+    },
+    "val2": {
+      "n_facts": 41,
+      "n_pairs": 410,
+      "sha256": "da5484534d2a37a5f7452d569c79dbb8ae914e773ed1a61bfe0d0d4f83c02b47"
+    }
+  }
+}

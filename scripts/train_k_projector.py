@@ -40,9 +40,13 @@ from deltamemory.memory.k_projector import (  # noqa: E402
 )
 
 
-def _load_train() -> list[dict]:
-    path = REPO_ROOT / "eval" / "splits" / "train.jsonl"
-    return [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+def _load_train(data_dir: Path | None = None) -> list[dict]:
+    base = data_dir if data_dir is not None else (REPO_ROOT / "eval" / "splits")
+    candidates = [base / "train_v31.jsonl", base / "train.jsonl"]
+    for path in candidates:
+        if path.exists():
+            return [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+    raise FileNotFoundError(f"no train split found under {base}")
 
 
 def _capture_state(
@@ -200,9 +204,14 @@ def main() -> None:
     ap.add_argument("--max-paraphrases-per-fact", type=int, default=5)
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--out", default="reports/cleanroom/stage14_kproj/k_projector.pt")
+    ap.add_argument("--data-dir", default=None,
+                    help="Directory containing train.jsonl or train_v31.jsonl (default: eval/splits)")
+    ap.add_argument("--rank", type=int, default=0,
+                    help="Low-rank residual rank (0 = full d×d Linear)")
     args = ap.parse_args()
 
-    facts = _load_train()
+    data_dir = Path(args.data_dir) if args.data_dir else None
+    facts = _load_train(data_dir)
     if args.limit > 0:
         facts = facts[: args.limit]
     print(f"[train-kproj] {len(facts)} train facts", flush=True)
@@ -212,13 +221,18 @@ def main() -> None:
     print(f"[train-kproj] loading {args.model} on {args.device}…", flush=True)
     t0 = time.time()
     tokenizer = AutoTokenizer.from_pretrained(args.model)
-    model = AutoModelForCausalLM.from_pretrained(args.model, torch_dtype=torch.bfloat16)
+    model = AutoModelForCausalLM.from_pretrained(
+        args.model, torch_dtype=torch.bfloat16, attn_implementation="eager"
+    )
     model.to(args.device).eval()
     print(f"[train-kproj] model ready in {time.time() - t0:.1f}s", flush=True)
 
     patcher = AttnNativePatcher(model)
-    proj = KProjectorBank.identity_for(model)
+    rank = args.rank if args.rank > 0 else None
+    proj = KProjectorBank.identity_for(model, rank=rank)
     proj.to(torch.float32)
+    if rank is not None:
+        print(f"[train-kproj] low-rank projector r={rank}", flush=True)
 
     print(f"[train-kproj] building (write_K, query_K) pairs…", flush=True)
     t0 = time.time()
@@ -249,6 +263,11 @@ def main() -> None:
     )
 
     out_path = REPO_ROOT / args.out
+    # Accept either a directory or a file path. If it's a directory (or has no
+    # suffix and doesn't exist), treat as dir and write k_projector.pt inside.
+    if out_path.is_dir() or (not out_path.exists() and out_path.suffix == ""):
+        out_path.mkdir(parents=True, exist_ok=True)
+        out_path = out_path / "k_projector.pt"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     proj.save(out_path)
     log_path = out_path.with_suffix(".jsonl")

@@ -223,10 +223,14 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
       * captures the layer's pre-RoPE K (and V) when ``ctx.capture_mode`` is on,
       * concatenates bank K/V into the attention computation when
         ``ctx.bank`` is attached, ``ctx.alpha > 0``, and the bank is non-empty.
+
+    The Gemma-4-specific bits (q/k/v norms, RoPE, KV-sharing, repeat_kv) are
+    routed through ``ctx.adapter`` so the same forward works on Qwen3 / Llama /
+    GLM-4 once their :class:`ArchAdapter` is registered. The Gemma-4 path
+    remains bit-equal to the upstream forward (max-abs-diff = 0.0 in the
+    13A regression test).
     """
-    from transformers.models.gemma4.modeling_gemma4 import (
-        apply_rotary_pos_emb, repeat_kv,
-    )
+    adapter = ctx.adapter
 
     def forward(self, hidden_states, position_embeddings,
                 attention_mask=None, past_key_values=None,
@@ -242,41 +246,48 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
         cos, sin = position_embeddings
 
         # --- Q (keep pre-RoPE for bank scoring) ---
-        q_pre = self.q_norm(self.q_proj(hidden_states).view(hidden_shape))
-        q_post = apply_rotary_pos_emb(q_pre, cos, sin, unsqueeze_dim=2)
-        q_post = q_post.transpose(1, 2)            # [B, Hq, T, d]
-        q_pre = q_pre.transpose(1, 2)              # [B, Hq, T, d]
+        q_pre = adapter.apply_q_norm(self, self.q_proj(hidden_states).view(hidden_shape))
 
         # --- K, V (post-norm, pre-RoPE captured for bank write) ---
-        if self.is_kv_shared_layer:
-            # transformers 5.7 passes shared_kv_states as kwarg; 5.5 moved it
-            # to past_key_values.shared_layers.  Fall back across both APIs.
+        is_kv_shared = adapter.is_kv_shared(self)
+        if is_kv_shared:
+            shared_idx = adapter.kv_shared_index(self)
             shared_dict = shared_kv_states
             if shared_dict is None and past_key_values is not None:
                 shared_dict = getattr(past_key_values, "shared_layers", None)
-            if shared_dict is None or self.kv_shared_layer_index not in shared_dict:
+            if shared_dict is None or shared_idx not in shared_dict:
                 # Last-resort recompute (should not happen in eager prefill,
                 # but keeps the patcher robust to future API drift).
-                k_pre = self.k_norm(self.k_proj(hidden_states).view(hidden_shape))
-                v_post_norm = self.v_norm(self.v_proj(hidden_states).view(hidden_shape))
-                key_states = apply_rotary_pos_emb(k_pre, cos, sin, unsqueeze_dim=2).transpose(1, 2)
+                k_pre = adapter.apply_k_norm(self, self.k_proj(hidden_states).view(hidden_shape))
+                v_post_norm = adapter.apply_v_norm(self, self.v_proj(hidden_states).view(hidden_shape))
+                q_post_, k_post_ = adapter.apply_rope(q_pre, k_pre, cos, sin)
+                key_states = k_post_.transpose(1, 2)
                 value_states = v_post_norm.transpose(1, 2)
+                q_post = q_post_.transpose(1, 2)
             else:
-                key_states, value_states = shared_dict[self.kv_shared_layer_index]
-                key_states = key_states.to(q_post.device)
-                value_states = value_states.to(q_post.device)
+                key_states, value_states = shared_dict[shared_idx]
+                key_states = key_states.to(q_pre.device)
+                value_states = value_states.to(q_pre.device)
+                # Q still needs RoPE on this layer.
+                # K is already RoPEd in the source layer.
+                k_dummy = torch.zeros_like(q_pre)
+                q_post_, _ = adapter.apply_rope(q_pre, k_dummy, cos, sin)
+                q_post = q_post_.transpose(1, 2)
             k_pre_for_capture = None  # do not capture on shared layers
         else:
-            k_pre = self.k_norm(self.k_proj(hidden_states).view(hidden_shape))   # [B, T, Hkv, d]
-            v_post_norm = self.v_norm(self.v_proj(hidden_states).view(hidden_shape))
-            k_post = apply_rotary_pos_emb(k_pre, cos, sin, unsqueeze_dim=2).transpose(1, 2)
+            k_pre = adapter.apply_k_norm(self, self.k_proj(hidden_states).view(hidden_shape))
+            v_post_norm = adapter.apply_v_norm(self, self.v_proj(hidden_states).view(hidden_shape))
+            q_post_, k_post_ = adapter.apply_rope(q_pre, k_pre, cos, sin)
+            q_post = q_post_.transpose(1, 2)
+            key_states = k_post_.transpose(1, 2)
             value_states = v_post_norm.transpose(1, 2)
-            key_states = k_post
             k_pre_for_capture = k_pre  # [B, T, Hkv, d]
 
-        if past_key_values is not None and not self.is_kv_shared_layer:
+        q_pre = q_pre.transpose(1, 2)              # [B, Hq, T, d]
+
+        if past_key_values is not None and not is_kv_shared:
             key_states, value_states = past_key_values.update(key_states, value_states, self.layer_idx)
-        if self.store_full_length_kv:
+        if adapter.store_full_length_kv(self):
             if shared_kv_states is not None:
                 shared_kv_states[self.layer_idx] = key_states, value_states
             elif past_key_values is not None:
@@ -297,8 +308,8 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
         # NOTE: sliding-window masking is already baked into ``attention_mask``
         # by HF's eager preparation, so we do not re-apply it here.
 
-        k_repeat = repeat_kv(key_states, self.num_key_value_groups)
-        v_repeat = repeat_kv(value_states, self.num_key_value_groups)
+        k_repeat = adapter.repeat_kv(key_states, self.num_key_value_groups)
+        v_repeat = adapter.repeat_kv(value_states, self.num_key_value_groups)
         scores_orig = torch.matmul(q_post, k_repeat.transpose(2, 3)) * scaling  # [B,Hq,T,Tk]
         if attention_mask is not None:
             scores_orig = scores_orig + attention_mask[..., : scores_orig.size(-1)]
@@ -308,9 +319,10 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
         # injection is visible in every attention layer, not only non-shared
         # ones (otherwise 20/35 layers in Gemma-4-E2B would skip the bank).
         bank_layer_idx = (
-            getattr(self, "kv_shared_layer_index", layer_idx)
-            if self.is_kv_shared_layer else layer_idx
+            adapter.kv_shared_index(self) if is_kv_shared else layer_idx
         )
+        if bank_layer_idx is None:
+            bank_layer_idx = layer_idx
         do_inject = (
             bank is not None
             and not bank.empty
@@ -325,11 +337,19 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
             k_proj = getattr(bank, "k_projector", None)
             if k_proj is not None:
                 mk = k_proj(bank_layer_idx, mk)
-            mk_e = repeat_kv(mk.unsqueeze(0).transpose(1, 2), self.num_key_value_groups)  # [1, Hq, N, d]
-            mv_e = repeat_kv(mv.unsqueeze(0).transpose(1, 2), self.num_key_value_groups)
+            mk_e = adapter.repeat_kv(mk.unsqueeze(0).transpose(1, 2), self.num_key_value_groups)  # [1, Hq, N, d]
+            mv_e = adapter.repeat_kv(mv.unsqueeze(0).transpose(1, 2), self.num_key_value_groups)
             mk_e = mk_e.expand(q_pre.size(0), -1, -1, -1)
             mv_e = mv_e.expand(q_pre.size(0), -1, -1, -1)
-            scores_bank = torch.matmul(q_pre, mk_e.transpose(2, 3)) * scaling  # [B,Hq,T,N]
+            # Stage 15B: optional cosine (L2-normalized) scoring on the bank
+            # branch. ``bank_cosine = False`` (default) preserves v3 behavior.
+            use_cosine = bool(getattr(bank, "bank_cosine", False))
+            if use_cosine:
+                q_cos = q_pre / (q_pre.norm(dim=-1, keepdim=True).clamp_min(1e-6))
+                k_cos = mk_e / (mk_e.norm(dim=-1, keepdim=True).clamp_min(1e-6))
+                scores_bank = torch.matmul(q_cos, k_cos.transpose(2, 3))  # [B,Hq,T,N]
+            else:
+                scores_bank = torch.matmul(q_pre, mk_e.transpose(2, 3)) * scaling  # [B,Hq,T,N]
             # Stage 14D: optional bank temperature tau (default 1.0 = no-op).
             tau = float(getattr(bank, "bank_temperature", 1.0))
             if tau <= 0.0:
@@ -339,12 +359,37 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
                 )
             if tau != 1.0:
                 scores_bank = scores_bank / tau
-            scores = torch.cat([scores_orig, scores_bank], dim=-1)
-            weights = F.softmax(scores, dim=-1, dtype=torch.float32).to(q_post.dtype)
-            T_orig = scores_orig.size(-1)
-            out_orig = torch.matmul(weights[..., :T_orig], v_repeat)
-            out_bank = torch.matmul(weights[..., T_orig:], alpha * mv_e)
-            attn_out = (out_orig + out_bank).transpose(1, 2).contiguous()
+            # Stage 15A: optional bank top-k gating before softmax (structural
+            # softmax-dilution fix). bank_topk = 0 (default) preserves v3
+            # behavior bit-for-bit.
+            topk = int(getattr(bank, "bank_topk", 0) or 0)
+            if topk > 0 and topk < scores_bank.size(-1):
+                topv, topi = torch.topk(scores_bank, k=topk, dim=-1)
+                neg_inf = torch.full_like(scores_bank, float("-inf"))
+                scores_bank = neg_inf.scatter(-1, topi, topv)
+            # Stage 15C: optional bank-only separate softmax + additive merge.
+            # When ``bank_separate_softmax = True`` we run two independent
+            # softmaxes over (sequence) and (bank) and combine the readouts as
+            #     out = out_orig + beta * out_bank
+            # where beta = ``bank_merge_beta`` (default 1.0). This avoids
+            # softmax dilution by sequence tokens entirely. Default False keeps
+            # v3 bit-equal.
+            sep = bool(getattr(bank, "bank_separate_softmax", False))
+            if sep:
+                w_orig = F.softmax(scores_orig, dim=-1, dtype=torch.float32).to(q_post.dtype)
+                w_bank = F.softmax(scores_bank, dim=-1, dtype=torch.float32).to(q_post.dtype)
+                beta = float(getattr(bank, "bank_merge_beta", 1.0))
+                out_orig = torch.matmul(w_orig, v_repeat)
+                out_bank = torch.matmul(w_bank, alpha * mv_e)
+                attn_out = (out_orig + beta * out_bank).transpose(1, 2).contiguous()
+                weights = w_orig  # for downstream sanity (unused)
+            else:
+                scores = torch.cat([scores_orig, scores_bank], dim=-1)
+                weights = F.softmax(scores, dim=-1, dtype=torch.float32).to(q_post.dtype)
+                T_orig = scores_orig.size(-1)
+                out_orig = torch.matmul(weights[..., :T_orig], v_repeat)
+                out_bank = torch.matmul(weights[..., T_orig:], alpha * mv_e)
+                attn_out = (out_orig + out_bank).transpose(1, 2).contiguous()
         else:
             weights = F.softmax(scores_orig, dim=-1, dtype=torch.float32).to(q_post.dtype)
             attn_out = torch.matmul(weights, v_repeat).transpose(1, 2).contiguous()
@@ -372,7 +417,9 @@ class AttnNativePatcher:
     path; the context managers are reusable building blocks.
     """
 
-    def __init__(self, model):
+    def __init__(self, model, adapter: "ArchAdapter | None" = None):
+        from deltamemory.memory.arch_adapter import ArchAdapter, pick_adapter
+
         self.model = model
         # Resolve attention modules.  Path varies by family:
         #  * Gemma4ForConditionalGeneration   -> model.model.language_model.layers
@@ -400,21 +447,21 @@ class AttnNativePatcher:
         self.attn_modules: list[nn.Module] = [layer.self_attn for layer in layers]
         self.num_layers = len(self.attn_modules)
 
-        # Reject non-Gemma4 attention modules: the patched forward references
-        # Gemma-4-specific attributes (q_norm, k_norm, v_norm, is_kv_shared_layer,
-        # kv_shared_layer_index, store_full_length_kv) and would error on the
-        # first forward pass with Llama / Qwen / DeepSeek / mock attention.
-        cls_name = type(self.attn_modules[0]).__name__
-        if "Gemma4" not in cls_name:
-            raise NotImplementedError(
-                f"AttnNativePatcher currently supports only Gemma-4 attention "
-                f"modules (got {cls_name}). Adding support for {cls_name} requires "
-                f"a model-specific patched forward; PRs welcome."
-            )
+        # Pick or accept an ArchAdapter. The adapter handles family-specific
+        # q/k/v norm, RoPE, KV-sharing, and repeat_kv. Without it we cannot
+        # be sure the patched forward is bit-equal to the upstream model.
+        if adapter is None:
+            adapter = pick_adapter(self.attn_modules[0])
+        elif not isinstance(adapter, ArchAdapter):
+            raise TypeError(f"adapter must be an ArchAdapter, got {type(adapter).__name__}")
+        self.adapter: ArchAdapter = adapter
 
         cfg = getattr(model.config, "text_config", model.config)
         self.num_kv_heads = cfg.num_key_value_heads
-        self.head_dim = cfg.head_dim
+        cfg_head_dim = getattr(cfg, "head_dim", None)
+        if cfg_head_dim is None:
+            cfg_head_dim = cfg.hidden_size // cfg.num_attention_heads
+        self.head_dim = int(cfg_head_dim)
 
         self._orig_forwards: list = [None] * self.num_layers
         self.bank: AttnNativeBank | None = None
@@ -474,18 +521,24 @@ def fresh_bank(model) -> AttnNativeBank:
     cfg = getattr(model.config, "text_config", model.config)
     device = next(model.parameters()).device
 
+    # Some families (Llama / Mistral) don't store head_dim directly on cfg;
+    # derive it from hidden_size / num_attention_heads as fallback.
+    cfg_head_dim = getattr(cfg, "head_dim", None)
+    if cfg_head_dim is None:
+        cfg_head_dim = cfg.hidden_size // cfg.num_attention_heads
+
     # Discover per-layer head_dim by walking attn modules (Gemma-4 has different
     # head_dim on sliding vs full layers: 256 vs 512).
     patcher_probe = AttnNativePatcher(model)
     head_dims: list[int] = []
     for sa in patcher_probe.attn_modules:
-        d = getattr(sa, "head_dim", None) or cfg.head_dim
+        d = getattr(sa, "head_dim", None) or cfg_head_dim
         head_dims.append(int(d))
 
     return AttnNativeBank(
         num_layers=cfg.num_hidden_layers,
         num_kv_heads=cfg.num_key_value_heads,
-        head_dim=cfg.head_dim,
+        head_dim=int(cfg_head_dim),
         head_dims=head_dims,
         device=device,
         dtype=next(model.parameters()).dtype,
