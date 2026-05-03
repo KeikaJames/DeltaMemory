@@ -2,9 +2,40 @@
 
 All notable changes to DeltaMemory are documented here, organised by
 research stage. Older stages are summarised; the current stage is
-documented in full to make the negative result legible.
+documented in full enough to make the evidence and limits legible.
 
-## Stage 14 — v3, preregistered, frozen, with HONEST NEGATIVE held-out test
+## Stage 15 — v3.1 cross-architecture attn-native bank
+
+### v3.1 README and figure refresh
+* `README.md` and `README.zh-CN.md` now use one unified DeltaMemory
+  vocabulary and point only to the new v3.1 figure set.
+* New dependency-free figure generator:
+  `scripts/make_v31_readme_figures.py`.
+* New SVG figures in `docs/figures/v31/`:
+  architecture, counter-prior lift, Mac-vs-GB10 reproduction, DeepSeek-32B
+  α sweep, and Gemma-4 dev_v31 recall context.
+
+### Counter-prior intervention evidence
+* `scripts/run_intervention_demo.py` supports `--false-facts` and records
+  the target-token log-prob under B0 no-memory, B1 prompt-insertion, and
+  v3 attn-bank conditions.
+* Gemma-4-E2B with α=1.0: 5/5 counter-prior target lifts on GB10 CUDA and
+  5/5 on Mac MPS.
+* Qwen3-4B-Instruct with α=0.05: 5/5 counter-prior target lifts on GB10
+  CUDA and 5/5 on Mac MPS.
+* DeepSeek-R1-Distill-Qwen-32B α sweep at 0.05/0.10/0.20/0.30 is mixed:
+  the identity-init bank is not enough to override all strong 32B priors.
+  This is tracked as a real limitation and motivates a trained Qwen2-family
+  K-projector.
+* Raw transcripts are committed under `transcripts/v31_intervention/`.
+
+### Cross-architecture α defaults
+* `ArchAdapter.default_alpha` added:
+  Gemma4=1.0, Qwen3=0.05, Llama/Qwen2=0.05, GLM-4=0.05.
+* `scripts/run_intervention_demo.py --alpha` now defaults to the adapter's
+  calibrated value.
+
+## Stage 14 — v3, preregistered, frozen, with strict negative held-out test
 
 ### 14A — InfoNCE K-projector
 * New `deltamemory/memory/k_projector.py`: per-attention-layer
@@ -70,7 +101,7 @@ documented in full to make the negative result legible.
   `type("S", (), …)()`.
 * `_eval_condition` drops unused `write_alpha` parameter.
 * `train_k_projector.py`: drop unused `math` / `DataLoader` imports.
-* `docs/design.md` ArchAdapter table is honest about Gemma-4-only
+* `docs/design.md` ArchAdapter table is explicit about Gemma-4-only
   support today; Qwen3 / Llama / GLM-4 marked as v3.1 work.
 
 ### Methodology amendment (written-down)
@@ -81,7 +112,7 @@ documented in full to make the negative result legible.
   negatives mandatory; structural fix for softmax dilution at N≥30
   (top-k / cosine / separate bank-only head); two-stage held-out gate
   (dev + a second validation split) before any "frozen" claim.
-* Comparison frame: until (1)–(4) are satisfied, the only honest
+* Comparison frame: until (1)–(4) are satisfied, the only supported
   claim DeltaMemory makes is "matches or beats prompt-insertion at
   equal compute on a preregistered held-out split". B1 = 0.658.
 
@@ -92,7 +123,7 @@ documented in full to make the negative result legible.
 * α=0 bit-equality + locality bit-equality preserved.
 * KV-shared layer routing fix (Stage 13D): single-fact target rank
   41 → 9 on the unit gate.
-* Honest negative on chat recall (Stage 13F): write-time K and read-time
+* Strict negative on chat recall (Stage 13F): write-time K and read-time
   Q live in different K-space regions; zero-shot softmax can't bridge
   the gap. This motivated Stage 14.
 

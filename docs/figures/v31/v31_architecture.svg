@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1088" height="580" viewBox="0 0 1088 580" role="img">
+  <style>
+    .title { font: 700 28px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #1D1D1F; }
+    .subtitle { font: 500 14px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #6E6E73; }
+    .label { font: 600 13px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #1D1D1F; }
+    .small { font: 500 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #6E6E73; }
+    .tiny { font: 500 10px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #6E6E73; }
+    .value { font: 700 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #1D1D1F; }
+  </style>
+  <text x="40" y="48" class="title">DeltaMemory v3.1 forward path</text>
+  <text x="40" y="75" class="subtitle">External K/V memory is merged into frozen attention; LLM weights are never edited.</text>
+  <rect x="24" y="104" width="1040" height="368" rx="34" fill="#F5F5F7"/>
+  <rect x="54" y="145" width="180" height="86" rx="22" fill="white" stroke="#E8EAED" stroke-width="1.4"/>
+  <text x="76" y="181" class="label">Write prompt</text>
+  <text x="76" y="207" class="small">False or true fact</text>
+  <rect x="292" y="145" width="210" height="86" rx="22" fill="white" stroke="#E8EAED" stroke-width="1.4"/>
+  <text x="314" y="181" class="label">Frozen LLM</text>
+  <text x="314" y="207" class="small">one write forward</text>
+  <rect x="560" y="145" width="210" height="86" rx="22" fill="white" stroke="#E8EAED" stroke-width="1.4"/>
+  <text x="582" y="181" class="label">Per-layer K/V bank</text>
+  <text x="582" y="207" class="small">captured at attention</text>
+  <rect x="828" y="145" width="210" height="86" rx="22" fill="white" stroke="#E8EAED" stroke-width="1.4"/>
+  <text x="850" y="181" class="label">Read prompt</text>
+  <text x="850" y="207" class="small">question only</text>
+  <rect x="292" y="325" width="478" height="100" rx="22" fill="white" stroke="#E8EAED" stroke-width="1.4"/>
+  <text x="314" y="361" class="label">Attention merge</text>
+  <text x="314" y="387" class="small">Attn(Q, [K; MK], [V; α·MV]) in every supported layer</text>
+  <rect x="828" y="325" width="210" height="100" rx="22" fill="white" stroke="#E8EAED" stroke-width="1.4"/>
+  <text x="850" y="361" class="label">LM head</text>
+  <text x="850" y="387" class="small">target log-prob shifts</text>
+  <line x1="240" y1="188" x2="284" y2="188" stroke="#007AFF" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="284" cy="188" r="5" fill="#007AFF"/>
+  <line x1="508" y1="188" x2="552" y2="188" stroke="#007AFF" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="552" cy="188" r="5" fill="#007AFF"/>
+  <line x1="776" y1="188" x2="820" y2="188" stroke="#007AFF" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="820" cy="188" r="5" fill="#007AFF"/>
+  <line x1="665" y1="235" x2="665" y2="315" stroke="#34A853" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="665" cy="315" r="5" fill="#34A853"/>
+  <line x1="932" y1="235" x2="932" y2="315" stroke="#4285F4" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="932" cy="315" r="5" fill="#4285F4"/>
+  <line x1="776" y1="375" x2="820" y2="375" stroke="#EA4335" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="820" cy="375" r="5" fill="#EA4335"/>
+  <text x="54" y="520" class="small">Invariant: α=0 or empty bank ⇒ bit-equal to the unpatched base model.</text>
+  <text x="54" y="546" class="small">Trainable surface: bank-side K-projector only; no LoRA, no MEMIT/ROME weight edit, no prompt insertion at read time.</text>
+
+</svg>
