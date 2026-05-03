@@ -41,8 +41,8 @@ from deltamemory.memory.attn_native_bank import (  # noqa: E402
 from deltamemory.memory.k_projector import KProjectorBank  # noqa: E402
 
 
-def _load_test() -> list[FactRecord]:
-    path = REPO_ROOT / "eval" / "splits" / "test.jsonl"
+def _load_test(split_path: Path | None = None) -> list[FactRecord]:
+    path = split_path if split_path is not None else (REPO_ROOT / "eval" / "splits" / "test.jsonl")
     out: list[FactRecord] = []
     for line in path.read_text().splitlines():
         if not line.strip():
@@ -121,10 +121,13 @@ def main() -> None:
                     default="reports/cleanroom/stage14_kproj/k_projector.pt")
     ap.add_argument("--seeds", default="0,1,2")
     ap.add_argument("--out", default="reports/cleanroom/stage14_test_gemma4_e2b")
+    ap.add_argument("--split", default=None,
+                    help="Path to eval split jsonl (default: eval/splits/test.jsonl)")
     args = ap.parse_args()
 
     seeds = [int(s) for s in args.seeds.split(",") if s.strip()]
-    facts = _load_test()
+    split_path = Path(args.split) if args.split else None
+    facts = _load_test(split_path)
     print(f"[test-eval] N={len(facts)} test facts", flush=True)
 
     from transformers import AutoModelForCausalLM, AutoTokenizer
