@@ -37,30 +37,47 @@ from torch import nn
 
 
 class KProjectorBank(nn.Module):
-    """One ``nn.Linear(d, d)`` per attention layer, identity-initialized."""
+    """One projector per attention layer, identity-initialized.
 
-    def __init__(self, head_dims: list[int]):
+    Two structural variants:
+
+    * ``rank=None`` (default): full ``nn.Linear(d, d)`` per layer initialized to
+      identity. Same shape as v3 — bit-equal regression on existing checkpoints.
+    * ``rank=r`` (low-rank residual): ``W = I + V @ U^T`` where ``U, V`` are
+      ``[d, r]``. ``V`` is zero-initialized so the projector starts at exactly
+      identity. Parameters per layer drop from ``d^2`` to ``2*d*r``. Bias is
+      kept and zero-initialized.
+
+    Saved checkpoints record ``rank`` so ``load`` re-instantiates the same
+    structure.
+    """
+
+    def __init__(self, head_dims: list[int], rank: int | None = None):
         super().__init__()
         self.head_dims = list(head_dims)
+        self.rank = rank
         self.layers = nn.ModuleList()
-        for d in self.head_dims:
-            lin = nn.Linear(int(d), int(d), bias=True)
-            with torch.no_grad():
-                lin.weight.copy_(torch.eye(int(d)))
-                lin.bias.zero_()
-            self.layers.append(lin)
+        if rank is None:
+            for d in self.head_dims:
+                lin = nn.Linear(int(d), int(d), bias=True)
+                with torch.no_grad():
+                    lin.weight.copy_(torch.eye(int(d)))
+                    lin.bias.zero_()
+                self.layers.append(lin)
+        else:
+            r = int(rank)
+            for d in self.head_dims:
+                d = int(d)
+                # delta = V @ U^T, both [d, r]; initialize V=0 -> delta=0.
+                m = nn.Module()
+                m.U = nn.Parameter(torch.randn(d, r) / max(d, 1) ** 0.5)
+                m.V = nn.Parameter(torch.zeros(d, r))
+                m.bias = nn.Parameter(torch.zeros(d))
+                self.layers.append(m)
 
     @classmethod
-    def identity_for(cls, model: Any) -> "KProjectorBank":
-        """Build an identity projector matching a model's per-layer head_dim.
-
-        Discovery goes through :class:`AttnNativePatcher`. Today the patcher
-        only accepts Gemma-4 attention modules; adding Qwen3 / Llama / GLM-4
-        adapters will let this method cover those families without code
-        changes here. The projector itself is architecture-agnostic — it is
-        just one ``nn.Linear(d_h, d_h)`` per attention layer applied to bank
-        keys, and the only requirement is that ``head_dim`` is well-defined.
-        """
+    def identity_for(cls, model: Any, rank: int | None = None) -> "KProjectorBank":
+        """Build an identity projector matching a model's per-layer head_dim."""
         from deltamemory.memory.attn_native_bank import AttnNativePatcher
 
         probe = AttnNativePatcher(model)
@@ -70,53 +87,55 @@ class KProjectorBank(nn.Module):
             if d is None:
                 d = attn.q_proj.out_features // attn.num_heads
             dims.append(int(d))
-        return cls(dims)
+        return cls(dims, rank=rank)
 
     def forward(self, layer_idx: int, mk: torch.Tensor) -> torch.Tensor:
-        """Project bank keys for one layer.
-
-        Implementation note: we apply the layer's ``Linear`` *functionally*
-        with weights cast to ``mk``'s dtype/device on the fly. We do **not**
-        mutate ``self.layers`` or call ``Linear.to(...)``; that would create
-        new ``Parameter`` objects on the hot path, invalidate optimizer
-        state, and break ``DDP`` / ``torch.compile`` assumptions. The
-        underlying ``Parameter`` storage stays where the user put it (with
-        ``.to(device, dtype)`` once at attach time, e.g. after ``load()``).
-
-        Args:
-            layer_idx: attention layer index.
-            mk: bank K tensor of shape ``[N, num_kv_heads, head_dim]`` or any
-                shape whose last dim equals ``head_dims[layer_idx]``.
-
-        Returns:
-            Projected tensor with the same shape and dtype as ``mk``.
-        """
-        lin = self.layers[layer_idx]
-        w = lin.weight
-        b = lin.bias
-        if w.dtype != mk.dtype or w.device != mk.device:
-            w = w.to(device=mk.device, dtype=mk.dtype)
-            b = b.to(device=mk.device, dtype=mk.dtype) if b is not None else None
-        return torch.nn.functional.linear(mk, w, b)
+        layer = self.layers[layer_idx]
+        if self.rank is None:
+            w = layer.weight
+            b = layer.bias
+            if w.dtype != mk.dtype or w.device != mk.device:
+                w = w.to(device=mk.device, dtype=mk.dtype)
+                b = b.to(device=mk.device, dtype=mk.dtype) if b is not None else None
+            return torch.nn.functional.linear(mk, w, b)
+        # Low-rank residual: W·x = x + V @ (U^T @ x)
+        U, V, b = layer.U, layer.V, layer.bias
+        if U.dtype != mk.dtype or U.device != mk.device:
+            U = U.to(device=mk.device, dtype=mk.dtype)
+            V = V.to(device=mk.device, dtype=mk.dtype)
+            b = b.to(device=mk.device, dtype=mk.dtype)
+        # mk: [..., d]
+        delta = torch.matmul(torch.matmul(mk, U), V.t())  # [..., d]
+        return mk + delta + b
 
     def is_identity(self, atol: float = 0.0) -> bool:
-        """True iff every layer is exactly the identity (within ``atol``)."""
-        for lin, d in zip(self.layers, self.head_dims):
-            eye = torch.eye(int(d), dtype=lin.weight.dtype, device=lin.weight.device)
-            if (lin.weight - eye).abs().max().item() > atol:
+        if self.rank is None:
+            for lin, d in zip(self.layers, self.head_dims):
+                eye = torch.eye(int(d), dtype=lin.weight.dtype, device=lin.weight.device)
+                if (lin.weight - eye).abs().max().item() > atol:
+                    return False
+                if lin.bias.abs().max().item() > atol:
+                    return False
+            return True
+        for layer in self.layers:
+            if layer.V.abs().max().item() > atol:
                 return False
-            if lin.bias.abs().max().item() > atol:
+            if layer.bias.abs().max().item() > atol:
                 return False
         return True
 
     def save(self, path: str | Path) -> None:
         Path(path).parent.mkdir(parents=True, exist_ok=True)
-        torch.save({"head_dims": self.head_dims, "state_dict": self.state_dict()}, path)
+        torch.save({
+            "head_dims": self.head_dims,
+            "rank": self.rank,
+            "state_dict": self.state_dict(),
+        }, path)
 
     @classmethod
     def load(cls, path: str | Path) -> "KProjectorBank":
         ckpt = torch.load(path, map_location="cpu", weights_only=False)
-        bank = cls(ckpt["head_dims"])
+        bank = cls(ckpt["head_dims"], rank=ckpt.get("rank"))
         bank.load_state_dict(ckpt["state_dict"])
         return bank
 

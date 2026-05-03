@@ -206,6 +206,8 @@ def main() -> None:
     ap.add_argument("--out", default="reports/cleanroom/stage14_kproj/k_projector.pt")
     ap.add_argument("--data-dir", default=None,
                     help="Directory containing train.jsonl or train_v31.jsonl (default: eval/splits)")
+    ap.add_argument("--rank", type=int, default=0,
+                    help="Low-rank residual rank (0 = full d×d Linear)")
     args = ap.parse_args()
 
     data_dir = Path(args.data_dir) if args.data_dir else None
@@ -224,8 +226,11 @@ def main() -> None:
     print(f"[train-kproj] model ready in {time.time() - t0:.1f}s", flush=True)
 
     patcher = AttnNativePatcher(model)
-    proj = KProjectorBank.identity_for(model)
+    rank = args.rank if args.rank > 0 else None
+    proj = KProjectorBank.identity_for(model, rank=rank)
     proj.to(torch.float32)
+    if rank is not None:
+        print(f"[train-kproj] low-rank projector r={rank}", flush=True)
 
     print(f"[train-kproj] building (write_K, query_K) pairs…", flush=True)
     t0 = time.time()
