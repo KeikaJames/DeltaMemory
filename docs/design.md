@@ -1,181 +1,156 @@
-# Delta Memory Design
+# DeltaMemory Design (v2 / v3)
 
-Delta Memory is a storage-backed, layerwise attention-memory mechanism for
-frozen Gemma-style decoder language models. The current Python package remains
-`rcvhc` for compatibility.
+DeltaMemory is a **zero-parameter, attention-native** external memory for frozen
+decoder LLMs. It does not train the base model. It does not rewrite weights.
+It does not retrieve text into the prompt. The mechanism is one extra concat
+inside every attention layer.
 
-The main path is not prompt retrieval. Retrieved `source_text` is debug/citation
-metadata only. It is never appended to the prompt in the Delta Memory path.
+The Python package is `deltamemory` (formerly `rcvhc`).
 
-## Symbols
+## One-line core (v2)
 
-- `N`: total historical tokens ingested.
-- `W`: local window tokens resident for the current question.
-- `B`: memory block size.
-- `K`: retrieved memory blocks per query.
-- `L_e`: enabled memory injection layers.
-- `H`: number of attention heads.
-- `d_h`: attention head dimension.
-- `d_m`: compressed memory dimension.
+For every non-shared attention layer ℓ in a frozen transformer:
 
-## Storage-Bounded Context Claim
-
-Delta Memory targets storage-bounded context, not infinite context.
-
-GPU resident memory:
-
-```text
-M_gpu ~= M_model + M_local_KV(W) + M_retrieved(K, L_e) + O(1)
+```
+Attn_ℓ(Q, [K ; M_K^(ℓ)], [V ; α · M_V^(ℓ)])
 ```
 
-where:
+where `(M_K^(ℓ), M_V^(ℓ))` are tensors the model itself produced during a
+**single forward pass over a write prompt**, captured at a chosen position
+(post-norm, pre-RoPE for Gemma-style models). At read time, the model's
+own softmax decides whether to attend to the bank. When `α = 0` or when
+the bank is empty, the output is **bit-for-bit equal** to the unpatched
+model.
 
-```text
-M_local_KV(W) = O(W * L * H * d_h * bytes)
-M_retrieved(K, L_e) = O(K * L_e * d_mem_attn * bytes)
+There is no encoder. No KeyProjector. No broadcast residual. No fine-tune.
+
+## v3 = v2 + Stage 14 (refines K-space matching)
+
+v2 fails on `Q: who is X? A:` style queries because the write-time K
+(captured at the period of `"X is Y."`) and the read-time Q (at the `A:`
+token) live in different regions of K-space. v3 fixes this with three
+strictly additive layers, each preserving the α=0 bit-equality property:
+
+### 14A — InfoNCE K-projector
+
+A tiny `nn.Linear(d, d)` per layer applied **only to bank K** (never to the
+sequence Q or K). Trained by InfoNCE on (canonical write prompt, paraphrase
+query) positive pairs:
+
+```
+loss = -log( exp(sim(Q_q, proj(K_w)) / τ) /
+             Σ_neg exp(sim(Q_q, proj(K_neg)) / τ) )
 ```
 
-External storage:
+Negatives = same batch other facts + decoy relations. α=0 still bit-equal
+because at α=0 the bank concatenation is a zero-width slice.
 
-```text
-M_store(N) = ceil(N / B) * S_block
-S_block ~= bytes(K_raw + V_raw + Delta_q + Delta_k + Delta_v + metadata)
+### 14B — Address-conditional capture
+
+Replace "capture K at period token of write prompt" with "capture K at the
+address span of the write prompt". For a write prompt
+`"The mayor of Paris is Anne Hidalgo."`, the address span is `"The mayor of
+Paris"` (regex `^(.+?) is .+?\.`); we capture K at the last token of that
+span. Read-time queries like `"Q: Who is the mayor of Paris? A:"` hit
+softer K-space neighborhoods of the same concept.
+
+### 14C — Multi-position write
+
+`policy="multi"` writes `(K_addr, V_target)` and `(K_period, V_target)`
+both. Bank size doubles; retrieval radius widens.
+
+### 14E — ROME-style writer rebuild
+
+13C's pure-nullify approach failed at held-out 0.184. v3 rebuilds the
+writer in closed form on the train set:
+
+```
+W_v_delta = (K_addr^T K_addr + λI)^-1 K_addr^T V_target
+M_V := W_v_delta · K_addr   # at injection time
 ```
 
-Usable history length is bounded by physical storage, retrieval latency, and
-memory compression rate. It is not bounded by keeping the full history in the
-GPU context window.
+This is the same identity ROME uses for weight-edits, but applied to a
+non-destructive bank slot rather than the model's MLP rows.
 
-## Memory Write
+## Position-agnostic invariant (Gemma-4)
 
-For layer `l` and source block `b`:
+Gemma-4 uses RoPE per layer and KV-shared layers. We capture K
+**post-norm but pre-RoPE** so the bank carries no positional signal.
+At read time we use a `q_pre` (pre-RoPE) copy for the bank scoring branch,
+and `q_post` (RoPE-applied) for the standard sequence branch. KV-shared
+layers route bank lookups through `kv_shared_layer_index` so all 35 / 35
+attention layers see the bank (vs. only the 15 non-shared ones).
 
-```text
-c_self_b^l = Pool(H_b^{l,in}, H_b^{l,out})
-U_{b,i}^l = normalized forward usage from future tokens i to block b
-v2_b^l = sum_i U_{b,i}^l * c_use_i^l
-Delta_b^l = RMSNorm(v2_b^l - c_self_b^l)
-```
+## ArchAdapter (multi-model) — current status
 
-Each memory block stores:
+`AttnNativePatcher` is the dispatch point. **As of this PR it only accepts
+Gemma-4 attention modules** and raises ``NotImplementedError`` on every
+other family; the table below is the *target* support matrix that v3.x
+work will fill in via per-family adapters. The bank, the InfoNCE
+K-projector, and the ROME-style writer are architecture-agnostic — only
+the patcher and the per-family hooks (q/k/v norm, RoPE base, KV-shared
+routing) need new code per family.
 
-```text
-M_b^l = {
-  raw_key_b^l,
-  raw_value_b^l,
-  delta_q_b^l,
-  delta_k_b^l,
-  delta_v_b^l,
-  usage_mass_b^l,
-  metadata
-}
-```
+| family | q_norm/k_norm | v_norm | KV-shared | RoPE base | adapter status |
+|---|---|---|---|---|---|
+| Gemma-4 | yes | yes | yes (per-layer) | 1e4 | **shipped (this PR)** |
+| Qwen3 | yes | no | no | 1e6 | planned (v3.1) |
+| Llama / DeepSeek / Mistral | no | no | no | 1e4 | planned (v3.1) |
+| GLM-4 | no | no | no | 1e4 | planned (v3.1) |
 
-The P0 writer uses frozen model hidden states and attentions, then writes the
-compressed tensors to CPU storage.
+Each adapter must satisfy the same four unit gates:
 
-## Retrieval
+1. Empty-bank forward bit-equal (max-abs-diff = 0.0).
+2. α=0 with non-empty bank bit-equal.
+3. α>0 single-fact write/read produces a measurable target-rank lift.
+4. State-dict round-trip preserves all (K, V, head_dims, metadata).
 
-For a question, the engine computes a read query from the local window and
-retrieves top-k memory blocks for each enabled attention layer:
+## Storage and capacity
 
-```text
-R_l = topk(q_read, MemoryStore_l)
-```
+Per fact, the bank stores per-layer `(K, V)` tensors at
+`(num_kv_heads, head_dim_layer)` resolution. For Gemma-4-E2B at
+N=100 facts × 35 layers × kv_heads=1 × head_dim ∈ {256,512} ×
+bf16 = ~10 MB. The bank lives on the model device; no CPU swap, no disk.
 
-The top-k tensors are the only external memory tensors moved to the model
-device. The full store remains on CPU or disk.
+Capacity is not the bottleneck — read-time softmax dilution is. v2 zero-shot
+useful-capacity is ~10 facts. v3 (with 14A InfoNCE projector) targets
+useful-capacity ≥ 100 facts on Gemma-4-E2B at recall@1 ≥ 0.55.
 
-## Attention Injection
+## What this is not
 
-For each enabled attention layer `l`:
+- **Not RAG.** Retrieved text is never put into the prompt. The query
+  prompt at read time contains only the address.
+- **Not MEMIT / ROME (weight-edit).** The base model weights are frozen.
+  v3's "ROME-style" name refers only to the closed-form least-squares
+  solve used to compute `W_v_delta`; the result is stored in the bank,
+  not written to MLP rows.
+- **Not fine-tune.** v3 trains exactly one tiny `nn.Linear(d, d)` per
+  layer (the InfoNCE K-projector). The base model receives zero gradient.
+- **Not prompt insertion.** No fact text is added to any prompt.
 
-```text
-q, k, v = GemmaSelfAttentionProj(h_t^l)
-dq = P_q(Delta_b^l)
-dk = P_k(Delta_b^l)
-dv = P_v(Delta_b^l)
-```
+## Trace requirements
 
-The Q/K/V residual mode is:
+Every benchmark run records:
 
-```text
-q' = q + alpha_q * gate_q * dq
-k' = k + alpha_k * gate_k * dk
-v' = v + alpha_v * gate_v * dv
-```
+- **Per-fact**: target-token rank, target-token logit, bank slot index,
+  capture position, retrieval softmax weight.
+- **Per-layer**: bank size N, head_dims, K/V dtypes, max-abs-diff to
+  no-bank baseline at α=0.
+- **Per-suite**: recall@1, recall@5, paraphrase robustness, decoy curve,
+  long-context drift, locality probe drift, Wilcoxon W and p, Holm-corrected
+  p-family, bootstrap 95% CI, Cohen's d.
+- **Reproducibility**: model + tokenizer SHA, transformers version,
+  device + dtype, seed, holdout split SHA, preregistration commit SHA.
 
-The memory-prefix attention form is also compatible with this definition:
+## Scientific-claim boundary
 
-```text
-K_ext = concat(K_local, K_mem + gate_k * dk)
-V_ext = concat(V_local, V_mem + gate_v * dv)
-Attention(Q', K_ext, V_ext)
-```
+A v3 result is reported as **PASS** only if all of:
 
-The implementation hooks Q/K/V projection modules and adds these residuals
-directly inside every enabled attention layer. Single-layer injection is an
-ablation, not the main path.
+1. Hypothesis was committed to `docs/preregistration.md` *before* the test
+   set was touched.
+2. Wilcoxon p < α / k_holm against every required baseline.
+3. The result holds across ≥ 3 seeds.
+4. Locality probe drift ≤ 0.05 (no collateral damage).
 
-## Main and Baseline Modes
-
-Main research modes:
-
-- `delta_v`
-- `delta_qv`
-- `delta_kv`
-- `delta_qkv`
-
-Controls:
-
-- `delta_qv_zero`
-- `delta_qv_random`
-- `delta_qv_shuffled`
-- `delta_qv_force_gate`
-
-Baselines:
-
-- `no_memory`
-- `raw_memory`
-- `retrieved_attention`
-
-`raw_memory` is a compressed-memory baseline. `retrieved_attention` treats
-retrieved memory records as external K/V slots and applies a non-prompt
-attention readout over the frozen prompt hidden states before the LM head. RAG
-prompt insertion is not part of the main path and must be implemented only as a
-separate baseline if needed.
-
-## Trace Requirements
-
-Every answer run reports:
-
-- answer metrics: NLL, rank, top-k, log probability.
-- retrieved memory IDs and scores.
-- token ranges and source snippets for debug only.
-- Q/K/V delta norms and gate statistics.
-- memory count and storage bytes.
-- trainable base parameter count, expected to be zero.
-
-## Scientific Claim Boundary
-
-Engineering success means the store, retrieval, frozen Gemma forward, Q/K/V
-hooks, and controls run without training base weights.
-
-Scientific signal requires aligned Delta to beat zero, random, and shuffled
-controls. CPU-only or tiny smoke runs must be described as wiring-only unless
-the controls support a stronger claim.
-
-## Optimization Boundary
-
-The frozen base model is not expected to know how to use Delta Memory without
-training. The trainable Delta Memory surface is deliberately small:
-
-- writer projections that compress frozen hidden/attention states into memory,
-- Delta-to-Q/K/V projection matrices,
-- gate biases and gate weights,
-- optional readout baselines.
-
-Training minimizes answer-token loss under memory-enabled conditions while
-keeping every Gemma parameter frozen. Valid training evidence must compare the
-trained memory path against zero, random, shuffled, no-memory, and raw-memory
-controls.
+Anything else is reported honestly as FAIL or as a diagnostic, never
+silently dropped or rerun until it passes.

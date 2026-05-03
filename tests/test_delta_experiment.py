@@ -3,8 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 from collections import Counter
 
-from rcvhc.engine.delta_dataset import DELTA_TASK_SUITES, make_delta_memory_examples, make_later_reference_examples
-from rcvhc.engine.delta_experiment import DeltaExperimentConfig, run_delta_experiment, write_delta_experiment_report
+from deltamemory.engine.delta_dataset import DELTA_TASK_SUITES, make_delta_memory_examples, make_later_reference_examples
+from deltamemory.engine.delta_experiment import DeltaExperimentConfig, run_delta_experiment, write_delta_experiment_report
 
 
 def test_later_reference_examples_have_required_fields():

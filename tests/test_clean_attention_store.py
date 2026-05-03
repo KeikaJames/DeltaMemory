@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import torch
 
-from rcvhc.core.types import AttentionMemoryItem
-from rcvhc.memory.attention_store import AttentionMemoryStore
+from deltamemory.core.types import AttentionMemoryItem
+from deltamemory.memory.attention_store import AttentionMemoryStore
 
 
 def _item(block_id: int, score_bias: float = 0.0, *, address: torch.Tensor | None = None) -> AttentionMemoryItem:

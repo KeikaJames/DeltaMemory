@@ -29,8 +29,8 @@ from pathlib import Path
 
 import torch
 
-from rcvhc.gemma.model_adapter import load_model_bundle
-from rcvhc.memory.attn_native_bank import (
+from deltamemory.gemma.model_adapter import load_model_bundle
+from deltamemory.memory.attn_native_bank import (
     AttnNativePatcher, fresh_bank, write_fact,
 )
 

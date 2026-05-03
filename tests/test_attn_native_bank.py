@@ -18,7 +18,7 @@ import os
 import pytest
 import torch
 
-from rcvhc.memory.attn_native_bank import (
+from deltamemory.memory.attn_native_bank import (
     AttnNativeBank, AttnNativePatcher, fresh_bank, write_fact, forward_with_bank,
 )
 
@@ -31,7 +31,7 @@ def model_bundle():
     (CI-friendly): we never trigger a multi-GB download from a unit test.
     Device auto-selects CUDA → MPS → CPU; override with ``RCVHC_TEST_DEVICE``.
     """
-    from rcvhc.gemma.model_adapter import load_model_bundle
+    from deltamemory.gemma.model_adapter import load_model_bundle
     device = os.environ.get("RCVHC_TEST_DEVICE")
     if device is None:
         if torch.cuda.is_available():

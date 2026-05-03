@@ -30,8 +30,8 @@ import torch.nn.functional as F
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
-from rcvhc.gemma.model_adapter import load_model_bundle  # noqa: E402
-from rcvhc.memory.attn_native_bank import (  # noqa: E402
+from deltamemory.gemma.model_adapter import load_model_bundle  # noqa: E402
+from deltamemory.memory.attn_native_bank import (  # noqa: E402
     AttnNativeBank, AttnNativePatcher, fresh_bank, write_fact, forward_with_bank,
 )
 

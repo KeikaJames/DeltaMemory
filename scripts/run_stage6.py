@@ -32,7 +32,7 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
-from rcvhc.engine.delta_experiment import (  # noqa: E402
+from deltamemory.engine.delta_experiment import (  # noqa: E402
     DeltaExperimentConfig,
     run_delta_experiment,
     write_delta_experiment_report,

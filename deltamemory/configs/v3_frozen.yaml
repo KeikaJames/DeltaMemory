@@ -1,0 +1,45 @@
+# DeltaMemory v3 frozen configuration
+# Selected from dev sweep (N=33, 3 seeds) on Gemma-4-E2B / MPS / bf16.
+# See reports/cleanroom/stage14_dev_kproj/REPORT.md for the dev numbers.
+#
+# *** This file is the binding spec for Phase G (held-out test eval).
+# *** Do NOT modify after the preregistration commit; amendments must be
+# *** appended to docs/preregistration.md.
+
+version: v3
+base_model: google/gemma-4-E2B
+dtype: bfloat16
+
+# Stage 14A: trained InfoNCE K-projector (per-layer Linear, identity-init at start)
+k_projector:
+  enabled: true
+  weights_path: reports/cleanroom/stage14_kproj/k_projector.pt
+  weights_sha256: be14ae877bc5101a1da5f795d98e0d2ae19bb86156505e46047b53eb162ebd53
+  train_pairs: 520
+  train_facts: 104
+  loss_first: 2.8926
+  loss_last: 0.9549
+  epochs: 8
+  batch_size: 16
+  lr: 0.001
+  temperature: 0.07
+
+# Stage 14B/14C: capture policy
+capture_policy: period          # winner: period > multi > address on dev
+
+# Stage 14D: bank temperature (1.0 = bit-equal; sharpening hurt at τ=0.5)
+bank_temperature: 1.0
+
+# Stage 14E: ROME closed-form writer (off for frozen v3 — defer to v3.1)
+rome_writer:
+  enabled: false
+
+# Inference
+alpha: 1.0
+top_k: null                     # use full bank (Phase 14F gating deferred)
+
+# Dev numbers (recall@1 on holdout dev N=33, 3 seeds, identical runs):
+# B0 no_memory          : 0.3535
+# v3_period   (frozen)  : 0.4343   delta=+0.0808   wilcoxon p=0.0122
+#                                  bootstrap 95%CI [+0.010, +0.152]
+#                                  Cohen d=0.39  wins/losses/ties=15/5/13

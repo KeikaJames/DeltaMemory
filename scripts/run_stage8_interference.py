@@ -41,7 +41,7 @@ from scripts.run_stage8 import (  # noqa: E402
     _forward_read_with_injection, _tokenize_read_prompts, _value_embeds,
     train,
 )
-from rcvhc.gemma.model_adapter import load_model_bundle  # noqa: E402
+from deltamemory.gemma.model_adapter import load_model_bundle  # noqa: E402
 
 
 @torch.no_grad()

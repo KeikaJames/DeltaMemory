@@ -46,7 +46,7 @@ from run_stage8 import (
     _tokenize_read_prompts, _forward_read_with_injection,
     Fact,
 )
-from rcvhc.encoders import build_encoder
+from deltamemory.encoders import build_encoder
 
 
 @dataclass

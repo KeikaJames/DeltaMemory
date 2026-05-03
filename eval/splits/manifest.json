@@ -1,0 +1,21 @@
+{
+  "counts": {
+    "dev": 33,
+    "test": 39,
+    "train": 104
+  },
+  "ratios": [
+    0.6,
+    0.2,
+    0.2
+  ],
+  "seed": 42,
+  "sha256": {
+    "dev": "26724a2106a91b31d37b4100e98aa92bff8bb6459eed42422ddc307a8f3ec156",
+    "test": "ff6a818d85a39dc9fe2584c912a19fa6b891db0b97add048a33ee1096b14e025",
+    "train": "1ccecdc7712586ac27f8835c8ea5a69469fb38823e09aa3a98f3e17d89072b85"
+  },
+  "source": "scripts/data/lama_trex_paraphrase.jsonl",
+  "source_sha256": "fb365a4b73fc84f50b97e025112d036e4d3c88b2e0d7a85620f9efbc18070fbd",
+  "stratification": "relation"
+}

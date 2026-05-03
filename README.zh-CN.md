@@ -48,7 +48,7 @@ Delta Memory 是一个研究原型，目标是把冻结的 `google/gemma-4-E2B` 
   层修复让目标 token rank 41 → 9），也有严格阴性结果（多 token 对话
   recall 失败 —— 诊断为 K-space 匹配间距，由 Stage 14 修复）。
 
-软件包仍叫 `rcvhc`，是为了和早期实验保持兼容。
+软件包仍叫 `deltamemory`，是为了和早期实验保持兼容。
 
 它**不是 RAG、不是 MCP、也不是 prompt 注入**。Stage 8 的闭卷测试把
 这一点变得具体：评估时读取 prompt 只含 address——没有检索到的文本，
@@ -579,10 +579,10 @@ GB10 实测 wall-clock：N=128 ≈ 5 分钟、N=1024 ≈ 12 分钟、N=4096 ≈ 
 ## 仓库布局
 
 ```text
-rcvhc/core/       config 和共享 typed records
-rcvhc/memory/     外部 Delta Memory store 与 writer
-rcvhc/gemma/      Gemma 风格 adapter 与 layerwise Q/K/V injector
-rcvhc/engine/     ingest, ask, training, experiments, statistics
+deltamemory/core/       config 和共享 typed records
+deltamemory/memory/     外部 Delta Memory store 与 writer
+deltamemory/gemma/      Gemma 风格 adapter 与 layerwise Q/K/V injector
+deltamemory/engine/     ingest, ask, training, experiments, statistics
 scripts/          可运行 demo 与实验 CLI（含 run_stage8*.py）
 scripts/data/     curated 数据集（如 lama_curated.jsonl）
 docs/             设计笔记与研究计划

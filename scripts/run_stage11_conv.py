@@ -42,8 +42,8 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
-from rcvhc.gemma.model_adapter import load_model_bundle  # type: ignore
-from rcvhc.encoders.address_encoders import build_encoder  # type: ignore
+from deltamemory.gemma.model_adapter import load_model_bundle  # type: ignore
+from deltamemory.encoders.address_encoders import build_encoder  # type: ignore
 from run_stage8 import (  # type: ignore
     Fact, Writer, FastWeightBank, KeyProjector,
     build_facts_lama, train, _value_embeds, _tokenize_read_prompts,

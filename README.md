@@ -50,7 +50,7 @@ slices of the question "can you give an LLM real memory":
   results (multi-token chat recall fails — diagnosed as a K-space
   matching gap motivating Stage 14).
 
-The package is still named `rcvhc` for compatibility with earlier
+The package is still named `deltamemory` for compatibility with earlier
 experiments.
 
 It is **not RAG**, **not MCP**, **not prompt insertion**. The Stage 8
@@ -611,10 +611,10 @@ head-to-head).
 ## Repository layout
 
 ```text
-rcvhc/core/       config and shared typed records
-rcvhc/memory/     external Delta Memory store and writer
-rcvhc/gemma/      Gemma-style adapter and layerwise Q/K/V injector
-rcvhc/engine/     ingest, ask, training, experiments, statistics
+deltamemory/core/       config and shared typed records
+deltamemory/memory/     external Delta Memory store and writer
+deltamemory/gemma/      Gemma-style adapter and layerwise Q/K/V injector
+deltamemory/engine/     ingest, ask, training, experiments, statistics
 scripts/          runnable demos and experiment CLIs
 docs/             design notes and research plans
 reports/          tracked experiment reports

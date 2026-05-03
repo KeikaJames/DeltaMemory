@@ -10,7 +10,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from rcvhc.engine.delta_experiment import DeltaExperimentConfig, run_delta_experiment, write_delta_experiment_report
+from deltamemory.engine.delta_experiment import DeltaExperimentConfig, run_delta_experiment, write_delta_experiment_report
 
 
 def main() -> int:

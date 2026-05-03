@@ -15,9 +15,9 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from rcvhc.core.config import RCVHCCleanConfig
-from rcvhc.engine.attention_memory_engine import AttentionMemoryEngine
-from rcvhc.gemma.model_adapter import load_model_bundle
+from deltamemory.core.config import RCVHCCleanConfig
+from deltamemory.engine.attention_memory_engine import AttentionMemoryEngine
+from deltamemory.gemma.model_adapter import load_model_bundle
 
 
 def main() -> int:
@@ -26,7 +26,7 @@ def main() -> int:
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--dtype", default="float32")
     parser.add_argument("--input", default="examples/delta_attention_demo.txt")
-    parser.add_argument("--store", default="runs/rcvhc_attention_store")
+    parser.add_argument("--store", default="runs/deltamemory_attention_store")
     parser.add_argument("--report-dir", default="reports/experiments")
     args = parser.parse_args()
 

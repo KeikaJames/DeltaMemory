@@ -1,0 +1,12 @@
+{
+  "n_pairs": 520,
+  "n_facts": 104,
+  "n_layers": 35,
+  "epochs": 8,
+  "batch_size": 16,
+  "lr": 0.001,
+  "temperature": 0.07,
+  "loss_first": 2.8926491737365723,
+  "loss_last": 0.9548880457878113,
+  "is_identity_after_train": false
+}

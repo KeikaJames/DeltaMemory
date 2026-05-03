@@ -10,7 +10,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from rcvhc.engine.prototype import PrototypeRunConfig, run_attention_memory_prototype, write_prototype_report
+from deltamemory.engine.prototype import PrototypeRunConfig, run_attention_memory_prototype, write_prototype_report
 
 
 def main() -> int:

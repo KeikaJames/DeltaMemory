@@ -50,7 +50,7 @@ import torch
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
 
-from rcvhc.memory.attn_native_bank import (
+from deltamemory.memory.attn_native_bank import (
     AttnNativeBank, AttnNativePatcher, fresh_bank, write_fact, forward_with_bank,
 )
 
@@ -237,7 +237,7 @@ def main() -> int:
     REPORT_DIR.mkdir(parents=True, exist_ok=True)
     t0 = time.time()
     print("[stage13c] loading model …", flush=True)
-    from rcvhc.gemma.model_adapter import load_model_bundle
+    from deltamemory.gemma.model_adapter import load_model_bundle
     bundle = load_model_bundle(
         "google/gemma-4-E2B", device="mps", dtype="bfloat16",
         attn_implementation="eager",

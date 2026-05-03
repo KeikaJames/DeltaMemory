@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import torch
 
-from rcvhc.core.types import AttentionMemoryItem
-from rcvhc.gemma.attention_injector import GemmaAttentionInjector, QKVDeltaProjector
-from rcvhc.gemma.model_adapter import MockGemmaModel, freeze_model
+from deltamemory.core.types import AttentionMemoryItem
+from deltamemory.gemma.attention_injector import GemmaAttentionInjector, QKVDeltaProjector
+from deltamemory.gemma.model_adapter import MockGemmaModel, freeze_model
 
 
 def test_mock_gemma_qkv_injector_nonzero_delta_and_frozen_base():

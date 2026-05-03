@@ -44,8 +44,8 @@ import torch.nn.functional as F
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
-from rcvhc.gemma.model_adapter import load_model_bundle  # noqa: E402
-from rcvhc.encoders import build_encoder  # noqa: E402
+from deltamemory.gemma.model_adapter import load_model_bundle  # noqa: E402
+from deltamemory.encoders import build_encoder  # noqa: E402
 
 # Curated single-token color vocabulary (validated under Gemma tokenizer with
 # leading space). 32 entries; we draw from this for the value side.
