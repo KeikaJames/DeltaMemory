@@ -341,7 +341,15 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
             mv_e = adapter.repeat_kv(mv.unsqueeze(0).transpose(1, 2), self.num_key_value_groups)
             mk_e = mk_e.expand(q_pre.size(0), -1, -1, -1)
             mv_e = mv_e.expand(q_pre.size(0), -1, -1, -1)
-            scores_bank = torch.matmul(q_pre, mk_e.transpose(2, 3)) * scaling  # [B,Hq,T,N]
+            # Stage 15B: optional cosine (L2-normalized) scoring on the bank
+            # branch. ``bank_cosine = False`` (default) preserves v3 behavior.
+            use_cosine = bool(getattr(bank, "bank_cosine", False))
+            if use_cosine:
+                q_cos = q_pre / (q_pre.norm(dim=-1, keepdim=True).clamp_min(1e-6))
+                k_cos = mk_e / (mk_e.norm(dim=-1, keepdim=True).clamp_min(1e-6))
+                scores_bank = torch.matmul(q_cos, k_cos.transpose(2, 3))  # [B,Hq,T,N]
+            else:
+                scores_bank = torch.matmul(q_pre, mk_e.transpose(2, 3)) * scaling  # [B,Hq,T,N]
             # Stage 14D: optional bank temperature tau (default 1.0 = no-op).
             tau = float(getattr(bank, "bank_temperature", 1.0))
             if tau <= 0.0:
@@ -359,12 +367,29 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
                 topv, topi = torch.topk(scores_bank, k=topk, dim=-1)
                 neg_inf = torch.full_like(scores_bank, float("-inf"))
                 scores_bank = neg_inf.scatter(-1, topi, topv)
-            scores = torch.cat([scores_orig, scores_bank], dim=-1)
-            weights = F.softmax(scores, dim=-1, dtype=torch.float32).to(q_post.dtype)
-            T_orig = scores_orig.size(-1)
-            out_orig = torch.matmul(weights[..., :T_orig], v_repeat)
-            out_bank = torch.matmul(weights[..., T_orig:], alpha * mv_e)
-            attn_out = (out_orig + out_bank).transpose(1, 2).contiguous()
+            # Stage 15C: optional bank-only separate softmax + additive merge.
+            # When ``bank_separate_softmax = True`` we run two independent
+            # softmaxes over (sequence) and (bank) and combine the readouts as
+            #     out = out_orig + beta * out_bank
+            # where beta = ``bank_merge_beta`` (default 1.0). This avoids
+            # softmax dilution by sequence tokens entirely. Default False keeps
+            # v3 bit-equal.
+            sep = bool(getattr(bank, "bank_separate_softmax", False))
+            if sep:
+                w_orig = F.softmax(scores_orig, dim=-1, dtype=torch.float32).to(q_post.dtype)
+                w_bank = F.softmax(scores_bank, dim=-1, dtype=torch.float32).to(q_post.dtype)
+                beta = float(getattr(bank, "bank_merge_beta", 1.0))
+                out_orig = torch.matmul(w_orig, v_repeat)
+                out_bank = torch.matmul(w_bank, alpha * mv_e)
+                attn_out = (out_orig + beta * out_bank).transpose(1, 2).contiguous()
+                weights = w_orig  # for downstream sanity (unused)
+            else:
+                scores = torch.cat([scores_orig, scores_bank], dim=-1)
+                weights = F.softmax(scores, dim=-1, dtype=torch.float32).to(q_post.dtype)
+                T_orig = scores_orig.size(-1)
+                out_orig = torch.matmul(weights[..., :T_orig], v_repeat)
+                out_bank = torch.matmul(weights[..., T_orig:], alpha * mv_e)
+                attn_out = (out_orig + out_bank).transpose(1, 2).contiguous()
         else:
             weights = F.softmax(scores_orig, dim=-1, dtype=torch.float32).to(q_post.dtype)
             attn_out = torch.matmul(weights, v_repeat).transpose(1, 2).contiguous()

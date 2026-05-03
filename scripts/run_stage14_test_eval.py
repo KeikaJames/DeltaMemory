@@ -82,7 +82,10 @@ def _recall_no_bank(model, tok, facts: list[FactRecord], device: str,
 
 
 def _recall_with_bank(patcher, tok, facts, *, policy, k_projector, tau,
-                      seed: int) -> list[float]:
+                      seed: int, bank_topk: int = 0,
+                      bank_cosine: bool = False,
+                      bank_separate_softmax: bool = False,
+                      bank_merge_beta: float = 1.0) -> list[float]:
     import random
     rng = random.Random(seed)
     order = list(range(len(facts)))
@@ -90,6 +93,10 @@ def _recall_with_bank(patcher, tok, facts, *, policy, k_projector, tau,
 
     bank = fresh_bank(patcher.model)
     bank.bank_temperature = tau
+    bank.bank_topk = bank_topk
+    bank.bank_cosine = bank_cosine
+    bank.bank_separate_softmax = bank_separate_softmax
+    bank.bank_merge_beta = bank_merge_beta
     if k_projector is not None:
         bank.k_projector = k_projector
 
