@@ -59,7 +59,14 @@ class ArchAdapter:
 
     def apply_v_norm(self, attn: nn.Module, v: torch.Tensor) -> torch.Tensor:
         fn = getattr(attn, "v_norm", None)
-        return fn(v) if callable(fn) else v
+        if callable(fn):
+            return fn(v)  # native RMSNorm (Gemma-4)
+        # Bank-side RMS normalization for families without native v_norm.
+        # v: [B, T, Hkv, head_dim].  Normalize per-head to unit RMS so
+        # alpha has a uniform meaning across architectures, solving the
+        # 20x cross-arch alpha spread documented in Phase Q2.
+        rms = v.norm(dim=-1, keepdim=True) / (v.size(-1) ** 0.5)
+        return v / rms.clamp_min(1e-6)
 
     # --- RoPE (must override) ------------------------------------------------
     def apply_rope(
@@ -139,10 +146,6 @@ class Qwen3Adapter(ArchAdapter):
     @classmethod
     def matches(cls, attn_module: nn.Module) -> bool:
         return "Qwen3" in type(attn_module).__name__
-
-    def apply_v_norm(self, attn, v):
-        # Qwen3 has no v_norm.
-        return v
 
     def is_kv_shared(self, attn):
         return False
