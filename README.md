@@ -30,9 +30,7 @@
 ---
 
 DeltaMemory is a research prototype for **persistent external memory in a
-frozen LLM**. The current line of work no longer uses the old fragmented names
-(`mHC`, `RCV-mC`, manifold/Sinkhorn, Hyper-Connections) as the primary concept:
-the mechanism is now simply **DeltaMemory attn-native bank**.
+frozen LLM**. The mechanism is **DeltaMemory attn-native bank**.
 
 It is **not RAG**, **not prompt insertion**, and **not a weight edit**. During
 the read pass, the prompt contains only the question. The value is supplied by
