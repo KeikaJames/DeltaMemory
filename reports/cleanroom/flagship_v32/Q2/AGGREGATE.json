@@ -1,0 +1,190 @@
+{
+  "rows": [
+    {
+      "model": "google/gemma-4-E2B",
+      "alpha": 0.05,
+      "shield": false,
+      "n_seeds": 3,
+      "mean_lift": 0.16951189041137696,
+      "lift_ci_low": 0.16951189041137696,
+      "lift_ci_high": 0.16951189041137696,
+      "mean_drift": 0.3342774659395218,
+      "drift_ci_low": 0.3342774659395218,
+      "drift_ci_high": 0.3342774659395218
+    },
+    {
+      "model": "google/gemma-4-E2B",
+      "alpha": 0.05,
+      "shield": true,
+      "n_seeds": 3,
+      "mean_lift": 0.121966552734375,
+      "lift_ci_low": 0.121966552734375,
+      "lift_ci_high": 0.121966552734375,
+      "mean_drift": 0.2594670504331589,
+      "drift_ci_low": 0.2594670504331589,
+      "drift_ci_high": 0.2594670504331589
+    },
+    {
+      "model": "google/gemma-4-E2B",
+      "alpha": 0.1,
+      "shield": false,
+      "n_seeds": 3,
+      "mean_lift": 0.2116870880126953,
+      "lift_ci_low": 0.2116870880126953,
+      "lift_ci_high": 0.2116870880126953,
+      "mean_drift": 0.2555420249700546,
+      "drift_ci_low": 0.2555420249700546,
+      "drift_ci_high": 0.2555420249700546
+    },
+    {
+      "model": "google/gemma-4-E2B",
+      "alpha": 0.1,
+      "shield": true,
+      "n_seeds": 3,
+      "mean_lift": 0.11966686248779297,
+      "lift_ci_low": 0.11966686248779297,
+      "lift_ci_high": 0.11966686248779297,
+      "mean_drift": 0.35500259697437286,
+      "drift_ci_low": 0.35500259697437286,
+      "drift_ci_high": 0.35500259697437286
+    },
+    {
+      "model": "google/gemma-4-E2B",
+      "alpha": 0.5,
+      "shield": false,
+      "n_seeds": 3,
+      "mean_lift": 0.5154786109924316,
+      "lift_ci_low": 0.5154786109924316,
+      "lift_ci_high": 0.5154786109924316,
+      "mean_drift": -0.027505874633789062,
+      "drift_ci_low": -0.027505874633789062,
+      "drift_ci_high": -0.027505874633789062
+    },
+    {
+      "model": "google/gemma-4-E2B",
+      "alpha": 0.5,
+      "shield": true,
+      "n_seeds": 3,
+      "mean_lift": 0.25478134155273435,
+      "lift_ci_low": 0.25478134155273435,
+      "lift_ci_high": 0.25478134155273435,
+      "mean_drift": 0.023876771330833435,
+      "drift_ci_low": 0.023876771330833435,
+      "drift_ci_high": 0.023876771330833435
+    },
+    {
+      "model": "google/gemma-4-E2B",
+      "alpha": 1.0,
+      "shield": false,
+      "n_seeds": 3,
+      "mean_lift": 1.399867057800293,
+      "lift_ci_low": 1.399867057800293,
+      "lift_ci_high": 1.399867057800293,
+      "mean_drift": -0.06176742911338806,
+      "drift_ci_low": -0.06176742911338806,
+      "drift_ci_high": -0.06176742911338806
+    },
+    {
+      "model": "google/gemma-4-E2B",
+      "alpha": 1.0,
+      "shield": true,
+      "n_seeds": 3,
+      "mean_lift": 0.5101759910583497,
+      "lift_ci_low": 0.5101759910583497,
+      "lift_ci_high": 0.5101759910583497,
+      "mean_drift": 0.010847076773643494,
+      "drift_ci_low": 0.010847076773643494,
+      "drift_ci_high": 0.010847076773643494
+    },
+    {
+      "model": "google/gemma-4-E2B",
+      "alpha": 2.0,
+      "shield": false,
+      "n_seeds": 3,
+      "mean_lift": 4.620120286941528,
+      "lift_ci_low": 4.620120286941528,
+      "lift_ci_high": 4.620120286941528,
+      "mean_drift": -0.06929858028888702,
+      "drift_ci_low": -0.06929858028888702,
+      "drift_ci_high": -0.06929858028888702
+    },
+    {
+      "model": "google/gemma-4-E2B",
+      "alpha": 2.0,
+      "shield": true,
+      "n_seeds": 3,
+      "mean_lift": 1.6795294761657715,
+      "lift_ci_low": 1.6795294761657715,
+      "lift_ci_high": 1.6795294761657715,
+      "mean_drift": -0.026512503623962402,
+      "drift_ci_low": -0.026512503623962402,
+      "drift_ci_high": -0.026512503623962402
+    },
+    {
+      "model": "google/gemma-4-E2B",
+      "alpha": 5.0,
+      "shield": false,
+      "n_seeds": 3,
+      "mean_lift": 1.955174350738525,
+      "lift_ci_low": 1.955174350738525,
+      "lift_ci_high": 1.955174350738525,
+      "mean_drift": 0.19154971837997437,
+      "drift_ci_low": 0.19154971837997437,
+      "drift_ci_high": 0.19154971837997437
+    },
+    {
+      "model": "google/gemma-4-E2B",
+      "alpha": 5.0,
+      "shield": true,
+      "n_seeds": 3,
+      "mean_lift": 4.9313475608825685,
+      "lift_ci_low": 4.9313475608825685,
+      "lift_ci_high": 4.9313475608825685,
+      "mean_drift": -0.056911617517471313,
+      "drift_ci_low": -0.056911617517471313,
+      "drift_ci_high": -0.056911617517471313
+    },
+    {
+      "model": "google/gemma-4-E2B",
+      "alpha": 10.0,
+      "shield": false,
+      "n_seeds": 3,
+      "mean_lift": 0.5789628982543945,
+      "lift_ci_low": 0.5789628982543945,
+      "lift_ci_high": 0.5789628982543945,
+      "mean_drift": 1.2597044706344604,
+      "drift_ci_low": 1.2597044706344604,
+      "drift_ci_high": 1.2597044706344604
+    },
+    {
+      "model": "google/gemma-4-E2B",
+      "alpha": 10.0,
+      "shield": true,
+      "n_seeds": 3,
+      "mean_lift": 2.8389198303222662,
+      "lift_ci_low": 2.8389198303222662,
+      "lift_ci_high": 2.8389198303222662,
+      "mean_drift": 0.16504567861557007,
+      "drift_ci_low": 0.16504567861557007,
+      "drift_ci_high": 0.16504567861557007
+    }
+  ],
+  "hypotheses": {
+    "h1": {
+      "google/gemma-4-E2B": {
+        "passed": true,
+        "n_pass": 7,
+        "n_total": 7,
+        "max_drift": 0.35500259697437286
+      }
+    },
+    "h2": {
+      "google/gemma-4-E2B": {
+        "passed": true,
+        "n_pass": 7,
+        "n_total": 7
+      }
+    },
+    "wilcoxon": {}
+  }
+}

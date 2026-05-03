@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400">
+<rect width="640" height="400" fill="white"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="system-ui" font-size="14" fill="#1a1a2e">mHC Shield: Counter-Prior Lift vs NLL Drift — Gemma-4-E2B</text>
+<line x1="40" y1="350" x2="600" y2="350" stroke="#ccc" stroke-width="1"/>
+<line x1="40" y1="350" x2="40" y2="70" stroke="#ccc" stroke-width="1"/>
+<line x1="40" y1="230.05776031127994" x2="600" y2="230.05776031127994" stroke="#FF3B30" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="604" y="234.05776031127994" font-family="system-ui" font-size="10" fill="#FF3B30">0.5 nats</text>
+<path d="M45.028155412675815,264.972886732318 L45.028155412675815,264.972886732318 L49.28261081041076,281.5612034078395 L79.92781363660586,341.19493550048867 L169.14117635238634,348.4133051254663 L493.98669011389273,350.0 L225.15822533400842,295.04337399636734 L86.33183979354723,70.0" fill="none" stroke="#FF3B30" stroke-width="1.5" opacity="0.5"/>
+<circle cx="45.028155412675815" cy="264.972886732318" r="4" fill="#FF3B30"/>
+<text x="51.028155412675815" y="260.972886732318" font-family="system-ui" font-size="9" fill="#FF3B30">α=0.05</text>
+<circle cx="49.28261081041076" cy="281.5612034078395" r="4" fill="#FF3B30"/>
+<circle cx="79.92781363660586" cy="341.19493550048867" r="4" fill="#FF3B30"/>
+<circle cx="169.14117635238634" cy="348.4133051254663" r="4" fill="#FF3B30"/>
+<circle cx="493.98669011389273" cy="350.0" r="4" fill="#FF3B30"/>
+<circle cx="225.15822533400842" cy="295.04337399636734" r="4" fill="#FF3B30"/>
+<circle cx="86.33183979354723" cy="70.0" r="4" fill="#FF3B30"/>
+<text x="92.33183979354723" y="66.0" font-family="system-ui" font-size="9" fill="#FF3B30">α=10.00</text>
+<path d="M40.23198301701338,280.7342623944945 L40.23198301701338,280.7342623944945 L40.0,260.60642821611924 L53.62977668069102,330.36942169892245 L79.39290778473651,333.11457301627905 L197.35233724855783,340.98564788255715 L525.3819800200009,347.39026214154535 L314.3067282380322,300.6273575161021" fill="none" stroke="#007AFF" stroke-width="1.5" opacity="0.5"/>
+<circle cx="40.23198301701338" cy="280.7342623944945" r="4" fill="#007AFF"/>
+<text x="46.23198301701338" y="276.7342623944945" font-family="system-ui" font-size="9" fill="#007AFF">α=0.05</text>
+<circle cx="40.0" cy="260.60642821611924" r="4" fill="#007AFF"/>
+<circle cx="53.62977668069102" cy="330.36942169892245" r="4" fill="#007AFF"/>
+<circle cx="79.39290778473651" cy="333.11457301627905" r="4" fill="#007AFF"/>
+<circle cx="197.35233724855783" cy="340.98564788255715" r="4" fill="#007AFF"/>
+<circle cx="525.3819800200009" cy="347.39026214154535" r="4" fill="#007AFF"/>
+<circle cx="314.3067282380322" cy="300.6273575161021" r="4" fill="#007AFF"/>
+<text x="320.3067282380322" y="296.6273575161021" font-family="system-ui" font-size="9" fill="#007AFF">α=10.00</text>
+<circle cx="50" cy="82" r="4" fill="#007AFF"/>
+<text x="60" y="86" font-family="system-ui" font-size="11" fill="#333">Shield ON (V2 column cap)</text>
+<circle cx="50" cy="100" r="4" fill="#FF3B30"/>
+<text x="60" y="104" font-family="system-ui" font-size="11" fill="#333">Shield OFF</text>
+<text x="320.0" y="392" text-anchor="middle" font-family="system-ui" font-size="11" fill="#666">Counter-Prior Lift (nats)</text>
+<text x="14" y="200.0" text-anchor="middle" font-family="system-ui" font-size="10" fill="#666" transform="rotate(-90,14,200.0)">NLL Drift (nats)</text>
+</svg>
