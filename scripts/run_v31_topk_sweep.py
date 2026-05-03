@@ -38,6 +38,9 @@ def main() -> None:
                     help="enable bank_separate_softmax")
     ap.add_argument("--beta", type=float, default=1.0,
                     help="bank_merge_beta when --separate")
+    ap.add_argument("--dtype", default="bfloat16",
+                    choices=["bfloat16", "float16", "float32"],
+                    help="model dtype (use float32 to bypass GB10 bf16 numerical issues)")
     args = ap.parse_args()
 
     seeds = [int(s) for s in args.seeds.split(",") if s.strip()]
@@ -47,12 +50,15 @@ def main() -> None:
     facts = _load_test(Path(args.split))
     print(f"[topk-sweep] N={len(facts)} facts, split={args.split}", flush=True)
 
+    dtype_map = {"bfloat16": torch.bfloat16, "float16": torch.float16, "float32": torch.float32}
+    torch_dtype = dtype_map[args.dtype]
+
     from transformers import AutoModelForCausalLM, AutoTokenizer
-    print(f"[topk-sweep] loading {args.model}…", flush=True)
+    print(f"[topk-sweep] loading {args.model} dtype={args.dtype}…", flush=True)
     t0 = time.time()
     tok = AutoTokenizer.from_pretrained(args.model)
     model = AutoModelForCausalLM.from_pretrained(
-        args.model, torch_dtype=torch.bfloat16, attn_implementation="eager"
+        args.model, torch_dtype=torch_dtype, attn_implementation="eager"
     )
     model.to(args.device).eval()
     print(f"[topk-sweep] model ready in {time.time()-t0:.1f}s", flush=True)
