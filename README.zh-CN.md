@@ -41,6 +41,12 @@ Delta Memory 是一个研究原型，目标是把冻结的 `google/gemma-4-E2B` 
   地址键控 fast-weight bank。读取阶段 prompt 里只剩地址，value token
   完全不在上下文中——所以答案只能从持久化的参数化 slot 检索而来，
   不可能是上下文复制。
+- **Stage 13**（最新）：**AttentionNative DeltaMemory v2** —— 同样的思路，
+  但**零可学习参数**。Bank 就是模型自己在一次写入 forward 中产生的
+  K/V 张量，在每一层 attention 上拼接进 K/V 序列。Stage 13A–13F
+  既有强阳性结果（unit gate 通过、locality 输出 bit-equal、KV-shared
+  层修复让目标 token rank 41 → 9），也有严格阴性结果（多 token 对话
+  recall 失败 —— 诊断为 K-space 匹配间距，由 Stage 14 修复）。
 
 软件包仍叫 `rcvhc`，是为了和早期实验保持兼容。
 
@@ -48,6 +54,69 @@ Delta Memory 是一个研究原型，目标是把冻结的 `google/gemma-4-E2B` 
 这一点变得具体：评估时读取 prompt 只含 address——没有检索到的文本，
 没有 value token，没有 card。答案是通过学到的地址键检索从持久化参数
 slot 取出的。
+
+## DeltaMemory v2 一行公式
+
+$$
+\mathrm{Attn}_\ell\bigl(Q,\; [K\,;\, M_K^{(\ell)}],\; [V\,;\, \alpha\!\cdot\!M_V^{(\ell)}]\bigr)
+$$
+
+通俗讲：**给冻结的大模型挂一个外置记忆条**。在每层 attention 的
+`K`/`V` 缓存后面，把"记忆条"`(M_K, M_V)`一并拼接进来。模型自己的
+softmax 决定要不要看记忆条 —— 当 `α=0`、或者 query 和记忆条不匹配时，
+输出**逐位等于**未挂载时的模型。无 encoder，无 KeyProjector，无残差
+broadcast bias，**无训练**。一次 forward 就把记忆条写好了。
+
+![DeltaMemory v1 vs v2 架构](docs/figures/v2/stage13_architecture.svg)
+
+### v2 改了什么 / 为什么这事重要
+
+v1（Stage 8–12）是把 encoder + KeyProjector + 最终残差 broadcast bias
+四个独立模块缝在一起：要 1500 步训练，而且 Stage 12-P3 显示 broadcast
+对所有 query 加同一个 bias，locality drift 高达 0.75。
+
+v2 把这四个模块全部删掉。Bank 的 `K`/`V` 就是模型自己在一次写入
+forward 里输出的；检索由模型本来在做语言建模的那个 softmax 完成。
+**没有可训参数**。副作用包括：
+
+- **`α=0` 自动 bit-equal**（拼接的是一段宽度为 0 的切片）。
+- **Locality probe 在自由文本生成下也是 bit-equal**（Stage 13F）。
+- **KV-shared 层**通过源层的 bank slot 也看到记忆 ——
+  Stage 13A unit gate 显示单 fact target rank 41 → 9。
+
+![Stage 13A unit gate — rank/logit 提升](docs/figures/v2/stage13_recall_lift.svg)
+
+### v2 的诚实边界（Stage 13B/13F 阴性结果）
+
+`Q: … A:` 对话 prompt **检索不到**用 `"X is Y."` 写入的记忆条 ——
+即便 `"… current X is"` 形式的 unit gate 是通过的。原因是：写入位置
+（句号 `.` 处）的 `K` 和读取位置（`A:` 处）的 `Q` 落在 K-space 的不同
+区域，零样本下 softmax 跨不过去。Stage 13F 用 6 个对话场景把这一点
+落实成证据：
+
+- ✅ Locality probe —— 与 baseline 完全一致。
+- ❌ Direct recall, paraphrase recall, malicious override, multi-fact,
+  对抗 prompt —— α=1 下全部失败。
+
+α 扫描清晰地展示了工作区间在 bank attention 压垮模型流畅性之前在哪里：
+
+![DeltaMemory α 相变图](docs/figures/v2/stage13_alpha_phase.svg)
+
+这正是仓库维护者在实验前预测的"第一刀检索空间"瓶颈。
+**Stage 14** 是计划的修复方案：要么改写入捕获位置（地址条件捕获），
+要么加一个极小的可学 K-projector 用 InfoNCE 在 paraphrase 正例上训。
+两条路线都是严格加法、保留 v2 的零 encoder 性质。
+
+Stage 13F 的对话录像逐字提交在
+[`transcripts/google__gemma-4-E2B/`](transcripts/google__gemma-4-E2B/)。
+完整 Stage 13 报告：
+[`reports/cleanroom/stage13a_attn_native/`](reports/cleanroom/stage13a_attn_native/),
+[`reports/cleanroom/stage13b_robust/`](reports/cleanroom/stage13b_robust/),
+[`reports/cleanroom/stage13c_writer_decouple/`](reports/cleanroom/stage13c_writer_decouple/),
+[`reports/cleanroom/stage13d_locality_fix/`](reports/cleanroom/stage13d_locality_fix/),
+[`reports/cleanroom/stage13f_interactive/`](reports/cleanroom/stage13f_interactive/).
+
+
 
 ## 概览
 
