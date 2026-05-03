@@ -1,0 +1,256 @@
+"""Architecture adapters for the attn-native bank patcher.
+
+DeltaMemory's red line: the base LLM weights are frozen. Adapters only **read**
+per-family attention conventions (q/k/v norm presence, KV-sharing, RoPE
+function) and never modify weights.
+
+Each adapter is a stateless object that the patched forward consults at every
+attention call. Adding a new family means writing a new ``ArchAdapter`` subclass
+plus a class-name match rule; the patched forward itself stays generic.
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Callable, Tuple
+
+import torch
+import torch.nn as nn
+
+
+# ---------------------------------------------------------------------------
+# Interface
+# ---------------------------------------------------------------------------
+
+@dataclass
+class ArchAdapter:
+    """Minimal interface every supported family must satisfy.
+
+    Subclasses override the methods that differ from the no-op defaults below.
+    The patched forward only ever calls these methods; it never imports a
+    family-specific module directly.
+    """
+
+    name: str = "base"
+
+    # --- class-name match (used by AttnNativePatcher to auto-pick) -----------
+    @classmethod
+    def matches(cls, attn_module: nn.Module) -> bool:
+        """Return True if this adapter handles ``attn_module``'s class."""
+        return False
+
+    # --- norms (default: identity) -------------------------------------------
+    def apply_q_norm(self, attn: nn.Module, q: torch.Tensor) -> torch.Tensor:
+        fn = getattr(attn, "q_norm", None)
+        return fn(q) if callable(fn) else q
+
+    def apply_k_norm(self, attn: nn.Module, k: torch.Tensor) -> torch.Tensor:
+        fn = getattr(attn, "k_norm", None)
+        return fn(k) if callable(fn) else k
+
+    def apply_v_norm(self, attn: nn.Module, v: torch.Tensor) -> torch.Tensor:
+        fn = getattr(attn, "v_norm", None)
+        return fn(v) if callable(fn) else v
+
+    # --- RoPE (must override) ------------------------------------------------
+    def apply_rope(
+        self,
+        q: torch.Tensor,
+        k: torch.Tensor,
+        cos: torch.Tensor,
+        sin: torch.Tensor,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        raise NotImplementedError(f"{type(self).__name__}.apply_rope")
+
+    # --- KV-sharing (default: never shared) ----------------------------------
+    def is_kv_shared(self, attn: nn.Module) -> bool:
+        return bool(getattr(attn, "is_kv_shared_layer", False))
+
+    def kv_shared_index(self, attn: nn.Module) -> int | None:
+        return getattr(attn, "kv_shared_layer_index", None)
+
+    def store_full_length_kv(self, attn: nn.Module) -> bool:
+        return bool(getattr(attn, "store_full_length_kv", False))
+
+    # --- repeat_kv (default: standard GQA repeat from transformers) ----------
+    def repeat_kv(self, x: torch.Tensor, n_rep: int) -> torch.Tensor:
+        if n_rep == 1:
+            return x
+        b, h, t, d = x.shape
+        return x[:, :, None, :, :].expand(b, h, n_rep, t, d).reshape(b, h * n_rep, t, d)
+
+
+# ---------------------------------------------------------------------------
+# Gemma-4 (production)
+# ---------------------------------------------------------------------------
+
+class Gemma4Adapter(ArchAdapter):
+    """Adapter for Gemma3nTextAttention (used by gemma-4-E2B / -31B-it).
+
+    Has q/k/v_norm; uses KV-sharing on a subset of layers; RoPE pulled from
+    ``transformers.models.gemma4.modeling_gemma4.apply_rotary_pos_emb``.
+    """
+
+    def __init__(self):
+        super().__init__(name="gemma4")
+
+    @classmethod
+    def matches(cls, attn_module: nn.Module) -> bool:
+        return "Gemma4" in type(attn_module).__name__ or "Gemma3n" in type(attn_module).__name__
+
+    def apply_rope(self, q, k, cos, sin):
+        from transformers.models.gemma4.modeling_gemma4 import apply_rotary_pos_emb
+        # Gemma-4 uses unsqueeze_dim=2 (per-head broadcast).
+        q2 = apply_rotary_pos_emb(q, cos, sin, unsqueeze_dim=2)
+        k2 = apply_rotary_pos_emb(k, cos, sin, unsqueeze_dim=2)
+        return q2, k2
+
+    # repeat_kv: prefer the canonical implementation when available so we are
+    # bit-equal to upstream Gemma-4.
+    def repeat_kv(self, x, n_rep):
+        from transformers.models.gemma4.modeling_gemma4 import repeat_kv as _rk
+        return _rk(x, n_rep)
+
+
+# ---------------------------------------------------------------------------
+# Qwen-3
+# ---------------------------------------------------------------------------
+
+class Qwen3Adapter(ArchAdapter):
+    """Adapter for Qwen3Attention (used by Qwen/Qwen3-4B-Instruct etc.).
+
+    * q_norm / k_norm present, no v_norm.
+    * No KV-sharing.
+    * RoPE base = 1e6; uses transformers Qwen3 apply_rotary_pos_emb.
+    """
+
+    def __init__(self):
+        super().__init__(name="qwen3")
+
+    @classmethod
+    def matches(cls, attn_module: nn.Module) -> bool:
+        return "Qwen3" in type(attn_module).__name__
+
+    def apply_v_norm(self, attn, v):
+        # Qwen3 has no v_norm.
+        return v
+
+    def is_kv_shared(self, attn):
+        return False
+
+    def store_full_length_kv(self, attn):
+        return False
+
+    def apply_rope(self, q, k, cos, sin):
+        from transformers.models.qwen3.modeling_qwen3 import apply_rotary_pos_emb
+        # Qwen3 upstream expects q/k in (B, H, T, D) with unsqueeze_dim=1.
+        # Our patched forward holds them in (B, T, H, D); transpose, apply,
+        # transpose back to keep the contract uniform.
+        q_t = q.transpose(1, 2)
+        k_t = k.transpose(1, 2)
+        q2, k2 = apply_rotary_pos_emb(q_t, k_t, cos, sin, unsqueeze_dim=1)
+        return q2.transpose(1, 2), k2.transpose(1, 2)
+
+
+# ---------------------------------------------------------------------------
+# Llama family (Llama-2/3, DeepSeek-R1-Distill-Qwen-32B is Qwen2-architecture
+# but distilled — we route Qwen2 and Llama through this adapter)
+# ---------------------------------------------------------------------------
+
+class LlamaAdapter(ArchAdapter):
+    """Adapter for LlamaAttention / Qwen2Attention / MistralAttention.
+
+    No q/k/v norms (defaults inherited as identity), no KV-sharing, standard
+    RoPE.
+    """
+
+    def __init__(self):
+        super().__init__(name="llama")
+
+    @classmethod
+    def matches(cls, attn_module: nn.Module) -> bool:
+        n = type(attn_module).__name__
+        return any(tag in n for tag in ("LlamaAttention", "Qwen2Attention", "MistralAttention"))
+
+    def apply_rope(self, q, k, cos, sin):
+        # Llama-family helper expects (B, H, T, D); our forward holds (B, T, H, D).
+        try:
+            from transformers.models.llama.modeling_llama import apply_rotary_pos_emb
+        except Exception:  # pragma: no cover
+            from transformers.models.qwen2.modeling_qwen2 import apply_rotary_pos_emb
+        q_t = q.transpose(1, 2)
+        k_t = k.transpose(1, 2)
+        q2, k2 = apply_rotary_pos_emb(q_t, k_t, cos, sin, unsqueeze_dim=1)
+        return q2.transpose(1, 2), k2.transpose(1, 2)
+
+
+# ---------------------------------------------------------------------------
+# GLM-4
+# ---------------------------------------------------------------------------
+
+class Glm4Adapter(ArchAdapter):
+    """Adapter for Glm4Attention (THUDM/glm-4-9b-chat).
+
+    GLM-4 uses partial RoPE (only the first half of head_dim is rotated) and
+    no q/k/v norms in the attention module itself.
+    """
+
+    def __init__(self):
+        super().__init__(name="glm4")
+
+    @classmethod
+    def matches(cls, attn_module: nn.Module) -> bool:
+        n = type(attn_module).__name__
+        return "Glm4" in n or "ChatGLM" in n
+
+    def apply_rope(self, q, k, cos, sin):
+        from transformers.models.glm4.modeling_glm4 import apply_rotary_pos_emb
+        q_t = q.transpose(1, 2)
+        k_t = k.transpose(1, 2)
+        q2, k2 = apply_rotary_pos_emb(q_t, k_t, cos, sin, unsqueeze_dim=1)
+        return q2.transpose(1, 2), k2.transpose(1, 2)
+
+
+# ---------------------------------------------------------------------------
+# Registry
+# ---------------------------------------------------------------------------
+
+_REGISTRY: list[type[ArchAdapter]] = [
+    Gemma4Adapter,
+    Qwen3Adapter,
+    LlamaAdapter,
+    Glm4Adapter,
+]
+
+
+def pick_adapter(attn_module: nn.Module) -> ArchAdapter:
+    """Return the first adapter in the registry whose ``matches`` returns True.
+
+    Raises :class:`NotImplementedError` with the offending class name if no
+    adapter matches; callers can catch this and either install a new adapter
+    or fall back.
+    """
+    for cls in _REGISTRY:
+        if cls.matches(attn_module):
+            return cls()
+    raise NotImplementedError(
+        f"No ArchAdapter matches attention class {type(attn_module).__name__!r}. "
+        f"Register a new ArchAdapter subclass in deltamemory.memory.arch_adapter."
+    )
+
+
+def register_adapter(cls: type[ArchAdapter]) -> type[ArchAdapter]:
+    """Decorator/function to add a new adapter to the registry."""
+    if cls not in _REGISTRY:
+        _REGISTRY.insert(0, cls)  # newer registrations win
+    return cls
+
+
+__all__ = [
+    "ArchAdapter",
+    "Gemma4Adapter",
+    "Qwen3Adapter",
+    "LlamaAdapter",
+    "Glm4Adapter",
+    "pick_adapter",
+    "register_adapter",
+]
