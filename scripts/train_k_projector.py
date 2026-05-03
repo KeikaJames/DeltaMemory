@@ -40,9 +40,13 @@ from deltamemory.memory.k_projector import (  # noqa: E402
 )
 
 
-def _load_train() -> list[dict]:
-    path = REPO_ROOT / "eval" / "splits" / "train.jsonl"
-    return [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+def _load_train(data_dir: Path | None = None) -> list[dict]:
+    base = data_dir if data_dir is not None else (REPO_ROOT / "eval" / "splits")
+    candidates = [base / "train_v31.jsonl", base / "train.jsonl"]
+    for path in candidates:
+        if path.exists():
+            return [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+    raise FileNotFoundError(f"no train split found under {base}")
 
 
 def _capture_state(
@@ -200,9 +204,12 @@ def main() -> None:
     ap.add_argument("--max-paraphrases-per-fact", type=int, default=5)
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--out", default="reports/cleanroom/stage14_kproj/k_projector.pt")
+    ap.add_argument("--data-dir", default=None,
+                    help="Directory containing train.jsonl or train_v31.jsonl (default: eval/splits)")
     args = ap.parse_args()
 
-    facts = _load_train()
+    data_dir = Path(args.data_dir) if args.data_dir else None
+    facts = _load_train(data_dir)
     if args.limit > 0:
         facts = facts[: args.limit]
     print(f"[train-kproj] {len(facts)} train facts", flush=True)
