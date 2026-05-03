@@ -114,7 +114,7 @@ def _next_token_logprob(model, tok, prompt: str, target_first_tok_id: int) -> fl
     enc = tok(prompt, return_tensors="pt", add_special_tokens=True)
     ids = enc["input_ids"].to(device)
     am = enc["attention_mask"].to(device)
-    out = model(input_ids=ids, attention_mask=am, use_cache=False)
+    out = model(input_ids=ids, attention_mask=am, use_cache=True)
     last = am.sum(dim=1).item() - 1
     logits = out.logits[0, last].float()
     return F.log_softmax(logits, dim=-1)[target_first_tok_id].item()
@@ -135,7 +135,7 @@ def _seq_nll(model, tok, prompt: str) -> float:
     enc = tok(prompt, return_tensors="pt", add_special_tokens=True)
     ids = enc["input_ids"].to(device)
     am = enc["attention_mask"].to(device)
-    out = model(input_ids=ids, attention_mask=am, use_cache=False)
+    out = model(input_ids=ids, attention_mask=am, use_cache=True)
     logits = out.logits[0]                       # [T, V]
     targets = ids[0, 1:]                         # next-token targets
     logp = F.log_softmax(logits[:-1].float(), dim=-1)
@@ -152,7 +152,7 @@ def _seq_nll_patched(patcher, bank, tok, prompt: str, alpha: float) -> float:
     ids = enc["input_ids"].to(device)
     am = enc["attention_mask"].to(device)
     with patcher.patched(), patcher.injecting(bank, alpha=alpha):
-        out = patcher.model(input_ids=ids, attention_mask=am, use_cache=False)
+        out = patcher.model(input_ids=ids, attention_mask=am, use_cache=True)
     logits = out.logits[0]
     targets = ids[0, 1:]
     logp = F.log_softmax(logits[:-1].float(), dim=-1)
