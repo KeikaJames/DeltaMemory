@@ -19,6 +19,7 @@ def convert_gpt2_lm_head_model(
     mhc_rmsnorm_eps: float = 1e-6,
     equivalence_init: bool = True,
     offdiag_bias: float = -50.0,
+    use_sinkhorn: bool = True,
 ) -> MhcGPT2LMHeadModel:
     """
     Convert a GPT-2-style HF `GPT2LMHeadModel` into an `MhcGPT2LMHeadModel`.
@@ -50,6 +51,7 @@ def convert_gpt2_lm_head_model(
         mhc_rmsnorm_eps=mhc_rmsnorm_eps,
         mhc_stream_init=mhc_stream_init,
         mhc_readout_init=mhc_readout_init,
+        mhc_use_sinkhorn=use_sinkhorn,
     )
 
     mhc = MhcGPT2LMHeadModel(cfg)

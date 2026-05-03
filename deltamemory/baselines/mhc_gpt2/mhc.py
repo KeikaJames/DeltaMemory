@@ -62,6 +62,7 @@ class MhcProjector(nn.Module):
         tmax: int = 20,
         alpha_init: float = 0.01,
         rmsnorm_eps: float = 1e-6,
+        use_sinkhorn: bool = True,
     ):
         super().__init__()
         if n_streams < 1:
@@ -72,6 +73,13 @@ class MhcProjector(nn.Module):
         self.n = int(n_streams)
         self.c = int(hidden_dim)
         self.tmax = int(tmax)
+        # NOTE (DeltaMemory mHC1.4): when ``use_sinkhorn=False`` the projector
+        # behaves like an *unconstrained* Hyper-Connection (third arm of the
+        # Phase mHC three-arm design): mixing matrix is row-stochastic via
+        # softmax but NOT projected onto the Birkhoff polytope, so the
+        # σ_max ≤ 1 spectral bound from the paper does not hold. This is the
+        # ablation predicted by H3 of the preregistration.
+        self.use_sinkhorn = bool(use_sinkhorn)
 
         flat_dim = self.n * self.c
         self.rmsnorm = RMSNorm(flat_dim, eps=rmsnorm_eps, elementwise_affine=True)
@@ -174,7 +182,12 @@ class MhcProjector(nn.Module):
         # Constrained mappings (Eq. 8)
         h_pre = torch.sigmoid(h_pre_tilde).reshape(b, t, n)
         h_post = (2.0 * torch.sigmoid(h_post_tilde)).reshape(b, t, n)
-        h_res = sinkhorn_knopp(h_res_tilde.reshape(b, t, n, n), tmax=self.tmax)
+        if self.use_sinkhorn:
+            h_res = sinkhorn_knopp(h_res_tilde.reshape(b, t, n, n), tmax=self.tmax)
+        else:
+            # Unconstrained HC ablation: row-stochastic via softmax. NOT
+            # doubly-stochastic, so σ_max may exceed 1.
+            h_res = torch.softmax(h_res_tilde.reshape(b, t, n, n), dim=-1)
 
         return MhcMappings(h_pre=h_pre, h_post=h_post, h_res=h_res)
 

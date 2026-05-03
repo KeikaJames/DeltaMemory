@@ -32,6 +32,7 @@ class MhcGPT2Config(GPT2Config):
         mhc_rmsnorm_eps: float = 1e-6,
         mhc_stream_init: str = "paper",
         mhc_readout_init: str = "first",
+        mhc_use_sinkhorn: bool = True,
         **kwargs,
     ):
         """
@@ -48,6 +49,10 @@ class MhcGPT2Config(GPT2Config):
             mhc_readout_init:
               - \"first\": read out stream 0
               - \"mean\":  uniform average over streams
+            mhc_use_sinkhorn: when False, the residual mixing matrix is
+                row-stochastic (softmax) instead of doubly-stochastic
+                (Sinkhorn-Knopp). This selects the unconstrained-HC
+                ablation arm of Phase mHC (preregistration H3).
         """
         super().__init__(**kwargs)
         self.mhc_n = int(mhc_n)
@@ -56,6 +61,7 @@ class MhcGPT2Config(GPT2Config):
         self.mhc_rmsnorm_eps = float(mhc_rmsnorm_eps)
         self.mhc_stream_init = str(mhc_stream_init)
         self.mhc_readout_init = str(mhc_readout_init)
+        self.mhc_use_sinkhorn = bool(mhc_use_sinkhorn)
 
 
 class MhcGPT2Block(nn.Module):
@@ -78,6 +84,7 @@ class MhcGPT2Block(nn.Module):
             tmax=config.mhc_tmax,
             alpha_init=config.mhc_alpha_init,
             rmsnorm_eps=config.mhc_rmsnorm_eps,
+            use_sinkhorn=getattr(config, "mhc_use_sinkhorn", True),
         )
         self.mhc_mlp = MhcProjector(
             n_streams=config.mhc_n,
@@ -85,6 +92,7 @@ class MhcGPT2Block(nn.Module):
             tmax=config.mhc_tmax,
             alpha_init=config.mhc_alpha_init,
             rmsnorm_eps=config.mhc_rmsnorm_eps,
+            use_sinkhorn=getattr(config, "mhc_use_sinkhorn", True),
         )
 
         self.resid_dropout = nn.Dropout(config.resid_pdrop)
