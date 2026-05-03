@@ -1,0 +1,103 @@
+{
+  "config": {
+    "model": "google/gemma-4-E2B",
+    "device": "mps",
+    "dtype": "bfloat16",
+    "n_facts": 5,
+    "n_para": 2,
+    "n_targets": 3,
+    "seeds": "0",
+    "alphas": "1.0",
+    "ks": "0,5",
+    "loro_relations": "P36",
+    "out_dir": "reports/cleanroom/stage13b_smoke",
+    "skip": ""
+  },
+  "seeds": [
+    0
+  ],
+  "alphas": [
+    1.0
+  ],
+  "model": "google/gemma-4-E2B",
+  "device": "mps",
+  "dtype": "torch.bfloat16",
+  "results": {
+    "paraphrase": {
+      "seed=0": {
+        "per_alpha": {
+          "1.0": {
+            "canonical_recall_at_1": 0.4,
+            "paraphrase_recall_at_1": 0.2,
+            "para_total": 10
+          }
+        },
+        "n_facts": 5,
+        "n_para": 2
+      }
+    },
+    "decoy": {
+      "seed=0": {
+        "per_alpha": {
+          "1.0": {
+            "K=0": 0.3333333333333333,
+            "K=5": 0.3333333333333333
+          }
+        },
+        "n_targets": 3
+      }
+    },
+    "loro": {
+      "splits": {
+        "per_alpha": {
+          "1.0": {
+            "macro_recall_at_1": 0.0,
+            "micro_recall_at_1": 0.0,
+            "splits": {
+              "P36": {
+                "recall_at_1": 0.0,
+                "n_hold": 75
+              }
+            }
+          }
+        },
+        "relations": [
+          "P36"
+        ]
+      }
+    }
+  },
+  "gates": {
+    "13B-1_paraphrase": {
+      "metric": "paraphrase_recall_at_1",
+      "per_alpha_mean_over_seeds": {
+        "1.0": 0.2
+      },
+      "best_alpha": "1.0",
+      "best_value": 0.2,
+      "gate_threshold": 0.7,
+      "pass": false
+    },
+    "13B-2_decoy": {
+      "metric": "recall_at_1_vs_K",
+      "per_alpha_mean_over_seeds": {
+        "1.0": {
+          "K=0": 0.3333333333333333,
+          "K=5": 0.3333333333333333
+        }
+      },
+      "gate_threshold": null,
+      "pass": true
+    },
+    "13B-3_loro": {
+      "metric": "macro_recall_at_1",
+      "per_alpha_macro": {
+        "1.0": 0.0
+      },
+      "best_alpha": "1.0",
+      "best_value": 0.0,
+      "gate_threshold": 0.5,
+      "pass": false
+    }
+  }
+}

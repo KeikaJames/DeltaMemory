@@ -1,0 +1,6 @@
+[stage13b] loading google/gemma-4-E2B on mps bfloat16
+
+=== 13B-1 paraphrase robustness ===
+[13B-1 seed=0] facts=100 (req=100)
+[bank] wrote 100 facts in 9.4s
+[13B-1 alpha=0.5] canon=0.000  para=0.003
