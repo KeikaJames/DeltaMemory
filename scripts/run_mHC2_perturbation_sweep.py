@@ -102,6 +102,20 @@ class _PerturbState:
     v_norms: list[float]
 
 
+@dataclass
+class _NormProbeState:
+    """Per-layer hidden-state Frobenius norm probe (preregistration H5).
+
+    Records ``‖x_ℓ‖_F`` at the *output* of every transformer block, plus
+    ``‖x_0‖_F`` at the embedding output. We attach forward hooks to the
+    model's block list (``transformer.h``) and to the embedding layer
+    (``transformer.wte``).
+    """
+
+    norms: list[float]  # one entry per layer, in order of forward pass
+    enabled: bool = True
+
+
 def _gpt2_attention_modules(model: nn.Module) -> List[nn.Module]:
     """Return the GPT2Attention modules whose V output we perturb.
 
@@ -159,6 +173,55 @@ def _detach(handles):
         h.remove()
 
 
+def _attach_norm_probes(model: nn.Module, probe: _NormProbeState) -> List[torch.utils.hooks.RemovableHandle]:
+    """Attach hidden-state Frobenius norm probes for H5 visualisation.
+
+    For residual GPT-2 we hook ``transformer.h[i]`` outputs (which are
+    ``(B, T, C)``).  For mHC GPT-2 the block output is a *stream tensor*
+    ``(B, T, n, C)``; we collapse the stream axis with the (already-trained
+    or equivalence-init) ``mhc_readout_logits`` softmax to recover the
+    effective single-stream hidden state, which is what gets fed to ``ln_f``.
+
+    A single ``probe.norms`` list is reset before each forward pass by the
+    caller; hooks append in forward order so the i-th entry corresponds
+    to layer index i (with index 0 = embedding output).
+    """
+    handles: list[torch.utils.hooks.RemovableHandle] = []
+
+    transformer = getattr(model, "transformer", model)
+
+    # Embedding output (||x_0||_F).
+    wte = getattr(transformer, "wte", None)
+    if wte is not None:
+        def _emb_hook(_m, _i, out, _probe=probe):
+            if _probe.enabled:
+                _probe.norms.append(float(torch.linalg.vector_norm(out).item()))
+        handles.append(wte.register_forward_hook(_emb_hook))
+
+    # Per-block outputs.
+    blocks = getattr(transformer, "h", None)
+    if blocks is None:
+        return handles
+
+    readout_logits = getattr(transformer, "mhc_readout_logits", None)
+
+    for block in blocks:
+        def _block_hook(_m, _i, out, _probe=probe, _readout=readout_logits):
+            if not _probe.enabled:
+                return
+            # HF GPT2Block returns a tuple (hidden_states, ...) where
+            # hidden_states is (B,T,C). MhcGPT2Block returns the stream tensor
+            # (B,T,n,C) directly (no tuple).
+            hs = out[0] if isinstance(out, tuple) else out
+            if hs.dim() == 4 and _readout is not None:
+                w = torch.softmax(_readout, dim=0).to(dtype=hs.dtype)
+                hs = torch.einsum("btnc,n->btc", hs, w)
+            _probe.norms.append(float(torch.linalg.vector_norm(hs).item()))
+        handles.append(block.register_forward_hook(_block_hook))
+
+    return handles
+
+
 # ---------------------------------------------------------------------------
 # NLL evaluation
 # ---------------------------------------------------------------------------
@@ -190,16 +253,26 @@ def _wikitext2_segments(tokenizer, num_segments: int, segment_length: int, seed:
 
 
 @torch.no_grad()
-def evaluate_nll(model: nn.Module, segments: torch.Tensor, device: str) -> float:
-    """Return mean per-token NLL (nats) across ``segments``."""
+def evaluate_nll(
+    model: nn.Module,
+    segments: torch.Tensor,
+    device: str,
+    *,
+    norm_probe: _NormProbeState | None = None,
+) -> tuple[float, list[list[float]]]:
+    """Return mean per-token NLL (nats) and (optionally) per-segment per-layer norms."""
     model.eval()
     losses: list[float] = []
+    per_seg_norms: list[list[float]] = []
     for seg in segments:
         ids = seg.to(device).unsqueeze(0)
+        if norm_probe is not None:
+            norm_probe.norms = []
         out = model(input_ids=ids, labels=ids)
-        # HF cross-entropy is in nats already (mean over T-1 shift positions).
         losses.append(float(out.loss.item()))
-    return float(sum(losses) / len(losses))
+        if norm_probe is not None:
+            per_seg_norms.append(list(norm_probe.norms))
+    return float(sum(losses) / len(losses)), per_seg_norms
 
 
 # ---------------------------------------------------------------------------
@@ -213,6 +286,7 @@ def run_one_condition(
     arch_factory,
     segments: torch.Tensor,
     alphas: List[float],
+    probe_alphas: set[float],
     seed: int,
     device: str,
     dtype: torch.dtype,
@@ -225,12 +299,18 @@ def run_one_condition(
         gen = torch.Generator(device="cpu").manual_seed(seed * 1000 + int(alpha * 1000))
         state = _PerturbState(alpha=float(alpha), generator=gen, v_norms=[])
         handles = _attach_perturb_hooks(attn_modules, state)
+        probe = None
+        probe_handles: list = []
+        if float(alpha) in probe_alphas:
+            probe = _NormProbeState(norms=[])
+            probe_handles = _attach_norm_probes(model, probe)
         try:
             t0 = time.time()
-            nll = evaluate_nll(model, segments, device)
+            nll, per_seg_norms = evaluate_nll(model, segments, device, norm_probe=probe)
             dt = time.time() - t0
         finally:
             _detach(handles)
+            _detach(probe_handles)
         row = dict(
             arch=arch_name,
             alpha=float(alpha),
@@ -240,6 +320,8 @@ def run_one_condition(
             mean_v_norm=float(sum(state.v_norms) / max(1, len(state.v_norms))),
             wallclock_s=float(dt),
         )
+        if per_seg_norms:
+            row["per_layer_norms_per_seg"] = per_seg_norms
         rows.append(row)
         print(f"[{arch_name} seed={seed} α={alpha:>5}] NLL={nll:.4f}  "
               f"meanV={row['mean_v_norm']:.3f}  ({dt:.1f}s)")
@@ -272,6 +354,13 @@ def main(argv: list[str] | None = None) -> int:
         default=["residual", "hc", "mhc"],
         choices=["residual", "hc", "mhc"],
     )
+    p.add_argument(
+        "--probe-alphas",
+        type=float,
+        nargs="*",
+        default=[1.5],
+        help="α values at which to record per-layer hidden-state norms (H5 paired vis).",
+    )
     p.add_argument("--out-dir", type=Path, default=Path("reports/cleanroom/mHC2_perturbation"))
     args = p.parse_args(argv)
 
@@ -296,6 +385,7 @@ def main(argv: list[str] | None = None) -> int:
     }
 
     aggregate: list[dict] = []
+    probe_alphas = set(float(a) for a in args.probe_alphas)
     for arch in args.archs:
         for seed in args.seeds:
             res = run_one_condition(
@@ -303,6 +393,7 @@ def main(argv: list[str] | None = None) -> int:
                 arch_factory=factories[arch],
                 segments=segments,
                 alphas=args.alphas,
+                probe_alphas=probe_alphas,
                 seed=seed,
                 device=device,
                 dtype=dtype,
