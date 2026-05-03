@@ -129,6 +129,96 @@ Full Stage 13 reports under
 [`reports/cleanroom/stage13d_locality_fix/`](reports/cleanroom/stage13d_locality_fix/),
 [`reports/cleanroom/stage13f_interactive/`](reports/cleanroom/stage13f_interactive/).
 
+## Stage 14 / v3 — preregistered held-out test (HONEST NEGATIVE)
+
+We took v2's K-space bottleneck seriously and built v3:
+
+* **Stage 14A** — `KProjectorBank`, one identity-initialised
+  `Linear(d, d)` per attention layer applied **only to bank keys**, then
+  trained by InfoNCE on (canonical write prompt, paraphrase query) pairs.
+* **Stage 14B/C** — address-conditional and multi-position capture sites.
+* **Stage 14D** — bank-only softmax temperature τ.
+* **Stage 14E** — ROME-style ridge-solve writer + bank-V rebuild.
+* **Stage 14F** — frozen v3 config (`deltamemory/configs/v3_frozen.yaml`)
+  with the projector's sha256 embedded.
+
+We then ran the experiment under **paper-grade preregistration discipline**:
+splits sha-pinned in [`eval/splits/manifest.json`](eval/splits/manifest.json),
+hypotheses, gates, and statistical procedure committed in
+[`docs/preregistration.md`](docs/preregistration.md), and the test split
+consumed exactly once.
+
+### Phase G result (Gemma-4-E2B, MPS bf16, N=39 held-out facts × 6 paraphrases)
+
+![Phase G recall@1 bar chart](reports/cleanroom/figures/01_test_recall_bars.png)
+
+| Condition | recall@1 |
+|---|---:|
+| **B1 prompt-insertion** | **0.6581** |
+| B2 RAG-oracle | 0.6496 |
+| B0 no-memory | 0.3590 |
+| **v3 (frozen)** | **0.2778** |
+| v2 period-no-projector | 0.0000 |
+
+Paired Wilcoxon (Holm-Bonferroni, α=0.05):
+
+| Comparison | Δ | wins/losses/ties | p (1-sided) | 95% CI |
+|---|---:|:-:|---:|:-:|
+| v3 − B0 | **−0.0812** | 5/15/19 | **p(less) = 0.0074** | [−0.150, −0.017] |
+| v3 − v2 | **+0.2778** | 11/0/28 | **p(greater) < 0.001** | [+0.188, +0.372] |
+| v3 − B1 prompt | −0.3803 | 1/19/19 | p(less) < 0.001 | [−0.470, −0.295] |
+
+* **H1 (v3 > B0)**: REJECTED — sign flipped, p=0.0074 in the *wrong* direction.
+* **H1b (v3 > v2)**: CONFIRMED — the InfoNCE projector lifts the bank from 0.000 to 0.278.
+* **H2/H3 (v3 ≥ B1 prompt / B2 RAG)**: REJECTED.
+
+Dev/test sign flip (textbook overfit-selection signature):
+
+![Dev/test gap](reports/cleanroom/figures/02_dev_vs_test.png)
+
+Per-fact paired delta on test:
+
+![Per-fact delta](reports/cleanroom/figures/03_v3_minus_b0_per_fact.png)
+
+The InfoNCE projector did learn something — it just wasn't enough:
+
+![v3 over v2](reports/cleanroom/figures/05_v3_vs_v2_lift.png)
+
+### What this PR delivers (and stands by)
+
+1. **Preregistered, sha-pinned splits** + a frozen v3 config + a one-shot
+   test eval with Wilcoxon + bootstrap CI + Holm-Bonferroni.
+2. **An honest negative result.** Per the preregistration we do **not**
+   modify v3 to retroactively beat the test set; that would be p-hacking.
+3. **A written-down methodology amendment** with concrete v3.1
+   prerequisites — see
+   [`reports/cleanroom/stage14_test_gemma4_e2b/REPORT.md`](reports/cleanroom/stage14_test_gemma4_e2b/REPORT.md).
+
+### Honest claim frame going forward
+
+Until v3.1 changes (training-set scale floor, cross-relation hard
+negatives, structural softmax-dilution fix, two-stage held-out gate)
+are in place, **the only claim DeltaMemory can make is "matches or beats
+prompt-insertion at equal compute on a preregistered held-out split"**.
+"Matches no-memory" is too weak; **B1 = 0.658 is the bar**.
+
+### Reproducibility
+
+```bash
+./repro_v3.sh
+# regenerates: holdout splits, K-projector training, dev sweep,
+#              dev re-eval with projector, Phase G test eval.
+```
+
+The qualitative side-by-side demo:
+
+```bash
+python scripts/demo_chat.py --model google/gemma-4-E2B --device mps
+```
+
+Sample prompts (factual recall + long-form fidelity gates) are in
+[`examples/demo_prompts.md`](examples/demo_prompts.md).
+
 
 
 ## At a glance
