@@ -244,9 +244,22 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
 
         # --- K, V (post-norm, pre-RoPE captured for bank write) ---
         if self.is_kv_shared_layer:
-            key_states, value_states = shared_kv_states[self.kv_shared_layer_index]
-            key_states = key_states.to(q_post.device)
-            value_states = value_states.to(q_post.device)
+            # transformers 5.7 passes shared_kv_states as kwarg; 5.5 moved it
+            # to past_key_values.shared_layers.  Fall back across both APIs.
+            shared_dict = shared_kv_states
+            if shared_dict is None and past_key_values is not None:
+                shared_dict = getattr(past_key_values, "shared_layers", None)
+            if shared_dict is None or self.kv_shared_layer_index not in shared_dict:
+                # Last-resort recompute (should not happen in eager prefill,
+                # but keeps the patcher robust to future API drift).
+                k_pre = self.k_norm(self.k_proj(hidden_states).view(hidden_shape))
+                v_post_norm = self.v_norm(self.v_proj(hidden_states).view(hidden_shape))
+                key_states = apply_rotary_pos_emb(k_pre, cos, sin, unsqueeze_dim=2).transpose(1, 2)
+                value_states = v_post_norm.transpose(1, 2)
+            else:
+                key_states, value_states = shared_dict[self.kv_shared_layer_index]
+                key_states = key_states.to(q_post.device)
+                value_states = value_states.to(q_post.device)
             k_pre_for_capture = None  # do not capture on shared layers
         else:
             k_pre = self.k_norm(self.k_proj(hidden_states).view(hidden_shape))   # [B, T, Hkv, d]
@@ -258,8 +271,13 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
 
         if past_key_values is not None and not self.is_kv_shared_layer:
             key_states, value_states = past_key_values.update(key_states, value_states, self.layer_idx)
-        if self.store_full_length_kv and shared_kv_states is not None:
-            shared_kv_states[self.layer_idx] = key_states, value_states
+        if self.store_full_length_kv:
+            if shared_kv_states is not None:
+                shared_kv_states[self.layer_idx] = key_states, value_states
+            elif past_key_values is not None:
+                if not hasattr(past_key_values, "shared_layers"):
+                    past_key_values.shared_layers = {}
+                past_key_values.shared_layers[self.layer_idx] = key_states, value_states
 
         # --- capture for bank write (single fact at a time) ---
         if capture and k_pre_for_capture is not None:
