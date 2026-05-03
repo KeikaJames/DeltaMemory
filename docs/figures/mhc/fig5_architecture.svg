@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 280">
+<rect width="680" height="280" fill="white"/>
+<text x="340.0" y="26" text-anchor="middle" font-family="system-ui" font-size="14" font-weight="600" fill="#1a1a2e">Injection Dynamics: Residual vs Multi-Stream Routing</text>
+<text x="160" y="50" text-anchor="middle" font-family="system-ui" font-size="12" font-weight="600" fill="#FF3B30">Residual GPT-2</text>
+<rect x="40" y="60" width="240" height="28" fill="#FF3B30" opacity="0.15" rx="4"/>
+<text x="160" y="78" text-anchor="middle" font-family="system-ui" font-size="10" fill="#333">Layer 1: x ← x + Attn(x) + αM_V</text>
+<rect x="40" y="95" width="240" height="28" fill="#FF3B30" opacity="0.15" rx="4"/>
+<text x="160" y="113" text-anchor="middle" font-family="system-ui" font-size="10" fill="#333">Layer 2: x ← x + Attn(x) + αM_V</text>
+<rect x="40" y="130" width="240" height="28" fill="#FF3B30" opacity="0.15" rx="4"/>
+<text x="160" y="148" text-anchor="middle" font-family="system-ui" font-size="10" fill="#333">Layer 3: x ← x + Attn(x) + αM_V</text>
+<rect x="40" y="165" width="240" height="28" fill="#FF3B30" opacity="0.15" rx="4"/>
+<text x="160" y="183" text-anchor="middle" font-family="system-ui" font-size="10" fill="#333">Layer 4: x ← x + Attn(x) + αM_V</text>
+<rect x="40" y="200" width="240" height="28" fill="#FF3B30" opacity="0.15" rx="4"/>
+<text x="160" y="218" text-anchor="middle" font-family="system-ui" font-size="10" fill="#333">Layer 5: x ← x + Attn(x) + αM_V</text>
+<text x="160" y="250" text-anchor="middle" font-family="system-ui" font-size="9" fill="#FF3B30" font-style="italic">unbounded accumulation</text>
+<text x="160" y="266" text-anchor="middle" font-family="system-ui" font-size="9" fill="#FF3B30">||x_L|| ~ exp(L) at high α</text>
+<text x="520" y="50" text-anchor="middle" font-family="system-ui" font-size="12" font-weight="600" fill="#007AFF">mHC GPT-2 (multi-stream, SK)</text>
+<rect x="400" y="60" width="240" height="10" fill="#007AFF" opacity="0.12" rx="2"/>
+<rect x="400" y="72" width="240" height="10" fill="#007AFF" opacity="0.12" rx="2"/>
+<rect x="400" y="84" width="240" height="10" fill="#007AFF" opacity="0.12" rx="2"/>
+<rect x="400" y="96" width="240" height="10" fill="#007AFF" opacity="0.12" rx="2"/>
+<text x="520" y="118" text-anchor="middle" font-family="system-ui" font-size="10" fill="#333">C @ [stream_0, ..., stream_3]</text>
+<text x="520" y="136" text-anchor="middle" font-family="system-ui" font-size="10" fill="#333">σ_max(C) ≤ 1 (Sinkhorn-Knopp)</text>
+<rect x="400" y="150" width="240" height="28" fill="#007AFF" opacity="0.12" rx="4"/>
+<text x="520" y="168" text-anchor="middle" font-family="system-ui" font-size="10" fill="#333">Layer 1: X ← C @ (X + Attn(X) + αM_V)</text>
+<rect x="400" y="185" width="240" height="28" fill="#007AFF" opacity="0.12" rx="4"/>
+<text x="520" y="203" text-anchor="middle" font-family="system-ui" font-size="10" fill="#333">Layer 2: X ← C @ (X + Attn(X) + αM_V)</text>
+<rect x="400" y="220" width="240" height="28" fill="#007AFF" opacity="0.12" rx="4"/>
+<text x="520" y="238" text-anchor="middle" font-family="system-ui" font-size="10" fill="#333">Layer 3: X ← C @ (X + Attn(X) + αM_V)</text>
+<text x="520" y="270" text-anchor="middle" font-family="system-ui" font-size="9" fill="#007AFF">bounded: ||C^k E||_2 ≤ ||E||_2</text>
+</svg>

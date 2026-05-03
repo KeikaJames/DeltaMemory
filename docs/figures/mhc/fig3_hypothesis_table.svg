@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 220">
+<rect width="680" height="220" fill="white"/>
+<text x="340.0" y="24" text-anchor="middle" font-family="system-ui" font-size="14" font-weight="600" fill="#1a1a2e">Hypothesis Verdicts (from preregistration mHC_alpha_safe_v1)</text>
+<text x="20" y="42" font-family="system-ui" font-size="10" font-weight="600" fill="#333"></text>
+<text x="70" y="42" font-family="system-ui" font-size="10" font-weight="600" fill="#333">ID</text>
+<text x="310" y="42" font-family="system-ui" font-size="10" font-weight="600" fill="#333">Hypothesis</text>
+<text x="400" y="42" font-family="system-ui" font-size="10" font-weight="600" fill="#333">Verdict</text>
+<text x="640" y="42" font-family="system-ui" font-size="10" font-weight="600" fill="#333">Evidence</text>
+<rect x="10" y="54" width="660" height="26" fill="#f8f8f8" rx="2"/>
+<text x="70" y="68" font-family="system-ui" font-size="10" font-weight="600" fill="#333">H1</text>
+<text x="310" y="68" font-family="system-ui" font-size="9" fill="#333">Residual amplifies ≥3 nats at α<α*</text>
+<text x="400" y="68" font-family="system-ui" font-size="9" font-weight="600" fill="#34C759">PASS</text>
+<text x="640" y="68" font-family="system-ui" font-size="8" fill="#666">GPT-2 medium: −3.65 nats at α=1.0</text>
+<rect x="10" y="80" width="660" height="26" fill="white" rx="2"/>
+<text x="70" y="94" font-family="system-ui" font-size="10" font-weight="600" fill="#333">H2</text>
+<text x="310" y="94" font-family="system-ui" font-size="9" fill="#333">mHC drift ≤0.5 nats over α∈[0,5]</text>
+<text x="400" y="94" font-family="system-ui" font-size="9" font-weight="600" fill="#FF3B30">FAIL(rev)</text>
+<text x="640" y="94" font-family="system-ui" font-size="8" fill="#666">4-5× tighter than residual; threshold too strict</text>
+<rect x="10" y="106" width="660" height="26" fill="#f8f8f8" rx="2"/>
+<text x="70" y="120" font-family="system-ui" font-size="10" font-weight="600" fill="#333">H3</text>
+<text x="310" y="120" font-family="system-ui" font-size="9" fill="#333">HC also crashes at some α</text>
+<text x="400" y="120" font-family="system-ui" font-size="9" font-weight="600" fill="#FF3B30">FAIL</text>
+<text x="640" y="120" font-family="system-ui" font-size="8" fill="#666">HC ≡ mHC at equiv init; multi-stream alone provides protection</text>
+<rect x="10" y="132" width="660" height="26" fill="white" rx="2"/>
+<text x="70" y="146" font-family="system-ui" font-size="10" font-weight="600" fill="#333">H4</text>
+<text x="310" y="146" font-family="system-ui" font-size="9" fill="#333">mHC lift monotonic; residual collapses</text>
+<text x="400" y="146" font-family="system-ui" font-size="9" font-weight="600" fill="#34C759">PASS</text>
+<text x="640" y="146" font-family="system-ui" font-size="8" fill="#666">GPT-2 medium: mHC positive for α∈[0.1,5.0]; residual always negative</text>
+<rect x="10" y="158" width="660" height="26" fill="#f8f8f8" rx="2"/>
+<text x="70" y="172" font-family="system-ui" font-size="10" font-weight="600" fill="#333">H5</text>
+<text x="310" y="172" font-family="system-ui" font-size="9" fill="#333">||x_L||/||x_0|| ≥10× gap at α=1.5</text>
+<text x="400" y="172" font-family="system-ui" font-size="9" font-weight="600" fill="#FF3B30">FAIL</text>
+<text x="640" y="172" font-family="system-ui" font-size="8" fill="#666">GPT-2 small injection delta buried in model computation</text>
+<rect x="10" y="184" width="660" height="26" fill="white" rx="2"/>
+<text x="70" y="198" font-family="system-ui" font-size="10" font-weight="600" fill="#333">H6</text>
+<text x="310" y="198" font-family="system-ui" font-size="9" fill="#333">α=0 bit-equal for all 3 architectures</text>
+<text x="400" y="198" font-family="system-ui" font-size="9" font-weight="600" fill="#34C759">PASS</text>
+<text x="640" y="198" font-family="system-ui" font-size="8" fill="#666">max-abs-diff=0.0 for all three arms</text>
+</svg>
