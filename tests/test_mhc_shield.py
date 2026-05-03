@@ -109,12 +109,51 @@ def test_shield_empty_bank_is_identity():
 
 
 def test_shield_changes_weights_when_active():
-    """Sanity: when enabled and bank present, weights *do* change (not a no-op)."""
+    """Sanity: when bank columns exceed kappa, the shield caps them."""
     torch.manual_seed(7)
-    raw = torch.randn(1, 2, 4, 8)
+    raw = torch.randn(1, 2, 16, 24)
     w = torch.softmax(raw, dim=-1)
-    y = shield_attention_weights(w, bank_size=2, enabled=True, iters=3)
-    assert not torch.equal(w, y), "shield should modify weights when enabled with bank"
+    # Tight kappa forces a cap regardless of input distribution.
+    y = shield_attention_weights(w, bank_size=8, enabled=True, kappa=0.1)
+    assert not torch.equal(w, y), "shield should cap bank columns when kappa is tight"
+
+
+def test_shield_native_columns_untouched():
+    """Native columns must be returned bit-for-bit (red-line: don't disturb
+    the LLM's trained attention pattern)."""
+    torch.manual_seed(11)
+    raw = torch.randn(1, 2, 16, 24)
+    w = torch.softmax(raw, dim=-1)
+    y = shield_attention_weights(w, bank_size=8, enabled=True)
+    T_orig = 24 - 8
+    assert torch.equal(w[..., :T_orig], y[..., :T_orig]), \
+        "native columns must be untouched by mHC shield"
+
+
+def test_shield_bank_columns_capped():
+    """Each bank column's column-sum must be ≤ kappa after shielding."""
+    torch.manual_seed(13)
+    raw = torch.randn(1, 2, 16, 24)
+    w = torch.softmax(raw, dim=-1)
+    y = shield_attention_weights(w, bank_size=8, enabled=True, kappa=1.0)
+    T_orig = 24 - 8
+    bank_col_sums = y[..., T_orig:].sum(dim=-2)
+    assert bank_col_sums.max().item() <= 1.0 + 1e-5, (
+        f"bank column max sum {bank_col_sums.max().item():.4f} exceeds kappa=1.0"
+    )
+
+
+def test_shield_only_caps_when_above_kappa():
+    """If a bank column already has small mass, the cap is a no-op for it."""
+    # Construct: native columns dominate, bank columns have tiny mass.
+    torch.manual_seed(17)
+    raw = torch.randn(1, 1, 4, 12)
+    raw[..., 8:] = -10.0  # crush bank columns
+    w = torch.softmax(raw, dim=-1)
+    bank_pre = w[..., 8:].clone()
+    y = shield_attention_weights(w, bank_size=4, enabled=True, kappa=1.0)
+    # Tiny bank mass means scale=clamp(kappa/col_sum, max=1) = 1 → identity.
+    assert torch.allclose(y[..., 8:], bank_pre, atol=1e-5)
 
 
 # ---------------------------------------------------------------------------

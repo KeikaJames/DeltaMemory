@@ -146,13 +146,12 @@ def _seq_nll(model, tok, prompt: str) -> float:
 @torch.no_grad()
 def _seq_nll_patched(patcher, bank, tok, prompt: str, alpha: float) -> float:
     """Patched-forward variant of _seq_nll.  Uses the same bank/alpha as the
-    surrounding context.  We reuse ``forward_with_bank`` semantics by
-    running the forward via patcher's context manager directly."""
+    surrounding context.  We mirror ``forward_with_bank`` semantics."""
     device = next(patcher.model.parameters()).device
     enc = tok(prompt, return_tensors="pt", add_special_tokens=True)
     ids = enc["input_ids"].to(device)
     am = enc["attention_mask"].to(device)
-    with patcher.attached(bank=bank, alpha=alpha):
+    with patcher.patched(), patcher.injecting(bank, alpha=alpha):
         out = patcher.model(input_ids=ids, attention_mask=am, use_cache=False)
     logits = out.logits[0]
     targets = ids[0, 1:]

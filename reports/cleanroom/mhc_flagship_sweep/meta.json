@@ -1,0 +1,27 @@
+{
+  "cmdline": "scripts/run_mhc_flagship_sweep.py --models google/gemma-4-E2B --alphas 0.05 0.1 0.5 1.0 2.0 5.0 10.0 --shield both --device mps --dtype bfloat16 --out reports/cleanroom/mhc_flagship_sweep",
+  "device": "mps",
+  "dtype": "bfloat16",
+  "models": [
+    "google/gemma-4-E2B"
+  ],
+  "alphas": [
+    0.05,
+    0.1,
+    0.5,
+    1.0,
+    2.0,
+    5.0,
+    10.0
+  ],
+  "shield_modes": [
+    false,
+    true
+  ],
+  "seeds": [
+    0
+  ],
+  "n_false_facts": 5,
+  "n_neutral": 8,
+  "timestamp": "2026-05-03T22:22:11"
+}
