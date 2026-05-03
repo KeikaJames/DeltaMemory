@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from rcvhc.engine.delta_training import DeltaTrainingConfig, run_delta_training, write_training_report
+from deltamemory.engine.delta_training import DeltaTrainingConfig, run_delta_training, write_training_report
 
 
 def test_delta_training_prototype_mock(tmp_path):

@@ -9,7 +9,7 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
-from rcvhc.core.types import AttentionMemoryItem
+from deltamemory.core.types import AttentionMemoryItem
 
 
 class RMSNorm(nn.Module):

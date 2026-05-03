@@ -1,4 +1,4 @@
-# RCV-HC Gemma4 Attention-Memory Prototype
+# DeltaMemory Gemma4 Attention-Memory Prototype
 
 ## Config
 
@@ -52,5 +52,5 @@ Retrieved source snippets are debug metadata only and were not inserted into the
 
 ## Interpretation
 
-This is the first practical Gemma4-oriented RCV-HC prototype path: external attention memory, top-k retrieval, and Q/K/V injection into a frozen decoder LM.
+This is the first practical Gemma4-oriented DeltaMemory prototype path: external attention memory, top-k retrieval, and Q/K/V injection into a frozen decoder LM.
 A scientific claim requires aligned Delta to beat zero, random, and shuffled controls on a real model run. Otherwise the result should be treated as engineering progress only.

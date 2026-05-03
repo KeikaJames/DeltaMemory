@@ -9,7 +9,7 @@ from typing import Iterable
 import torch
 import torch.nn.functional as F
 
-from rcvhc.core.types import AttentionMemoryItem, RetrievalRecord
+from deltamemory.core.types import AttentionMemoryItem, RetrievalRecord
 
 
 class AttentionMemoryStore:
@@ -28,7 +28,7 @@ class AttentionMemoryStore:
         self.metadata: dict[str, object] = {
             "memory_dim": self.memory_dim,
             "temperature": self.temperature,
-            "created_by": "rcvhc.memory.AttentionMemoryStore",
+            "created_by": "deltamemory.memory.AttentionMemoryStore",
         }
 
     def append(self, items: Iterable[AttentionMemoryItem]) -> list[int]:

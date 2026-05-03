@@ -6,14 +6,14 @@ import argparse
 import json
 from pathlib import Path
 
-from rcvhc.core.config import RCVHCCleanConfig
-from rcvhc.engine.attention_memory_engine import AttentionMemoryEngine
-from rcvhc.gemma.model_adapter import load_model_bundle
-from rcvhc.memory.attention_store import AttentionMemoryStore
+from deltamemory.core.config import RCVHCCleanConfig
+from deltamemory.engine.attention_memory_engine import AttentionMemoryEngine
+from deltamemory.gemma.model_adapter import load_model_bundle
+from deltamemory.memory.attention_store import AttentionMemoryStore
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="python -m rcvhc.cli")
+    parser = argparse.ArgumentParser(prog="python -m deltamemory.cli")
     sub = parser.add_subparsers(dest="command", required=True)
 
     ingest = sub.add_parser("ingest")

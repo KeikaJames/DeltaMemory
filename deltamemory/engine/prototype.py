@@ -7,9 +7,9 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
-from rcvhc.core.config import RCVHCCleanConfig
-from rcvhc.engine.attention_memory_engine import AttentionMemoryEngine
-from rcvhc.gemma.model_adapter import load_model_bundle
+from deltamemory.core.config import RCVHCCleanConfig
+from deltamemory.engine.attention_memory_engine import AttentionMemoryEngine
+from deltamemory.gemma.model_adapter import load_model_bundle
 
 
 DEFAULT_MODES = [

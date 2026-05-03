@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import torch
 
-from rcvhc.memory.writer import RCVHCWriter
+from deltamemory.memory.writer import RCVHCWriter
 
 
 def test_writer_outputs_raw_and_delta_memory():

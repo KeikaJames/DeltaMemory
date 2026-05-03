@@ -55,7 +55,7 @@ import torch.nn.functional as F
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
-from rcvhc.gemma.model_adapter import load_model_bundle  # noqa: E402
+from deltamemory.gemma.model_adapter import load_model_bundle  # noqa: E402
 
 
 # ---------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-# RCV-HC Delta Q/V Multi-Example Experiment
+# DeltaMemory Delta Q/V Multi-Example Experiment
 
 ## Config
 
@@ -37,5 +37,5 @@
 
 ## Interpretation
 
-This experiment trains only the RCV-HC writer and Q/V adapter while the base model remains frozen.
+This experiment trains only the DeltaMemory writer and Q/V adapter while the base model remains frozen.
 A positive result requires held-out `delta_qv` to beat zero, random, and shuffled controls.

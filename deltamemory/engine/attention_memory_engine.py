@@ -10,12 +10,12 @@ from typing import Any
 import torch
 import torch.nn.functional as F
 
-from rcvhc.core.config import RCVHCCleanConfig, resolve_layer_policy
-from rcvhc.core.types import AttentionMemoryItem
-from rcvhc.gemma.attention_injector import GemmaAttentionInjector, QKVDeltaProjector
-from rcvhc.gemma.model_adapter import ModelBundle, exposed_qkv_layers, get_hidden_size, trainable_base_params
-from rcvhc.memory.attention_store import AttentionMemoryStore
-from rcvhc.memory.writer import RCVHCWriter, fit_memory_dim, split_source_snippets
+from deltamemory.core.config import RCVHCCleanConfig, resolve_layer_policy
+from deltamemory.core.types import AttentionMemoryItem
+from deltamemory.gemma.attention_injector import GemmaAttentionInjector, QKVDeltaProjector
+from deltamemory.gemma.model_adapter import ModelBundle, exposed_qkv_layers, get_hidden_size, trainable_base_params
+from deltamemory.memory.attention_store import AttentionMemoryStore
+from deltamemory.memory.writer import RCVHCWriter, fit_memory_dim, split_source_snippets
 
 
 @dataclass

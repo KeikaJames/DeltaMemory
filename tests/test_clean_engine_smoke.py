@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from rcvhc.core.config import RCVHCCleanConfig
-from rcvhc.engine.attention_memory_engine import AttentionMemoryEngine
-from rcvhc.gemma.model_adapter import load_model_bundle, trainable_base_params
+from deltamemory.core.config import RCVHCCleanConfig
+from deltamemory.engine.attention_memory_engine import AttentionMemoryEngine
+from deltamemory.gemma.model_adapter import load_model_bundle, trainable_base_params
 
 
 def test_engine_ingest_ask_keeps_source_out_of_prompt(demo_text):

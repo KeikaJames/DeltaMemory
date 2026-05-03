@@ -7,8 +7,8 @@ from dataclasses import dataclass
 import torch
 from torch import nn
 
-from rcvhc.core.types import AttentionMemoryItem, QKVTrace
-from rcvhc.gemma.model_adapter import get_decoder
+from deltamemory.core.types import AttentionMemoryItem, QKVTrace
+from deltamemory.gemma.model_adapter import get_decoder
 
 
 QKV_INTERVENTION_MODES = {

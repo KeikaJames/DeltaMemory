@@ -46,9 +46,9 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
-from rcvhc.engine.delta_dataset import SINGLE_TOKEN_CODES, make_delta_memory_examples
-from rcvhc.engine.delta_experiment import _token_range_for_example
-from rcvhc.gemma.model_adapter import load_model_bundle
+from deltamemory.engine.delta_dataset import SINGLE_TOKEN_CODES, make_delta_memory_examples
+from deltamemory.engine.delta_experiment import _token_range_for_example
+from deltamemory.gemma.model_adapter import load_model_bundle
 
 
 # -------------------------------------------------------------------------

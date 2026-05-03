@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from rcvhc.cli import main
+from deltamemory.cli import main
 
 
 def test_clean_cli_ingest_ask_inspect(tmp_path, capsys):
