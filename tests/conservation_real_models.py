@@ -36,7 +36,7 @@ MODEL_REGISTRY = {
     "gemma-4-31b":   "google/gemma-4-31B-it",
     "qwen3-4b":      "Qwen/Qwen3-4B-Instruct-2507",
     "deepseek-32b":  "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B",
-    "glm-4-9b":      "THUDM/GLM-4-9B-0414",
+    "glm-4-9b":      "THUDM/glm-4-9b-chat",
 }
 
 

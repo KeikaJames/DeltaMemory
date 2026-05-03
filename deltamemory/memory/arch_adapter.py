@@ -32,6 +32,16 @@ class ArchAdapter:
 
     name: str = "base"
 
+    # --- default α calibration (per-arch) -----------------------------------
+    # Empirically calibrated injection scale for the bank K/V branch on this
+    # family.  Different architectures have very different V-activation ranges
+    # (e.g. Gemma3n applies v_norm so V is small → α≈1 is fine; Qwen3 has no
+    # v_norm so V is larger → α=1 destroys the logits, α≈0.05 preserves
+    # them).  Conservation tests at α=0/empty bank do NOT catch this because
+    # they never exercise the injection path.  See
+    # ``transcripts/v31_intervention/CROSS_ARCH_REPORT.md`` for the data.
+    default_alpha: float = 1.0
+
     # --- class-name match (used by AttnNativePatcher to auto-pick) -----------
     @classmethod
     def matches(cls, attn_module: nn.Module) -> bool:
@@ -91,7 +101,7 @@ class Gemma4Adapter(ArchAdapter):
     """
 
     def __init__(self):
-        super().__init__(name="gemma4")
+        super().__init__(name="gemma4", default_alpha=1.0)
 
     @classmethod
     def matches(cls, attn_module: nn.Module) -> bool:
@@ -124,7 +134,7 @@ class Qwen3Adapter(ArchAdapter):
     """
 
     def __init__(self):
-        super().__init__(name="qwen3")
+        super().__init__(name="qwen3", default_alpha=0.05)
 
     @classmethod
     def matches(cls, attn_module: nn.Module) -> bool:
@@ -164,7 +174,10 @@ class LlamaAdapter(ArchAdapter):
     """
 
     def __init__(self):
-        super().__init__(name="llama")
+        # Qwen2 family (incl. DeepSeek-R1-Distill-Qwen-32B) calibrated at 0.05
+        # on GB10 cuda bf16; raw Llama-2/3 with v_norm-less V also defaults
+        # here.  Override per-model if needed.
+        super().__init__(name="llama", default_alpha=0.05)
 
     @classmethod
     def matches(cls, attn_module: nn.Module) -> bool:
@@ -195,7 +208,7 @@ class Glm4Adapter(ArchAdapter):
     """
 
     def __init__(self):
-        super().__init__(name="glm4")
+        super().__init__(name="glm4", default_alpha=0.05)
 
     @classmethod
     def matches(cls, attn_module: nn.Module) -> bool:
