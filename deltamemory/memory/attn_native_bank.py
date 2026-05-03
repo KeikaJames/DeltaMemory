@@ -60,7 +60,7 @@ from __future__ import annotations
 import math
 from contextlib import contextmanager
 from dataclasses import dataclass, field
-from typing import Iterable
+from typing import Any, Iterable
 
 import torch
 import torch.nn as nn
@@ -97,6 +97,9 @@ class AttnNativeBank:
     fact_ids: list[str] = field(default_factory=list)
     address_strs: list[str] = field(default_factory=list)
     _shared_to_source: dict[int, int] = field(default_factory=dict)
+    # Stage 14A: optional InfoNCE K-projector (KProjectorBank). Identity-init
+    # so attaching an untrained projector remains a no-op.
+    k_projector: Any = None
 
     def __post_init__(self) -> None:
         if not self.head_dims:
@@ -316,6 +319,10 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
         if do_inject:
             mk = bank.M_K[bank_layer_idx].to(q_pre.dtype).to(q_pre.device)  # [N, Hkv, d]
             mv = bank.M_V[bank_layer_idx].to(q_pre.dtype).to(q_pre.device)
+            # Stage 14A: optional InfoNCE K-projector (identity-init safe).
+            k_proj = getattr(bank, "k_projector", None)
+            if k_proj is not None:
+                mk = k_proj(bank_layer_idx, mk)
             mk_e = repeat_kv(mk.unsqueeze(0).transpose(1, 2), self.num_key_value_groups)  # [1, Hq, N, d]
             mv_e = repeat_kv(mv.unsqueeze(0).transpose(1, 2), self.num_key_value_groups)
             mk_e = mk_e.expand(q_pre.size(0), -1, -1, -1)
@@ -482,31 +489,53 @@ def write_fact(
     fact_id: str,
     address: str,
     capture_pos: int | None = None,
+    policy: str = "period",
 ) -> None:
     """Single-shot bank insertion: forward the write_prompt and grab K/V.
 
-    The capture position defaults to the last real token of `write_prompt`.
+    Args:
+        policy: capture policy (``"period"`` v2 default, ``"address"``
+            Stage 14B, ``"multi"`` Stage 14C). Honors an explicit
+            ``capture_pos`` override (pins to ``"period"`` semantics).
     """
+    from deltamemory.memory.capture_policy import resolve_capture_sites
+
     device = next(patcher.model.parameters()).device
     enc = tokenizer(write_prompt, return_tensors="pt", add_special_tokens=True)
     ids = enc["input_ids"].to(device)
     am = enc["attention_mask"].to(device)
-    pos = (am.sum(dim=1).item() - 1) if capture_pos is None else int(capture_pos)
-    with patcher.patched(), patcher.capturing(capture_pos=pos), torch.no_grad():
-        patcher.model(input_ids=ids, attention_mask=am, use_cache=False)
-    K_per_layer = []
-    V_per_layer = []
-    for layer in range(patcher.num_layers):
-        kc = patcher._capture_K[layer]
-        vc = patcher._capture_V[layer]
-        if kc is None:  # shared-KV layer: copy from source layer
-            src = patcher.attn_modules[layer]
-            src_idx = getattr(src, "kv_shared_layer_index", layer)
-            kc = patcher._capture_K[src_idx]
-            vc = patcher._capture_V[src_idx]
-        K_per_layer.append(kc[0])  # drop batch
-        V_per_layer.append(vc[0])
-    bank.append(K_per_layer, V_per_layer, fact_id=fact_id, address=address)
+
+    if capture_pos is not None:
+        sites = [type("S", (), {"token_pos": int(capture_pos), "role": "manual"})()]
+    else:
+        sites = resolve_capture_sites(
+            policy=policy,
+            write_prompt=write_prompt,
+            address=address,
+            tokenizer=tokenizer,
+            attention_mask_row=am[0],
+            add_special_tokens=True,
+        )
+
+    for site in sites:
+        with patcher.patched(), patcher.capturing(capture_pos=site.token_pos), torch.no_grad():
+            patcher.model(input_ids=ids, attention_mask=am, use_cache=False)
+        K_per_layer = []
+        V_per_layer = []
+        for layer in range(patcher.num_layers):
+            kc = patcher._capture_K[layer]
+            vc = patcher._capture_V[layer]
+            if kc is None:  # shared-KV layer: copy from source layer
+                src = patcher.attn_modules[layer]
+                src_idx = getattr(src, "kv_shared_layer_index", layer)
+                kc = patcher._capture_K[src_idx]
+                vc = patcher._capture_V[src_idx]
+            K_per_layer.append(kc[0])
+            V_per_layer.append(vc[0])
+        site_fact_id = (
+            fact_id if len(sites) == 1 else f"{fact_id}@{site.role}"
+        )
+        bank.append(K_per_layer, V_per_layer, fact_id=site_fact_id, address=address)
 
 
 def forward_with_bank(
