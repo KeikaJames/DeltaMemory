@@ -41,6 +41,14 @@ slices of the question "can you give an LLM real memory":
   address-keyed fast-weight bank. The read prompt at evaluation time
   contains only the address — the value token is absent — so retrieval has
   to come from a persistent parametric slot, not from copying.
+- **Stage 13** (latest): **AttentionNative DeltaMemory v2** — the same
+  idea, but with **zero learnable parameters**. The bank is just K/V
+  tensors that the model itself produces during a one-shot write pass,
+  concatenated into every attention layer at read time. Stages 13A–13F
+  produce a mix of strong positive results (unit gate, locality bit-equal,
+  KV-shared layer fix lifts target rank 41 → 9) and rigorous negative
+  results (multi-token chat recall fails — diagnosed as a K-space
+  matching gap motivating Stage 14).
 
 The package is still named `rcvhc` for compatibility with earlier
 experiments.
@@ -50,6 +58,78 @@ closed-book test makes this concrete: at evaluation time the read prompt
 contains only the address — no retrieved text, no value token, no card.
 The answer is recovered from a persistent parametric slot via learned
 address-key retrieval.
+
+## DeltaMemory v2 in one line
+
+$$
+\mathrm{Attn}_\ell\bigl(Q,\; [K\,;\, M_K^{(\ell)}],\; [V\,;\, \alpha\!\cdot\!M_V^{(\ell)}]\bigr)
+$$
+
+Plain English: take whatever your frozen LLM already does inside
+attention, and on top of the normal `K`/`V` cache, concatenate a memory
+bank of `(M_K, M_V)` pairs. The model's own softmax decides whether to
+attend to the bank — when `α=0` or when the query doesn't match the bank,
+the output is **bit-for-bit** identical to the unpatched model. There is
+no encoder, no key projector, no broadcast bias, no training. One forward
+pass over a write prompt populates the bank.
+
+![DeltaMemory v1 vs v2 architecture](docs/figures/v2/stage13_architecture.svg)
+
+### What v2 changed and why it matters
+
+The v1 architecture (Stages 8–12) used a separate encoder + KeyProjector
++ a final-residual broadcast bias. This shipped four stitched modules,
+needed 1500 training steps, and (Stage 12-P3) drifted the locality
+metric to 0.75 because the broadcast added the same bias to every query.
+
+v2 deletes all four modules. Bank `K` and `V` are exactly what the model
+itself emits during one forward pass over the write prompt; retrieval is
+done by the same softmax that does language modeling. There is nothing
+to train. As a side effect:
+
+- **`α=0` is bit-equal** by construction (the bank concatenates a
+  zero-width slice).
+- **Locality probe** is bit-equal in free-form generation (Stage 13F).
+- **KV-shared layers** also see the bank via the source layer's slot,
+  which raised single-fact target rank from 41 → 9 on the Stage 13A unit
+  gate (see figure below).
+
+![Stage 13A unit gate — rank and logit lift](docs/figures/v2/stage13_recall_lift.svg)
+
+### Honest limits of v2 (Stage 13B/13F negative results)
+
+A `Q: … A:` chat prompt does **not** retrieve from a bank that was
+written from a declarative `"X is Y."` prompt — even though the unit gate
+on `"… current X is"` does. The reason is that the write-time `K` (at
+the period token) and the read-time `Q` (at the `A:` token) live in
+different regions of K-space, and zero-shot softmax can't bridge the
+gap. Stage 13F surfaces this with a six-scenario chat suite:
+
+- ✅ Locality probe — exact-match to baseline.
+- ❌ Direct recall, paraphrase recall, malicious override, multi-fact,
+  adversarial prompt — all fail at α=1.
+
+The α scan is also instructive — there is a clear working zone before
+the bank attention overwhelms the model's fluent generation:
+
+![DeltaMemory α phase diagram](docs/figures/v2/stage13_alpha_phase.svg)
+
+This is exactly the "first-cut" K-space bottleneck the maintainer
+predicted before the experiment. **Stage 14** is the planned remedy:
+either an address-conditional capture position, or a tiny learnable
+K-projector trained with InfoNCE on paraphrase positives. Both are
+strictly additive and preserve the v2 zero-encoder property.
+
+Stage 13F transcripts are committed verbatim under
+[`transcripts/google__gemma-4-E2B/`](transcripts/google__gemma-4-E2B/).
+Full Stage 13 reports under
+[`reports/cleanroom/stage13a_attn_native/`](reports/cleanroom/stage13a_attn_native/),
+[`reports/cleanroom/stage13b_robust/`](reports/cleanroom/stage13b_robust/),
+[`reports/cleanroom/stage13c_writer_decouple/`](reports/cleanroom/stage13c_writer_decouple/),
+[`reports/cleanroom/stage13d_locality_fix/`](reports/cleanroom/stage13d_locality_fix/),
+[`reports/cleanroom/stage13f_interactive/`](reports/cleanroom/stage13f_interactive/).
+
+
 
 ## At a glance
 

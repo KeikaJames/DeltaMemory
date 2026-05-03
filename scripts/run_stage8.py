@@ -274,11 +274,20 @@ def _forward_read_with_injection(
     attention_mask: torch.Tensor,
     last_pos: torch.Tensor,
     injection_vectors: torch.Tensor | None,
-    alpha: float,
+    alpha: float | torch.Tensor,
 ) -> torch.Tensor:
     """Forward through frozen base, inject at last position, project via lm_head.
 
     Returns logits at the last real position only: shape (B, V).
+
+    NOTE (Stage 13D): ``alpha`` may be a scalar OR a per-query tensor of shape
+    (B,). Per-query alpha is required by the locality-drift fix in
+    ``scripts/run_stage13d_locality_fix.py``: the v1 broadcast pipeline used
+    a global alpha that polluted every UNRELATED query (drift=0.75 in
+    Stage 12). The Stage 13D driver computes
+    ``alpha_eff = alpha * sigmoid(beta*(cos_max(q,bank_keys) - tau))`` per
+    query and passes it here. Old call sites with a Python float scalar are
+    unchanged.
     """
     out = model.model(
         input_ids=input_ids,
@@ -291,7 +300,11 @@ def _forward_read_with_injection(
     idx = last_pos.view(B, 1, 1).expand(B, 1, H)
     h_at_answer = last_hidden.gather(1, idx).squeeze(1)  # (B, H)
     if injection_vectors is not None:
-        h_at_answer = h_at_answer + alpha * injection_vectors.to(h_at_answer.dtype)
+        if isinstance(alpha, torch.Tensor):
+            a = alpha.to(h_at_answer.dtype).view(B, 1)
+        else:
+            a = float(alpha)
+        h_at_answer = h_at_answer + a * injection_vectors.to(h_at_answer.dtype)
     logits = model.lm_head(h_at_answer)  # (B, V)
     # Gemma may apply final logit softcapping inside model.forward; we don't
     # replicate it here because the relative ranking on answer-token CE is
