@@ -108,7 +108,6 @@ def _eval_condition(
     seed: int,
     policy: str | None,
     bank_temperature: float,
-    write_alpha: float,
     read_alpha: float,
 ) -> dict:
     """Build a fresh bank, write all facts under the given policy, score recall@1."""
@@ -140,7 +139,6 @@ def _eval_condition(
     return {
         "policy": policy,
         "bank_temperature": bank_temperature,
-        "write_alpha": write_alpha,
         "read_alpha": read_alpha,
         "seed": seed,
         "n_facts": len(facts),
@@ -177,15 +175,17 @@ def main() -> None:
     patcher = AttnNativePatcher(model)
 
     conditions = [
-        ("B0_no_memory",       None,       1.0, 0.0, 0.0),
-        ("B5_v2_period",      "period",   1.0, 1.0, 1.0),
-        ("v3_address",        "address",  1.0, 1.0, 1.0),
-        ("v3_multi",          "multi",    1.0, 1.0, 1.0),
-        ("v3_multi_tau05",    "multi",    0.5, 1.0, 1.0),
+    conditions = [
+        # name, policy, tau, read_alpha
+        ("B0_no_memory",       None,       1.0, 0.0),
+        ("B5_v2_period",      "period",   1.0, 1.0),
+        ("v3_address",        "address",  1.0, 1.0),
+        ("v3_multi",          "multi",    1.0, 1.0),
+        ("v3_multi_tau05",    "multi",    0.5, 1.0),
     ]
 
     rows: list[dict] = []
-    for name, policy, tau, wa, ra in conditions:
+    for name, policy, tau, ra in conditions:
         for seed in seeds:
             print(f"[stage14-dev] {name} seed={seed}…", flush=True)
             t0 = time.time()
@@ -196,7 +196,6 @@ def main() -> None:
                 seed=seed,
                 policy=policy,
                 bank_temperature=tau,
-                write_alpha=wa,
                 read_alpha=ra,
             )
             r["condition"] = name

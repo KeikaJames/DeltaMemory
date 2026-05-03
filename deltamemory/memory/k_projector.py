@@ -54,9 +54,12 @@ class KProjectorBank(nn.Module):
     def identity_for(cls, model: Any) -> "KProjectorBank":
         """Build an identity projector matching a model's per-layer head_dim.
 
-        Uses :class:`AttnNativePatcher`'s attention-module discovery so the
-        projector works on every architecture the bank supports
-        (Gemma-4 / Gemma-3 / Llama / Qwen / DeepSeek / GLM-4).
+        Discovery goes through :class:`AttnNativePatcher`. Today the patcher
+        only accepts Gemma-4 attention modules; adding Qwen3 / Llama / GLM-4
+        adapters will let this method cover those families without code
+        changes here. The projector itself is architecture-agnostic — it is
+        just one ``nn.Linear(d_h, d_h)`` per attention layer applied to bank
+        keys, and the only requirement is that ``head_dim`` is well-defined.
         """
         from deltamemory.memory.attn_native_bank import AttnNativePatcher
 
@@ -72,6 +75,14 @@ class KProjectorBank(nn.Module):
     def forward(self, layer_idx: int, mk: torch.Tensor) -> torch.Tensor:
         """Project bank keys for one layer.
 
+        Implementation note: we apply the layer's ``Linear`` *functionally*
+        with weights cast to ``mk``'s dtype/device on the fly. We do **not**
+        mutate ``self.layers`` or call ``Linear.to(...)``; that would create
+        new ``Parameter`` objects on the hot path, invalidate optimizer
+        state, and break ``DDP`` / ``torch.compile`` assumptions. The
+        underlying ``Parameter`` storage stays where the user put it (with
+        ``.to(device, dtype)`` once at attach time, e.g. after ``load()``).
+
         Args:
             layer_idx: attention layer index.
             mk: bank K tensor of shape ``[N, num_kv_heads, head_dim]`` or any
@@ -81,12 +92,12 @@ class KProjectorBank(nn.Module):
             Projected tensor with the same shape and dtype as ``mk``.
         """
         lin = self.layers[layer_idx]
-        target_dtype = mk.dtype
-        target_device = mk.device
-        if lin.weight.dtype != target_dtype or lin.weight.device != target_device:
-            lin = lin.to(device=target_device, dtype=target_dtype)
-            self.layers[layer_idx] = lin
-        return lin(mk)
+        w = lin.weight
+        b = lin.bias
+        if w.dtype != mk.dtype or w.device != mk.device:
+            w = w.to(device=mk.device, dtype=mk.dtype)
+            b = b.to(device=mk.device, dtype=mk.dtype) if b is not None else None
+        return torch.nn.functional.linear(mk, w, b)
 
     def is_identity(self, atol: float = 0.0) -> bool:
         """True iff every layer is exactly the identity (within ``atol``)."""

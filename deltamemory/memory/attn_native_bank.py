@@ -332,8 +332,13 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
             scores_bank = torch.matmul(q_pre, mk_e.transpose(2, 3)) * scaling  # [B,Hq,T,N]
             # Stage 14D: optional bank temperature tau (default 1.0 = no-op).
             tau = float(getattr(bank, "bank_temperature", 1.0))
+            if tau <= 0.0:
+                raise ValueError(
+                    f"bank_temperature must be > 0, got {tau!r}. Set bank.bank_temperature "
+                    "to a positive float (1.0 = no-op)."
+                )
             if tau != 1.0:
-                scores_bank = scores_bank / max(tau, 1e-6)
+                scores_bank = scores_bank / tau
             scores = torch.cat([scores_orig, scores_bank], dim=-1)
             weights = F.softmax(scores, dim=-1, dtype=torch.float32).to(q_post.dtype)
             T_orig = scores_orig.size(-1)
@@ -504,7 +509,7 @@ def write_fact(
             Stage 14B, ``"multi"`` Stage 14C). Honors an explicit
             ``capture_pos`` override (pins to ``"period"`` semantics).
     """
-    from deltamemory.memory.capture_policy import resolve_capture_sites
+    from deltamemory.memory.capture_policy import CaptureSite, resolve_capture_sites
 
     device = next(patcher.model.parameters()).device
     enc = tokenizer(write_prompt, return_tensors="pt", add_special_tokens=True)
@@ -512,7 +517,7 @@ def write_fact(
     am = enc["attention_mask"].to(device)
 
     if capture_pos is not None:
-        sites = [type("S", (), {"token_pos": int(capture_pos), "role": "manual"})()]
+        sites = [CaptureSite(token_pos=int(capture_pos), role="manual")]
     else:
         sites = resolve_capture_sites(
             policy=policy,

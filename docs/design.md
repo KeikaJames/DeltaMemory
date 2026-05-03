@@ -81,17 +81,22 @@ and `q_post` (RoPE-applied) for the standard sequence branch. KV-shared
 layers route bank lookups through `kv_shared_layer_index` so all 35 / 35
 attention layers see the bank (vs. only the 15 non-shared ones).
 
-## ArchAdapter (multi-model)
+## ArchAdapter (multi-model) — current status
 
-`AttnNativePatcher` dispatches to a per-architecture `ArchAdapter` that
-encapsulates the family-specific quirks:
+`AttnNativePatcher` is the dispatch point. **As of this PR it only accepts
+Gemma-4 attention modules** and raises ``NotImplementedError`` on every
+other family; the table below is the *target* support matrix that v3.x
+work will fill in via per-family adapters. The bank, the InfoNCE
+K-projector, and the ROME-style writer are architecture-agnostic — only
+the patcher and the per-family hooks (q/k/v norm, RoPE base, KV-shared
+routing) need new code per family.
 
-| family | q_norm/k_norm | v_norm | KV-shared | RoPE base |
-|---|---|---|---|---|
-| Gemma-4 | yes | yes | yes (per-layer) | 1e4 |
-| Qwen3 | yes | no | no | 1e6 |
-| Llama / DeepSeek / Mistral | no | no | no | 1e4 |
-| GLM-4 | no | no | no | 1e4 |
+| family | q_norm/k_norm | v_norm | KV-shared | RoPE base | adapter status |
+|---|---|---|---|---|---|
+| Gemma-4 | yes | yes | yes (per-layer) | 1e4 | **shipped (this PR)** |
+| Qwen3 | yes | no | no | 1e6 | planned (v3.1) |
+| Llama / DeepSeek / Mistral | no | no | no | 1e4 | planned (v3.1) |
+| GLM-4 | no | no | no | 1e4 | planned (v3.1) |
 
 Each adapter must satisfy the same four unit gates:
 
