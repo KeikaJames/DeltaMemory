@@ -173,5 +173,5 @@
 
 ## Reproduction
 ```
-python scripts/run_intervention_demo.py --model google/gemma-4-E2B --device mps --dtype bfloat16 --alpha 1.0
+python scripts/run_intervention_demo.py --model google/gemma-4-E2B --device mps --dtype bfloat16 --alpha 1.0 --false-facts --out-dir transcripts/v31_intervention/gemma-4-e2b-mac-FALSE
 ```

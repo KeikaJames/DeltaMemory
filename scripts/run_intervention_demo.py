@@ -211,7 +211,11 @@ def main():
     dtype = {"bfloat16": torch.bfloat16, "float16": torch.float16,
              "float32": torch.float32}[args.dtype]
 
-    out_dir = Path(args.out_dir or f"transcripts/v3_intervention/{short_name(args.model)}")
+    facts_tag = "FALSE" if args.false_facts else "TRUE"
+    out_dir = Path(
+        args.out_dir
+        or f"transcripts/v31_intervention/{short_name(args.model)}-{args.device}-{facts_tag}"
+    )
     out_dir.mkdir(parents=True, exist_ok=True)
 
     print(f"=== loading {args.model} on {args.device} ({args.dtype}) ===", flush=True)

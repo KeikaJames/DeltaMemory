@@ -173,5 +173,5 @@
 
 ## Reproduction
 ```
-python scripts/run_intervention_demo.py --model Qwen/Qwen3-4B-Instruct-2507 --device mps --dtype bfloat16 --alpha 0.05
+python scripts/run_intervention_demo.py --model Qwen/Qwen3-4B-Instruct-2507 --device mps --dtype bfloat16 --alpha 0.05 --false-facts --out-dir transcripts/v31_intervention/qwen3-4b-mac-FALSE
 ```

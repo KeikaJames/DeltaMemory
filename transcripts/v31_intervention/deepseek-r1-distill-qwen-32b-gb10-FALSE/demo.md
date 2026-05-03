@@ -173,5 +173,5 @@
 
 ## Reproduction
 ```
-python scripts/run_intervention_demo.py --model deepseek-ai/DeepSeek-R1-Distill-Qwen-32B --device cuda --dtype bfloat16 --alpha 0.05
+python scripts/run_intervention_demo.py --model deepseek-ai/DeepSeek-R1-Distill-Qwen-32B --device cuda --dtype bfloat16 --alpha 0.05 --false-facts --out-dir transcripts/v31_intervention/deepseek-r1-distill-qwen-32b-gb10-FALSE
 ```
