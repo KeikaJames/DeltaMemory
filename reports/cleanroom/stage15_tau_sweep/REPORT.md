@@ -1,4 +1,4 @@
-# Phase L4-rev: bank_topk sweep (v3.1 K-projector)
+# Phase L4-rev: tau sweep (v3.1 K-projector)
 
 **Split**: `eval/splits_v31/dev_v31.jsonl` (N=41)
 **Projector**: `reports/cleanroom/stage15_kproj_v31/k_projector_gemma4.pt`

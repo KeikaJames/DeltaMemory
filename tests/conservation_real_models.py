@@ -36,7 +36,7 @@ MODEL_REGISTRY = {
     "gemma-4-31b":   "google/gemma-4-31B-it",
     "qwen3-4b":      "Qwen/Qwen3-4B-Instruct-2507",
     "deepseek-32b":  "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B",
-    "glm-4-9b":      "THUDM/glm-4-9b-chat",
+    "glm-4-9b":      "THUDM/GLM-4-9B-0414",
 }
 
 
@@ -110,7 +110,7 @@ def main():
             print(f"  {r['model']:50s}  ERROR  {r['error']}", flush=True)
             fail += 1
         else:
-            tag = "PASS" if r["max_abs_diff"] < args.threshold else "FAIL"
+            tag = "PASS" if (r["bit_equal"] and r["max_abs_diff"] < args.threshold) else "FAIL"
             print(f"  {r['model']:50s}  {tag}  max-abs={r['max_abs_diff']:.3e}  bit_equal={r['bit_equal']}", flush=True)
             if tag == "FAIL":
                 fail += 1

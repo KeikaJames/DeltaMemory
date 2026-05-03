@@ -221,7 +221,9 @@ def main() -> None:
     print(f"[train-kproj] loading {args.model} on {args.device}…", flush=True)
     t0 = time.time()
     tokenizer = AutoTokenizer.from_pretrained(args.model)
-    model = AutoModelForCausalLM.from_pretrained(args.model, torch_dtype=torch.bfloat16)
+    model = AutoModelForCausalLM.from_pretrained(
+        args.model, torch_dtype=torch.bfloat16, attn_implementation="eager"
+    )
     model.to(args.device).eval()
     print(f"[train-kproj] model ready in {time.time() - t0:.1f}s", flush=True)
 
@@ -261,6 +263,11 @@ def main() -> None:
     )
 
     out_path = REPO_ROOT / args.out
+    # Accept either a directory or a file path. If it's a directory (or has no
+    # suffix and doesn't exist), treat as dir and write k_projector.pt inside.
+    if out_path.is_dir() or (not out_path.exists() and out_path.suffix == ""):
+        out_path.mkdir(parents=True, exist_ok=True)
+        out_path = out_path / "k_projector.pt"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     proj.save(out_path)
     log_path = out_path.with_suffix(".jsonl")

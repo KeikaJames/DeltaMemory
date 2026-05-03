@@ -1,7 +1,7 @@
-# Phase G test eval — Gemma-4-E2B (FROZEN v3)
+# Phase L4 dev eval — Gemma-4-E2B (v3.1 K-projector)
 
-**Test split**: N=41 held-out facts (untouched until this run).
-**Frozen config**: deltamemory/configs/v3_frozen.yaml
+**Dev split**: N=41 facts from `eval/splits_v31/dev_v31.jsonl` (test split untouched).
+**Projector**: `reports/cleanroom/stage15_kproj_v31/k_projector_gemma4.pt` (full d×d, 8 epochs).
 
 ## Recall@1 by condition
 

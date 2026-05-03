@@ -200,7 +200,7 @@ class Glm4Adapter(ArchAdapter):
     @classmethod
     def matches(cls, attn_module: nn.Module) -> bool:
         n = type(attn_module).__name__
-        return "Glm4" in n or "ChatGLM" in n
+        return "Glm4" in n  # HF-native GLM-4 only; ChatGLM (trust_remote_code) uses different RoPE
 
     def apply_rope(self, q, k, cos, sin):
         from transformers.models.glm4.modeling_glm4 import apply_rotary_pos_emb

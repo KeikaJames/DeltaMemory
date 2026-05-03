@@ -141,7 +141,9 @@ def main() -> None:
     print(f"[test-eval] loading {args.model}…", flush=True)
     t0 = time.time()
     tok = AutoTokenizer.from_pretrained(args.model)
-    model = AutoModelForCausalLM.from_pretrained(args.model, torch_dtype=torch.bfloat16)
+    model = AutoModelForCausalLM.from_pretrained(
+        args.model, torch_dtype=torch.bfloat16, attn_implementation="eager"
+    )
     model.to(args.device).eval()
     print(f"[test-eval] model ready in {time.time() - t0:.1f}s", flush=True)
 
