@@ -100,6 +100,8 @@ class AttnNativeBank:
     # Stage 14A: optional InfoNCE K-projector (KProjectorBank). Identity-init
     # so attaching an untrained projector remains a no-op.
     k_projector: Any = None
+    # Stage 14D: bank-only attention temperature. 1.0 = no-op (bit-equal).
+    bank_temperature: float = 1.0
 
     def __post_init__(self) -> None:
         if not self.head_dims:
@@ -328,6 +330,10 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
             mk_e = mk_e.expand(q_pre.size(0), -1, -1, -1)
             mv_e = mv_e.expand(q_pre.size(0), -1, -1, -1)
             scores_bank = torch.matmul(q_pre, mk_e.transpose(2, 3)) * scaling  # [B,Hq,T,N]
+            # Stage 14D: optional bank temperature tau (default 1.0 = no-op).
+            tau = float(getattr(bank, "bank_temperature", 1.0))
+            if tau != 1.0:
+                scores_bank = scores_bank / max(tau, 1e-6)
             scores = torch.cat([scores_orig, scores_bank], dim=-1)
             weights = F.softmax(scores, dim=-1, dtype=torch.float32).to(q_post.dtype)
             T_orig = scores_orig.size(-1)
