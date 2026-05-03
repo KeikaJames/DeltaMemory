@@ -206,8 +206,11 @@ def _get_num_layers(model) -> int:
 # Architecture loading
 # ---------------------------------------------------------------------------
 
-def load_architecture(name: str, base_model: str, device: str, dtype: torch.dtype):
-    """Load one of {residual, hc, mhc} GPT-2 variants."""
+def load_architecture(name: str, base_model: str, device: str, dtype: torch.dtype,
+                      finetuned_dir: str | None = None):
+    """Load one of {residual, hc, mhc} GPT-2 variants.
+    If finetuned_dir is given, loads the mixing-parameter checkpoint from
+    ``<finetuned_dir>/<name>/state_dict.pt``."""
     spec = ARCH_SPEC[name]
     tok = GPT2TokenizerFast.from_pretrained(base_model)
     tok.pad_token = tok.eos_token
@@ -225,6 +228,20 @@ def load_architecture(name: str, base_model: str, device: str, dtype: torch.dtyp
         )
         del base
         model = model.to(dtype=dtype).to(device).eval()
+
+        # Load finetuned mixing parameters if provided
+        if finetuned_dir:
+            ckpt_path = Path(finetuned_dir) / name / "state_dict.pt"
+            if ckpt_path.exists():
+                sd = torch.load(ckpt_path, map_location=device, weights_only=True)
+                missing, unexpected = model.load_state_dict(sd, strict=False)
+                print(f"  [{name}] loaded finetuned checkpoint: {ckpt_path}", flush=True)
+                if missing:
+                    print(f"  [{name}]   missing keys: {len(missing)}", flush=True)
+                if unexpected:
+                    print(f"  [{name}]   unexpected keys: {len(unexpected)}", flush=True)
+            else:
+                print(f"  [{name}] finetuned checkpoint not found at {ckpt_path}, using equiv init", flush=True)
 
     model.eval()
     return tok, model
@@ -275,6 +292,8 @@ def main():
     ap.add_argument("--out", default="reports/cleanroom/mHC3_bank_injection")
     ap.add_argument("--facts", default="false", choices=["true", "false", "both"])
     ap.add_argument("--probe-norms", action="store_true", help="H5: capture per-layer norms")
+    ap.add_argument("--finetuned-dir", default=None,
+                    help="load finetuned mixing params from <dir>/<arch>/state_dict.pt")
     args = ap.parse_args()
 
     if args.device is None:
@@ -299,7 +318,8 @@ def main():
         print(f"\n{'='*60}\n  {label}\n{'='*60}", flush=True)
 
         t_load = time.time()
-        tok, model = load_architecture(arch_name, args.base_model, args.device, dtype)
+        tok, model = load_architecture(arch_name, args.base_model, args.device, dtype,
+                                       finetuned_dir=args.finetuned_dir)
         n_layers = _get_num_layers(model)
         print(f"  loaded in {time.time()-t_load:.1f}s, n_layers={n_layers}", flush=True)
 
