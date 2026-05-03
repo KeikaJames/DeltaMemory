@@ -233,7 +233,9 @@ def render_report(models, rows, hypotheses, out_path: Path):
     for model in sorted(models):
         h = hypotheses["h1"].get(model, {})
         tag = "✅ PASS" if h.get("passed") else "❌ FAIL"
-        lines.append(f"- **{model}**: {tag}  ({h.get('n_pass',0)}/{h.get('n_total',0)} α pass, max drift={h.get('max_drift','?'):.3f})")
+        md = h.get("max_drift")
+        max_drift_str = f"{md:.3f}" if md is not None else "N/A"
+        lines.append(f"- **{model}**: {tag}  ({h.get('n_pass',0)}/{h.get('n_total',0)} α pass, max drift={max_drift_str})")
 
     lines.append("")
     lines.append("### H2: shield ON lift > 0")

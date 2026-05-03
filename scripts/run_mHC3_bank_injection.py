@@ -276,6 +276,72 @@ def seq_nll(model, tok, prompt: str, device: str) -> float:
     return nll
 
 
+@torch.no_grad()
+def _forward_full_logits(model, tok, prompt, bank, alpha, n_layers, device):
+    """Forward pass with bank injection, returning full logits (T, V)."""
+    enc = tok(prompt, return_tensors="pt", add_special_tokens=True)
+    ids = enc["input_ids"].to(device)
+    am = enc["attention_mask"].to(device)
+
+    handles: list[torch.utils.hooks.RemovableHandle] = []
+
+    def make_inject_hook(layer_idx):
+        entry = bank[layer_idx]
+        mk = entry["K"].to(device)
+        mv = entry["V"].to(device)
+        n_embd = mk.size(-1)
+
+        def hook(module, input, output):
+            if alpha == 0.0:
+                return output
+            x = input[0]
+            B, T, _ = x.shape
+            qkv = module.c_attn(x)
+            split_dim = module.split_size
+            q, k, v = qkv.split(split_dim, dim=-1)
+            n_head = module.num_heads
+            head_dim = n_embd // n_head
+            q_r = q.view(B, T, n_head, head_dim).transpose(1, 2)
+            k_r = k.view(B, T, n_head, head_dim).transpose(1, 2)
+            v_r = v.view(B, T, n_head, head_dim).transpose(1, 2)
+            mk_r = mk.view(1, n_head, 1, head_dim).expand(B, -1, 1, -1)
+            mv_r = mv.view(1, n_head, 1, head_dim).expand(B, -1, 1, -1)
+            k_cat = torch.cat([k_r, mk_r], dim=-2)
+            v_cat = torch.cat([v_r, alpha * mv_r], dim=-2)
+            scale = head_dim ** -0.5
+            scores = torch.matmul(q_r, k_cat.transpose(-2, -1)) * scale
+            attn_weights = torch.softmax(scores.float(), dim=-1).to(q_r.dtype)
+            attn_out = torch.matmul(attn_weights, v_cat)
+            attn_out = attn_out.transpose(1, 2).contiguous().view(B, T, n_embd)
+            attn_out = module.c_proj(attn_out)
+            attn_out = module.resid_dropout(attn_out)
+            return (attn_out, None)
+        return hook
+
+    for li in range(n_layers):
+        attn = _get_attention(model, li)
+        h = attn.register_forward_hook(make_inject_hook(li))
+        handles.append(h)
+
+    out = model(input_ids=ids, attention_mask=am, use_cache=True)
+
+    for h in handles:
+        h.remove()
+
+    return out.logits[0].float()  # (T, V)
+
+
+def seq_nll_with_bank(model, tok, prompt, bank, alpha, n_layers, device):
+    """Sequence-level NLL measured under bank injection."""
+    logits = _forward_full_logits(model, tok, prompt, bank, alpha, n_layers, device)
+    enc = tok(prompt, return_tensors="pt", add_special_tokens=True)
+    ids = enc["input_ids"][0].to(device)
+    targets = ids[1:]  # (T-1,)
+    logp = torch.nn.functional.log_softmax(logits[:-1], dim=-1)
+    nll = -logp.gather(1, targets.unsqueeze(-1)).squeeze(-1).mean().item()
+    return nll
+
+
 # ---------------------------------------------------------------------------
 # Main sweep
 # ---------------------------------------------------------------------------
@@ -353,54 +419,19 @@ def main():
                         bank_lp = torch.nn.functional.log_softmax(bank_logits, dim=-1)[target_id].item()
                         lifts.append(bank_lp - base_lp)
 
-                    # NLL drift on neutral prompts
+                    # NLL drift on neutral prompts (sequence-level)
                     neutral_bank = _write_fact(model, tok,
                         "Fact: The Sun is a star at the centre of the Solar System.",
                         n_layers, args.device)
-                    base_nlls, inj_nlls = [], []
-                    for nprompt in NEUTRAL_PROMPTS:
-                        base_nlls.append(seq_nll(model, tok, nprompt, args.device))
-                        inj_logits = _read_with_bank(model, tok, nprompt,
-                                                     neutral_bank, alpha, n_layers,
-                                                     args.device)
-                        # seq_nll with injection
-                        enc2 = tok(nprompt, return_tensors="pt").to(args.device)
-                        targets2 = enc2["input_ids"][0, 1:]
-                        logp2 = torch.nn.functional.log_softmax(inj_logits.unsqueeze(0), dim=-1)
-                        # Approximate: compute NLL from last-token logits vs full sequence
-                        # For drift measurement we use full seq NLL via separate forward
-                        # Fallback: re-run with bank using model() call
-                        pass  # We'll use the separate function
-                        inj_nlls.append(0.0)  # placeholder
-
-                    # Actually measure inj_nll properly
+                    base_nlls = []
                     inj_nlls = []
                     for nprompt in NEUTRAL_PROMPTS:
-                        # Re-run with bank injection for full sequence
-                        enc_n = tok(nprompt, return_tensors="pt")
-                        ids_n = enc_n["input_ids"].to(args.device)
-                        am_n = enc_n["attention_mask"].to(args.device)
-                        # Need separate forward per prompt — use _read_with_bank for last token
-                        # then approximate full NLL from token-by-token
-                        pass  # simplified: use logprob of each token position
-                        inj_nlls.append(0.0)
-
-                    # Simplified: use a single "baseline vs injected" logprob diff on neutral prompts
-                    neutral_lps_base = []
-                    neutral_lps_inj = []
-                    for nprompt in NEUTRAL_PROMPTS:
-                        # Measure logprob of the first continuation token
-                        tok_id = tok(" The", add_special_tokens=False)["input_ids"][0]
-                        base_lp_n = logprob_of_target(model, tok, nprompt, " The", args.device)
-                        inj_logits_n = _read_with_bank(model, tok, nprompt,
-                                                       neutral_bank, alpha, n_layers,
-                                                       args.device)
-                        inj_lp_n = torch.nn.functional.log_softmax(inj_logits_n, dim=-1)[tok_id].item()
-                        neutral_lps_base.append(base_lp_n)
-                        neutral_lps_inj.append(inj_lp_n)
+                        base_nlls.append(seq_nll(model, tok, nprompt, args.device))
+                        inj_nlls.append(seq_nll_with_bank(
+                            model, tok, nprompt, neutral_bank, alpha, n_layers, args.device))
 
                     mean_lift = sum(lifts) / max(len(lifts), 1)
-                    mean_drift = (sum(neutral_lps_inj) - sum(neutral_lps_base)) / max(len(neutral_lps_base), 1)
+                    mean_drift = sum(inj_nlls[i] - base_nlls[i] for i in range(len(base_nlls))) / max(len(base_nlls), 1)
 
                     cell = dict(
                         arch=arch_name, arch_label=label,
