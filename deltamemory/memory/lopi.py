@@ -118,7 +118,32 @@ class LOPIConfig:
     # Numerical
     eps: float = 1e-6
 
+    # ------------------------------------------------------------------
+    # ECOR routing (W-T3 round 2, opt-in).  When ``use_ecor=False`` (default)
+    # the production path is bit-for-bit identical to v3.4.  When
+    # ``use_ecor=True``, ``apply_lopi`` routes the readout through
+    # ``lopi_inject.lopi_inject`` with ``ecor_cfg`` (defaults to
+    # ``ECORConfig()`` ⇒ additive early-return — also bit-equal).  The
+    # purpose of the flag is to enable end-to-end NLL A/B between additive
+    # and rotated injection without a code edit at the call site.
+    # ------------------------------------------------------------------
+    use_ecor: bool = False
+    ecor_cfg: Any = None  # Optional[ECORConfig]; lazy-typed to avoid import cycle
+
     def asdict(self) -> dict:
+        ecor_dict = None
+        if self.ecor_cfg is not None:
+            try:
+                ecor_dict = {
+                    "enabled": self.ecor_cfg.enabled,
+                    "soft_blend": self.ecor_cfg.soft_blend,
+                    "k": self.ecor_cfg.k,
+                    "per_head": self.ecor_cfg.per_head,
+                    "direction_eps": self.ecor_cfg.direction_eps,
+                    "max_theta_frac": self.ecor_cfg.max_theta_frac,
+                }
+            except AttributeError:
+                ecor_dict = repr(self.ecor_cfg)
         return {
             "enabled": self.enabled,
             "orthogonal": self.orthogonal,
@@ -136,6 +161,8 @@ class LOPIConfig:
             "mu_span": self.mu_span,
             "sigma_floor": self.sigma_floor,
             "eps": self.eps,
+            "use_ecor": self.use_ecor,
+            "ecor_cfg": ecor_dict,
         }
 
 
@@ -417,6 +444,29 @@ def apply_lopi(
         _diag_mod._RECORDER.record_lopi_gamma_w(layer_idx, gamma_t, w_ell)
 
     out_bank_lopi = gamma_t * w_ell * m_perp
+
+    if cfg.use_ecor and cfg.ecor_cfg is not None \
+            and getattr(cfg.ecor_cfg, "enabled", False) \
+            and getattr(cfg.ecor_cfg, "soft_blend", 0.0) != 0.0:
+        # W-T3 round 2: route through the ECOR operator only when it would
+        # actually do work.  Otherwise fall through to the bit-equal legacy
+        # ``gamma_t · w_ell · m_perp`` value computed above (this preserves
+        # strict bit-equality with v3.4 in the additive degenerate case).
+        # The operator returns the *full* readout V_ctx + s·M_perp (or its
+        # rotated blend); we subtract V_ctx so the caller's
+        #     attn_out = out_orig + out_bank
+        # is arithmetically equivalent.
+        from deltamemory.memory.lopi_inject import lopi_inject as _lopi_inject
+
+        v_full = _lopi_inject(
+            V_ctx=v_ctx_readout,
+            M_perp=m_perp,
+            gamma_t=gamma_t,
+            w_ell=w_ell,
+            alpha_base=1.0,  # alpha already folded into m_perp via out_bank_native
+            cfg=cfg.ecor_cfg,
+        )
+        out_bank_lopi = v_full - v_ctx_readout
 
     # 4. Update t-1 caches for the *next* step.  We keep the latest Q per
     # layer; residual norms are updated by the bank caller (it has access
