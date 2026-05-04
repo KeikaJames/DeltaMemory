@@ -171,6 +171,63 @@ def test_apply_lopi_preserves_shape():
 
 
 # ---------------------------------------------------------------------------
+# R-2 ablation grid (A0..A4) parametric smoke
+
+
+@pytest.mark.parametrize("variant,cfg_kwargs", [
+    ("A0", dict(enabled=False)),
+    ("A1", dict(enabled=True, orthogonal=True, gaussian=False, derivative=False)),
+    ("A2", dict(enabled=True, orthogonal=True, gaussian=True, derivative=False)),
+    ("A3", dict(enabled=True, orthogonal=True, gaussian=True, derivative=True)),
+    ("A4", dict(enabled=True, orthogonal=False, gaussian=True, derivative=True)),
+])
+def test_lopi_ablation_variants_finite_and_distinct(variant, cfg_kwargs):
+    """R-2 smoke: every ablation variant produces finite output, and the
+    non-trivial variants (A1..A4) do *not* equal A0 unless their config
+    happens to reduce to identity (which is exercised in earlier tests).
+    """
+    cfg = LOPIConfig(**cfg_kwargs)
+    state = LOPIState(num_layers=12)
+    state.prev_residual_norms = {i: 8.0 for i in range(12)}
+    out_bank = _rand(1, 2, 4, 8, seed=40)
+    v_ctx = _rand(1, 2, 4, 8, seed=41)
+    q_post = _rand(1, 2, 4, 8, seed=42)
+    out = apply_lopi(out_bank, v_ctx, q_post, layer_idx=6, state=state, cfg=cfg)
+    assert torch.isfinite(out).all(), f"{variant}: non-finite output"
+    if variant == "A0":
+        assert torch.equal(out, out_bank)
+    else:
+        # Each enabled component must perturb the output.
+        diff = (out - out_bank).abs().max().item()
+        assert diff > 0.0, f"{variant}: output identical to A0 baseline"
+
+
+def test_lopi_two_step_derivative_drops_gamma():
+    """When Q evolves significantly between steps, gamma_t opens (>0.5).
+    When Q is stable, gamma_t closes (<0.5). Tests cross-step state plumbing."""
+    cfg = LOPIConfig(enabled=True, orthogonal=False, gaussian=False, derivative=True,
+                     k_gate=5.0, theta_gate=0.5)
+    state = LOPIState(num_layers=4)
+    out_bank = torch.ones(1, 1, 1, 4)
+    v_ctx = torch.ones(1, 1, 1, 4) * 2.0
+
+    # Step 0: no prev → gamma=1
+    q0 = torch.zeros(1, 1, 1, 4)
+    out0 = apply_lopi(out_bank, v_ctx, q0, layer_idx=2, state=state, cfg=cfg)
+    assert torch.allclose(out0, out_bank)
+
+    # Step 1: large jump → gamma → 1
+    q1 = torch.ones(1, 1, 1, 4) * 5.0  # ‖Δ‖ ≈ 10 >> theta
+    out1 = apply_lopi(out_bank, v_ctx, q1, layer_idx=2, state=state, cfg=cfg)
+    assert float(out1.mean()) > 0.95, f"large jump should open gate, got {out1.mean()}"
+
+    # Step 2: tiny jump → gamma small
+    q2 = q1 + 0.01
+    out2 = apply_lopi(out_bank, v_ctx, q2, layer_idx=2, state=state, cfg=cfg)
+    assert float(out2.mean()) < 0.5, f"stable Q should close gate, got {out2.mean()}"
+
+
+# ---------------------------------------------------------------------------
 # Bank integration: lopi_cfg defaults to disabled, bank stays bit-equal
 
 

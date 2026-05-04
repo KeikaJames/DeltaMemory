@@ -151,8 +151,10 @@ def derivative_gate(q_t: torch.Tensor, q_prev: Optional[torch.Tensor],
     Returns a tensor of shape (B, H, T, 1) so it broadcasts over D.  When
     ``q_prev is None`` (t = 0 or after reset) gamma_t collapses to 1 — this
     matches PREREGISTRATION §3.5 (legacy behavior at session boundaries).
+    A shape mismatch between ``q_t`` and ``q_prev`` (e.g. a new prompt of
+    different length) is treated as a session boundary as well.
     """
-    if q_prev is None:
+    if q_prev is None or q_prev.shape != q_t.shape:
         # Use a tensor (not python 1.0) so autograd / dtype propagate cleanly.
         return torch.ones((*q_t.shape[:-1], 1), dtype=q_t.dtype, device=q_t.device)
     delta_q = torch.linalg.vector_norm(q_t - q_prev, ord=2, dim=-1, keepdim=True)
