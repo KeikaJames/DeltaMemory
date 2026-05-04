@@ -8,10 +8,12 @@ plus interference/lama summaries and emits:
   docs/figures/fig8_stage8_lama.svg         (synthetic vs LAMA bars)
 """
 from __future__ import annotations
-import json, math
-from pathlib import Path
-from collections import defaultdict
+
+import json
+import math
 import statistics
+from collections import defaultdict
+from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 REPORTS = REPO / "reports" / "experiments"

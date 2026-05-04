@@ -7,7 +7,6 @@ import argparse
 import json
 from pathlib import Path
 
-
 TASK_SUITES = [
     "single_fact_late_reference",
     "multi_hop_binding",

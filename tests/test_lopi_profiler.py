@@ -13,21 +13,16 @@ Coverage
 """
 from __future__ import annotations
 
-import json
-from pathlib import Path
-
 import pytest
 import torch
 import torch.nn as nn
 
 from deltamemory.memory.lopi_profiler import (
-    LOPIProfile,
     default_profile_corpus,
     load_profile,
     profile_residuals,
     save_profile,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fake model + tokenizer big enough to expose mu_base / sigma_base structure

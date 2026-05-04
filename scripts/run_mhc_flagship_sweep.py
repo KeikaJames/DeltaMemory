@@ -53,12 +53,11 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from deltamemory.memory.attn_native_bank import (
     AttnNativePatcher,
-    fresh_bank,
     forward_with_bank,
+    fresh_bank,
     write_fact,
 )
 from scripts.run_intervention_demo import FACTS, FALSE_FACTS  # reuse
-
 
 # -- Held-out neutral prompts for NLL drift measurement.  These are
 # generic Wikipedia-style sentences, deliberately unrelated to any of the

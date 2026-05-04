@@ -23,184 +23,245 @@
 <p align="center">
   <a href="docs/design.md">Design</a> ·
   <a href="docs/apple_silicon.md">Apple Silicon</a> ·
-  <a href="transcripts/v31_intervention/CROSS_ARCH_REPORT.md">v3.1 cross-arch report</a> ·
+  <a href="docs/HISTORY.md">Phase history</a> ·
   <a href="reports/cleanroom">Reports</a>
 </p>
 
 ---
 
 DeltaMemory is a research prototype for **persistent external memory in a
-frozen LLM**. The mechanism is **DeltaMemory attn-native bank**.
+frozen LLM**. A per-layer K/V bank is concatenated into supported attention
+layers; the prompt at read time contains only the question, and the base
+weights stay frozen. The Phase R+ canonical stack pairs the bank with a
+training-free injection wrapper (Dynamic LOPI v3.4) and a one-shot residual
+profiler (U-LOPI Phase S) so the same library runs unchanged across
+Gemma / Qwen3 / GLM-4 / Llama / GPT-2 without manual α retuning. It is **not
+RAG**, **not prompt insertion**, and **not a weight edit**.
 
-It is **not RAG**, **not prompt insertion**, and **not a weight edit**. During
-the read pass, the prompt contains only the question. The value is supplied by
-a per-layer external K/V bank that is concatenated into supported attention
-layers. The base LLM weights remain frozen.
+## Quick start
 
-## Current headline: counter-prior memory injection
+```python
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from deltamemory import (
+    AttnNativePatcher, fresh_bank, write_fact,
+    profile_residuals, LOPIConfig,
+    save_bank, load_bank,
+)
 
-The strongest test is not to reinforce a fact the model already knows. The
-strongest test is to write a **false fact** into the bank, ask the corresponding
-question, and measure whether the frozen model raises the log-probability of
-the counter-prior target.
+model_name = "google/gemma-4-E2B"
+tok = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.bfloat16)
+model.eval()
 
-That is now reproduced on two model families and two hardware backends:
+# 1) Bank + per-layer attention patcher around the frozen LLM.
+patcher = AttnNativePatcher(model)
+bank = fresh_bank(model)
+bank.lopi_cfg = LOPIConfig(enabled=True, profile_mode="auto")  # Phase S auto-cal
 
-| Model | Hardware | α | Counter-prior result |
-|---|---|---:|---:|
-| `google/gemma-4-E2B` | GB10 CUDA bf16 | 1.0 | **5 / 5 positive** |
-| `google/gemma-4-E2B` | Mac MPS bf16 | 1.0 | **5 / 5 positive** |
-| `Qwen/Qwen3-4B-Instruct-2507` | GB10 CUDA bf16 | 0.05 | **5 / 5 positive** |
-| `Qwen/Qwen3-4B-Instruct-2507` | Mac MPS bf16 | 0.05 | **5 / 5 positive** |
-| `deepseek-ai/DeepSeek-R1-Distill-Qwen-32B` | GB10 CUDA bf16 | 0.05–0.30 sweep | mixed; stronger 32B prior needs a trained projector |
+# 2) U-LOPI cold-start: one-shot residual profile -> per-arch Z-score baselines.
+prof = profile_residuals(model, tok)            # forward-only, weights bit-equal
+bank.attach_lopi_profile(model, tok)            # binds prof onto bank.lopi_state
 
-<p align="center"><img src="docs/figures/v31/v31_false_fact_lift.svg" alt="Counter-prior target log-prob lift" width="860"></p>
+# 3) Write a fact into the bank.
+write_fact(patcher, bank, tok,
+           write_prompt="Fact: Python was created by Ada Lovelace.",
+           fact_id="py_ada", address="Python")
 
-The cleanest single example is:
+# 4) Decode with the bank attached.
+read_prompt = "Q: Who created the Python programming language?\nA:"
+with patcher.patched(), patcher.injecting(bank, alpha=1.0), torch.no_grad():
+    out = model.generate(**tok(read_prompt, return_tensors="pt"), max_new_tokens=8)
+print(tok.decode(out[0], skip_special_tokens=True))
 
-```text
-write into bank:  Fact: Python was created by Ada Lovelace.
-read prompt:      Q: Who created the Python programming language?
-                  A:
-target token:     " Ada"
+# 5) Persist (Phase R-6, version "ulopi_v35"); load_bank restores the profile too.
+save_bank(bank, root="./banks", model_name=model_name)
 ```
 
-On Gemma-4-E2B, the no-memory model puts `" Ada"` at about `-12` nats. With the
-bank attached and the LLM weights unchanged, `" Ada"` rises by **+2.68 nats on
-GB10 CUDA** and **+2.86 nats on Mac MPS**.
+`bank.attach_lopi_profile(...)` is a thin wrapper around `profile_residuals`
+that binds the profile onto `bank.lopi_state` and validates the layer count
+matches the bank shape. With `LOPIConfig(enabled=False)` the merged-softmax
+branch is bit-for-bit equivalent to the legacy v3.1 formula, and `α=0` /
+empty bank stays bit-equal to the unmodified model.
 
-## Mechanism
+## Architecture
 
-DeltaMemory v3.1 injects memory directly into every supported attention layer:
+### AttnNativeBank
+
+A frozen-LLM external attention bank. Per non-shared attention layer ℓ, the
+bank stores pre-RoPE K and post-norm V tensors at the model's
+`num_key_value_heads` resolution, concatenated into attention itself:
 
 $$
 \mathrm{Attn}_\ell\bigl(Q,\; [K\,;\, M_K^{(\ell)}],\; [V\,;\, \alpha M_V^{(\ell)}]\bigr)
 $$
 
-`M_K` and `M_V` are captured from a write forward pass. At read time they are
-merged into the frozen model's attention computation. The only trainable
-surface in the v3 family is the bank-side K-projector; it does not alter the
-LLM's token path and `α=0` / empty bank remains bit-equal to the base model.
+The bank carries no learnable parameters; the retrieval space *is* the
+model's native K-space and the attention softmax is the contrastive engine.
+GQA / MQA expansion uses the model's own `repeat_kv`. KV-shared layers
+(e.g. Gemma 4) consult their source layer's bank slot at read time so every
+attention layer sees the bank.
 
-<p align="center"><img src="docs/figures/v31/v31_architecture.svg" alt="DeltaMemory v3.1 architecture" width="860"></p>
+* File: [`deltamemory/memory/attn_native_bank.py`](deltamemory/memory/attn_native_bank.py)
+* Patcher: `AttnNativePatcher`. Helpers: `fresh_bank`, `write_fact`, `forward_with_bank`.
+* Bit-equal sanity: `tests/test_attn_native_bank.py`.
 
-## Evidence table
+### Dynamic LOPI v3.4
 
-All numbers below are `Δ = target_logprob(v3_attn_bank) − target_logprob(B0_no_memory)`.
-The target is deliberately the answer contradicted by the base model prior.
+A training-free wrapper at the merged-softmax branch that replaces
 
-| Target | Written bank fact | Gemma GB10 | Gemma Mac | Qwen3 GB10 | Qwen3 Mac |
-|---|---|---:|---:|---:|---:|
-| Napoleon | Paris mayor is Napoleon Bonaparte | +0.586 | +0.729 | +0.764 | +0.543 |
-| Pablo | Eiffel Tower architect is Pablo Picasso | +1.376 | +1.511 | +0.244 | +0.496 |
-| Vincent | Mona Lisa was painted by Vincent van Gogh | +1.189 | +1.146 | +0.852 | +0.855 |
-| Isaac | General relativity was developed by Isaac Newton | +0.698 | +0.757 | +1.047 | +1.010 |
-| Ada | Python was created by Ada Lovelace | +2.678 | +2.855 | +1.446 | +1.595 |
+`out_bank = weights[..., T:] @ (alpha * mv_e)`
 
-<p align="center"><img src="docs/figures/v31/v31_cross_hardware.svg" alt="GB10 CUDA and Mac MPS reproduce the same counter-prior effect" width="860"></p>
+with three independent, config-switchable components:
 
-The raw model inputs, top-5 predictions, and target log-probabilities are
-committed verbatim:
+$$
+\mathrm{out\_bank}_{\mathrm{LOPI}} \;=\; \gamma_t \cdot w(\ell, t) \cdot M_\perp,
+\quad M_\perp = M_V - \mathrm{proj}_{V_{\mathrm{ctx}}}(M_V)
+$$
 
-- `transcripts/v31_intervention/gemma-4-e2b-gb10-FALSE/`
-- `transcripts/v31_intervention/gemma-4-e2b-mac-FALSE/`
-- `transcripts/v31_intervention/qwen3-4b-gb10-FALSE/`
-- `transcripts/v31_intervention/qwen3-4b-mac-FALSE/`
-- `transcripts/v31_intervention/deepseek-r1-distill-qwen-32b-gb10-FALSE*/`
+* **Orthogonal Novelty** (`M_perp`) drops the bank component parallel to the
+  native context value. (v3.4 default: off; flip on for v3.3 ablations.)
+* **Adaptive Layer Gaussian** `w(ℓ, t)` — Gaussian over layer index, centred
+  at `μ_t` driven by the previous step's residual norm, width `σ_t` shrunk
+  by a running mHC max-σ stability signal.
+* **Derivative Gate** `γ_t = sigmoid(k · (‖Q_t − Q_{t-1}‖₂ − θ))` silences
+  injection when the topic is stable and opens it during topic shifts.
 
-## DeepSeek-32B limitation
+`LOPIConfig(enabled=True, orthogonal=False, gaussian=True, derivative=True)`
+is the v3.4 default; `enabled=False` and `α=0` are both bit-equal to the
+unmodified model.
 
-DeepSeek-R1-Distill-Qwen-32B is routed through the Qwen2/Llama-family adapter.
-The true-fact reinforcement sweet spot is around `α=0.05`, but counter-prior
-targets on this 32B model start from much stronger priors. The identity-init
-bank improves some targets but does not yet override all five.
+* File: [`deltamemory/memory/lopi.py`](deltamemory/memory/lopi.py)
+* Public symbols: `LOPIConfig`, `LOPIState`, `apply_lopi`, `derivative_gate`,
+  `layer_gaussian_weight`, `orthogonal_novelty`.
 
-<p align="center"><img src="docs/figures/v31/v31_deepseek_alpha.svg" alt="DeepSeek-32B counter-prior alpha sweep" width="860"></p>
+### U-LOPI Phase S
 
-This is recorded as a real limitation of the identity-init bank, not hidden as
-a success. The next research step is a trained K-projector for Qwen2/DeepSeek
-counter-prior override.
+v3.4 hard-coded `norm_base = 10.0`, calibrated to Gemma-4-E2B and silently
+degraded on other families whose residual-stream scale differs by 10–100×.
+Phase S replaces the global constant with a one-shot cold-start profile of
+`‖hidden_states[ℓ]‖₂` over a small neutral corpus, persisted alongside the
+bank. The depth signal is then computed in Z-score space and `μ_t` is
+auto-anchored at the architecture's spike layer:
 
-## Recall context
+$$
+z_\ell(t) \;=\; \frac{N_t(\ell) - \mu_{\mathrm{base}}(\ell)}{\sigma_{\mathrm{base}}(\ell) + \varepsilon},
+\qquad
+\mu_{\mathrm{arch}} \;=\; \arg\max_\ell\, \sigma_{\mathrm{base}}(\ell)
+$$
 
-The counter-prior test proves causal injection. The held-out recall benchmark
-shows the broader state of v3.1 on Gemma-4 dev_v31:
+The forward is `output_hidden_states=True`-only — no `nn.Parameter` is
+introduced and the LLM weights are bit-equal pre/post (verified by
+`test_lopi_profiler.py::test_profile_does_not_mutate_weights`). With
+`LOPIConfig(profile_mode="auto")` (default), `norm_base` / `mu_low` /
+`mu_span` are ignored at runtime; `profile_mode="static"` reproduces v3.4
+exactly for regression checks.
 
-<p align="center"><img src="docs/figures/v31/v31_recall_context.svg" alt="Gemma-4 dev_v31 held-out recall context" width="860"></p>
+* File: [`deltamemory/memory/lopi_profiler.py`](deltamemory/memory/lopi_profiler.py)
+* Public symbols: `LOPIProfile`, `profile_residuals`, `default_profile_corpus`,
+  `save_profile`, `load_profile`.
+* Cross-arch coverage: `tests/test_lopi_universal.py` (Gemma / Qwen3 / GLM-4
+  / Llama / GPT-2 shape and bit-equality checks).
 
-| Condition | recall@1 |
-|---|---:|
-| B0 no memory | 0.351 |
-| v2 raw bank | 0.012 |
-| **v3.1 K-projector** | **0.559** |
-| B1 prompt insertion | 0.637 |
-| B2 RAG oracle | 0.656 |
+### Persistence (Phase R-6)
 
-The result is deliberately framed narrowly: v3.1 strongly lifts the raw bank
-and can causally move counter-prior logits, but it has not yet surpassed the
-prompt/RAG upper bars on the full held-out recall benchmark.
+Versioned, content-addressed bank storage at
+`<root>/<model_safe>/<config_sha>/`, where `config_sha` is sha256 of the
+bank-relevant config (architecture shape + LOPI cfg + bank temperature +
+shield flag). `M_K`/`M_V` per layer are written as a single zero-copy
+mmap-able `bank.safetensors`; concurrent writes are serialised through
+`filelock` and readers see only fully-written snapshots thanks to atomic
+`os.replace`. The persisted snapshot includes the Phase S `LOPIProfile`, so
+reloads inherit per-arch calibration. Format version: `ulopi_v35`.
 
-## Generation history
+$$
+\mathrm{config\_sha} \;=\; \mathrm{sha256}\!\bigl(\,\mathrm{shape}\;\Vert\;\mathrm{LOPIConfig}\;\Vert\;\tau\;\Vert\;\mathrm{shield}\bigr)
+$$
 
-| Generation | Mechanism | Trainable surface | LLM weights | Best current reading |
-|---|---|---|---|---|
-| v1 / Stages 8–12 | external writer, address bank, residual/logit-side paths | writer / projector / LoRA depending on stage | frozen | useful pilots; terminology now deprecated |
-| v2 / Stage 13 | raw per-layer K/V bank concatenated into attention | none | frozen | bit-equal locality; chat recall fails without K-space bridge |
-| v3 / Stage 14 | v2 + InfoNCE K-projector | bank-side K-projector | frozen | preregistered test negative vs B0; positive vs raw v2 |
-| **v3.1 / Stage 15** | attn-native bank + per-arch α + cross-arch adapters | bank-side K-projector only | frozen | counter-prior injection reproduced on Gemma-4 and Qwen3 across GB10/Mac |
-| **v3.2 / Stage 16** | v3.1 + mHC spectral shield (Sinkhorn-Knopp on merged attention weights) | bank-side, parameter-free | frozen | bounds σ_max(W) ≤ 1 uniformly in α; targets unified α across all flagship LLMs (sweep in `reports/cleanroom/mhc_flagship_sweep/`) |
+* File: [`deltamemory/memory/bank_persistence.py`](deltamemory/memory/bank_persistence.py)
+* Public symbols: `save_bank`, `load_bank`, `list_banks`,
+  `compute_config_sha`, `resolve_location`.
+* Round-trip tests: `tests/test_bank_persistence.py`.
 
-## Per-architecture α defaults
+## Phase history
 
-`scripts/run_intervention_demo.py` now defaults `--alpha` from
-`ArchAdapter.default_alpha`:
+| Phase | What shipped | Report dir | Status |
+|---|---|---|---|
+| Stages 0–14 | v1 → v3 (writer / address bank / K-projector) | `reports/cleanroom/{stage13b_*,stage14_*}/`, `transcripts/v31_intervention/` | superseded; see [`docs/HISTORY.md`](docs/HISTORY.md) |
+| Stage 15 / v3.1 | attn-native bank + per-arch α + cross-arch adapters | `reports/cleanroom/v31_bench/`, `transcripts/v31_intervention/` | reproduced on Gemma-4 and Qwen3 (GB10/Mac) |
+| Stage 16 / v3.2 | mHC spectral shield (column-cap on bank weights) | `reports/cleanroom/mhc_flagship_sweep/` | bounds σ_max(W) ≤ 1; α=0 bit-equality preserved |
+| R-3 / v3.3 | Dynamic LOPI ablation (A0–A4, 630 cells) | `reports/cleanroom/lopi_v33/` | preregistered, see `AGGREGATE.md` / `FINDINGS.md` |
+| R-3.5 / v3.4 | default flip → `orthogonal=False, gaussian=True, derivative=True` | `reports/cleanroom/lopi_v33/R35_NORM_PROBE.md` | high-α drift collapse + α=1 lift preserved |
+| R-4 / v3.4 | cross-arch α-safety sweep (Gemma / Qwen3 / GLM-4) | `reports/cleanroom/lopi_v33/R4_xarch/` | α=0 bit-equal across 12 cells |
+| R-5.1 / v3.4 | Q3 adversarial chat × LOPI on Gemma-4-E2B | `reports/cleanroom/lopi_v33/R5_q3/` | LOPI is the only configuration that elevates the easiest-fact pair to partial implant at α∈{8,10} |
+| R-6 / v3.4 | persistent AttnNativeBank (safetensors + filelock) | `tests/test_bank_persistence.py` | round-trip bit-equal under same dtype |
+| **S / v3.5** | U-LOPI auto-calibration profiler (`ulopi_v35`) | `deltamemory/memory/lopi_profiler.py`, `tests/test_lopi_profiler.py`, `tests/test_lopi_universal.py` | replaces hard-coded `norm_base=10.0`; same LOPI across Gemma / Qwen3 / GLM-4 / Llama / GPT-2 |
 
-| Adapter | Default α | Reason |
-|---|---:|---|
-| Gemma4Adapter | 1.0 | Gemma-4 applies `v_norm`, so bank V activations are small enough for α=1 |
-| Qwen3Adapter | 0.05 | no `v_norm`; α=1 collapses logits |
-| LlamaAdapter / Qwen2-family | 0.05 | covers Llama-style and DeepSeek-R1-Distill-Qwen-32B path |
-| Glm4Adapter | 0.05 | conservative default for GLM-family attention |
+The long-form narrative log (per-stage rationale, raw transcripts pointer,
+DeepSeek-32B limitation, v3.1 figure set, per-architecture α defaults) lives
+in [`docs/HISTORY.md`](docs/HISTORY.md). Per-stage code/config diffs live in
+[`CHANGELOG.md`](CHANGELOG.md).
 
-## Reproduce the README figures
+## Reproducing experiments
 
-The README charts are generated from committed JSON artifacts:
+End-to-end repro scripts (cross-architecture sweeps, intervention demos):
 
 ```bash
-python3 scripts/make_v31_readme_figures.py
+bash repro_v3.sh          # v3 / Stage 14 baseline path
+bash repro_v31.sh         # v3.1 cross-architecture sweep + figures
 ```
 
-Run the intervention demo:
+Phase-R+ benchmark drivers used by the cleanroom reports:
 
 ```bash
-# Gemma-4, default α=1.0
+python scripts/run_v31_benchmark.py --help        # v3.1 baseline benchmark
+python scripts/run_v31_benchmark_mps.py --help    # MPS variant for Apple Silicon
+```
+
+The v3.1 intervention demo (true / counter-prior facts, per-arch α defaults):
+
+```bash
 python scripts/run_intervention_demo.py \
   --model google/gemma-4-E2B \
-  --device cuda \
-  --dtype bfloat16 \
-  --false-facts
-
-# Qwen3, default α=0.05
-python scripts/run_intervention_demo.py \
-  --model Qwen/Qwen3-4B-Instruct-2507 \
-  --device cuda \
-  --dtype bfloat16 \
+  --device cuda --dtype bfloat16 \
   --false-facts
 ```
 
-On Apple Silicon, use the stable MPS stack documented in
-[`docs/apple_silicon.md`](docs/apple_silicon.md).
+On Apple Silicon, follow [`docs/apple_silicon.md`](docs/apple_silicon.md) for
+the stable MPS stack. Raw transcripts (inputs, outputs, top-5 predictions,
+target log-probs) for the v3.1 counter-prior result are committed under
+`transcripts/v31_intervention/`; cross-arch and U-LOPI numbers live in
+`reports/cleanroom/lopi_v33/` (R-3, R-3.5, R-4, R-5.1).
+
+## Tests
+
+```bash
+pytest tests/ --ignore=tests/conservation_real_models.py
+```
+
+Expected: **107 passed, 6 skipped** (113 collected). The fully skipped suite
+(`conservation_real_models.py`) downloads multi-GB HF checkpoints and is
+opt-in — see its module docstring.
+Phase-S coverage in particular: `test_lopi_profiler.py` (profile bit-equality)
+and `test_lopi_universal.py` (cross-arch shape + bit-equality on Gemma /
+Qwen3 / GLM-4 / Llama / GPT-2).
 
 ## Repository map
 
 | Path | Purpose |
 |---|---|
-| `deltamemory/` | library code, attention-bank patcher, architecture adapters |
-| `scripts/run_intervention_demo.py` | cross-architecture true/false-fact intervention demo |
-| `scripts/make_v31_readme_figures.py` | dependency-free SVG generator for README charts |
-| `transcripts/v31_intervention/` | raw inputs, outputs, top-5 predictions, target log-probs |
+| `deltamemory/memory/attn_native_bank.py` | AttnNativeBank + per-layer patcher |
+| `deltamemory/memory/lopi.py` | Dynamic LOPI v3.4 injector |
+| `deltamemory/memory/lopi_profiler.py` | U-LOPI Phase S residual profiler |
+| `deltamemory/memory/bank_persistence.py` | safetensors + filelock bank storage |
+| `deltamemory/memory/arch_adapter.py` | per-architecture adapters + α defaults |
+| `deltamemory/__init__.py` | top-level public API (Phase S) |
+| `scripts/run_intervention_demo.py` | cross-architecture true/false-fact demo |
+| `scripts/run_v31_benchmark*.py` | Phase R+ benchmark drivers |
+| `repro_v3.sh`, `repro_v31.sh` | end-to-end repro scripts |
+| `transcripts/v31_intervention/` | v3.1 raw inputs/outputs/log-probs |
 | `reports/cleanroom/` | preregistered and cleanroom experiment reports |
-| `docs/figures/v31/` | current README figure set |
+| `docs/HISTORY.md` | long-form per-stage narrative log |
 | `tests/` | unit and real-model conservation checks |
 
 ## License

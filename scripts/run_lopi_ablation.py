@@ -31,16 +31,15 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 # Reuse helpers from the mHC3 sweep — single source of truth for bank IO.
-from scripts.run_mHC3_bank_injection import (
-    NEUTRAL_PROMPTS,
-    FALSE_FACTS,
-    _write_fact,
-    _get_attention,
-    seq_nll,
-    load_architecture,
-)
 from deltamemory.memory.lopi import LOPIConfig, LOPIState, apply_lopi
-
+from scripts.run_mHC3_bank_injection import (
+    FALSE_FACTS,
+    NEUTRAL_PROMPTS,
+    _get_attention,
+    _write_fact,
+    load_architecture,
+    seq_nll,
+)
 
 VARIANTS = {
     "A0": dict(enabled=False),

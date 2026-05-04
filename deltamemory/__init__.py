@@ -22,13 +22,20 @@ __version__ = "0.3.5"  # Phase S — U-LOPI
 
 # Lazy-friendly: top-level imports must not break if optional deps (faiss)
 # are missing on a given machine; persistence/profiler tolerate this.
+from deltamemory.memory.arch_adapter import pick_adapter
 from deltamemory.memory.attn_native_bank import (
     AttnNativeBank,
     AttnNativePatcher,
     fresh_bank,
     write_fact,
 )
-from deltamemory.memory.arch_adapter import pick_adapter
+from deltamemory.memory.bank_persistence import (
+    compute_config_sha,
+    list_banks,
+    load_bank,
+    resolve_location,
+    save_bank,
+)
 from deltamemory.memory.lopi import (
     LOPIConfig,
     LOPIState,
@@ -43,13 +50,6 @@ from deltamemory.memory.lopi_profiler import (
     load_profile,
     profile_residuals,
     save_profile,
-)
-from deltamemory.memory.bank_persistence import (
-    compute_config_sha,
-    list_banks,
-    load_bank,
-    resolve_location,
-    save_bank,
 )
 
 __all__ = [

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import torch
 
-from deltamemory.memory.attention_store import AttentionMemoryStore
 from deltamemory.core.types import RetrievalRecord
+from deltamemory.memory.attention_store import AttentionMemoryStore
 
 
 def retrieve_layer_topk(

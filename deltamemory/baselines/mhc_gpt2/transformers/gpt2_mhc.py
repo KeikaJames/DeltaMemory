@@ -1,20 +1,18 @@
 from __future__ import annotations
 
+import inspect
 from typing import Optional, Tuple, Union
 
 import torch
 import torch.nn as nn
-
-import inspect
-
-from transformers import GPT2Config, GenerationMixin, PreTrainedModel
+from transformers import GenerationMixin, GPT2Config, PreTrainedModel
 from transformers.cache_utils import Cache, DynamicCache
 from transformers.generation.utils import create_masks_for_generate
 from transformers.modeling_outputs import (
     BaseModelOutputWithPastAndCrossAttentions,
     CausalLMOutputWithCrossAttentions,
 )
-from transformers.models.gpt2.modeling_gpt2 import GPT2Attention, GPT2MLP
+from transformers.models.gpt2.modeling_gpt2 import GPT2MLP, GPT2Attention
 
 from deltamemory.baselines.mhc_gpt2.mhc import MhcProjector
 from deltamemory.baselines.mhc_gpt2.stream_ops import mhc_update, stream_weighted_sum

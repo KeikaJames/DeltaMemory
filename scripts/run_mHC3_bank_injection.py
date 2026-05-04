@@ -27,7 +27,11 @@ Usage (Mac MPS):
 """
 from __future__ import annotations
 
-import argparse, json, math, sys, time
+import argparse
+import json
+import math
+import sys
+import time
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
@@ -38,15 +42,16 @@ import torch.nn as nn
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
-from deltamemory.baselines.mhc_gpt2.transformers.gpt2_mhc import (
-    MhcGPT2Config, MhcGPT2LMHeadModel,
-)
+from transformers import GPT2LMHeadModel, GPT2TokenizerFast
+
 from deltamemory.baselines.mhc_gpt2.transformers.convert_gpt2 import (
     convert_gpt2_lm_head_model,
 )
-from transformers import GPT2LMHeadModel, GPT2TokenizerFast
-from scripts.run_intervention_demo import FALSE_FACTS, FACTS
-
+from deltamemory.baselines.mhc_gpt2.transformers.gpt2_mhc import (
+    MhcGPT2Config,
+    MhcGPT2LMHeadModel,
+)
+from scripts.run_intervention_demo import FACTS, FALSE_FACTS
 
 # Architecture shortnames
 ARCH_SPEC = {

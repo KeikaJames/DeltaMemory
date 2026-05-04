@@ -20,7 +20,6 @@ import sys
 from pathlib import Path
 from typing import Any
 
-
 CHANNELS_OF_INTEREST = [
     "no_memory",
     "delta_qv",

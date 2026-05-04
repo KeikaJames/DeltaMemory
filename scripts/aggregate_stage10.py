@@ -4,6 +4,7 @@ human-readable table. Writes:
   reports/experiments/stage10_adversarial_validation/SUMMARY_TABLE.md
 """
 from __future__ import annotations
+
 import glob
 import json
 import math

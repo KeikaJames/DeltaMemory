@@ -15,11 +15,16 @@ Run:
 from __future__ import annotations
 
 import os
+
 import pytest
 import torch
 
 from deltamemory.memory.attn_native_bank import (
-    AttnNativeBank, AttnNativePatcher, fresh_bank, write_fact, forward_with_bank,
+    AttnNativeBank,
+    AttnNativePatcher,
+    forward_with_bank,
+    fresh_bank,
+    write_fact,
 )
 
 

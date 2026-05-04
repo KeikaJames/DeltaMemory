@@ -1,8 +1,17 @@
 from __future__ import annotations
 
+import warnings as _warnings
+_warnings.filterwarnings("ignore", category=DeprecationWarning)
+import pytest
+pytestmark = pytest.mark.filterwarnings("ignore::DeprecationWarning")
+
 from pathlib import Path
 
-from deltamemory.engine.prototype import PrototypeRunConfig, run_attention_memory_prototype, write_prototype_report
+from deltamemory.engine.prototype import (
+    PrototypeRunConfig,
+    run_attention_memory_prototype,
+    write_prototype_report,
+)
 
 
 def test_gemma4_prototype_runner_mock(tmp_path):

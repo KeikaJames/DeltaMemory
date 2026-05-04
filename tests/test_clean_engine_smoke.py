@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+import warnings as _warnings
+_warnings.filterwarnings("ignore", category=DeprecationWarning)
+import pytest
+pytestmark = pytest.mark.filterwarnings("ignore::DeprecationWarning")
+
 from deltamemory.core.config import RCVHCCleanConfig
 from deltamemory.engine.attention_memory_engine import AttentionMemoryEngine
 from deltamemory.gemma.model_adapter import load_model_bundle, trainable_base_params

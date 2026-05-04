@@ -9,8 +9,8 @@ from types import SimpleNamespace
 from typing import Any
 
 import torch
-from torch import nn
 import torch.nn.functional as F
+from torch import nn
 
 from deltamemory.core.config import resolve_layer_policy
 from deltamemory.core.types import AttentionMemoryItem
@@ -18,11 +18,19 @@ from deltamemory.engine.attention_memory_engine import compute_answer_metrics
 from deltamemory.engine.delta_dataset import DeltaExample, make_delta_memory_examples
 from deltamemory.engine.delta_training import TRAIN_EVAL_MODES, _answer_loss, _grad_norm
 from deltamemory.engine.statistics import primary_delta_memory_statistics
-from deltamemory.gemma.attention_injector import GemmaAttentionInjector, QKVDeltaProjector
+from deltamemory.gemma.attention_injector import (
+    GemmaAttentionInjector,
+    QKVDeltaProjector,
+)
 from deltamemory.gemma.fast_weight_injector import LMHeadFastWeightProjector
-from deltamemory.gemma.model_adapter import exposed_qkv_layers, get_hidden_size, get_vocab_size, load_model_bundle, trainable_base_params
+from deltamemory.gemma.model_adapter import (
+    exposed_qkv_layers,
+    get_hidden_size,
+    get_vocab_size,
+    load_model_bundle,
+    trainable_base_params,
+)
 from deltamemory.memory.writer import RCVHCWriter, fit_memory_dim, split_source_snippets
-
 
 EXPERIMENT_EVAL_MODES = [*TRAIN_EVAL_MODES, "logit_bias", "payload_probe", "lm_head_lora", "oracle_logit_answer_embedding"]
 

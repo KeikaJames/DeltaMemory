@@ -7,12 +7,14 @@ question-with-context, multi-clause), so the held-out set is genuinely OOD
 in surface form, not just in lexical choice.
 """
 from __future__ import annotations
+
 import json
-from pathlib import Path
 import sys
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from build_lama_trex_paraphrase import RELATION_TEMPLATES as STAGE10_TEMPLATES, _detect_relation, _detect_entity
+from build_lama_trex_paraphrase import RELATION_TEMPLATES as STAGE10_TEMPLATES
+from build_lama_trex_paraphrase import _detect_entity, _detect_relation
 
 # Structurally novel held-out templates (4 per relation). These use
 # passive voice, multi-clause, or rare framings to force surface-OOD.

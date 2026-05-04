@@ -19,7 +19,11 @@ Usage:
 """
 from __future__ import annotations
 
-import argparse, json, math, sys, time
+import argparse
+import json
+import math
+import sys
+import time
 from pathlib import Path
 
 import torch
@@ -28,15 +32,20 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
 from transformers import GPT2LMHeadModel
+
+from deltamemory.baselines.mhc_gpt2 import convert_gpt2_lm_head_model
 from deltamemory.baselines.mhc_gpt2.transformers.gpt2_mhc import (
     MhcGPT2LMHeadModel,
 )
-from deltamemory.baselines.mhc_gpt2 import convert_gpt2_lm_head_model
-from scripts.run_mHC3_bank_injection import (
-    ARCH_SPEC, load_architecture, _write_fact, _get_attention,
-    _get_num_layers, _read_with_bank,
-)
 from scripts.run_mHC2_perturbation_sweep import _wikitext2_segments
+from scripts.run_mHC3_bank_injection import (
+    ARCH_SPEC,
+    _get_attention,
+    _get_num_layers,
+    _read_with_bank,
+    _write_fact,
+    load_architecture,
+)
 
 
 def measure_norms(model, tok, segments, device: str, bank=None, alpha=0.0) -> list[list[float]]:

@@ -18,12 +18,12 @@ import torch
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
+from deltamemory.memory.attn_native_bank import AttnNativePatcher  # noqa: E402
+from deltamemory.memory.k_projector import KProjectorBank  # noqa: E402
 from scripts.run_stage14_dev_sweep import (  # noqa: E402
     _eval_condition,
     _load_dev,
 )
-from deltamemory.memory.attn_native_bank import AttnNativePatcher  # noqa: E402
-from deltamemory.memory.k_projector import KProjectorBank  # noqa: E402
 
 
 def main() -> None:
@@ -60,12 +60,13 @@ def main() -> None:
     def eval_with_proj(name, policy, tau):
         seeds_rows = []
         for seed in seeds:
+            import random
+
             from deltamemory.memory.attn_native_bank import (
+                forward_with_bank,
                 fresh_bank,
                 write_fact,
-                forward_with_bank,
             )
-            import random
 
             rng = random.Random(seed)
             order = list(range(len(facts)))

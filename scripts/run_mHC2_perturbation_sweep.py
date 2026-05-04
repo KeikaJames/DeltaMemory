@@ -67,7 +67,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from deltamemory.baselines.mhc_gpt2 import convert_gpt2_lm_head_model  # noqa: E402
 
-
 # ---------------------------------------------------------------------------
 # Architectures
 # ---------------------------------------------------------------------------

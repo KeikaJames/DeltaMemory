@@ -35,11 +35,13 @@ import torch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from scripts.run_mHC3_bank_injection import (
-    NEUTRAL_PROMPTS, _write_fact, _get_attention,
-)
-from scripts.run_lopi_ablation import _read_with_bank_lopi, _load_model
 from deltamemory.memory.lopi import LOPIConfig, LOPIState
+from scripts.run_lopi_ablation import _load_model, _read_with_bank_lopi
+from scripts.run_mHC3_bank_injection import (
+    NEUTRAL_PROMPTS,
+    _get_attention,
+    _write_fact,
+)
 
 
 @torch.no_grad()

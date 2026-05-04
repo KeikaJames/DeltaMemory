@@ -19,10 +19,17 @@ import torch.nn.functional as F
 from deltamemory.core.config import RCVHCCleanConfig, resolve_layer_policy
 from deltamemory.core.types import AttentionMemoryItem
 from deltamemory.engine.attention_memory_engine import compute_answer_metrics
-from deltamemory.gemma.attention_injector import GemmaAttentionInjector, QKVDeltaProjector
-from deltamemory.gemma.model_adapter import exposed_qkv_layers, get_hidden_size, load_model_bundle, trainable_base_params
+from deltamemory.gemma.attention_injector import (
+    GemmaAttentionInjector,
+    QKVDeltaProjector,
+)
+from deltamemory.gemma.model_adapter import (
+    exposed_qkv_layers,
+    get_hidden_size,
+    load_model_bundle,
+    trainable_base_params,
+)
 from deltamemory.memory.writer import RCVHCWriter, fit_memory_dim, split_source_snippets
-
 
 TRAIN_EVAL_MODES = [
     "no_memory",

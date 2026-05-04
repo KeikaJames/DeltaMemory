@@ -17,9 +17,9 @@ import torch
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
-from scripts.run_stage14_test_eval import _load_test, _recall_with_bank  # noqa: E402
 from deltamemory.memory.attn_native_bank import AttnNativePatcher  # noqa: E402
 from deltamemory.memory.k_projector import KProjectorBank  # noqa: E402
+from scripts.run_stage14_test_eval import _load_test, _recall_with_bank  # noqa: E402
 
 
 def main() -> None:

@@ -11,7 +11,6 @@ from deltamemory.core.config import RCVHCCleanConfig
 from deltamemory.engine.attention_memory_engine import AttentionMemoryEngine
 from deltamemory.gemma.model_adapter import load_model_bundle
 
-
 DEFAULT_MODES = [
     "no_memory",
     "raw_memory",

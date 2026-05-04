@@ -19,7 +19,6 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-
 ARCH_COLOR = {
     "residual": "#1f77b4",  # blue
     "hc": "#ff7f0e",         # orange

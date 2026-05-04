@@ -39,11 +39,10 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from deltamemory.memory.attn_native_bank import (
     AttnNativePatcher,
-    fresh_bank,
     forward_with_bank,
+    fresh_bank,
     write_fact,
 )
-
 
 # 5 LAMA-style facts. Each has (fact_id, write_prompt, read_prompt,
 # target_text). The read_prompt is constructed so the natural continuation is

@@ -12,7 +12,6 @@ from deltamemory.memory.bank_persistence import (
     compute_config_sha,
     list_banks,
     load_bank,
-    resolve_location,
     save_bank,
     storage_bytes,
 )
