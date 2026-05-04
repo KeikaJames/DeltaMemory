@@ -1,0 +1,32 @@
+{
+  "rows": [
+    {
+      "value_scale_mode": "auto_rms_cap",
+      "alpha": 0.0,
+      "n": 1,
+      "mean_drift": 0.0,
+      "mean_bank_v_rms": 0.3991137344079713
+    },
+    {
+      "value_scale_mode": "auto_rms_cap",
+      "alpha": 2.0,
+      "n": 1,
+      "mean_drift": 3.7218650579452515,
+      "mean_bank_v_rms": 0.3991137344079713
+    },
+    {
+      "value_scale_mode": "none",
+      "alpha": 0.0,
+      "n": 1,
+      "mean_drift": 0.0,
+      "mean_bank_v_rms": 0.5172248977857331
+    },
+    {
+      "value_scale_mode": "none",
+      "alpha": 2.0,
+      "n": 1,
+      "mean_drift": 4.086945414543152,
+      "mean_bank_v_rms": 0.5172248977857331
+    }
+  ]
+}

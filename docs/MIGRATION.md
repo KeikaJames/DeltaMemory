@@ -89,10 +89,11 @@ and `ulopi_v35` remain loadable via the `_LEGACY_VERSIONS` tuple in
 
 - `AttnNativeBank` persists `value_scale_mode`, `value_target_rms`, and
   `value_scale_eps`.
-- The default `value_scale_mode='auto_unit_rms'` leaves Gemma-style native
-  `v_norm` layers untouched and stores no-v_norm family `M_V` values at fixed
-  per-head RMS. This makes `alpha` less architecture-scale-dependent while
-  preserving `alpha=0` bit-equality.
+- The default `value_scale_mode='auto_rms_cap'` leaves Gemma-style native
+  `v_norm` layers untouched and caps no-v_norm family `M_V` values at fixed
+  per-head RMS without amplifying already-small V activations. This makes
+  `alpha` less architecture-scale-dependent while preserving `alpha=0`
+  bit-equality.
 
 ### Migrating a persisted Phase-R bank
 

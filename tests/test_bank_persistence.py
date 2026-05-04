@@ -187,8 +187,8 @@ def test_ulopi_v35_version_still_loadable(tmp_path: Path):
     loc.meta_path.write_text(json.dumps(meta))
     reloaded = load_bank(loc)
     assert _bank_tensors_equal(bank, reloaded)
-    assert reloaded.value_scale_mode == "auto_unit_rms"
-    assert reloaded.value_target_rms == 1.0
+    assert reloaded.value_scale_mode == "auto_rms_cap"
+    assert reloaded.value_target_rms == 0.5
 
 
 def test_value_scale_config_round_trip(tmp_path: Path):

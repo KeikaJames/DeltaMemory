@@ -15,9 +15,9 @@ V-scale mismatch: Gemma-style attention has native `v_norm`, while Qwen/Llama
 ### What
 * `AttnNativeBank` now has explicit bank-side value-scale config:
   `value_scale_mode`, `value_target_rms`, and `value_scale_eps`.
-* The default `value_scale_mode="auto_unit_rms"` leaves native-v_norm families
-  untouched and normalizes no-v_norm family bank values to fixed per-head RMS
-  at write time.
+* The default `value_scale_mode="auto_rms_cap"` leaves native-v_norm families
+  untouched and caps no-v_norm family bank values to a fixed per-head RMS at
+  write time. It never amplifies already-small V activations.
 * The capture path now receives the active bank config rather than applying an
   implicit hard-coded heuristic.
 * Persistence schema advanced to `ulopi_v36`; `lopi_v33` and `ulopi_v35`

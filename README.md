@@ -196,7 +196,7 @@ $$
 | R-5.1 / v3.4 | Q3 adversarial chat × LOPI on Gemma-4-E2B | `reports/cleanroom/lopi_v33/R5_q3/` | LOPI is the only configuration that elevates the easiest-fact pair to partial implant at α∈{8,10} |
 | R-6 / v3.4 | persistent AttnNativeBank (safetensors + filelock) | `tests/test_bank_persistence.py` | round-trip bit-equal under same dtype |
 | **S / v3.5** | U-LOPI auto-calibration profiler (`ulopi_v35`) | `deltamemory/memory/lopi_profiler.py`, `tests/test_lopi_profiler.py`, `tests/test_lopi_universal.py` | replaces hard-coded `norm_base=10.0`; same LOPI across Gemma / Qwen3 / GLM-4 / Llama / GPT-2 |
-| **R-7 / v3.6** | bank-side V-scale calibration (`ulopi_v36`) | `deltamemory/memory/attn_native_bank.py`, `tests/test_value_scale_calibration.py` | no-v_norm families store M_V at fixed per-head RMS; Gemma native v_norm stays untouched |
+| **R-7 / v3.6** | bank-side V-scale calibration (`ulopi_v36`) | `deltamemory/memory/attn_native_bank.py`, `tests/test_value_scale_calibration.py` | no-v_norm families cap M_V RMS without amplifying small V; Gemma native v_norm stays untouched |
 
 The long-form narrative log (per-stage rationale, raw transcripts pointer,
 DeepSeek-32B limitation, v3.1 figure set, per-architecture α defaults) lives

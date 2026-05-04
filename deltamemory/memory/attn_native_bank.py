@@ -71,7 +71,7 @@ import torch.nn.functional as F
 # Bank
 # ---------------------------------------------------------------------------
 
-ValueScaleMode = Literal["none", "auto_unit_rms", "unit_rms"]
+ValueScaleMode = Literal["none", "auto_rms_cap", "rms_cap", "auto_unit_rms", "unit_rms"]
 
 
 def _scale_bank_value_capture(
@@ -84,16 +84,22 @@ def _scale_bank_value_capture(
 ) -> torch.Tensor:
     """Scale captured bank V so alpha has comparable meaning across families.
 
-    ``auto_unit_rms`` is the production default: Gemma-4 already applies native
+    ``auto_rms_cap`` is the production default: Gemma-4 already applies native
     ``v_norm`` and is left untouched; Qwen/Llama/GLM-style families without
-    native V normalization store bank values at fixed per-head RMS.
+    native V normalization have captured bank values capped to a fixed
+    per-head RMS.  A cap is deliberately safer than exact normalization: if
+    a no-v_norm family already has small V activations, we must not amplify it.
     """
-    if mode == "none" or (mode == "auto_unit_rms" and has_native_v_norm):
+    auto_modes = {"auto_rms_cap", "auto_unit_rms"}
+    cap_modes = {"auto_rms_cap", "rms_cap"}
+    unit_modes = {"auto_unit_rms", "unit_rms"}
+    valid_modes = {"none", *auto_modes, "rms_cap", "unit_rms"}
+    if mode == "none" or (mode in auto_modes and has_native_v_norm):
         return v
-    if mode not in {"auto_unit_rms", "unit_rms"}:
+    if mode not in valid_modes:
         raise ValueError(
-            f"value_scale_mode must be one of 'none', 'auto_unit_rms', "
-            f"'unit_rms', got {mode!r}"
+            f"value_scale_mode must be one of 'none', 'auto_rms_cap', "
+            f"'rms_cap', 'auto_unit_rms', 'unit_rms', got {mode!r}"
         )
     if target_rms <= 0.0:
         raise ValueError(f"value_target_rms must be > 0, got {target_rms!r}")
@@ -101,7 +107,12 @@ def _scale_bank_value_capture(
         raise ValueError(f"value_scale_eps must be > 0, got {eps!r}")
     rms = torch.linalg.vector_norm(v.float(), ord=2, dim=-1, keepdim=True)
     rms = rms / (v.size(-1) ** 0.5)
-    scaled = v.float() * (float(target_rms) / rms.clamp_min(float(eps)))
+    scale = float(target_rms) / rms.clamp_min(float(eps))
+    if mode in cap_modes:
+        scale = torch.clamp(scale, max=1.0)
+    elif mode not in unit_modes:
+        raise ValueError(f"unhandled value_scale_mode {mode!r}")
+    scaled = v.float() * scale
     return scaled.to(v.dtype)
 
 @dataclass
@@ -148,11 +159,11 @@ class AttnNativeBank:
     lopi_cfg: Any = None
     lopi_state: Any = None
     # Stage R-7: bank-side V magnitude calibration.  Families without native
-    # v_norm (Qwen/Llama/GLM) otherwise store much larger M_V than Gemma, so the
-    # same alpha means different perturbation energy.  ``auto_unit_rms`` keeps
-    # Gemma untouched and normalizes only no-v_norm families at write time.
-    value_scale_mode: ValueScaleMode = "auto_unit_rms"
-    value_target_rms: float = 1.0
+    # v_norm (Qwen/Llama/GLM) may store larger M_V than Gemma, so the same
+    # alpha can mean different perturbation energy. ``auto_rms_cap`` keeps
+    # Gemma untouched and caps only no-v_norm families at write time.
+    value_scale_mode: ValueScaleMode = "auto_rms_cap"
+    value_target_rms: float = 0.5
     value_scale_eps: float = 1e-6
 
     def __post_init__(self) -> None:
@@ -270,8 +281,8 @@ class AttnNativeBank:
                    device=device, dtype=dtype,
                    bank_temperature=float(sd.get("bank_temperature", 1.0)),
                    mhc_shield=bool(sd.get("mhc_shield", False)),
-                   value_scale_mode=sd.get("value_scale_mode", "auto_unit_rms"),
-                   value_target_rms=float(sd.get("value_target_rms", 1.0)),
+                   value_scale_mode=sd.get("value_scale_mode", "auto_rms_cap"),
+                   value_target_rms=float(sd.get("value_target_rms", 0.5)),
                    value_scale_eps=float(sd.get("value_scale_eps", 1e-6)))
         bank.M_K = [t.to(device, dtype) for t in sd["M_K"]]
         bank.M_V = [t.to(device, dtype) for t in sd["M_V"]]
@@ -412,9 +423,9 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
             if capture_bank is not None:
                 v_captured = _scale_bank_value_capture(
                     v_captured,
-                    mode=getattr(capture_bank, "value_scale_mode", "auto_unit_rms"),
+                    mode=getattr(capture_bank, "value_scale_mode", "auto_rms_cap"),
                     has_native_v_norm=adapter.has_native_v_norm(self),
-                    target_rms=float(getattr(capture_bank, "value_target_rms", 1.0)),
+                    target_rms=float(getattr(capture_bank, "value_target_rms", 0.5)),
                     eps=float(getattr(capture_bank, "value_scale_eps", 1e-6)),
                 )
             ctx._capture_V[layer_idx] = v_captured
