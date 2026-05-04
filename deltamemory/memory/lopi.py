@@ -62,8 +62,18 @@ class LOPIConfig:
 
     enabled: bool = False  # master switch; False => module never invoked
 
-    # Component switches (R-3 ablation grid A0..A4)
-    orthogonal: bool = True     # M_perp = M_V - proj_{V_ctx}(M_V)
+    # Component switches (R-3 ablation grid A0..A4).
+    # ----------------------------------------------------------------------
+    # v3.4 (post-R-3 strike-1 update, 2026-05-04): the empirical 630-cell
+    # ablation in `reports/cleanroom/lopi_v33/FINDINGS.md` showed that the
+    # orthogonal-novelty projection M_perp INCREASES neutral-text drift in
+    # the operating regime alpha in [0.25, 2] across all 6 GPT-2 cells,
+    # while pure Gaussian focusing alone (variant A4) collapses
+    # catastrophic drift at alpha=8 by 65-95%. We therefore flip the
+    # default for `orthogonal` to False; the field is retained for
+    # ablation runs that explicitly request the v3.3 behaviour.
+    # ----------------------------------------------------------------------
+    orthogonal: bool = False    # M_perp = M_V - proj_{V_ctx}(M_V)  (v3.3 default was True)
     gaussian: bool = True       # w(ell, t) = Gaussian over layer index
     derivative: bool = True     # gamma_t  = Sigmoid on ||Q_t - Q_{t-1}||
 
