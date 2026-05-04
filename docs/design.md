@@ -5,7 +5,7 @@ decoder LLMs. It does not train the base model. It does not rewrite weights.
 It does not retrieve text into the prompt. The mechanism is one extra concat
 inside every attention layer.
 
-The Python package is `deltamemory` (formerly `rcvhc`).
+The Python package is `deltamemory` (formerly `mneme`).
 
 ## One-line core (v2)
 

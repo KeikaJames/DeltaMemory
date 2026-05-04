@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import torch
 
-from deltamemory.memory.writer import RCVHCWriter
+from deltamemory.memory.writer import MnemeWriter
 
 
 def test_writer_outputs_raw_and_delta_memory():
     torch.manual_seed(0)
-    writer = RCVHCWriter(hidden_size=16, memory_dim=8, block_size=4)
+    writer = MnemeWriter(hidden_size=16, memory_dim=8, block_size=4)
     h_in = torch.randn(1, 12, 16)
     h_out = torch.randn(1, 12, 16)
     attn = torch.rand(1, 2, 12, 12)
@@ -23,7 +23,7 @@ def test_writer_outputs_raw_and_delta_memory():
 
 def test_writer_outputs_oracle_span_memory():
     torch.manual_seed(0)
-    writer = RCVHCWriter(hidden_size=16, memory_dim=8, block_size=4)
+    writer = MnemeWriter(hidden_size=16, memory_dim=8, block_size=4)
     h_out = torch.randn(1, 12, 16)
     items = writer.write_oracle_span_layer(
         layer_id=2,

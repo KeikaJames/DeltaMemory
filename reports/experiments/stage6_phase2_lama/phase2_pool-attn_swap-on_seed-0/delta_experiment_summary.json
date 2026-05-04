@@ -32,7 +32,7 @@
     "payload_answer_loss_weight": 1.0,
     "payload_embedding_loss_weight": 0.5,
     "payload_probe_layer_strategy": "first_layer",
-    "report_dir": "/Users/gabiri/projects/RCV-HC/reports/experiments/stage6_phase2_lama/phase2_pool-attn_swap-on_seed-0",
+    "report_dir": "/Users/gabiri/projects/Mneme/reports/experiments/stage6_phase2_lama/phase2_pool-attn_swap-on_seed-0",
     "seed": 0,
     "shared_memory_retrieval": false,
     "stage2_swap_loss_weight": 0.5,

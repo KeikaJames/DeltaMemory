@@ -7,7 +7,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
-from deltamemory.core.config import RCVHCCleanConfig
+from deltamemory.core.config import MnemeCleanConfig
 from deltamemory.engine.attention_memory_engine import AttentionMemoryEngine
 from deltamemory.gemma.model_adapter import load_model_bundle
 
@@ -44,7 +44,7 @@ class PrototypeRunConfig:
 def run_attention_memory_prototype(cfg: PrototypeRunConfig) -> dict[str, Any]:
     text = Path(cfg.input_path).read_text(encoding="utf-8")
     bundle = load_model_bundle(cfg.model, device=cfg.device, dtype=cfg.dtype)
-    clean_cfg = RCVHCCleanConfig(
+    clean_cfg = MnemeCleanConfig(
         model_name=cfg.model,
         memory_dim=cfg.memory_dim,
         block_size=cfg.block_size,

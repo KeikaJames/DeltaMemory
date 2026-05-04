@@ -30,7 +30,7 @@ from deltamemory.gemma.model_adapter import (
     load_model_bundle,
     trainable_base_params,
 )
-from deltamemory.memory.writer import RCVHCWriter, fit_memory_dim, split_source_snippets
+from deltamemory.memory.writer import MnemeWriter, fit_memory_dim, split_source_snippets
 
 EXPERIMENT_EVAL_MODES = [*TRAIN_EVAL_MODES, "logit_bias", "payload_probe", "lm_head_lora", "oracle_logit_answer_embedding"]
 
@@ -100,7 +100,7 @@ def run_delta_experiment(cfg: DeltaExperimentConfig) -> dict[str, Any]:
     torch.manual_seed(cfg.seed)
     bundle = load_model_bundle(cfg.model, device=cfg.device, dtype=cfg.dtype)
     hidden_size = get_hidden_size(bundle.model)
-    writer = RCVHCWriter(hidden_size, cfg.memory_dim, cfg.block_size).to(bundle.device, dtype=bundle.dtype)
+    writer = MnemeWriter(hidden_size, cfg.memory_dim, cfg.block_size).to(bundle.device, dtype=bundle.dtype)
     logit_projector = PayloadLogitProjector(cfg.memory_dim, get_vocab_size(bundle.model), cfg.logit_bias_scale).to(
         bundle.device, dtype=bundle.dtype
     )
@@ -394,7 +394,7 @@ def _trainable_parameters(*modules: nn.Module) -> list[torch.nn.Parameter]:
 
 
 def evaluate_prepared(
-    writer: RCVHCWriter,
+    writer: MnemeWriter,
     injector: GemmaAttentionInjector,
     logit_projector: PayloadLogitProjector,
     payload_probe: PayloadAnswerProbe,
@@ -476,7 +476,7 @@ def evaluate_prepared(
 
 def evaluate_conflict_margins(
     bundle,
-    writer: RCVHCWriter,
+    writer: MnemeWriter,
     injector: GemmaAttentionInjector,
     logit_projector: PayloadLogitProjector,
     payload_probe: PayloadAnswerProbe,
@@ -745,7 +745,7 @@ def _foreign_sample(prepared: list[PreparedDeltaExample], sample_idx: int) -> Pr
 
 
 def _address_ranking_loss(
-    writer: RCVHCWriter,
+    writer: MnemeWriter,
     sample: PreparedDeltaExample,
     prepared: list[PreparedDeltaExample],
     layer_ids: list[int],
@@ -1229,7 +1229,7 @@ def _prepare_example(bundle, example: DeltaExample, cfg: DeltaExperimentConfig) 
 
 
 def _live_memories(
-    writer: RCVHCWriter,
+    writer: MnemeWriter,
     sample: PreparedDeltaExample,
     layer_ids: list[int],
     cfg: DeltaExperimentConfig,
@@ -1277,7 +1277,7 @@ def _live_memories(
 
 
 def _memory_pool(
-    writer: RCVHCWriter,
+    writer: MnemeWriter,
     prepared: list[PreparedDeltaExample],
     layer_ids: list[int],
     cfg: DeltaExperimentConfig,
@@ -1288,7 +1288,7 @@ def _memory_pool(
     return items
 
 
-def _query_key(writer: RCVHCWriter, sample: PreparedDeltaExample) -> torch.Tensor:
+def _query_key(writer: MnemeWriter, sample: PreparedDeltaExample) -> torch.Tensor:
     param = next(writer.parameters())
     query_hidden = sample.query_hidden.to(device=param.device, dtype=param.dtype)
     return writer.address_query(query_hidden).float()

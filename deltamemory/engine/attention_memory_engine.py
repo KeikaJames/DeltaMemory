@@ -10,7 +10,7 @@ from typing import Any
 import torch
 import torch.nn.functional as F
 
-from deltamemory.core.config import RCVHCCleanConfig, resolve_layer_policy
+from deltamemory.core.config import MnemeCleanConfig, resolve_layer_policy
 from deltamemory.core.types import AttentionMemoryItem
 from deltamemory.gemma.attention_injector import (
     GemmaAttentionInjector,
@@ -23,23 +23,23 @@ from deltamemory.gemma.model_adapter import (
     trainable_base_params,
 )
 from deltamemory.memory.attention_store import AttentionMemoryStore
-from deltamemory.memory.writer import RCVHCWriter, fit_memory_dim, split_source_snippets
+from deltamemory.memory.writer import MnemeWriter, fit_memory_dim, split_source_snippets
 
 
 @dataclass
 class EngineBundle:
     bundle: ModelBundle
-    cfg: RCVHCCleanConfig
+    cfg: MnemeCleanConfig
     store: AttentionMemoryStore
 
 
 class AttentionMemoryEngine:
-    def __init__(self, bundle: ModelBundle, cfg: RCVHCCleanConfig, store: AttentionMemoryStore | None = None) -> None:
+    def __init__(self, bundle: ModelBundle, cfg: MnemeCleanConfig, store: AttentionMemoryStore | None = None) -> None:
         cfg.validate()
         self.bundle = bundle
         self.cfg = cfg
         hidden = get_hidden_size(bundle.model)
-        self.writer = RCVHCWriter(hidden, cfg.memory_dim, cfg.block_size).to(bundle.device, dtype=bundle.dtype)
+        self.writer = MnemeWriter(hidden, cfg.memory_dim, cfg.block_size).to(bundle.device, dtype=bundle.dtype)
         self.projector = QKVDeltaProjector(cfg.memory_dim, hidden, alpha_scale=cfg.alpha_scale, gate_bias=cfg.gate_bias).to(
             bundle.device, dtype=bundle.dtype
         )

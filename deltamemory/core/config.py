@@ -25,7 +25,7 @@ QKV_MODES = {
 
 
 @dataclass
-class RCVHCCleanConfig:
+class MnemeCleanConfig:
     model_name: str = "mock-gemma"
     memory_dim: int = 128
     block_size: int = 128

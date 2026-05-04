@@ -1,12 +1,14 @@
 [stage14-dev-kproj] loading google/gemma-4-E2B…
 [transformers] `torch_dtype` is deprecated! Use `dtype` instead!
-Loading weights:   0%|          | 0/1951 [00:00<?, ?it/s]Fatal Python error: init_sys_streams: can't initialize sys standard streams
+
+Loading weights:   0%|          | 0/1951 [00:00<?, ?it/s]Fatal Python error: init_sys_streams: can't initialize sys standard streams
 Python runtime state: core initialized
 OSError: [Errno 9] Bad file descriptor
 
 Current thread 0x00000001fa8cf080 (most recent call first):
   <no Python frame>
-Loading weights: 100%|██████████| 1951/1951 [00:00<00:00, 36126.98it/s]
+
+Loading weights: 100%|██████████| 1951/1951 [00:00<00:00, 36126.98it/s]
 [stage14-dev-kproj] model ready in 5.6s
 [stage14-dev-kproj] B0_no_memory_kproj_attached seed=0 recall@1=0.3535
 [stage14-dev-kproj] B0_no_memory_kproj_attached seed=1 recall@1=0.3535
@@ -23,7 +25,7 @@ Current thread 0x00000001fa8cf080 (most recent call first):
 [stage14-dev-kproj] v3_multi_kproj_tau05 seed=0 recall@1=0.0051
 [stage14-dev-kproj] v3_multi_kproj_tau05 seed=1 recall@1=0.0051
 [stage14-dev-kproj] v3_multi_kproj_tau05 seed=2 recall@1=0.0051
-[stage14-dev-kproj] wrote /Users/gabiri/projects/RCV-HC/reports/cleanroom/stage14_dev_kproj/REPORT.md
+[stage14-dev-kproj] wrote /Users/gabiri/projects/Mneme/reports/cleanroom/stage14_dev_kproj/REPORT.md
 /opt/homebrew/Cellar/python@3.11/3.11.14_1/Frameworks/Python.framework/Versions/3.11/lib/python3.11/multiprocessing/resource_tracker.py:123: UserWarning: resource_tracker: process died unexpectedly, relaunching.  Some resources might leak.
   warnings.warn('resource_tracker: process died unexpectedly, '
 Fatal Python error: init_sys_streams: can't initialize sys standard streams
