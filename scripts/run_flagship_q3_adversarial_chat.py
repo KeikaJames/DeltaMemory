@@ -44,7 +44,21 @@ from deltamemory.memory.attn_native_bank import (
     fresh_bank,
     write_fact,
 )
+from deltamemory.memory.lopi import LOPIConfig
 from scripts.run_intervention_demo import FALSE_FACTS
+
+
+def _set_lopi(bank, enabled: bool) -> None:
+    """Apply LOPI v3.4 default profile (gauss + gamma, no orthogonal)."""
+    cfg = LOPIConfig(
+        enabled=enabled,
+        orthogonal=False,
+        gaussian=True,
+        derivative=True,
+    )
+    bank.lopi_cfg = cfg
+    if hasattr(bank, "lopi_state") and bank.lopi_state is not None:
+        bank.lopi_state.reset()
 
 
 # Extended counter-prior fact set (60 facts: 5 original + 55 new from
@@ -314,6 +328,9 @@ def main():
                     choices=["bfloat16", "float16", "float32"])
     ap.add_argument("--alpha", type=float, default=1.0,
                     help="injection strength (shield ON per v3.2)")
+    ap.add_argument("--lopi", choices=["off", "on", "both"], default="both",
+                    help="LOPI v3.4 (gauss + gamma) on/off paired comparison "
+                         "with shield ON in both arms.")
     ap.add_argument("--max-new-tokens", type=int, default=64)
     ap.add_argument("--facts", default="all",
                     help="'all' (default), 'pilot' (5 original), or comma-separated fact_ids")
@@ -352,6 +369,8 @@ def main():
     ).to(args.device).eval()
     print(f"[Q3] loaded in {time.time()-t_load:.1f}s", flush=True)
 
+    lopi_modes = ["off", "on"] if args.lopi == "both" else [args.lopi]
+
     results = []
     for fact in fact_list:
         fid = fact["fact_id"]
@@ -362,73 +381,91 @@ def main():
         # -- Baseline (no bank, no injection) --
         base_gen = _generate_text(model, tok, fact["read"],
                                   max_new_tokens=args.max_new_tokens)
-
-        # -- Bank-injected (shield ON) --
-        patcher = AttnNativePatcher(model)
-        bank = fresh_bank(model)
-        bank.mhc_shield = True
-        write_fact(patcher, bank, tok, write_prompt=fact["write"],
-                   fact_id=fid, address=fact["subject"])
-        bank_gen = _patched_generate(patcher, bank, tok, fact["read"],
-                                     alpha=args.alpha,
-                                     max_new_tokens=args.max_new_tokens)
-
-        # Evaluate
         base_label = evaluate_implant(fact["subject"], obj, base_gen)
-        bank_label = evaluate_implant(fact["subject"], obj, bank_gen)
+
+        per_lopi = {}
+        for lopi_mode in lopi_modes:
+            patcher = AttnNativePatcher(model)
+            bank = fresh_bank(model)
+            bank.mhc_shield = True
+            _set_lopi(bank, enabled=(lopi_mode == "on"))
+            write_fact(patcher, bank, tok, write_prompt=fact["write"],
+                       fact_id=fid, address=fact["subject"])
+            bank_gen = _patched_generate(patcher, bank, tok, fact["read"],
+                                         alpha=args.alpha,
+                                         max_new_tokens=args.max_new_tokens)
+            bank_label = evaluate_implant(fact["subject"], obj, bank_gen)
+            per_lopi[lopi_mode] = dict(
+                generation=bank_gen, implant_label=bank_label,
+            )
+            del patcher, bank
 
         rec = dict(
             fact_id=fid, subject=fact["subject"],
             object=obj, target_token=target_tok,
             alpha=args.alpha, shield=True,
             baseline_generation=base_gen,
-            bank_generation=bank_gen,
             baseline_implant_label=base_label,
-            bank_implant_label=bank_label,
+            per_lopi=per_lopi,
             elapsed_s=round(time.time() - t0, 2),
         )
         results.append(rec)
 
-        # Quick summary
-        flag = "🟢" if bank_label == "accurate_implant" else \
-               "🟡" if bank_label == "partial_implant" else "🔴"
-        print(f"  [{fid}] {flag} base={base_label:20s} bank={bank_label:20s}"
-              f"  ({rec['elapsed_s']:.1f}s)", flush=True)
+        # Quick summary line
+        line = f"  [{fid}] base={base_label:18s}"
+        for lopi_mode in lopi_modes:
+            lbl = per_lopi[lopi_mode]["implant_label"]
+            flag = "🟢" if lbl == "accurate_implant" else \
+                   "🟡" if lbl == "partial_implant" else "🔴"
+            line += f"  lopi={lopi_mode}:{flag}{lbl:18s}"
+        print(line + f"  ({rec['elapsed_s']:.1f}s)", flush=True)
 
-    # Aggregate
+    # Aggregate per-LOPI
     n = len(results)
-    acc_implant = sum(1 for r in results if r["bank_implant_label"] == "accurate_implant")
-    part_implant = sum(1 for r in results if r["bank_implant_label"] == "partial_implant")
     base_acc = sum(1 for r in results if r["baseline_implant_label"] == "accurate_implant")
 
     summary = dict(
         model=args.model, alpha=args.alpha, shield=True,
-        n_facts=n,
-        accurate_implant_rate=round(acc_implant / max(n, 1), 4),
-        partial_implant_rate=round(part_implant / max(n, 1), 4),
-        not_implanted=n - acc_implant - part_implant,
-        baseline_accurate=base_acc,
+        n_facts=n, baseline_accurate=base_acc,
+        per_lopi={},
     )
+    for lopi_mode in lopi_modes:
+        acc = sum(1 for r in results
+                  if r["per_lopi"][lopi_mode]["implant_label"] == "accurate_implant")
+        part = sum(1 for r in results
+                   if r["per_lopi"][lopi_mode]["implant_label"] == "partial_implant")
+        summary["per_lopi"][lopi_mode] = dict(
+            accurate_implant=acc, partial_implant=part,
+            not_implanted=n - acc - part,
+            accurate_implant_rate=round(acc / max(n, 1), 4),
+            partial_implant_rate=round(part / max(n, 1), 4),
+        )
 
-    print(f"\n[Q3] ===== {short} =====", flush=True)
-    print(f"  accurate_implant: {acc_implant}/{n} ({summary['accurate_implant_rate']:.1%})", flush=True)
-    print(f"  partial_implant:  {part_implant}/{n} ({summary['partial_implant_rate']:.1%})", flush=True)
-    print(f"  not_implanted:    {summary['not_implanted']}/{n}", flush=True)
+    print(f"\n[Q3] ===== {short}  α={args.alpha} =====", flush=True)
     print(f"  baseline_false_pos: {base_acc}/{n}", flush=True)
+    for lopi_mode in lopi_modes:
+        s = summary["per_lopi"][lopi_mode]
+        print(f"  lopi={lopi_mode}: accurate {s['accurate_implant']}/{n}"
+              f" ({s['accurate_implant_rate']:.1%})  "
+              f"partial {s['partial_implant']}/{n}", flush=True)
 
-    with open(out_dir / "summary.json", "w") as f:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    suffix = f"alpha{args.alpha}".replace(".", "p")
+    with open(out_dir / f"summary_{suffix}.json", "w") as f:
         json.dump(summary, f, indent=2, ensure_ascii=False)
-    with open(out_dir / "results.jsonl", "w") as f:
+    with open(out_dir / f"results_{suffix}.jsonl", "w") as f:
         for r in results:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
-    print(f"[Q3] wrote {out_dir}/{{summary.json, results.jsonl}}", flush=True)
+    print(f"[Q3] wrote {out_dir}/{{summary_{suffix}.json, results_{suffix}.jsonl}}",
+          flush=True)
 
-    # PASS/FAIL per H3 gate
-    rate = summary["accurate_implant_rate"]
-    if rate >= 0.60:
-        print(f"[Q3] H3 IMPLANT GATE: PASS ({rate:.1%} >= 60%)", flush=True)
-    else:
-        print(f"[Q3] H3 IMPLANT GATE: FAIL ({rate:.1%} < 60%)", flush=True)
+    # PASS/FAIL per L5 gate (LOPI ON ≥ +20pp over OFF on at least one model)
+    if "on" in lopi_modes and "off" in lopi_modes:
+        delta = (summary["per_lopi"]["on"]["accurate_implant_rate"]
+                 - summary["per_lopi"]["off"]["accurate_implant_rate"])
+        verdict = "PASS" if delta >= 0.20 else "FAIL"
+        print(f"[Q3] L5 LOPI-IMPLANT GATE: {verdict} (Δ={delta:+.1%})",
+              flush=True)
 
 
 if __name__ == "__main__":
