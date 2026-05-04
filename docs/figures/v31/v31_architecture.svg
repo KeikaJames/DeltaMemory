@@ -7,7 +7,7 @@
     .tiny { font: 500 10px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #6E6E73; }
     .value { font: 700 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #1D1D1F; }
   </style>
-  <text x="40" y="48" class="title">DeltaMemory v3.1 forward path</text>
+  <text x="40" y="48" class="title">Mneme v3.1 forward path</text>
   <text x="40" y="75" class="subtitle">External K/V memory is merged into frozen attention; LLM weights are never edited.</text>
   <rect x="24" y="104" width="1040" height="368" rx="34" fill="#F5F5F7"/>
   <rect x="54" y="145" width="180" height="86" rx="22" fill="white" stroke="#E8EAED" stroke-width="1.4"/>

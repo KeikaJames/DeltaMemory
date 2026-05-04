@@ -73,7 +73,7 @@ class MhcProjector(nn.Module):
         self.n = int(n_streams)
         self.c = int(hidden_dim)
         self.tmax = int(tmax)
-        # NOTE (DeltaMemory mHC1.4): when ``use_sinkhorn=False`` the projector
+        # NOTE (Mneme mHC1.4): when ``use_sinkhorn=False`` the projector
         # behaves like an *unconstrained* Hyper-Connection (third arm of the
         # Phase mHC three-arm design): mixing matrix is row-stochastic via
         # softmax but NOT projected onto the Birkhoff polytope, so the

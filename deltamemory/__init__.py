@@ -1,4 +1,4 @@
-"""Delta Memory — frozen-LLM external memory via attention-side bank injection.
+"""Mneme — frozen-LLM external memory via attention-side bank injection.
 
 Public API (Phase R/S, recommended for new code)
 ------------------------------------------------

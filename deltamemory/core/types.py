@@ -1,4 +1,4 @@
-"""Typed records shared by Delta Memory modules."""
+"""Typed records shared by Mneme modules."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-# DeltaMemory v3 frozen configuration
+# Mneme v3 frozen configuration
 # Selected from dev sweep (N=33, 3 seeds) on Gemma-4-E2B / MPS / bf16.
 # See reports/cleanroom/stage14_dev_kproj/REPORT.md for the dev numbers.
 #

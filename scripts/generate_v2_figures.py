@@ -71,7 +71,7 @@ def fig_architecture():
     fig, axes = plt.subplots(1, 2, figsize=(11, 4.4))
     titles = [
         ("v1 — Stitched encoder + KeyProjector + broadcast",  axes[0]),
-        ("v2 — AttentionNative DeltaMemory (zero parameter)", axes[1]),
+        ("v2 — AttentionNative Mneme (zero parameter)", axes[1]),
     ]
 
     def box(ax, x, y, w, h, txt, color, ec=None):
@@ -123,7 +123,7 @@ def fig_architecture():
             ha="center", fontsize=9, color=PALETTE["green"], style="italic")
     ax.set_title(titles[1][0], color=PALETTE["ink"], loc="left")
 
-    fig.suptitle("DeltaMemory architecture: v1 vs v2",
+    fig.suptitle("Mneme architecture: v1 vs v2",
                  fontsize=14, weight="600", color=PALETTE["ink"], y=1.02)
     fig.savefig(OUT / "stage13_architecture.svg")
     fig.savefig(OUT / "stage13_architecture.png", dpi=300)
@@ -200,7 +200,7 @@ def fig_alpha_phase():
     ax.set_xlabel("α  (bank V-gate)")
     ax.set_ylabel("metric (normalized)")
     ax.set_ylim(-0.05, 1.05)
-    ax.set_title("Stage 13F — DeltaMemory α phase diagram (gemma-4-E2B, MPS bf16)",
+    ax.set_title("Stage 13F — Mneme α phase diagram (gemma-4-E2B, MPS bf16)",
                  loc="left")
     ax.legend(loc="lower left")
     ax.grid(axis="x", visible=False)

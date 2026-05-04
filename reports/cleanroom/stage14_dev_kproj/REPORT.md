@@ -53,7 +53,7 @@ CI does not contain 0 → significant at α=0.05.
 
 ## What this proves vs. doesn't
 
-- ✅ DeltaMemory v3 produces a real, repeatable, statistically
+- ✅ Mneme v3 produces a real, repeatable, statistically
   significant lift over the no-memory baseline on a held-out dev split
   with 33 unrelated facts in the bank.
 - ❌ This does NOT yet prove v3 beats prompt-insertion / RAG / MEMIT.

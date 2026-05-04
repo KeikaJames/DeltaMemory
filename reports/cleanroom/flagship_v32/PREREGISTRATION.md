@@ -1,4 +1,4 @@
-# Phase Q — mHC-DeltaMemory Flagship Verification: Preregistration
+# Phase Q — mHC-Mneme Flagship Verification: Preregistration
 
 **Frozen**: 2026-05-04
 **Branch**: stage13-attn-native
@@ -12,7 +12,7 @@ Prove on 5 frozen flagship LLMs that:
 1. The mHC shield (bank-columns-only column cap) makes α tuning insensitive —
    a single α value yields safe injection across families (the v3.1 pain point
    was a 20× spread).
-2. DeltaMemory can implant counter-prior false facts into model-generated text
+2. Mneme can implant counter-prior false facts into model-generated text
    at chat-format evaluation quality.
 
 ## 2. Five Hypotheses

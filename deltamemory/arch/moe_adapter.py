@@ -1,4 +1,4 @@
-"""MoE architecture adapters for the DeltaMemory per-expert shield (Phase X.2).
+"""MoE architecture adapters for the Mneme per-expert shield (Phase X.2).
 
 Architectural scope — FFN-MoE vs MoE-Attention
 -----------------------------------------------

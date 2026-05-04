@@ -89,7 +89,7 @@ methodology review, the path forward is:
 
 We do NOT pursue (5) the option that would beat B1 by relaxing the red line
 (LoRA, weight editing, or attention-adapter modules outside the bank): those
-are weight-editing baselines, not DeltaMemory.
+are weight-editing baselines, not Mneme.
 
 ## Action items
 

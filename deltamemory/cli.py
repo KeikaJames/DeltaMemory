@@ -1,4 +1,4 @@
-"""Command line interface for Delta Memory experiments."""
+"""Command line interface for Mneme experiments."""
 
 from __future__ import annotations
 

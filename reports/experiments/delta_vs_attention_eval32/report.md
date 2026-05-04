@@ -1,4 +1,4 @@
-# Delta Memory vs Ordinary Attention Eval32
+# Mneme vs Ordinary Attention Eval32
 
 > Superseded note: this report used the original synthetic answer generator,
 > whose answer sequence was deterministic across train/eval seeds. Treat it as
@@ -7,12 +7,12 @@
 
 ## Question
 
-Does layerwise Delta Memory injection inside attention outperform the frozen
+Does layerwise Mneme injection inside attention outperform the frozen
 Gemma model's ordinary attention path?
 
 This experiment compares:
 
-- `delta_qv`: retrieved Delta Memory projected into Q/V residuals and injected
+- `delta_qv`: retrieved Mneme projected into Q/V residuals and injected
   inside every exposed attention layer.
 - `no_memory`: ordinary frozen Gemma attention with no external memory and no
   injection.
@@ -68,7 +68,7 @@ inserted into the prompt.
 
 ## Interpretation
 
-In this eval32 run, Delta Memory's attention-internal Q/V residual injection is
+In this eval32 run, Mneme's attention-internal Q/V residual injection is
 substantially better than ordinary frozen Gemma attention on every evaluated
 example. The comparison is direct: `delta_qv` vs `no_memory`, with the same
 questions and answer-token NLL metric.

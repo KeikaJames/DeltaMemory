@@ -1,5 +1,5 @@
 <p align="center">
-  <h1 align="center">DeltaMemory</h1>
+  <h1 align="center">Mneme</h1>
 </p>
 
 <p align="center">
@@ -29,7 +29,7 @@
 
 ---
 
-DeltaMemory is a research prototype for **persistent external memory in a
+Mneme is a research prototype for **persistent external memory in a
 frozen LLM**. A per-layer K/V bank is concatenated into supported attention
 layers; the prompt at read time contains only the question, and the base
 weights stay frozen. The Phase R+ canonical stack pairs the bank with a

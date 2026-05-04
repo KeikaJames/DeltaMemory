@@ -1,1 +1,1 @@
-"""Core Delta Memory configuration and types."""
+"""Core Mneme configuration and types."""

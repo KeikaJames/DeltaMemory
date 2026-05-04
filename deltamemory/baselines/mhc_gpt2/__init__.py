@@ -5,8 +5,8 @@ Paper: arXiv:2512.24880 — DeepSeek "Manifold-Constrained Hyper-Connections"
 
 See LICENSE and NOTICE in this directory for attribution.
 
-This module is a *baseline* used by Phase mHC of DeltaMemory; it is NOT part of
-the DeltaMemory main path. The DeltaMemory red lines (frozen LLM weights) still
+This module is a *baseline* used by Phase mHC of Mneme; it is NOT part of
+the Mneme main path. The Mneme red lines (frozen LLM weights) still
 apply: when wired through `AttnNativePatcher`, only the bank-injection sites are
 modified; the GPT-2 / mHC-GPT-2 weights themselves remain frozen at inference.
 """

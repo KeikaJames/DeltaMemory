@@ -1,4 +1,4 @@
-# Delta Memory Paired-Conflict Pilot
+# Mneme Paired-Conflict Pilot
 
 ## Question
 

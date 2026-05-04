@@ -1,4 +1,4 @@
-# DeltaMemory Gemma4 Delta Q/V MPS Scaled Report
+# Mneme Gemma4 Delta Q/V MPS Scaled Report
 
 ## Config
 
@@ -56,6 +56,6 @@
 
 ## Interpretation
 
-This scaled run uses the M4 Max through PyTorch MPS/Metal, not CPU. The frozen Gemma4 base remains unchanged and the trained DeltaMemory Delta Q/V adapter beats zero, random, and shuffled controls on held-out later-reference examples for all three seeds.
+This scaled run uses the M4 Max through PyTorch MPS/Metal, not CPU. The frozen Gemma4 base remains unchanged and the trained Mneme Delta Q/V adapter beats zero, random, and shuffled controls on held-out later-reference examples for all three seeds.
 
 This supports the attention-memory mechanism at small experimental scale. It is not yet a large benchmark result, and it does not use prompt insertion or retrieved source text as the answer path.

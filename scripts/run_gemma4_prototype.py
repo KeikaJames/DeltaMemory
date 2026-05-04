@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the Gemma4 Delta Memory layerwise attention-injection prototype."""
+"""Run the Gemma4 Mneme layerwise attention-injection prototype."""
 
 from __future__ import annotations
 

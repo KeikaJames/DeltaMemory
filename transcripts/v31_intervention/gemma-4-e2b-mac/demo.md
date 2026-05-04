@@ -1,4 +1,4 @@
-# DeltaMemory v3.1 Intervention Demo — `google/gemma-4-E2B`
+# Mneme v3.1 Intervention Demo — `google/gemma-4-E2B`
 
 - adapter: `gemma4`  | layers: 35  | device: `mps`  | dtype: `bfloat16`  | alpha: 1.0  | capture_policy: `period`
 - LLM weights: **frozen** (red line; α=0 ⇒ bit-equal to baseline)

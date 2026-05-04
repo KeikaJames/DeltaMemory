@@ -41,7 +41,7 @@ no Phase S report has been written yet.
 
 | Report | Phase | Date | Headline | Verdict | Path |
 |---|---|---|---|---|---|
-| Phase Q — mHC-DeltaMemory Flagship Verification (v3.2) | Q | 2026-05-04 | Shield V2 column-cap eliminates V1 collapse on 4 models, but cannot overcome per-arch V-magnitude differences; non-Gemma drift floor 1.5–3.5 nats. | MIXED | [flagship_v32/REPORT.md](flagship_v32/REPORT.md) |
+| Phase Q — mHC-Mneme Flagship Verification (v3.2) | Q | 2026-05-04 | Shield V2 column-cap eliminates V1 collapse on 4 models, but cannot overcome per-arch V-magnitude differences; non-Gemma drift floor 1.5–3.5 nats. | MIXED | [flagship_v32/REPORT.md](flagship_v32/REPORT.md) |
 | Phase Q — Preregistration (5 hypotheses H1–H5) | Q | 2026-05-04 | Frozen prereg for the Q1/Q2/Q3 verification protocol. | N/A | [flagship_v32/PREREGISTRATION.md](flagship_v32/PREREGISTRATION.md) |
 | Phase Q2 — α-Safety NLL/Lift Sweep (Gemma-4-E2B) | Q2 | 2026-05-04 | Shield ON @ α=10 yields lift +2.84 nats with drift +0.17 — H1+H2 PASS on Gemma. | PASS | [flagship_v32/Q2/REPORT.md](flagship_v32/Q2/REPORT.md) |
 | Phase Q2 — Aggregate (4 models × 7 α × shield) | Q2 | 2026-05-04 | Cross-arch sweep: Qwen3 / GLM-4 / DeepSeek-32B drift floors persist with shield ON. | MIXED | [flagship_v32/Q2/AGGREGATE.md](flagship_v32/Q2/AGGREGATE.md) |
@@ -69,20 +69,20 @@ no Phase S report has been written yet.
 
 | Report | Phase | Date | Headline | Verdict | Path |
 |---|---|---|---|---|---|
-| mHC DeltaMemory α-Safety (mHC0–mHC6 synthesis) | mHC0–6 | 2026-05-04 | Multi-stream HC/mHC preserves lift advantage at depth (+4.13 nats GPT-2 medium @ α=1.0); H2 drift safety NOT delivered by mHC alone. | MIXED | [mHC_alpha_safe/REPORT.md](mHC_alpha_safe/REPORT.md) |
+| mHC Mneme α-Safety (mHC0–mHC6 synthesis) | mHC0–6 | 2026-05-04 | Multi-stream HC/mHC preserves lift advantage at depth (+4.13 nats GPT-2 medium @ α=1.0); H2 drift safety NOT delivered by mHC alone. | MIXED | [mHC_alpha_safe/REPORT.md](mHC_alpha_safe/REPORT.md) |
 | Phase mHC2 — V-perturbation α-NLL stability | mHC2 | 2026-05-03 | H1 PASS (residual ΔNLL +5.08 nats @ α=1); H2 FAIL on absolute threshold but H2-revised (mHC strictly more stable than residual) PASS; H3 indeterminate at equivalence init. | MIXED | [mHC2_perturbation/REPORT.md](mHC2_perturbation/REPORT.md) |
-| Phase mHC3 — DeltaMemory bank injection into 3-Arm GPT-2 (corrected) | mHC3 | 2026-05-04 | Amendment 1: corrected sequence-NLL drift. Multi-stream preserves +0.071 nats lift @ α=1, but amplifies neutral drift (+2.26 vs Residual +0.70). | MIXED | [mHC3_bank_injection/REPORT.md](mHC3_bank_injection/REPORT.md) |
+| Phase mHC3 — Mneme bank injection into 3-Arm GPT-2 (corrected) | mHC3 | 2026-05-04 | Amendment 1: corrected sequence-NLL drift. Multi-stream preserves +0.071 nats lift @ α=1, but amplifies neutral drift (+2.26 vs Residual +0.70). | MIXED | [mHC3_bank_injection/REPORT.md](mHC3_bank_injection/REPORT.md) |
 | Phase mHC3 — Legacy single-token results (superseded) | mHC3 | 2026-05-04 | Pre-amendment single-token drift metric; preserved for audit only. | N/A | [mHC3_bank_injection/REPORT_legacy_singletok.md](mHC3_bank_injection/REPORT_legacy_singletok.md) |
 
 ## Phase 0..H legacy (`stage13*` / `stage14*` / `stage15*`, pre-Q)
 
 | Report | Phase | Date | Headline | Verdict | Path |
 |---|---|---|---|---|---|
-| Stage 13B robustness (full) — AttentionNative DeltaMemory bank | 13B | 2026-05-03 | Paraphrase recall@1 = 0.003 (FAIL @ 0.7); LORO macro recall@1 = 0.000 (FAIL @ 0.5); decoy diagnostic PASS. | MIXED | [stage13b_robust/report.md](stage13b_robust/report.md) |
+| Stage 13B robustness (full) — AttentionNative Mneme bank | 13B | 2026-05-03 | Paraphrase recall@1 = 0.003 (FAIL @ 0.7); LORO macro recall@1 = 0.000 (FAIL @ 0.5); decoy diagnostic PASS. | MIXED | [stage13b_robust/report.md](stage13b_robust/report.md) |
 | Stage 13B robustness (smoke) | 13B-smoke | 2026-05-03 | Smoke run: same gate structure, paraphrase recall@1 = 0.200 (FAIL); decoy PASS. | MIXED | [stage13b_smoke/report.md](stage13b_smoke/report.md) |
 | Stage 13C — Writer-layer feature decoupling (SVD/ROME) | 13C | 2026-05-03 | Best held-out recall@1 = 0.184 at r=4; pass criterion (≥0.55) FAIL. | FAIL | [stage13c_writer_decouple/report.md](stage13c_writer_decouple/report.md) |
 | Stage 13D — Per-query routing fix for P3 locality drift | 13D | 2026-05-03 | Status: PASS. Drift ≤ 0.05 AND override ≥ 0.90 achieved with gated soft routing. | PASS | [stage13d_locality_fix/report.md](stage13d_locality_fix/report.md) |
-| Stage 13F — Interactive transcripts (DeltaMemory) | 13F | 2026-05-03 | Pass rate 1/6 — confirmed and refined the Stage 13B negative result; surfaced as honest evidence. | FAIL | [stage13f_interactive/REPORT.md](stage13f_interactive/REPORT.md) |
+| Stage 13F — Interactive transcripts (Mneme) | 13F | 2026-05-03 | Pass rate 1/6 — confirmed and refined the Stage 13B negative result; surfaced as honest evidence. | FAIL | [stage13f_interactive/REPORT.md](stage13f_interactive/REPORT.md) |
 | Stage 14 dev sweep (Gemma-4-E2B, no kproj) | 14-dev | 2026-05-03 | All v3 conditions collapse to recall@1=0 vs B0=0.354. | FAIL | [stage14_dev/REPORT.md](stage14_dev/REPORT.md) |
 | Stage 14 dev sweep — with trained InfoNCE K-projector | 14-dev-kproj | 2026-05-03 | v3_period_kproj recall@1 = 0.4343 vs B0 0.3535 (+8.1pp, paired-significant on dev only). | MIXED | [stage14_dev_kproj/REPORT.md](stage14_dev_kproj/REPORT.md) |
 | Phase G — Held-out Test Eval (Gemma-4-E2B, FROZEN) | G | 2026-05-03 | v3_period_kproj recall@1 = 0.276 vs B0 0.359 / B1 0.658 — does not clear prompt-insertion bar; dev/test sign-flip documented. | FAIL | [stage14_test_gemma4_e2b/REPORT.md](stage14_test_gemma4_e2b/REPORT.md) |

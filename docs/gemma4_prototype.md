@@ -1,6 +1,6 @@
-# Gemma4 Delta Memory Runbook
+# Gemma4 Mneme Runbook
 
-This is the practical path for Delta Memory:
+This is the practical path for Mneme:
 
 ```text
 long context

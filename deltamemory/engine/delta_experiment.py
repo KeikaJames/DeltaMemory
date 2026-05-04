@@ -1668,7 +1668,7 @@ def _encode(tokenizer, text: str, device: torch.device) -> dict[str, torch.Tenso
 def _markdown(summary: dict[str, Any]) -> str:
     cfg = summary["config"]
     lines = [
-        "# Delta Memory Q/V Multi-Example Experiment",
+        "# Mneme Q/V Multi-Example Experiment",
         "",
         "## Config",
         "",
@@ -1818,7 +1818,7 @@ def _markdown(summary: dict[str, Any]) -> str:
             "",
             "## Interpretation",
             "",
-            "This experiment trains only the Delta Memory writer and Q/V adapter while the base model remains frozen.",
+            "This experiment trains only the Mneme writer and Q/V adapter while the base model remains frozen.",
             "A positive result requires held-out `delta_qv` to beat zero, random, and shuffled controls.",
         ]
     )

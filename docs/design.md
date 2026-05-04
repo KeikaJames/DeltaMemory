@@ -1,6 +1,6 @@
-# DeltaMemory Design (v2 / v3)
+# Mneme Design (v2 / v3)
 
-DeltaMemory is a **zero-parameter, attention-native** external memory for frozen
+Mneme is a **zero-parameter, attention-native** external memory for frozen
 decoder LLMs. It does not train the base model. It does not rewrite weights.
 It does not retrieve text into the prompt. The mechanism is one extra concat
 inside every attention layer.

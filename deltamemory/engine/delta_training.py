@@ -1,7 +1,7 @@
-"""Train the frozen-backbone Delta Memory Q/V adapter on a single task.
+"""Train the frozen-backbone Mneme Q/V adapter on a single task.
 
 This is deliberately small. It answers the practical question: the base Gemma
-model does not know how to use Delta Memory by itself, so we train only
+model does not know how to use Mneme by itself, so we train only
 the external writer and Q/K/V intervention modules while keeping all model
 weights frozen.
 """
@@ -406,7 +406,7 @@ def _diagnose_training(initial: dict[str, Any], final: dict[str, Any]) -> dict[s
 def _training_markdown(summary: dict[str, Any]) -> str:
     cfg = summary["config"]
     lines = [
-        "# Delta Memory Q/V Adapter Training Report",
+        "# Mneme Q/V Adapter Training Report",
         "",
         "## Config",
         "",
@@ -448,7 +448,7 @@ def _training_markdown(summary: dict[str, Any]) -> str:
             "",
             "## Interpretation",
             "",
-            "The frozen base model is not trained. This run trains only the Delta Memory writer and Q/V intervention adapter, showing whether the external Delta path can be optimized.",
+            "The frozen base model is not trained. This run trains only the Mneme writer and Q/V intervention adapter, showing whether the external Delta path can be optimized.",
             "A stronger scientific claim still requires trained Delta to beat zero, random, and shuffled controls on held-out examples.",
         ]
     )

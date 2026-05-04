@@ -1,4 +1,4 @@
-"""Reusable runner for the Gemma4 Delta Memory prototype."""
+"""Reusable runner for the Gemma4 Mneme prototype."""
 
 from __future__ import annotations
 
@@ -148,7 +148,7 @@ def _markdown(summary: dict[str, Any]) -> str:
     cfg = summary["config"]
     diagnosis = summary["diagnosis"]
     lines = [
-        "# Delta Memory Gemma4 Layerwise Injection Prototype",
+        "# Mneme Gemma4 Layerwise Injection Prototype",
         "",
         "## Config",
         "",
@@ -217,7 +217,7 @@ def _markdown(summary: dict[str, Any]) -> str:
             "",
             "## Interpretation",
             "",
-            "This is the Gemma4-oriented Delta Memory path: external memory, per-layer top-k retrieval, and Q/K/V residual injection inside a frozen decoder LM.",
+            "This is the Gemma4-oriented Mneme path: external memory, per-layer top-k retrieval, and Q/K/V residual injection inside a frozen decoder LM.",
             "A scientific claim requires aligned Delta to beat zero, random, and shuffled controls on a real model run. Otherwise the result should be treated as engineering progress only.",
         ]
     )

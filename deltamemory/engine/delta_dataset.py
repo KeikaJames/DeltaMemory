@@ -1,4 +1,4 @@
-"""Small synthetic examples for Delta Memory experiments."""
+"""Small synthetic examples for Mneme experiments."""
 
 from __future__ import annotations
 
@@ -131,7 +131,7 @@ def make_delta_memory_examples(
         return make_long_distance_nolima_examples(num_examples, seed=seed, start_id=start_id)
     if task_suite == "factual_capital_binding":
         return make_factual_capital_examples(num_examples, seed=seed, start_id=start_id)
-    raise ValueError(f"unknown Delta Memory task suite: {task_suite}")
+    raise ValueError(f"unknown Mneme task suite: {task_suite}")
 
 
 def make_factual_capital_examples(

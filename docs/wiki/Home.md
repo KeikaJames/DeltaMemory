@@ -1,6 +1,6 @@
-# DeltaMemory Wiki — Home
+# Mneme Wiki — Home
 
-> **DeltaMemory** is an external, attention-bank memory module for **frozen** transformer LLMs. The base model's weights are never modified. The bank is plugged into each attention layer's softmax and can be written/read at inference time.
+> **Mneme** is an external, attention-bank memory module for **frozen** transformer LLMs. The base model's weights are never modified. The bank is plugged into each attention layer's softmax and can be written/read at inference time.
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## What does it do?
 
-Given an LLM that **does not know** "the mayor of Paris is Anne Hidalgo", DeltaMemory:
+Given an LLM that **does not know** "the mayor of Paris is Anne Hidalgo", Mneme:
 
 1. **Write**: forward the fact `"Fact: The mayor of Paris is Anne Hidalgo."` once, capture each attention layer's K/V at the period token, store in the bank.
 2. **Read**: when the LLM later forwards the question `"Q: Who is the mayor of Paris?\nA:"`, the bank's K/V participate in attention's softmax via a single `concat` per layer; the model's next-token distribution shifts toward `"Anne"`.
@@ -31,7 +31,7 @@ See `transcripts/v3_intervention/gemma-4-e2b/demo.md` for the full 5-fact transc
 
 ## How is this different from RAG / MEMIT / LoRA / KV-cache?
 
-| | RAG | MEMIT / ROME | LoRA | DeltaMemory |
+| | RAG | MEMIT / ROME | LoRA | Mneme |
 |---|---|---|---|---|
 | Modifies LLM weights | no | **yes** | **yes** | no |
 | Inference-time write | yes (re-prompt) | no (offline edit) | no | **yes (single forward)** |

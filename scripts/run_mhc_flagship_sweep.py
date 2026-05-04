@@ -2,7 +2,7 @@
 """Phase mHC-flagship: cross-model α-safety sweep with mHC spectral shield.
 
 Industrial-grade reproduction of the v3.2 thesis: with the mHC spectral
-shield ON, the *safe α range* for DeltaMemory bank injection collapses to
+shield ON, the *safe α range* for Mneme bank injection collapses to
 a single shared value across all flagship LLMs.  Without the shield, each
 family needs its own per-architecture α (Gemma-4 ≈ 1.0, Qwen3 ≈ 0.05,
 Llama/DeepSeek-Qwen2 ≈ 0.05, GLM-4 ≈ 0.05 — a 20× spread that v3.1 is

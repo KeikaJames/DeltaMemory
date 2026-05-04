@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# DeltaMemory v3.1 one-line reproduction script.
+# Mneme v3.1 one-line reproduction script.
 #
 # Reproduces the core counter-prior intervention result on Gemma-4-E2B:
 # writes a false fact ("Python was created by Ada Lovelace") to the bank
@@ -27,7 +27,7 @@ cd "$SCRIPT_DIR"
 
 PYTHON="${PYTHON:-python3}"
 
-echo "=== DeltaMemory v3.1 reproduction ==="
+echo "=== Mneme v3.1 reproduction ==="
 echo "Model:  $MODEL"
 echo "Device: $DEVICE"
 echo

@@ -1,4 +1,4 @@
-# DeltaMemory v3 Intervention Demo — `Qwen/Qwen3-4B-Instruct-2507`
+# Mneme v3 Intervention Demo — `Qwen/Qwen3-4B-Instruct-2507`
 
 - adapter: `qwen3`  | layers: 36  | device: `cuda`  | dtype: `bfloat16`  | alpha: 0.05  | capture_policy: `period`
 - LLM weights: **frozen** (red line; α=0 ⇒ bit-equal to baseline)

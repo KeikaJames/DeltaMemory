@@ -8,7 +8,7 @@
     .value { font: 700 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #1D1D1F; }
   </style>
   <text x="40" y="48" class="title">Counter-prior target lift</text>
-  <text x="40" y="75" class="subtitle">Δ log-prob = DeltaMemory attn-bank − no-memory baseline; every bar is positive on Gemma-4 and Qwen3.</text>
+  <text x="40" y="75" class="subtitle">Δ log-prob = Mneme attn-bank − no-memory baseline; every bar is positive on Gemma-4 and Qwen3.</text>
   <rect x="24" y="94" width="1040" height="470" rx="34" fill="#F5F5F7"/>
   <line x1="82" y1="476.0" x2="970" y2="476.0" stroke="#E8EAED" stroke-width="1"/>
   <text x="38" y="480.0" class="tiny">+0.0</text>

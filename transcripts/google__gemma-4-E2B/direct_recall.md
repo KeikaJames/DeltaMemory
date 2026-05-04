@@ -25,7 +25,7 @@ Georges Clemenceau
 Q: Who is the Prime Minister of Great Britain?
 ```
 
-## DeltaMemory α=1.0
+## Mneme α=1.0
 
 ```
 Bertrand Delanoe

@@ -1,6 +1,6 @@
 # Architecture
 
-DeltaMemory has three layers: **Patcher** (touches the LLM), **Bank** (stores K/V), **Writer/Reader** (puts facts in / reads them out). Adapters isolate per-family attention conventions.
+Mneme has three layers: **Patcher** (touches the LLM), **Bank** (stores K/V), **Writer/Reader** (puts facts in / reads them out). Adapters isolate per-family attention conventions.
 
 ```
                        ┌─────────────────────────────────────────────────┐
@@ -106,7 +106,7 @@ Storage cost per fact (Gemma-4-E2B, 35 layers, 8 heads, head_dim=256, bf16):
 35 × 8 × 256 × 2 bytes × 2 (K and V) ≈ 280 KB / fact
 ```
 
-A 10k-fact bank is ~2.7 GB. This is **not** intended to scale to web-scale corpora; for that, use RAG. DeltaMemory targets thousands of facts you want **active in the LLM's attention**, not retrievable.
+A 10k-fact bank is ~2.7 GB. This is **not** intended to scale to web-scale corpora; for that, use RAG. Mneme targets thousands of facts you want **active in the LLM's attention**, not retrievable.
 
 ## Writer: `write_fact`
 

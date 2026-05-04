@@ -1,4 +1,4 @@
-# DeltaMemory Delta Q/V Adapter Training Report
+# Mneme Delta Q/V Adapter Training Report
 
 ## Config
 
@@ -40,5 +40,5 @@
 
 ## Interpretation
 
-The frozen base model is not trained. This run trains only the DeltaMemory writer and Q/V intervention adapter, showing whether the external Delta path can be optimized.
+The frozen base model is not trained. This run trains only the Mneme writer and Q/V intervention adapter, showing whether the external Delta path can be optimized.
 A stronger scientific claim still requires trained Delta to beat zero, random, and shuffled controls on held-out examples.

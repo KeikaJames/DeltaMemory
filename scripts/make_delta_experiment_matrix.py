@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create reproducible Delta Memory experiment matrix commands."""
+"""Create reproducible Mneme experiment matrix commands."""
 
 from __future__ import annotations
 
@@ -81,7 +81,7 @@ def main() -> int:
                             }
                         )
     payload = {
-        "description": "Delta Memory scaling and ablation matrix. `layers=all` is the main path; `max_exposed` is last-layer ablation.",
+        "description": "Mneme scaling and ablation matrix. `layers=all` is the main path; `max_exposed` is last-layer ablation.",
         "num_runs": len(rows),
         "runs": rows,
     }

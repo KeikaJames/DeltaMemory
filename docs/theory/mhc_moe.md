@@ -1,12 +1,12 @@
 # mHC × MoE: Why the Current Column-Cap is Wrong on Mixture-of-Experts Models
 
-**Phase U.2** — DeltaMemory theory documentation.
+**Phase U.2** — Mneme theory documentation.
 
 ---
 
 ## 1. The Problem in One Sentence
 
-DeltaMemory's mHC shield applies a **global** bank-column cap across all queries simultaneously. In a Mixture-of-Experts (MoE) model each token's attention output is a **router-gated sum over expert sub-outputs**. A global cap conflates attention weights from different experts, producing over-suppression on some experts and under-suppression on others. **The current implementation has never been tested on any MoE model.**
+Mneme's mHC shield applies a **global** bank-column cap across all queries simultaneously. In a Mixture-of-Experts (MoE) model each token's attention output is a **router-gated sum over expert sub-outputs**. A global cap conflates attention weights from different experts, producing over-suppression on some experts and under-suppression on others. **The current implementation has never been tested on any MoE model.**
 
 ---
 

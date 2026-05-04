@@ -1,4 +1,4 @@
-# Delta Memory Hidden Retrieval Baseline Pilot
+# Mneme Hidden Retrieval Baseline Pilot
 
 ## Question
 
@@ -55,7 +55,7 @@ The lightweight hidden-retrieval baseline is not competitive in this setup. It
 is worse than ordinary no-memory attention, while Delta Q/V injection remains
 strong.
 
-This does **not** mean Delta Memory has beaten full RetrievalAttention or
+This does **not** mean Mneme has beaten full RetrievalAttention or
 Memorizing Transformer baselines. It only rules out the current raw/hidden
 late-fusion approximation as a strong baseline. A full baseline would need
 retrieved KV/hidden states to participate inside attention rather than being

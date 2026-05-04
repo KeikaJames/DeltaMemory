@@ -1,4 +1,4 @@
-# Address-Bound Delta Memory Experiment Plan
+# Address-Bound Mneme Experiment Plan
 
 ## Problem
 
@@ -13,7 +13,7 @@ only that the adapter has learned a useful activation direction.
 
 ## Hypothesis
 
-Delta Memory should be split into two separable mechanisms:
+Mneme should be split into two separable mechanisms:
 
 1. **Address binding**: the query selects a memory identity from a shared pool
    containing correct and near-collision/foreign memories.
@@ -160,7 +160,7 @@ Each report must include:
    correct-vs-foreign margin improves. This supports query-specific Delta
    retrieval/binding as causal.
 2. **Channel-only failure**: answer NLL remains strong but address gates fail.
-   This means Delta Memory is useful as an adapter channel, not yet as factual
+   This means Mneme is useful as an adapter channel, not yet as factual
    memory.
 3. **Retrieval failure**: correct memory is not rank 1 in shared pools. Then the
    next work is address-key training, not payload injection.

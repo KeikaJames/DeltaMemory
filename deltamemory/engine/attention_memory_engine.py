@@ -1,4 +1,4 @@
-"""Unified ingest/ask engine for Delta Memory."""
+"""Unified ingest/ask engine for Mneme."""
 
 from __future__ import annotations
 

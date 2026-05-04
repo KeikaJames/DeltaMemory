@@ -1,4 +1,4 @@
-# Stage 13F — Interactive transcripts (DeltaMemory)
+# Stage 13F — Interactive transcripts (Mneme)
 
 **Model**: `google/gemma-4-E2B`  ·  **Device**: `mps` (bfloat16)  ·  α=1.0
 
@@ -26,7 +26,7 @@ with the project's honest-framing rule.
 ### What works
 
 - ✅ **Locality probe** is exact-match: when the bank holds a fact
-  unrelated to the read query, DeltaMemory's output is **bit-for-bit
+  unrelated to the read query, Mneme's output is **bit-for-bit
   identical** to the unpatched baseline. This is the hard safety guarantee
   promised by the Stage 13D per-query routing fix and now confirmed in
   free-form generation.

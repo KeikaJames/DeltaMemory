@@ -1,6 +1,6 @@
-# Address-Bound Delta Memory Final Multiseed Report
+# Address-Bound Mneme Final Multiseed Report
 
-This run closes the current Address-Bound Delta Memory experiment plan. It uses
+This run closes the current Address-Bound Mneme experiment plan. It uses
 the strongest current configuration from the address-token/contrastive pilots
 and repeats it across three real Gemma/MPS seeds.
 
@@ -71,7 +71,7 @@ reliably selected query-specific address as the causal source of the gain.
 The correct conclusion is therefore:
 
 ```text
-Delta Memory currently demonstrates a strong attention-internal memory channel.
+Mneme currently demonstrates a strong attention-internal memory channel.
 It does not yet demonstrate query-specific address binding as the causal source.
 ```
 

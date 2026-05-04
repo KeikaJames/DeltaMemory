@@ -1,8 +1,8 @@
-# Delta Memory Conflict-Margin Pilot
+# Mneme Conflict-Margin Pilot
 
 ## Question
 
-Does correct Delta Memory improve the relative likelihood of the correct answer
+Does correct Mneme improve the relative likelihood of the correct answer
 over a plausible foreign answer more than foreign-memory Delta does?
 
 This pilot was added after `delta_qv_wrong_query` remained tied with correct

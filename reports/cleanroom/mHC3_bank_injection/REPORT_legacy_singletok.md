@@ -1,4 +1,4 @@
-# Phase mHC3 — DeltaMemory Bank Injection into 3-Arm GPT-2
+# Phase mHC3 — Mneme Bank Injection into 3-Arm GPT-2
 
 **Date**: 2026-05-04  
 **Hardware**: Mac MPS bf16  
@@ -46,7 +46,7 @@ improvement**.
    (Wikitext-2, frozen GPT-2 weights, train only mixing parameters) is
    required to separate the two arms.
 
-3. **GPT-2 small (124M, 12L) has limited capacity** for the DeltaMemory bank
+3. **GPT-2 small (124M, 12L) has limited capacity** for the Mneme bank
    injection.  The bank K/V captured from a single token position at 768-dim
    carries less information than Gemma-4's 256-dim × 35 layers.  Absolute
    lift values are small but the *relative* residual vs mHC gap is clear.

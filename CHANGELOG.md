@@ -1,6 +1,6 @@
 # CHANGELOG
 
-All notable changes to DeltaMemory are documented here, organised by
+All notable changes to Mneme are documented here, organised by
 research stage. Older stages are summarised; the current stage is
 documented in full enough to make the evidence and limits legible.
 
@@ -151,7 +151,7 @@ collapsed to +5 nats NLL drift).
 ## Stage 15 — v3.1 cross-architecture attn-native bank
 
 ### v3.1 README and figure refresh
-* `README.md` and `README.zh-CN.md` now use one unified DeltaMemory
+* `README.md` and `README.zh-CN.md` now use one unified Mneme
   vocabulary and point only to the new v3.1 figure set.
 * New dependency-free figure generator:
   `scripts/make_v31_readme_figures.py`.
@@ -257,10 +257,10 @@ collapsed to +5 nats NLL drift).
   (top-k / cosine / separate bank-only head); two-stage held-out gate
   (dev + a second validation split) before any "frozen" claim.
 * Comparison frame: until (1)–(4) are satisfied, the only supported
-  claim DeltaMemory makes is "matches or beats prompt-insertion at
+  claim Mneme makes is "matches or beats prompt-insertion at
   equal compute on a preregistered held-out split". B1 = 0.658.
 
-## Stage 13 — AttentionNative DeltaMemory v2
+## Stage 13 — AttentionNative Mneme v2
 
 * Zero learnable parameters: bank K/V are exactly what the model emits
   during a one-shot write pass.

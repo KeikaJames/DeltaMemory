@@ -1,4 +1,4 @@
-# Phase Q — mHC-DeltaMemory Flagship Verification (v3.2)
+# Phase Q — mHC-Mneme Flagship Verification (v3.2)
 
 **Status**: Q1+Q2 complete on 4/5 models (3 pass Q1, 4 pass Q2). GLM-4 pending Q1 confirmation.  
 **Date**: 2026-05-04  

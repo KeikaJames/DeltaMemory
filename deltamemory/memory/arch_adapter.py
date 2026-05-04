@@ -1,6 +1,6 @@
 """Architecture adapters for the attn-native bank patcher.
 
-DeltaMemory's red line: the base LLM weights are frozen. Adapters only **read**
+Mneme's red line: the base LLM weights are frozen. Adapters only **read**
 per-family attention conventions (q/k/v norm presence, KV-sharing, RoPE
 function) and never modify weights.
 

@@ -1,4 +1,4 @@
-"""Gemma-style layerwise Q/K/V Delta Memory intervention."""
+"""Gemma-style layerwise Q/K/V Mneme intervention."""
 
 from __future__ import annotations
 

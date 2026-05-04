@@ -75,7 +75,7 @@ the answer token, the channel is controlling mode rather than binding identity.
 
 Story A can be written as a capability-and-boundary paper:
 
-1. introduce Layerwise Delta Memory Injection as a frozen-backbone control
+1. introduce Layerwise Mneme Injection as a frozen-backbone control
    interface;
 2. show strong non-prompt NLL improvements across synthetic memory suites;
 3. include strict controls showing it is not sufficient for factual binding;

@@ -1,4 +1,4 @@
-"""mHC spectral shield for DeltaMemory bank injection.
+"""mHC spectral shield for Mneme bank injection.
 
 Universal, model-agnostic spectral guard for the αM_V injection signal,
 inspired by DeepSeek's Manifold-Constrained Hyper-Connections (mHC,
@@ -75,7 +75,7 @@ def sinkhorn_knopp_projection(
     """Project a non-negative matrix to the doubly-stochastic manifold.
 
     Kept for completeness and for unit testing the SK math.  The
-    DeltaMemory shield call site does NOT use full SK on the merged
+    Mneme shield call site does NOT use full SK on the merged
     matrix (see module docstring); use ``shield_attention_weights``
     instead.
 

@@ -26,7 +26,7 @@ Q: What is the capital of Germany?
 A: Berlin
 ```
 
-## DeltaMemory α=1.0
+## Mneme α=1.0
 
 ```
 Paris

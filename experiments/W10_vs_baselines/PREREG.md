@@ -2,7 +2,7 @@
 
 **Status**: locked.
 **Authored**: 2026-05-04.
-**Depends on**: W.4 verdict supplies `M_winner` (the DeltaMemory arm under
+**Depends on**: W.4 verdict supplies `M_winner` (the Mneme arm under
 test); W.6 results (counter-prior Pareto) supply `DM_best_alpha` (the
 alpha at which `M_winner` minimises `nll_new` while `kl_unrel < 0.5`).
 **Hardware target**: 64 GB unified memory (no MoE here; Qwen3-MoE-A3B is

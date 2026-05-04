@@ -1,6 +1,6 @@
 # LOPI: Layer-Orthogonal-Projection Injection — Full Derivation and Critique
 
-**Phase U.3** — DeltaMemory theory documentation.
+**Phase U.3** — Mneme theory documentation.
 
 ---
 
@@ -136,4 +136,4 @@ LOPI's mathematical framework is sound: the three-component design ($\gamma_t$, 
 
 ---
 
-*References:* Meng et al., *ROME*, NeurIPS 2022; DeltaMemory PREREGISTRATION lopi\_v33, 2026-05-04; Phase R ablation report `reports/cleanroom/lopi_v33/FINDINGS.md`.
+*References:* Meng et al., *ROME*, NeurIPS 2022; Mneme PREREGISTRATION lopi\_v33, 2026-05-04; Phase R ablation report `reports/cleanroom/lopi_v33/FINDINGS.md`.

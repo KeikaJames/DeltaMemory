@@ -101,7 +101,7 @@ def fig_architecture() -> None:
         (828, 325, 210, 100, "LM head", "target log-prob shifts"),
     ]
     body = draw_header(
-        "DeltaMemory v3.1 forward path",
+        "Mneme v3.1 forward path",
         "External K/V memory is merged into frozen attention; LLM weights are never edited.",
     )
     body += f'  <rect x="24" y="104" width="1040" height="368" rx="34" fill="{COLORS["panel"]}"/>\n'
@@ -145,7 +145,7 @@ def fig_false_fact_lift() -> None:
     ymax = 3.0
     body = draw_header(
         "Counter-prior target lift",
-        "Δ log-prob = DeltaMemory attn-bank − no-memory baseline; every bar is positive on Gemma-4 and Qwen3.",
+        "Δ log-prob = Mneme attn-bank − no-memory baseline; every bar is positive on Gemma-4 and Qwen3.",
     )
     body += f'  <rect x="24" y="94" width="1040" height="470" rx="34" fill="{COLORS["panel"]}"/>\n'
     for i in range(4):

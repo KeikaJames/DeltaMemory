@@ -1,4 +1,4 @@
-"""Phase mHC3 — DeltaMemory bank injection into 3-arm GPT-2 architectures.
+"""Phase mHC3 — Mneme bank injection into 3-arm GPT-2 architectures.
 
 Proves that mHC's doubly-stochastic routing matrix C (sigma_max(C)=1)
 prevents injection-signal amplification across layers, making alpha
@@ -17,7 +17,7 @@ For each architecture × alpha, we measure:
 Red-line audit:
   * GPT-2 weights frozen; mHC mixing C is architecture-level, not LLM weights
   * alpha=0 bit-equality verified for all 3 architectures (logits-equivalent init)
-  * Bank injection is DeltaMemory attn-native style: K/V concat inside attention
+  * Bank injection is Mneme attn-native style: K/V concat inside attention
 
 Usage (Mac MPS):
     .venv-mac/bin/python scripts/run_mHC3_bank_injection.py \

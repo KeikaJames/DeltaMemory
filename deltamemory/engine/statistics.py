@@ -1,4 +1,4 @@
-"""Statistical summaries for Delta Memory experiment reports."""
+"""Statistical summaries for Mneme experiment reports."""
 
 from __future__ import annotations
 

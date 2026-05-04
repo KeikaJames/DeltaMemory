@@ -1,4 +1,4 @@
-"""Phase X.1 — DiagnosticRecorder for 5 internal DeltaMemory signals.
+"""Phase X.1 — DiagnosticRecorder for 5 internal Mneme signals.
 
 Usage::
 
@@ -63,7 +63,7 @@ _RECORDER: Optional["DiagnosticRecorder"] = None
 # ---------------------------------------------------------------------------
 
 class DiagnosticRecorder:
-    """Context-manager that records 5 internal DeltaMemory signals per step.
+    """Context-manager that records 5 internal Mneme signals per step.
 
     Parameters
     ----------

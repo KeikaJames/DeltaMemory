@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # tests/test_full_suite_still_passes.sh
-# Run the full DeltaMemory test suite (excluding real-model conservation tests)
+# Run the full Mneme test suite (excluding real-model conservation tests)
 # and assert exit 0.
 #
 # Usage:
@@ -21,7 +21,7 @@ if [ -f ".venv-mac/bin/activate" ]; then
     source ".venv-mac/bin/activate"
 fi
 
-echo "=== DeltaMemory full test suite ==="
+echo "=== Mneme full test suite ==="
 echo "Working directory: $(pwd)"
 echo "Python: $(python --version 2>&1)"
 echo ""

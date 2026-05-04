@@ -1,4 +1,4 @@
-# Stage 13B robustness benchmarks — AttentionNative DeltaMemory bank
+# Stage 13B robustness benchmarks — AttentionNative Mneme bank
 
 - model: `google/gemma-4-E2B`
 - device/dtype: `mps` / `torch.bfloat16`

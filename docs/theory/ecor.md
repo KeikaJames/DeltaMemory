@@ -11,7 +11,7 @@
 
 ### 背景
 
-DeltaMemory 的 LOPI（动态正交投影注入）算子在注意力层的值空间做加法注入：
+Mneme 的 LOPI（动态正交投影注入）算子在注意力层的值空间做加法注入：
 
 $$V_{\text{out}} = V_{\text{ctx}} + \gamma_t \cdot w_\ell \cdot M_\perp$$
 
@@ -66,7 +66,7 @@ R-3 消融的核心发现：**正交投影**（$M_\perp = M_V - \operatorname{pr
 
 ### 异议 7：梯度饱和抑制 $\gamma_t$ 信号
 
-即使在冻结 LLM（只训练 DeltaMemory 参数）的情形下，$\gamma_t$ 仍可能通过端到端链条接收梯度（例如在训练 $\alpha$ 或门控参数时）。$\tanh'(x) = 1 - \tanh^2(x)$，当 $|x| > 2$ 时梯度几乎为零。加上 $k$ 放大，梯度饱和在 $s \approx 0.5$ 时已发生，而加法式 LOPI 的梯度是 $s$ 的线性函数，无饱和问题。这使得 ECOR 在任何需要优化 $\gamma_t$ 或 $w_\ell$ 的场景（如 W-T3.6 自适应门控实验）中学习信号稀疏。
+即使在冻结 LLM（只训练 Mneme 参数）的情形下，$\gamma_t$ 仍可能通过端到端链条接收梯度（例如在训练 $\alpha$ 或门控参数时）。$\tanh'(x) = 1 - \tanh^2(x)$，当 $|x| > 2$ 时梯度几乎为零。加上 $k$ 放大，梯度饱和在 $s \approx 0.5$ 时已发生，而加法式 LOPI 的梯度是 $s$ 的线性函数，无饱和问题。这使得 ECOR 在任何需要优化 $\gamma_t$ 或 $w_\ell$ 的场景（如 W-T3.6 自适应门控实验）中学习信号稀疏。
 
 ### 异议 8：「正交旋转升级」表述夸大了数学改进
 
@@ -74,7 +74,7 @@ R-3 消融的核心发现：**正交投影**（$M_\perp = M_V - \operatorname{pr
 
 ### 异议 9：与 ROME 式 rank-1 值投影更新的潜在干扰
 
-ROME（Meng+ 2022）通过直接修改 FFN 权重矩阵写入事实记忆，其更新在值空间形成 rank-1 外积 $\Delta W = v u^\top$。若 DeltaMemory 同时使用 ROME writer（`rome_writer.py`）和 ECOR 注入，旋转操作可能与 ROME 的 rank-1 更新方向产生耦合：旋转将 $V_{\text{ctx}}$ 旋离 ROME 写入的方向，削弱 ROME 的事实召回效果。加法式 LOPI 的向量叠加与 ROME 更新正交（不同机制），而旋转则在同一方向空间中竞争。此干扰在 `tests/test_rome_writer.py` 中未被覆盖，需专项测试。
+ROME（Meng+ 2022）通过直接修改 FFN 权重矩阵写入事实记忆，其更新在值空间形成 rank-1 外积 $\Delta W = v u^\top$。若 Mneme 同时使用 ROME writer（`rome_writer.py`）和 ECOR 注入，旋转操作可能与 ROME 的 rank-1 更新方向产生耦合：旋转将 $V_{\text{ctx}}$ 旋离 ROME 写入的方向，削弱 ROME 的事实召回效果。加法式 LOPI 的向量叠加与 ROME 更新正交（不同机制），而旋转则在同一方向空间中竞争。此干扰在 `tests/test_rome_writer.py` 中未被覆盖，需专项测试。
 
 ---
 

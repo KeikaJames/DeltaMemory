@@ -1,4 +1,4 @@
-# Hegel Dialectic — DeltaMemory Qualitative Demo
+# Hegel Dialectic — Mneme Qualitative Demo
 
 **Model**: google/gemma-4-E2B (frozen, MPS bf16)
 **Alpha**: 1.0 (identity-init K-projector, no shield)

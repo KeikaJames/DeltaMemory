@@ -223,7 +223,7 @@
       "mean_bind_top1": 0.11170634920634921,
       "verdict": "FAIL"
     },
-    "G10C_DeltaMemory_beats_baselines_on_canonical": {
+    "G10C_Mneme_beats_baselines_on_canonical": {
       "delta_top1": 1.0,
       "sft_lora_r16_edit_top1": 0.5519125461578369,
       "verdict": "PASS"

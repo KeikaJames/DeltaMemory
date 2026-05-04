@@ -1,10 +1,10 @@
-# DeltaMemory v3 — qualitative demo prompts
+# Mneme v3 — qualitative demo prompts
 
 These prompts are for **qualitative side-by-side comparison** (baseline /
 prompt-insertion / v3 attn-native bank) using
 `scripts/demo_chat.py`. They are NOT part of the held-out test split
 and do not enter any quantitative claim. The Phase G recall@1 numbers
-are the only quantitative evidence DeltaMemory currently stands on; see
+are the only quantitative evidence Mneme currently stands on; see
 `reports/cleanroom/stage14_test_gemma4_e2b/REPORT.md`.
 
 ## Use
@@ -36,7 +36,7 @@ top-1 in `ask` mode when the query paraphrases the address.
 ## Example: long-form generative prompt (QUALITATIVE only)
 
 This kind of prompt does *not* fit the recall@1 harness; it is a
-qualitative test of whether DeltaMemory's bank corrupts long-form
+qualitative test of whether Mneme's bank corrupts long-form
 generation when the bank carries facts unrelated to the prompt. Use
 this with a custom generation loop, not with `ask`.
 

@@ -17,8 +17,8 @@ The Apple Silicon path is documented in `docs/apple_silicon.md`. The CUDA path u
 ## 1. Clone + install
 
 ```bash
-git clone https://github.com/KeikaJames/DeltaMemory.git
-cd DeltaMemory
+git clone https://github.com/KeikaJames/Mneme.git
+cd Mneme
 python3.11 -m venv .venv-mac
 source .venv-mac/bin/activate
 pip install -r requirements.txt
@@ -113,7 +113,7 @@ Will generate `reports/cleanroom/stage15_v31_test/<model>/REPORT.md` per archite
 ## 9. Known gotchas
 
 - **`HF_HUB_OFFLINE=1`** is required when running on a sandboxed GB10 with no internet. Models must be pre-downloaded.
-- **`attn_implementation="eager"`** is required — DeltaMemory patches the eager forward. Flash-attn / SDPA paths will silently bypass the bank.
+- **`attn_implementation="eager"`** is required — Mneme patches the eager forward. Flash-attn / SDPA paths will silently bypass the bank.
 - **`use_cache=False`** during writes (already set in `write_fact`). With KV-cache enabled the capture position is wrong on subsequent forwards.
 - **bf16 vs fp16**: results are stable in bf16, less so in fp16 (we observed up to 0.04 logprob drift). Prefer bf16.
 

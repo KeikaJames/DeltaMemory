@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# DeltaMemory / Project Mneme — Phase v0.4 reproduction script.
+# Mneme / Project Mneme — Phase v0.4 reproduction script.
 #
 # Re-executes the methodology spine of the v0.4 release:
 #   1. Real datasets sanity   — LAMA T-REx 500, ConceptNet 500, CAA pairs

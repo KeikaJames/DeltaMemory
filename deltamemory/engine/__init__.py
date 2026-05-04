@@ -1,4 +1,4 @@
-"""Cleanroom Delta Memory engine.
+"""Cleanroom Mneme engine.
 
 Deprecated since v0.3 (Phase Q): use ``deltamemory.AttnNativePatcher`` /
 ``fresh_bank`` / ``LOPIConfig`` (Phase R+) instead.

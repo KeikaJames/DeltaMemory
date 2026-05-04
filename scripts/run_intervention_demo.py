@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Phase N: intervention demo — does DeltaMemory actually shift LLM output?
+"""Phase N: intervention demo — does Mneme actually shift LLM output?
 
 For each (fact, condition), we forward a *frozen* base LLM and compare:
   - B0  no memory                     (LLM alone)
   - B1  prompt-insertion              (fact prepended to context, LLM still frozen)
-  - v3  attn-native bank              (DeltaMemory; LLM frozen, only K-projector trained)
+  - v3  attn-native bank              (Mneme; LLM frozen, only K-projector trained)
 
 Per fact we record:
   * top-5 next-token candidates with probability
@@ -92,7 +92,7 @@ FACTS = [
 
 
 # Counter-prior facts: the object is *intentionally wrong*. The base LLM's
-# prior assigns near-zero probability to the target. If DeltaMemory can lift
+# prior assigns near-zero probability to the target. If Mneme can lift
 # the wrong target's log-prob meaningfully, that proves the bank is
 # *injecting* information into the model — not just letting the model emit
 # what it already knows. This is the gold-standard test for memory
@@ -295,7 +295,7 @@ def main():
 
     # ---- markdown transcript -----------------------------------------------
     md = []
-    md.append(f"# DeltaMemory v3 Intervention Demo — `{args.model}`")
+    md.append(f"# Mneme v3 Intervention Demo — `{args.model}`")
     md.append("")
     md.append(f"- adapter: `{patcher.adapter.name}`  | layers: {patcher.num_layers}  "
               f"| device: `{args.device}`  | dtype: `{args.dtype}`  | alpha: {args.alpha}  "

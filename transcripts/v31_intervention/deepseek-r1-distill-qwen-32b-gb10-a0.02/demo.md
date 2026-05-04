@@ -1,4 +1,4 @@
-# DeltaMemory v3 Intervention Demo — `deepseek-ai/DeepSeek-R1-Distill-Qwen-32B`
+# Mneme v3 Intervention Demo — `deepseek-ai/DeepSeek-R1-Distill-Qwen-32B`
 
 - adapter: `llama`  | layers: 64  | device: `cuda`  | dtype: `bfloat16`  | alpha: 0.02  | capture_policy: `period`
 - LLM weights: **frozen** (red line; α=0 ⇒ bit-equal to baseline)

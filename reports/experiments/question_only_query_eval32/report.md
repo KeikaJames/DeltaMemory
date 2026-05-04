@@ -1,8 +1,8 @@
-# Delta Memory Question-Only Query Eval32
+# Mneme Question-Only Query Eval32
 
 ## Question
 
-Does layerwise Delta Memory injection still beat ordinary frozen Gemma attention
+Does layerwise Mneme injection still beat ordinary frozen Gemma attention
 after removing both identified evaluation shortcuts?
 
 This run uses:
@@ -16,7 +16,7 @@ This run uses:
 - frozen Gemma base weights.
 
 It also includes a stronger `delta_qv_wrong_query` control that injects a
-foreign eval sample's Delta Memory into the current question.
+foreign eval sample's Mneme into the current question.
 
 ## Config
 

@@ -7,8 +7,8 @@ This report consolidates Stage 9 sub-stages 9A (encoder ablation), 9B (LAMA-TREx
 ## TL;DR
 
 1. **The N=4096 retrieval ceiling at recall@1 ≈ 0.83 (Stage 8 v3 Phase A) is broken.** Two encoder upgrades reach **perfect 1.000 recall** with σ=0 across 3 seeds: `multilayer` (concat 4 layers) and `prompt_hidden` (last-token hidden state of the read prompt).
-2. **DeltaMemory generalises to real LAMA-TREx facts across 7 Wikidata relations (P36/P19/P101/P641/P140/P39/P937, 183 facts).** prompt_hidden encoder, 3 seeds: top-1 = **1.000 ± 0**, swap paired-flip = 0.989 ± 0.010.
-3. **Head-to-head against vector-RAG / IKE / SFT-LoRA on the same 183-fact LAMA-TREx set, DeltaMemory wins decisively** (1.000 vs ≤ 0.448).
+2. **Mneme generalises to real LAMA-TREx facts across 7 Wikidata relations (P36/P19/P101/P641/P140/P39/P937, 183 facts).** prompt_hidden encoder, 3 seeds: top-1 = **1.000 ± 0**, swap paired-flip = 0.989 ± 0.010.
+3. **Head-to-head against vector-RAG / IKE / SFT-LoRA on the same 183-fact LAMA-TREx set, Mneme wins decisively** (1.000 vs ≤ 0.448).
 
 ## Phase 9A — Encoder Sweep (synthetic colours, N=4096)
 
@@ -52,12 +52,12 @@ All baselines were given the same fact set, same base model, and evaluated on th
 | vector-RAG (cosine on input-emb mean-pool) | 0.399 | 0.486 | n/a | retrieval@1 = 1.000, but the model still fails to copy the retrieved value |
 | IKE (in-context editing) | 0.399 | 0.486 | 0.50 | top-1 retrieved fact prepended as prefix |
 | SFT-LoRA (rank-16 on lm_head) | 0.448 | 0.557 | 0.50 | 200 fine-tune steps, AdamW 1e-3 |
-| **DeltaMemory (Phase 9B, prompt_hidden)** | **1.000** | **1.000** | n/a (frozen base) | 3-seed mean |
+| **Mneme (Phase 9B, prompt_hidden)** | **1.000** | **1.000** | n/a (frozen base) | 3-seed mean |
 
 GR17 (we beat vector-RAG at N≥16k): **PASS at N=183 LAMA-TREx**; full N=16k+ run deferred (see *Limitations*).
 GR18 (we ≥ IKE on generality): **PASS** (1.000 vs 0.399).
 
-**Interpretation.** Both retrieval and in-context editing fail at the *binding* step: even when the right fact is retrieved (RAG retrieval@1 = 1.0), the frozen Gemma-4-E2B does not reliably copy or use it from the prefix. SFT-LoRA improves slightly but causes 50 % logit drift on neutral prompts (catastrophic locality cost) for only 0.448 success. DeltaMemory injects the bound key/value directly into attention via `(Δq, Δv)` and avoids both failure modes.
+**Interpretation.** Both retrieval and in-context editing fail at the *binding* step: even when the right fact is retrieved (RAG retrieval@1 = 1.0), the frozen Gemma-4-E2B does not reliably copy or use it from the prefix. SFT-LoRA improves slightly but causes 50 % logit drift on neutral prompts (catastrophic locality cost) for only 0.448 success. Mneme injects the bound key/value directly into attention via `(Δq, Δv)` and avoids both failure modes.
 
 ## Hard gates summary
 
@@ -77,7 +77,7 @@ GR18 (we ≥ IKE on generality): **PASS** (1.000 vs 0.399).
 - **Sweep capped at N=4096.** The encoder result is decisive (perfect recall, σ=0 across seeds), but the planned N∈{16k, 65k} extension was not executed in this session due to compute-budget. The breakthrough should be re-verified at higher N in a follow-up run; mean_pool / attn_pool / residual_mlp's identical 0.83 plateau makes us confident the new encoders carry the trend, but it is not yet measured.
 - **LAMA-TREx subset.** 7 relations × 183 facts (curated for single-token first-token answers). Full LAMA-TREx (~30k) and multi-token answer evaluation are scoped for a follow-up session.
 - **ROME / MEMIT not run.** Adapting EasyEdit to Gemma-4-E2B requires architecture-specific MLP covariance extraction that exceeded this session. Current opponents (RAG, IKE, SFT-LoRA) cover the retrieval, in-context, and parametric fine-tune families respectively.
-- **Single-seed for baselines.** RAG / IKE / SFT-LoRA each ran one seed; DeltaMemory is 3-seed. Variance for the baselines is unlikely to close a 0.55+ gap.
+- **Single-seed for baselines.** RAG / IKE / SFT-LoRA each ran one seed; Mneme is 3-seed. Variance for the baselines is unlikely to close a 0.55+ gap.
 
 ## Reproducibility
 
@@ -89,4 +89,4 @@ Hardware split:
 
 ## Conclusion
 
-Stage 9 closes the open Stage 8 v3 retrieval gap with a representational fix (richer encoder), confirms the result on real factual bindings across 7 Wikidata relations, and demonstrates a substantial head-to-head margin against the three dominant alternatives (retrieval-augmentation, in-context editing, parametric fine-tune). Within the explicitly noted limitations, this is the strongest paper-grade evidence to date that DeltaMemory can implement persistent factual memory in a frozen LLM, not via external retrieval.
+Stage 9 closes the open Stage 8 v3 retrieval gap with a representational fix (richer encoder), confirms the result on real factual bindings across 7 Wikidata relations, and demonstrates a substantial head-to-head margin against the three dominant alternatives (retrieval-augmentation, in-context editing, parametric fine-tune). Within the explicitly noted limitations, this is the strongest paper-grade evidence to date that Mneme can implement persistent factual memory in a frozen LLM, not via external retrieval.

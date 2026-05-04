@@ -1,4 +1,4 @@
-# Delta Memory Layer Ablation Eval32
+# Mneme Layer Ablation Eval32
 
 > Superseded note: this report used the original synthetic answer generator,
 > whose answer sequence was deterministic across train/eval seeds. Treat it as
@@ -7,7 +7,7 @@
 
 ## Question
 
-Does injecting Delta Memory into every attention layer improve over a last-layer
+Does injecting Mneme into every attention layer improve over a last-layer
 only attention injection ablation?
 
 This compares the same Gemma/MPS eval32 setup under:
@@ -45,7 +45,7 @@ No retrieved source text is inserted into the prompt.
 
 ## Interpretation
 
-Both Delta Memory variants are much better than ordinary frozen Gemma attention.
+Both Mneme variants are much better than ordinary frozen Gemma attention.
 The all-layer path is stronger on average and wins 4 of 5 task suites, with a
 mean NLL advantage of `0.8122` over last-layer-only injection.
 

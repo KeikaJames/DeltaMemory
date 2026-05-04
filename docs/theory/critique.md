@@ -1,6 +1,6 @@
-# Honest Scoreboard: What DeltaMemory Can and Cannot Prove
+# Honest Scoreboard: What Mneme Can and Cannot Prove
 
-**Phase U.5** — DeltaMemory theory documentation.
+**Phase U.5** — Mneme theory documentation.
 
 > **Tone policy.** This document does not sugarcoat. Every claim below is grounded in a specific experiment or code inspection. Unverified claims are explicitly labelled as such.
 
@@ -110,10 +110,10 @@ Phase W is the proving ground. The minimum bar for claiming any component is "pr
 
 ## 6. Closing Statement
 
-DeltaMemory's approach — inference-time K/V bank injection into frozen LLMs, with spectral regularisation (mHC) and adaptive modulation (LOPI) — is theoretically coherent and has isolated empirical support in narrow regimes. It is not production-ready. Phase W exists to either build the evidence base that justifies production deployment, or to identify what needs to be replaced.
+Mneme's approach — inference-time K/V bank injection into frozen LLMs, with spectral regularisation (mHC) and adaptive modulation (LOPI) — is theoretically coherent and has isolated empirical support in narrow regimes. It is not production-ready. Phase W exists to either build the evidence base that justifies production deployment, or to identify what needs to be replaced.
 
 The correct scientific posture is: **the method is promising, the math is right, and the evidence is not there yet.**
 
 ---
 
-*References:* DeltaMemory Q2 sweep results; Phase R-3 ablation `reports/cleanroom/lopi_v33/FINDINGS.md`; Phase R-5.1 chat implant results; Phase S-7 Qwen2.5-0.5B auto/static comparison.
+*References:* Mneme Q2 sweep results; Phase R-3 ablation `reports/cleanroom/lopi_v33/FINDINGS.md`; Phase R-5.1 chat implant results; Phase S-7 Qwen2.5-0.5B auto/static comparison.

@@ -1,6 +1,6 @@
 # ArchAdapter — Adding a New Model Family
 
-`ArchAdapter` is the seam where DeltaMemory meets a specific transformer family. The patched forward is generic; per-family quirks (q/k/v norm presence, RoPE shape, KV-sharing, GQA repeat) are routed through the adapter.
+`ArchAdapter` is the seam where Mneme meets a specific transformer family. The patched forward is generic; per-family quirks (q/k/v norm presence, RoPE shape, KV-sharing, GQA repeat) are routed through the adapter.
 
 To add a new family you write **one** subclass and register it. No changes to the patcher or the bank.
 

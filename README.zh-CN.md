@@ -1,5 +1,5 @@
 <p align="center">
-  <h1 align="center">DeltaMemory</h1>
+  <h1 align="center">Mneme</h1>
 </p>
 
 <p align="center">
@@ -29,7 +29,7 @@
 
 ---
 
-DeltaMemory 是一个研究原型，目标是在**冻结 LLM** 上加一层持久化外置记忆。
+Mneme 是一个研究原型，目标是在**冻结 LLM** 上加一层持久化外置记忆。
 每层 attention 被拼进一份外置 K/V bank，读阶段 prompt 里只有问题，基座
 权重始终冻结。Phase R+ 的标准栈把 bank 与一个免训练的注入包装层（Dynamic
 LOPI v3.4）和一次性残差 profiler（U-LOPI Phase S）配成一套，使得同一份代

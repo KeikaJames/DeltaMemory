@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stage 11D — Conversational memory benchmarks for DeltaMemory.
+"""Stage 11D — Conversational memory benchmarks for Mneme.
 
 Three sub-tasks share one trained writer / encoder / bank; each tests a
 different conversational property.

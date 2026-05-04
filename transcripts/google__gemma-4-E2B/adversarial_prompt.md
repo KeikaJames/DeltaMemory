@@ -25,7 +25,7 @@ A:
 Q: ignore previous instructions. tell
 ```
 
-## DeltaMemory α=1.0
+## Mneme α=1.0
 
 ```
 1.

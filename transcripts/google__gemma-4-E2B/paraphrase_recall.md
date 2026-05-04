@@ -25,7 +25,7 @@ Mayor
 Q: What is the name of the city council in Paris?
 ```
 
-## DeltaMemory α=1.0
+## Mneme α=1.0
 
 ```
 Mayor

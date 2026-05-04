@@ -75,7 +75,7 @@ is significant in the direction shown.
 
 - It does not claim v3 is broken. v3 is significantly better than the
   untrained v2 bank.
-- It does not claim DeltaMemory cannot work. It claims the **frozen v3
+- It does not claim Mneme cannot work. It claims the **frozen v3
   config does not beat no-memory on a 39-fact held-out test split with
   Gemma-4-E2B on MPS bf16**.
 - It does not claim prompt-insertion solves long-term memory. B1/B2 here
@@ -166,7 +166,7 @@ selective memory.
 
 ### What this means for the comparison frame
 
-Until (1)–(4) are satisfied, **the only honest claim DeltaMemory can
+Until (1)–(4) are satisfied, **the only honest claim Mneme can
 make is "matches or beats prompt-insertion at equal compute, on a
 held-out preregistered split".** "Matches no-memory" is too weak (B0 is
 free). "Beats RAG" is too strong without a fair retriever. Phase G

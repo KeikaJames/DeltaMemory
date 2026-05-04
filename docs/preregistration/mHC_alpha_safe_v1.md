@@ -4,12 +4,12 @@
 
 **Frozen date**: 2026-05-04 (commit-time, see git log).
 
-**Scope**: Whether DeepSeek's *Manifold-Constrained Hyper-Connections* (mHC, arXiv:2512.24880) — proven for **training-time** spectral stability — extends to **inference-time external KV-bank α-injection** robustness in the DeltaMemory framework. This is a NEW research question; the paper does not address external memory injection.
+**Scope**: Whether DeepSeek's *Manifold-Constrained Hyper-Connections* (mHC, arXiv:2512.24880) — proven for **training-time** spectral stability — extends to **inference-time external KV-bank α-injection** robustness in the Mneme framework. This is a NEW research question; the paper does not address external memory injection.
 
 **Red lines (inherited from v3.1, extended)**:
 - LLM weights are frozen. mHC mixing matrix `C` is an **architecture-internal** trainable parameter, **not** the LLM's `W_q/W_k/W_v/W_o`.
 - α=0 must be bit-equal to the corresponding base architecture (logits-equivalent conversion verified per H6).
-- DeltaMemory injects only into attention K/V via the bank; it does not enter the token residual stream directly.
+- Mneme injects only into attention K/V via the bank; it does not enter the token residual stream directly.
 
 ---
 
@@ -63,7 +63,7 @@ Each H reports: point estimate, paired Wilcoxon signed-rank p, bootstrap (1000-r
   - HC GPT-2: third arm, expected somewhere in between or also exponential.
   Quantitative gate: `‖x_L‖_F / ‖x_0‖_F` for mHC is at least **10×** smaller than for Residual at α=1.5, with non-overlapping bootstrap 95% CI across 5 seeds × 32 prompts.
 - **H6 (α=0 bank-injection bit-equal regression)**. For each of the three
-  architectures, the DeltaMemory bank-augmented forward at α=0 reproduces the
+  architectures, the Mneme bank-augmented forward at α=0 reproduces the
   same architecture's *no-bank* logits with `max_abs_diff < 1e-5` over a fixed
   1024-token × full-vocab probe. (This is the standard pass-through gate
   already used by `tests/conservation_real_models.py` for v3.1; mHC inherits
@@ -81,7 +81,7 @@ Each H reports: point estimate, paired Wilcoxon signed-rank p, bootstrap (1000-r
 ## 3. Datasets, splits, sha pins
 
 - **Architecture-perturbation NLL (Phase mHC2)**: Wikitext-2 `validation` split, fixed segmentation 1024 tokens × 1024 segments, seed-locked sampling. Splits committed under `eval/wikitext2_mHC2_split.json` with sha256.
-- **DeltaMemory bank (Phase mHC3+)**: reuses v3.1 LAMA + ConceptNet train/dev split (existing sha-locked). Test set untouched.
+- **Mneme bank (Phase mHC3+)**: reuses v3.1 LAMA + ConceptNet train/dev split (existing sha-locked). Test set untouched.
 - **Counter-prior FALSE-facts (Phase mHC4)**: reuses the 5 FALSE facts from `transcripts/v31_intervention/*FALSE*/` plus 25 newly written counter-prior facts (committed in `eval/false_facts_mHC4.jsonl`, sha256 in amendment log).
 - **Layer-norm probe prompts (Phase mHC5)**: Wikitext-2 val, 32 segments × 5 seeds, sha256 in amendment.
 

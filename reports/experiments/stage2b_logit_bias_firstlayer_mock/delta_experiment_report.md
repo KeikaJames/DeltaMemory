@@ -1,4 +1,4 @@
-# Delta Memory Q/V Multi-Example Experiment
+# Mneme Q/V Multi-Example Experiment
 
 ## Config
 
@@ -69,5 +69,5 @@
 
 ## Interpretation
 
-This experiment trains only the Delta Memory writer and Q/V adapter while the base model remains frozen.
+This experiment trains only the Mneme writer and Q/V adapter while the base model remains frozen.
 A positive result requires held-out `delta_qv` to beat zero, random, and shuffled controls.

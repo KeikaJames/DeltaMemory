@@ -71,14 +71,14 @@ We did none of these. The preregistration is a fence, and the fence held when it
 
 ## What this means for the user
 
-If you're considering using DeltaMemory in production:
+If you're considering using Mneme in production:
 
 1. **Conservation law works** — at α=0 / empty bank, your model's outputs are identical to the unpatched LLM. There is no risk of degrading a frozen production deployment by *attaching* the patcher; only by *injecting* (α > 0) when the bank is wrong.
 2. **The qualitative wins are real** — see Phase N intervention demo: +4.41 logprob lift on a fact the model didn't know, no pollution on facts it did. This is the property a production system needs.
 3. **The aggregate metric is not yet positive** — recall@1 against B0 on a paraphrase-only held-out split is below B0 at the v3 frozen point. Phase L (v3.1) is in progress and will be re-evaluated on a fresh test split.
-4. **Prompt-insertion still wins** — at 0.658 vs DeltaMemory's 0.278, B1 prompt-insertion is the bar to beat. We do not claim DeltaMemory beats prompt-insertion; we claim it modifies the LLM's *internal attention distribution* in a way prompt-insertion cannot, while keeping the LLM frozen.
+4. **Prompt-insertion still wins** — at 0.658 vs Mneme's 0.278, B1 prompt-insertion is the bar to beat. We do not claim Mneme beats prompt-insertion; we claim it modifies the LLM's *internal attention distribution* in a way prompt-insertion cannot, while keeping the LLM frozen.
 
-The honest answer to *"does DeltaMemory work?"* in 2026-Q1 is: **the channel works (proven by conservation + Phase N), the aggregate score on this benchmark does not yet beat B0 (Phase G), v3.1 is in progress to fix the structural reasons.**
+The honest answer to *"does Mneme work?"* in 2026-Q1 is: **the channel works (proven by conservation + Phase N), the aggregate score on this benchmark does not yet beat B0 (Phase G), v3.1 is in progress to fix the structural reasons.**
 
 ## Why not just delete v3 and ship v3.1?
 

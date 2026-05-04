@@ -9,7 +9,7 @@ This script implements Phase mHC2 of the preregistration
     Wikitext-2 validation NLL across the preregistered α grid and seed grid.
 
 This isolates the *architecture-only* spectral-shield question from the bank
-side: no DeltaMemory bank, no learned K-projector, no factual content.  If
+side: no Mneme bank, no learned K-projector, no factual content.  If
 the doubly-stochastic constraint really keeps mHC's hidden-state norm bounded
 under bounded V perturbations, mHC's NLL curve must stay flat where Residual
 GPT-2's blows up.

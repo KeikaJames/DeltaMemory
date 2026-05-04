@@ -279,11 +279,11 @@ def fig11(ours: Dict[str, List[float]], baselines: Dict[str, dict]) -> str:
             return 1.0 - float(b.get("locality_drift_top1", 0.0) or 0.0)
         return 0.0
 
-    methods = [("ours", "Delta Memory (ours)", "#d62728"),
+    methods = [("ours", "Mneme (ours)", "#d62728"),
                ("vector_rag", "vector-RAG", "#1f77b4"),
                ("ike", "IKE in-context", "#2ca02c"),
                ("sft_lora", "SFT-LoRA on lm_head", "#9467bd")]
-    out = svg_open(W, H, "Stage 9C — Delta Memory vs RAG / IKE / SFT-LoRA")
+    out = svg_open(W, H, "Stage 9C — Mneme vs RAG / IKE / SFT-LoRA")
 
     # axes lines + labels
     for i, (ax_key, ax_label) in enumerate(axes):

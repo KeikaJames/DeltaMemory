@@ -22,7 +22,7 @@ on the same frozen LLM:
 
 * **B0** — no memory (LLM alone).
 * **B1** — prompt-insertion (the `write` line is prepended to the `read` prompt).
-* **v3** — DeltaMemory attn-native bank (α=value, identity-init K-projector).
+* **v3** — Mneme attn-native bank (α=value, identity-init K-projector).
 
 `Δ = v3 − B0` is the intervention's effect on target log-prob.  Positive Δ
 means the bank successfully shifted probability mass onto the target.
@@ -229,7 +229,7 @@ requires more α.  An α-sweep on DeepSeek-32B FALSE facts at α=0.1/0.2/0.3
 quantifies how much more is needed (results in
 `transcripts/v31_intervention/deepseek-r1-distill-qwen-32b-gb10-FALSE-a*/`).
 
-The takeaway: DeltaMemory's working α is **task-dependent**.  α≈0.05 on
+The takeaway: Mneme's working α is **task-dependent**.  α≈0.05 on
 Qwen-family is enough to reinforce a true fact the model is already willing
 to emit, but a counter-prior intervention may need α≈0.1–0.3 on a 32B base.
 The patched forward itself is bit-equal at α=0/empty bank on every model
@@ -238,7 +238,7 @@ tested (`tests/conservation_real_models.py`), so the safety property
 
 ### Why the false-fact evidence is the right argument
 
-The point of DeltaMemory is to inject information *into* the LLM's forward
+The point of Mneme is to inject information *into* the LLM's forward
 pass without changing weights.  If the only positive signals were on facts
 the model already knew, a skeptic could (correctly) argue the bank is just
 not breaking anything — the LLM is doing the work.  The false-fact targets

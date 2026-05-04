@@ -1,7 +1,7 @@
 """Dynamic LOPI (Layer-Orthogonal-Projection Injection) — Phase R, v3.3.
 
 Architecture-agnostic, training-free injection wrapper for the attention-native
-DeltaMemory bank.  Replaces the legacy
+Mneme bank.  Replaces the legacy
 
     out_bank = weights[..., T:] @ (alpha * mv_e)
 

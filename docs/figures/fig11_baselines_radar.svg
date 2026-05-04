@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 540" font-family="Helvetica, Arial, sans-serif" font-size="13">
   <rect width="640" height="540" fill="#ffffff"/>
-  <text x="320.0" y="22" text-anchor="middle" font-size="16" font-weight="bold">Stage 9C — Delta Memory vs RAG / IKE / SFT-LoRA</text>
+  <text x="320.0" y="22" text-anchor="middle" font-size="16" font-weight="bold">Stage 9C — Mneme vs RAG / IKE / SFT-LoRA</text>
   <line x1="320.0" y1="280.0" x2="320.0" y2="100.0" stroke="#aaa"/>
   <line x1="320.0" y1="235.0" x2="365.0" y2="280.0" stroke="#ddd"/>
   <line x1="320.0" y1="190.0" x2="410.0" y2="280.0" stroke="#ddd"/>
@@ -27,7 +27,7 @@
   <text x="114.0" y="280.0" text-anchor="middle">locality (1 − drift)</text>
   <polygon points="320.0,100.0 500.0,280.0 320.0,458.1 140.0,280.0" fill="#d62728" fill-opacity="0.18" stroke="#d62728" stroke-width="2"/>
   <rect x="20" y="430" width="14" height="14" fill="#d62728" fill-opacity="0.4" stroke="#d62728"/>
-  <text x="40" y="441">Delta Memory (ours)</text>
+  <text x="40" y="441">Mneme (ours)</text>
   <polygon points="320.0,208.2 500.0,280.0 320.0,280.0 140.0,280.0" fill="#1f77b4" fill-opacity="0.18" stroke="#1f77b4" stroke-width="2"/>
   <rect x="20" y="450" width="14" height="14" fill="#1f77b4" fill-opacity="0.4" stroke="#1f77b4"/>
   <text x="40" y="461">vector-RAG</text>

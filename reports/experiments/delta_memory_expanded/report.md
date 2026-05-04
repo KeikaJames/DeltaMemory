@@ -1,4 +1,4 @@
-# Delta Memory Expanded Gemma/MPS Report
+# Mneme Expanded Gemma/MPS Report
 
 > Superseded note: this report used the original synthetic answer generator,
 > whose answer sequence was deterministic across train/eval seeds. Treat it as

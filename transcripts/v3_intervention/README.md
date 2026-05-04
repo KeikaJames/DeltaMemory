@@ -1,7 +1,7 @@
 # Phase N — Intervention Demo Results
 
 This directory contains output from `scripts/run_intervention_demo.py`, the
-end-to-end test of whether DeltaMemory's attn-native bank can shift the
+end-to-end test of whether Mneme's attn-native bank can shift the
 next-token distribution of a **frozen** base LLM.
 
 ## How to read these numbers

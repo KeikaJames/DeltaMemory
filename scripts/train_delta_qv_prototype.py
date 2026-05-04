@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Train only Delta Memory writer/QV adapters on the demo."""
+"""Train only Mneme writer/QV adapters on the demo."""
 
 from __future__ import annotations
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Reproduce DeltaMemory v3 (Stage 14) end-to-end on Gemma-4-E2B.
+# Reproduce Mneme v3 (Stage 14) end-to-end on Gemma-4-E2B.
 #
 # This script regenerates every artifact behind the Phase G report:
 #   1. holdout splits (deterministic, sha-pinned in eval/splits/manifest.json)
@@ -31,7 +31,7 @@ MODEL="${DM_MODEL:-google/gemma-4-E2B}"
 DEVICE="${DM_DEVICE:-mps}"
 
 echo "============================================================"
-echo "DeltaMemory v3 reproduction"
+echo "Mneme v3 reproduction"
 echo "  python : ${PY}"
 echo "  model  : ${MODEL}"
 echo "  device : ${DEVICE}"

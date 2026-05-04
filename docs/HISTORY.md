@@ -1,4 +1,4 @@
-# DeltaMemory — Phase / stage history (long form)
+# Mneme — Phase / stage history (long form)
 
 This file is the long-form narrative log that previously lived in the README.
 The README itself now only carries a condensed Phase table; consult this file

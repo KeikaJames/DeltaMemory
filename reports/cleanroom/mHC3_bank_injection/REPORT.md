@@ -1,4 +1,4 @@
-# Phase mHC3 — DeltaMemory Bank Injection into 3-Arm GPT-2
+# Phase mHC3 — Mneme Bank Injection into 3-Arm GPT-2
 
 **Date**: 2026-05-04 (original) · **Amendment 1**: 2026-05-04 (drift metric correction)
 **Hardware**: Mac MPS bf16
@@ -88,7 +88,7 @@ Wikipedia-style prompts; positive ⇒ bank degrades neutral fluency.)
    V direction and is therefore the source of neutral-prompt drift, while
    leaving the orthogonal component (the genuine novelty) intact. LOPI
    replaces the present 3-arm test bench as the recommended deployment
-   path for industrial DeltaMemory.
+   path for industrial Mneme.
 
 ## Repro
 

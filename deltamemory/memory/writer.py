@@ -1,4 +1,4 @@
-"""Raw/Delta Memory writer."""
+"""Raw/Mneme writer."""
 
 from __future__ import annotations
 

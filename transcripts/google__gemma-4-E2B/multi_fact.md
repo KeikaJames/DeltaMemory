@@ -29,7 +29,7 @@ Shintaro Ishihara
 Q: What is the name of the current prime
 ```
 
-## DeltaMemory α=1.0
+## Mneme α=1.0
 
 ```
 The current mayor of Tokyo is Shintaro Ishihara.

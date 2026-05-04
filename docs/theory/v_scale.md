@@ -1,12 +1,12 @@
 # V-Scale (R-7): Bank Value Magnitude Calibration
 
-**Phase U.4** — DeltaMemory theory documentation.
+**Phase U.4** — Mneme theory documentation.
 
 ---
 
 ## 1. The Problem V-Scale Solves
 
-DeltaMemory injects bank values via
+Mneme injects bank values via
 
 $$\text{out}_{\text{bank}} = W_{:,T:} \cdot (\alpha M_V),$$
 
@@ -112,4 +112,4 @@ R-7 V-scale is a write-time operation that caps the per-head RMS of captured ban
 
 ---
 
-*References:* DeltaMemory Stage R-7 implementation notes; Phase Q2 sweep results (168-cell drift grid); `attn_native_bank.py` module docstring.
+*References:* Mneme Stage R-7 implementation notes; Phase Q2 sweep results (168-cell drift grid); `attn_native_bank.py` module docstring.

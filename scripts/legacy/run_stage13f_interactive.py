@@ -1,6 +1,6 @@
-"""Stage 13F — Interactive transcripts with DeltaMemory injection.
+"""Stage 13F — Interactive transcripts with Mneme injection.
 
-Produces side-by-side ``baseline`` vs ``DeltaMemory α=1`` chat transcripts
+Produces side-by-side ``baseline`` vs ``Mneme α=1`` chat transcripts
 for six prompt categories the user asked for: direct recall, paraphrase,
 adversarial override, locality probe, multi-turn, and adversarial prompt.
 
@@ -261,7 +261,7 @@ def main():
             baseline_text or "(empty)",
             "```",
             "",
-            f"## DeltaMemory α={args.alpha}",
+            f"## Mneme α={args.alpha}",
             "",
             "```",
             dm_text or "(empty)",
@@ -294,7 +294,7 @@ def main():
     )
 
     rep = [
-        "# Stage 13F — Interactive transcripts (DeltaMemory)",
+        "# Stage 13F — Interactive transcripts (Mneme)",
         "",
         f"**Model**: `{args.model}`  ·  **Device**: `{args.device}` ({args.dtype})  ·  α={args.alpha}",
         "",

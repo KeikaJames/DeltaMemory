@@ -6,7 +6,7 @@
 > prompts (eval is in-distribution memorisation), the bank carries free
 > information about the *order* of facts, and baselines were under-trained.
 > Stage 10 is a single-shot, all-runs-on-record adversarial campaign that puts
-> 8 falsifiable hypotheses in front of the same DeltaMemory pipeline used in
+> 8 falsifiable hypotheses in front of the same Mneme pipeline used in
 > Stage 9 and reports gate verdicts honestly, including the failures.
 
 ## Hardware & Reproducibility
@@ -31,7 +31,7 @@
 | 10B | F2: retrieval is sharp at scale  | append K×N random-init slots; re-run retrieval | bind_top1 ≥ 0.80 at K=1000 |
 | 10D | F5: bank values do real work     | replace bank.v with random / shuffled tensors after training | bind_top1 ≤ 0.10 (i.e. *should* collapse) |
 | 10F | F7: writer generalises across relations | leave one Wikidata relation out at training, then add its facts to the bank zero-shot | holdout bind_top1 ≥ 0.50 |
-| 10C | F3/F4: DeltaMemory beats equal-budget baselines | SFT-LoRA × {r=4,16,64} × 3 seeds × 1500 steps; vector-RAG; IKE | DeltaMemory > all baselines on edit_top1 *and* on locality drift |
+| 10C | F3/F4: Mneme beats equal-budget baselines | SFT-LoRA × {r=4,16,64} × 3 seeds × 1500 steps; vector-RAG; IKE | Mneme > all baselines on edit_top1 *and* on locality drift |
 
 10E (N=16384 scale stress) was attempted but OOM'd at K=100 decoys
 (decoy keys + matmul exceeded GB10 free memory). The scale claim is instead
@@ -67,7 +67,7 @@ covered by Stage 9A (N=4096) + Stage 10ABD (decoy×1000 = 1.000 at N=183).
 | SFT-LoRA r=4           | 0.541 ± 0.005   | 0.617 ± 0.000   | 0.556 ± 0.096                    |
 | SFT-LoRA r=16          | 0.552 ± 0.000   | 0.617 ± 0.000   | 0.556 ± 0.096                    |
 | SFT-LoRA r=64          | 0.552 ± 0.000   | 0.617 ± 0.000   | 0.778 ± 0.096                    |
-| **DeltaMemory (prompt_hidden)** | **1.000 ± 0.000** | — | **0.000** (read-time inject) |
+| **Mneme (prompt_hidden)** | **1.000 ± 0.000** | — | **0.000** (read-time inject) |
 
 ## Gate verdicts (honest)
 
@@ -77,11 +77,11 @@ covered by Stage 9A (N=4096) + Stage 10ABD (decoy×1000 = 1.000 at N=183).
 | **G10B** decoy×1000 bind top1 ≥ 0.80       | **PASS** — both encoders 1.000 |
 | **G10D** value ablation top1 ≤ 0.10        | **PASS** — random 0.000 / shuffled 0.015 vs unablated 1.000 |
 | **G10F** LORO holdout bind top1 ≥ 0.50     | **FAIL** — mean 0.112 (retrieval generalises, writer does not) |
-| **G10C** DeltaMemory beats baselines on canonical | **PASS** — 1.000 vs SFT-LoRA r=64 0.552 (with 0.78 drift) |
+| **G10C** Mneme beats baselines on canonical | **PASS** — 1.000 vs SFT-LoRA r=64 0.552 (with 0.78 drift) |
 
 ## What this changes about the Stage 9 claim
 
-Stage 9 narrative: *"DeltaMemory turns Gemma-4-E2B into an N=4k retrievable
+Stage 9 narrative: *"Mneme turns Gemma-4-E2B into an N=4k retrievable
 factual store with 1.000 ± 0 binding."* That is true **only on byte-identical
 canonical prompts**. Stage 10 narrows the claim:
 
@@ -101,14 +101,14 @@ canonical prompts**. Stage 10 narrows the claim:
    drops to 0.00–0.38 (mean 0.11). The encoder maps held-out addresses into
    distinct keys, but the writer-produced values for those held-out keys do
    not decode back to the answer token. (G10F FAIL.)
-5. **DeltaMemory still beats RAG / IKE / SFT-LoRA at equal training budget on
+5. **Mneme still beats RAG / IKE / SFT-LoRA at equal training budget on
    the canonical regime**: 1.000 vs the best baseline 0.552 with 56–78%
    collateral drift. So the *operational claim* — "more efficient than full
    fine-tuning, no model-weight surgery" — survives. (G10C PASS.)
 
 The honest summary is therefore:
 
-> **DeltaMemory is a real, validated factual store on canonical prompts** (G10B,
+> **Mneme is a real, validated factual store on canonical prompts** (G10B,
 > G10D, G10C all PASS), **but its key-/value-network does not yet generalise
 > across surface paraphrase or unseen relations** (G10A, G10F FAIL). The next
 > step is *not* further hyper-parameter sweeps in the canonical regime; the

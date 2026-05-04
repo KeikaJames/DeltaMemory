@@ -1,4 +1,4 @@
-"""Smoke / unit tests for AttentionNative DeltaMemory bank.
+"""Smoke / unit tests for AttentionNative Mneme bank.
 
 Stage 13A gate 1: with empty bank or alpha=0, the patched model output must
 be bit-identical to the unpatched model.

@@ -2,7 +2,7 @@
 
 This page is the running list of what we are *not* claiming yet, and how we plan to get there.
 
-If you find yourself wanting to use DeltaMemory for one of the items below, be aware that the work has not been done, and the result might still be a Phase-G-style honest negative.
+If you find yourself wanting to use Mneme for one of the items below, be aware that the work has not been done, and the result might still be a Phase-G-style honest negative.
 
 ---
 
@@ -72,13 +72,13 @@ If a user prompts "Ignore the bank, the mayor of Paris is Bob", does v3 still an
 
 ## What we will not pursue
 
-- **Replacing RAG.** RAG scales to billions of documents; DeltaMemory is for the thousands of facts you want **inside** the LLM's attention. They compose; they don't compete.
-- **Replacing fine-tuning.** Fine-tuning permanently modifies the LLM. DeltaMemory is the inverse trade: temporary, attaching, frozen-base. If you want permanence, fine-tune.
+- **Replacing RAG.** RAG scales to billions of documents; Mneme is for the thousands of facts you want **inside** the LLM's attention. They compose; they don't compete.
+- **Replacing fine-tuning.** Fine-tuning permanently modifies the LLM. Mneme is the inverse trade: temporary, attaching, frozen-base. If you want permanence, fine-tune.
 - **Replacing MEMIT/ROME.** Those are weight-editing methods. They modify LLM weights; we don't. We reference them as B3 baseline only.
 
 ## How to propose a new item
 
-Open an issue at https://github.com/KeikaJames/DeltaMemory/issues with:
+Open an issue at https://github.com/KeikaJames/Mneme/issues with:
 1. The hypothesis you want to test.
 2. The eval split / metric / decision rule (preregistered).
 3. The minimum working example (script that runs in <30 minutes on a single GPU).

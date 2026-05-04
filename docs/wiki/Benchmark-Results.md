@@ -82,7 +82,7 @@ The bench script is `scripts/run_v31_benchmark_full.py` (Phase M1). Each row rep
 - **B3** MEMIT *labeled* "weight-editing baseline" (LLM weights modified — for comparison only, not our method)
 - **B4** LoRA *labeled* "fine-tune baseline" (LLM weights modified — for comparison only)
 
-We will not claim "DeltaMemory beats MEMIT" or "DeltaMemory beats LoRA" because B3/B4 modify the LLM. The comparison frame is: **"what can DeltaMemory deliver while leaving the LLM frozen?"**
+We will not claim "Mneme beats MEMIT" or "Mneme beats LoRA" because B3/B4 modify the LLM. The comparison frame is: **"what can Mneme deliver while leaving the LLM frozen?"**
 
 ## 5. Hegel-prompt qualitative (planned, Phase N3)
 
@@ -90,9 +90,9 @@ The user's reference prompt about Hegel's `negation of negation` will be run on 
 
 ## 6. What we do not (yet) claim
 
-- DeltaMemory generalizes across **languages**. We have only English. Bilingual eval is roadmap (`v3.2`).
-- DeltaMemory survives **multi-hop reasoning**. Stage 14 was 1-hop facts; Phase G held-out was paraphrase-only.
-- DeltaMemory beats RAG at **scale > 10k facts**. The bank is per-layer dense; storage scales linearly.
-- DeltaMemory works with **Flash-Attention**. We patch the eager forward only.
+- Mneme generalizes across **languages**. We have only English. Bilingual eval is roadmap (`v3.2`).
+- Mneme survives **multi-hop reasoning**. Stage 14 was 1-hop facts; Phase G held-out was paraphrase-only.
+- Mneme beats RAG at **scale > 10k facts**. The bank is per-layer dense; storage scales linearly.
+- Mneme works with **Flash-Attention**. We patch the eager forward only.
 
 These are roadmap items for v3.2+ and listed honestly so reviewers don't have to guess.

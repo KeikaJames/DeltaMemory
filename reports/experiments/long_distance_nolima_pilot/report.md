@@ -1,8 +1,8 @@
-# Delta Memory Long-Distance NoLiMa-Style Pilot
+# Mneme Long-Distance NoLiMa-Style Pilot
 
 ## Question
 
-Does Delta Memory survive a longer non-literal retrieval setting?
+Does Mneme survive a longer non-literal retrieval setting?
 
 This suite places a unit-to-alias crosswalk, long unrelated filler, and an
 answer-bearing policy memorandum far apart. The question uses the hardware

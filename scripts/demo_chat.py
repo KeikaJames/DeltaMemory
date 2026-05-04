@@ -1,4 +1,4 @@
-"""Interactive REPL demo for DeltaMemory v3 (frozen).
+"""Interactive REPL demo for Mneme v3 (frozen).
 
 Compare three modes side-by-side on user-typed queries:
     1. baseline  — model alone (no bank, no prompt injection)

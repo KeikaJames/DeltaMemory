@@ -1,4 +1,4 @@
-"""AttentionNative DeltaMemory (Stage 13A).
+"""AttentionNative Mneme (Stage 13A).
 
 Replaces v1's stitched pipeline (encoder -> KeyProjector -> bank -> broadcast
 residual injection) with a single linear-algebra primitive: per-layer K/V

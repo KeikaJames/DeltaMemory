@@ -1,4 +1,4 @@
-# DeltaMemory — Migration Guide (legacy → Phase R/S canonical APIs)
+# Mneme — Migration Guide (legacy → Phase R/S canonical APIs)
 
 This document maps the **pre-Phase-Q legacy modules** (now emitting
 `DeprecationWarning` at import) to their **Phase R / Phase S canonical**

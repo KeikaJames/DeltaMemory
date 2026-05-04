@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-"""Stage 12 — Multi-model cross-architecture adversarial validation of DeltaMemory.
+"""Stage 12 — Multi-model cross-architecture adversarial validation of Mneme.
 
-Loads each target HF model (frozen, bf16), trains a small DeltaMemory bank on
+Loads each target HF model (frozen, bf16), trains a small Mneme bank on
 LAMA-TREx canonical + paraphrase prompts, then runs THREE adversarial probes
 per model:
 
   P1 — held-out paraphrase recall@1 (encoder fingerprint test)
   P2 — adversarial low-quality prompts (typos / fragments / wrong language /
        prompt-injection wrappers / instruction conflicts) test whether the
-       DeltaMemory can still steer the model's argmax flip on the answer
+       Mneme can still steer the model's argmax flip on the answer
        token despite hostile surface form.
-  P3 — output-tampering test: with DeltaMemory injection ON, can we override
+  P3 — output-tampering test: with Mneme injection ON, can we override
        the model's natural top-1 prediction to a target value? Measures the
        bind+override rate AND the side-effect drift on 12 unrelated control
        prompts (locality).
@@ -280,7 +280,7 @@ def probe_p2_adversarial_prompts(model, tokenizer, facts, encoder, key_proj, ban
 def probe_p3_output_tampering(model, tokenizer, facts, encoder, key_proj,
                                writer, alpha, device):
     """Output-tampering test: pick facts whose canonical answer the base model
-    naturally gets wrong and see whether DeltaMemory can FORCE the gold token
+    naturally gets wrong and see whether Mneme can FORCE the gold token
     to win. Also measures locality drift on 12 unrelated controls.
     """
     addresses = [f.address for f in facts]

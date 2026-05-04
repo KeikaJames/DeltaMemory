@@ -1,4 +1,4 @@
-# DeltaMemory Gemma4 Delta Q/V Multiseed Report
+# Mneme Gemma4 Delta Q/V Multiseed Report
 
 ## Config
 
@@ -37,5 +37,5 @@
 
 ## Interpretation
 
-Across three seeds, the frozen Gemma4 base remains unchanged and the trained DeltaMemory Delta Q/V adapter beats zero, random, and shuffled controls on held-out later-reference examples.
+Across three seeds, the frozen Gemma4 base remains unchanged and the trained Mneme Delta Q/V adapter beats zero, random, and shuffled controls on held-out later-reference examples.
 This is still a small mechanism experiment, not a benchmark-scale result.

@@ -1,6 +1,6 @@
 # mHC: From Sinkhorn–Knopp to Bank-Column-Only Spectral Cap
 
-**Phase U.1** — DeltaMemory theory documentation.
+**Phase U.1** — Mneme theory documentation.
 
 ---
 

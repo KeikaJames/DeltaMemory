@@ -1,4 +1,4 @@
-# mHC DeltaMemory: Inference-Time External KV-Bank α-Safety via Manifold-Constrained Hyper-Connections
+# mHC Mneme: Inference-Time External KV-Bank α-Safety via Manifold-Constrained Hyper-Connections
 
 **Status**: Empirical phase complete (mHC0-mHC6).  Preregistered 2026-05-03.  
 **Models**: GPT-2 small (124M, 12L, 768d) + GPT-2 medium (355M, 24L, 1024d).  
@@ -16,7 +16,7 @@ constraint on residual mixing matrices provides **training-time** spectral stabi
 > Does the same doubly-stochastic constraint provide **inference-time** robustness
 > against external KV-bank injection in a frozen LLM?
 
-The DeltaMemory attn-native bank injects `α × M_V` into every attention layer.
+The Mneme attn-native bank injects `α × M_V` into every attention layer.
 In a standard residual Transformer, each layer's additive residual stream accumulates
 this signal without bound: `x_{ℓ+1} = x_ℓ + F(x_ℓ) + α × injection`.  Over L layers,
 the injected signal can be exponentially amplified, making α tuning fragile (v3.1

@@ -139,7 +139,7 @@ def main() -> None:
             "mean_bind_top1": summary["10F_loro"]["mean_bind_top1"][0],
             "verdict": "PASS" if summary["10F_loro"]["mean_bind_top1"][0] >= 0.50 else "FAIL",
         },
-        "G10C_DeltaMemory_beats_baselines_on_canonical": {
+        "G10C_Mneme_beats_baselines_on_canonical": {
             "delta_top1": ph["std_bank_inject_top1"][0],  # 1.000
             "sft_lora_r16_edit_top1": summary["10C_sft_lora_r16"].get("edit_top1", (None, None))[0],
             "verdict": "PASS",
@@ -187,7 +187,7 @@ def main() -> None:
             continue
         f = lambda k: f"{s[k][0]:.3f} ± {s[k][1]:.3f}" if s[k][0] is not None else "—"
         lines.append(f"| {label} | {f('edit_top1')} | {f('edit_top5')} | {f('locality_drift')} |")
-    lines.append("| **DeltaMemory (prompt_hidden)** | **{:.3f} ± {:.3f}** | — | **0.000** (read-time inject) |".format(*ph["std_bank_inject_top1"]))
+    lines.append("| **Mneme (prompt_hidden)** | **{:.3f} ± {:.3f}** | — | **0.000** (read-time inject) |".format(*ph["std_bank_inject_top1"]))
     lines.append("")
     lines.append("## Gate verdicts")
     lines.append("")

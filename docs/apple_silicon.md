@@ -1,6 +1,6 @@
 # Apple Silicon Runtime Notes
 
-Delta Memory needs Hugging Face / PyTorch access to hidden states, attention
+Mneme needs Hugging Face / PyTorch access to hidden states, attention
 tensors, and Gemma Q/K/V projection hooks. For this prototype, the correct local
 runtime is PyTorch MPS on Apple Silicon, not Ollama or vLLM.
 
@@ -15,7 +15,7 @@ runtime is PyTorch MPS on Apple Silicon, not Ollama or vLLM.
 ## Neural Engine vs MPS
 
 Apple's Neural Engine is mainly exposed through Core ML style compiled-model
-execution. Delta Memory currently needs live PyTorch autograd over adapter
+execution. Mneme currently needs live PyTorch autograd over adapter
 modules and runtime hooks inside Gemma attention projections, so the practical
 backend is Metal/MPS.
 

@@ -1,4 +1,4 @@
-"""DeltaMemory architecture adapters.
+"""Mneme architecture adapters.
 
 This package provides architecture-specific adapters that expose a uniform
 interface for querying MoE router gates and expert pools.  The adapters are

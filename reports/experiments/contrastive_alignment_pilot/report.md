@@ -1,8 +1,8 @@
-# Delta Memory Contrastive Alignment Pilot
+# Mneme Contrastive Alignment Pilot
 
 ## Question
 
-Can contrastive training and shared-memory retrieval force Delta Memory to use
+Can contrastive training and shared-memory retrieval force Mneme to use
 query-specific memory identity rather than only a generic Delta activation?
 
 This pilot follows the negative paired-conflict result and adds:

@@ -1,6 +1,6 @@
-# DeltaMemory — Methodology Notes
+# Mneme — Methodology Notes
 
-This document records the math and the engineering choices behind DeltaMemory
+This document records the math and the engineering choices behind Mneme
 (DM) and explicitly lists what is **not** claimed. It is the answer we owe
 reviewers who ask "is this `eps`-injection actually principled, or is it
 hand-wavy steering?"
@@ -31,7 +31,7 @@ $$
 
 This makes DM closer to a key-value memory with a learned readout than to
 mid-layer activation steering or to ROME-style edits. We keep this name
-("DeltaMemory") for historical reasons — earlier prototypes did inject at
+("Mneme") for historical reasons — earlier prototypes did inject at
 every attention V-projection — but the production code path is single-point
 final-residual injection.
 

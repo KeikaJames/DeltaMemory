@@ -1,4 +1,4 @@
-"""Temporary fast-weight readouts for Delta Memory payloads."""
+"""Temporary fast-weight readouts for Mneme payloads."""
 
 from __future__ import annotations
 

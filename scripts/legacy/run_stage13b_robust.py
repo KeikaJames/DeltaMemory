@@ -1,4 +1,4 @@
-"""Stage 13B: robustness benchmarks on the AttentionNative DeltaMemory bank.
+"""Stage 13B: robustness benchmarks on the AttentionNative Mneme bank.
 
 Three benchmarks against the zero-shot AttnNativeBank from Stage 13A:
   13B-1  Paraphrase robustness   (gate >= 0.70)
@@ -371,7 +371,7 @@ def main():
 
 def write_report_md(path: Path, summary: dict) -> None:
     lines = [
-        "# Stage 13B robustness benchmarks — AttentionNative DeltaMemory bank\n",
+        "# Stage 13B robustness benchmarks — AttentionNative Mneme bank\n",
         f"- model: `{summary['model']}`",
         f"- device/dtype: `{summary['device']}` / `{summary['dtype']}`",
         f"- seeds: {summary['seeds']}    alphas: {summary['alphas']}",

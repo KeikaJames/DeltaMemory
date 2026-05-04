@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the Delta Memory attention-injection demo.
+"""Run the Mneme attention-injection demo.
 
 The default uses the local mock Gemma-style model so CI and mock tests do
 not download weights. Pass ``--model google/gemma-4-E2B`` to try the real base
@@ -62,7 +62,7 @@ def main() -> int:
 
 def _markdown(summary: dict) -> str:
     lines = [
-        "# Delta Memory Experiment Demo Report",
+        "# Mneme Experiment Demo Report",
         "",
         "## Status",
         "",

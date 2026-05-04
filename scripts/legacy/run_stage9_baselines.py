@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stage 9-C: head-to-head baselines vs Delta Memory.
+"""Stage 9-C: head-to-head baselines vs Mneme.
 
 Implements three opponent baselines that all share the same fact set,
 the same eval prompts, and the same metrics, so we can plug results
@@ -15,7 +15,7 @@ directly next to ours in the report:
 - ``sft_lora``: fine-tune a small LoRA on the LM head + last-layer MLP
   of the (otherwise frozen) base model on the writeable fact set, then
   evaluate held-out generation on the same prompts. This is the
-  parametric edit ceiling that Delta Memory must beat.
+  parametric edit ceiling that Mneme must beat.
 
 Metrics (always reported, NaN where N/A):
 - edit_success_top1, edit_success_top5

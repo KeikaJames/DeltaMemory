@@ -205,11 +205,11 @@ projector-bottlenecked retrieval".
 # Mac side: rsync repo + HF cache to GB10 (one-time)
 rsync -aP ~/.cache/huggingface/hub/models--google--gemma-4-E2B/ \
   gabira@192.168.1.108:~/.cache/huggingface/hub/models--google--gemma-4-E2B/
-rsync -aP /path/to/DeltaMemory/ gabira@192.168.1.108:~/projects/DeltaMemory/
+rsync -aP /path/to/Mneme/ gabira@192.168.1.108:~/projects/Mneme/
 
 # GB10 side
 ssh 192.168.1.108
-cd ~/projects/DeltaMemory
+cd ~/projects/Mneme
 .venv-gb10/bin/python3 scripts/run_stage8.py \
   --n-facts 4096 --steps 1500 --device cuda --dtype bfloat16 --seed 0 \
   --report-dir reports/experiments/stage8_v2_n4096_seed0

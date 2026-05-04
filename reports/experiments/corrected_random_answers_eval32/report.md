@@ -1,4 +1,4 @@
-# Delta Memory Corrected Random-Answer Eval32
+# Mneme Corrected Random-Answer Eval32
 
 > Superseded note: this report fixed deterministic train/eval answer patterns,
 > but still used retrieval queries computed from teacher-forced prompts that
@@ -7,13 +7,13 @@
 
 ## Question
 
-Does layerwise Delta Memory injection still beat ordinary frozen Gemma
+Does layerwise Mneme injection still beat ordinary frozen Gemma
 attention after removing the deterministic train/eval answer-pattern shortcut?
 
 This corrected run changes the synthetic datasets so each seed samples answer
 codes randomly. The train-like and eval-like answer sequences are no longer the
 same. The run also includes a stronger `delta_qv_wrong_query` control that
-injects a foreign sample's Delta Memory into the current question.
+injects a foreign sample's Mneme into the current question.
 
 ## Config
 

@@ -1,4 +1,4 @@
-# DeltaMemory v3 — Pre-registration
+# Mneme v3 — Pre-registration
 
 This document is **signed by commit before any test-set evaluation runs**.
 Any change after the signing commit must be appended as an `Amendment` block
@@ -49,9 +49,9 @@ Five frozen LLMs, each loaded in bf16 and never fine-tuned:
 | B1 | prompt-insertion (fact text prepended) | 0 |
 | B2 | RAG-BM25 top-3 (sparse retrieval into context) | 0 |
 | B3 | MEMIT (weight-edit, EleutherAI memit) | 1500 step edit |
-| B4 | DeltaMemory v1 (stitched encoder) | KeyProjector + Q/K/V deltas |
-| B5 | DeltaMemory v2 (zero-param attn-native, current PR) | 0 |
-| B6 | DeltaMemory v3 = v2 + Stage 14 (this work) | 1 `Linear(d,d)` per layer (InfoNCE projector) |
+| B4 | Mneme v1 (stitched encoder) | KeyProjector + Q/K/V deltas |
+| B5 | Mneme v2 (zero-param attn-native, current PR) | 0 |
+| B6 | Mneme v3 = v2 + Stage 14 (this work) | 1 `Linear(d,d)` per layer (InfoNCE projector) |
 
 ## 4. Hypotheses
 

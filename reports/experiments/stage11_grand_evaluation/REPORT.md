@@ -25,9 +25,9 @@ Of the four failure-modes Stage 11 was designed to attack:
 4. **The bank is necessary.** Random-value and shuffled-mapping ablations destroy retrieval, confirming the encoder alone is not sufficient (F5 falsified).
 
 What we therefore claim, post-Stage-11:
-- DeltaMemory implements **robust binding for trained facts** (any encoder, any decoy scale, any conversational-filler depth).
-- DeltaMemory provides a **fast write API** that beats vector-RAG when the same encoder is used downstream.
-- DeltaMemory does **not** yet generalize to (a) paraphrases of trained facts under our `multilayer` / `prompt_hidden` encoders, or (b) relations not seen during training. Both remain open problems.
+- Mneme implements **robust binding for trained facts** (any encoder, any decoy scale, any conversational-filler depth).
+- Mneme provides a **fast write API** that beats vector-RAG when the same encoder is used downstream.
+- Mneme does **not** yet generalize to (a) paraphrases of trained facts under our `multilayer` / `prompt_hidden` encoders, or (b) relations not seen during training. Both remain open problems.
 
 What we therefore do **not** claim:
 - "DM is a one-shot editable memory" — falsified by 11B.

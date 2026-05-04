@@ -26,7 +26,7 @@ Q: What is the capital of China?
 A: Beijing
 ```
 
-## DeltaMemory α=1.0
+## Mneme α=1.0
 
 ```
 Tokyo
