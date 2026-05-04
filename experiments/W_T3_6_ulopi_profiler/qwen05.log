@@ -1,0 +1,18 @@
+[load] Qwen/Qwen2.5-0.5B-Instruct  device=mps  dtype=torch.bfloat16
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 8993.07it/s]
+[ok] using Qwen/Qwen2.5-0.5B-Instruct
+[base] mean NLL = 1.9035 nats
+[cell] alpha=0.00 seed=0  static_nll=1.9035  auto_nll=1.9035  drift_static=+0.0000  drift_auto=+0.0000  (0.4s)
+[cell] alpha=0.00 seed=1  static_nll=1.9035  auto_nll=1.9035  drift_static=+0.0000  drift_auto=+0.0000  (0.4s)
+[cell] alpha=0.00 seed=2  static_nll=1.9035  auto_nll=1.9035  drift_static=+0.0000  drift_auto=+0.0000  (0.4s)
+[cell] alpha=1.00 seed=0  static_nll=4.1591  auto_nll=3.5993  drift_static=+2.2557  drift_auto=+1.6958  (1.3s)
+[cell] alpha=1.00 seed=1  static_nll=4.1591  auto_nll=3.5993  drift_static=+2.2557  drift_auto=+1.6958  (0.8s)
+[cell] alpha=1.00 seed=2  static_nll=4.1591  auto_nll=3.5993  drift_static=+2.2557  drift_auto=+1.6958  (0.8s)
+[cell] alpha=2.00 seed=0  static_nll=5.0455  auto_nll=3.2156  drift_static=+3.1420  drift_auto=+1.3121  (0.8s)
+[cell] alpha=2.00 seed=1  static_nll=5.0455  auto_nll=3.2156  drift_static=+3.1420  drift_auto=+1.3121  (0.8s)
+[cell] alpha=2.00 seed=2  static_nll=5.0455  auto_nll=3.2156  drift_static=+3.1420  drift_auto=+1.3121  (1.0s)
+[cell] alpha=4.00 seed=0  static_nll=6.3299  auto_nll=6.1043  drift_static=+4.4264  drift_auto=+4.2009  (0.8s)
+[cell] alpha=4.00 seed=1  static_nll=6.3299  auto_nll=6.1043  drift_static=+4.4264  drift_auto=+4.2009  (0.8s)
+[cell] alpha=4.00 seed=2  static_nll=6.3299  auto_nll=6.1043  drift_static=+4.4264  drift_auto=+4.2009  (0.8s)
+[done] verdict = AUTO<STATIC
