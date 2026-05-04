@@ -13,10 +13,7 @@
       -5.7102,
       -1.7711
     ],
-    "mean_drift": 0.4213,
-    "drift_metric": "seq_nll_diff_neutral",
-    "mean_base_nll": 2.0846,
-    "mean_inj_nll": 2.5059,
+    "mean_drift": -0.9223,
     "n_facts": 5
   },
   {
@@ -33,10 +30,7 @@
       -5.2001,
       -2.0367
     ],
-    "mean_drift": 0.2676,
-    "drift_metric": "seq_nll_diff_neutral",
-    "mean_base_nll": 2.0846,
-    "mean_inj_nll": 2.3522,
+    "mean_drift": -0.906,
     "n_facts": 5
   },
   {
@@ -53,10 +47,7 @@
       -5.077,
       -2.1188
     ],
-    "mean_drift": -0.0632,
-    "drift_metric": "seq_nll_diff_neutral",
-    "mean_base_nll": 2.0846,
-    "mean_inj_nll": 2.0214,
+    "mean_drift": -0.7951,
     "n_facts": 5
   },
   {
@@ -73,10 +64,7 @@
       -4.5715,
       -2.3083
     ],
-    "mean_drift": 0.4723,
-    "drift_metric": "seq_nll_diff_neutral",
-    "mean_base_nll": 2.0846,
-    "mean_inj_nll": 2.5569,
+    "mean_drift": -0.8795,
     "n_facts": 5
   },
   {
@@ -93,10 +81,7 @@
       -4.3854,
       -0.391
     ],
-    "mean_drift": 5.6395,
-    "drift_metric": "seq_nll_diff_neutral",
-    "mean_base_nll": 2.0846,
-    "mean_inj_nll": 7.7241,
+    "mean_drift": -0.7883,
     "n_facts": 5
   },
   {
@@ -113,10 +98,7 @@
       -9.1724,
       -2.329
     ],
-    "mean_drift": 6.7782,
-    "drift_metric": "seq_nll_diff_neutral",
-    "mean_base_nll": 2.0846,
-    "mean_inj_nll": 8.8628,
+    "mean_drift": -1.1296,
     "n_facts": 5
   },
   {
@@ -133,10 +115,7 @@
       0.247,
       -0.0583
     ],
-    "mean_drift": 0.8018,
-    "drift_metric": "seq_nll_diff_neutral",
-    "mean_base_nll": 2.6492,
-    "mean_inj_nll": 3.451,
+    "mean_drift": -0.1818,
     "n_facts": 5
   },
   {
@@ -153,10 +132,7 @@
       0.6531,
       -0.0424
     ],
-    "mean_drift": 1.2262,
-    "drift_metric": "seq_nll_diff_neutral",
-    "mean_base_nll": 2.6492,
-    "mean_inj_nll": 3.8754,
+    "mean_drift": -0.2324,
     "n_facts": 5
   },
   {
@@ -173,10 +149,7 @@
       1.1372,
       -0.6571
     ],
-    "mean_drift": 1.083,
-    "drift_metric": "seq_nll_diff_neutral",
-    "mean_base_nll": 2.6492,
-    "mean_inj_nll": 3.7322,
+    "mean_drift": -0.0117,
     "n_facts": 5
   },
   {
@@ -193,10 +166,7 @@
       1.5032,
       -1.0673
     ],
-    "mean_drift": 0.7321,
-    "drift_metric": "seq_nll_diff_neutral",
-    "mean_base_nll": 2.6492,
-    "mean_inj_nll": 3.3813,
+    "mean_drift": -0.0466,
     "n_facts": 5
   },
   {
@@ -213,10 +183,7 @@
       1.641,
       0.5091
     ],
-    "mean_drift": 4.466,
-    "drift_metric": "seq_nll_diff_neutral",
-    "mean_base_nll": 2.6492,
-    "mean_inj_nll": 7.1152,
+    "mean_drift": -0.3066,
     "n_facts": 5
   },
   {
@@ -233,10 +200,7 @@
       -4.3746,
       -2.2829
     ],
-    "mean_drift": 6.515,
-    "drift_metric": "seq_nll_diff_neutral",
-    "mean_base_nll": 2.6492,
-    "mean_inj_nll": 9.1642,
+    "mean_drift": -0.1996,
     "n_facts": 5
   },
   {
@@ -253,10 +217,7 @@
       0.247,
       -0.0583
     ],
-    "mean_drift": 0.8018,
-    "drift_metric": "seq_nll_diff_neutral",
-    "mean_base_nll": 2.6492,
-    "mean_inj_nll": 3.451,
+    "mean_drift": -0.1818,
     "n_facts": 5
   },
   {
@@ -273,10 +234,7 @@
       0.6531,
       -0.0424
     ],
-    "mean_drift": 1.2262,
-    "drift_metric": "seq_nll_diff_neutral",
-    "mean_base_nll": 2.6492,
-    "mean_inj_nll": 3.8754,
+    "mean_drift": -0.2324,
     "n_facts": 5
   },
   {
@@ -293,10 +251,7 @@
       1.1372,
       -0.6571
     ],
-    "mean_drift": 1.083,
-    "drift_metric": "seq_nll_diff_neutral",
-    "mean_base_nll": 2.6492,
-    "mean_inj_nll": 3.7322,
+    "mean_drift": -0.0117,
     "n_facts": 5
   },
   {
@@ -313,10 +268,7 @@
       1.5032,
       -1.0673
     ],
-    "mean_drift": 0.7321,
-    "drift_metric": "seq_nll_diff_neutral",
-    "mean_base_nll": 2.6492,
-    "mean_inj_nll": 3.3813,
+    "mean_drift": -0.0466,
     "n_facts": 5
   },
   {
@@ -333,10 +285,7 @@
       1.641,
       0.5091
     ],
-    "mean_drift": 4.466,
-    "drift_metric": "seq_nll_diff_neutral",
-    "mean_base_nll": 2.6492,
-    "mean_inj_nll": 7.1152,
+    "mean_drift": -0.3066,
     "n_facts": 5
   },
   {
@@ -353,10 +302,7 @@
       -4.3746,
       -2.2829
     ],
-    "mean_drift": 6.515,
-    "drift_metric": "seq_nll_diff_neutral",
-    "mean_base_nll": 2.6492,
-    "mean_inj_nll": 9.1642,
+    "mean_drift": -0.1996,
     "n_facts": 5
   }
 ]

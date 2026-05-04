@@ -1,0 +1,157 @@
+[
+  {
+    "variant": "A0",
+    "config": {
+      "enabled": false,
+      "orthogonal": true,
+      "gaussian": true,
+      "derivative": true,
+      "k_gate": 5.0,
+      "theta_gate": 0.5,
+      "kappa_depth": 2.0,
+      "beta_sigma": 2.0,
+      "norm_base": 10.0,
+      "mu_low": 0.3,
+      "mu_span": 0.5,
+      "sigma_floor": 0.001,
+      "eps": 1e-06
+    },
+    "alpha": 0.0,
+    "seed": 0,
+    "model": "gpt2",
+    "n_layers": 12,
+    "mean_lift": 0.0,
+    "lifts": [
+      0.0,
+      0.0
+    ],
+    "mean_drift": -0.0,
+    "drift_metric": "seq_nll_diff_neutral",
+    "n_facts": 2,
+    "n_neutral": 2
+  },
+  {
+    "variant": "A1",
+    "config": {
+      "enabled": true,
+      "orthogonal": true,
+      "gaussian": false,
+      "derivative": false,
+      "k_gate": 5.0,
+      "theta_gate": 0.5,
+      "kappa_depth": 2.0,
+      "beta_sigma": 2.0,
+      "norm_base": 10.0,
+      "mu_low": 0.3,
+      "mu_span": 0.5,
+      "sigma_floor": 0.001,
+      "eps": 1e-06
+    },
+    "alpha": 0.0,
+    "seed": 0,
+    "model": "gpt2",
+    "n_layers": 12,
+    "mean_lift": 0.0,
+    "lifts": [
+      0.0,
+      0.0
+    ],
+    "mean_drift": -0.0,
+    "drift_metric": "seq_nll_diff_neutral",
+    "n_facts": 2,
+    "n_neutral": 2
+  },
+  {
+    "variant": "A2",
+    "config": {
+      "enabled": true,
+      "orthogonal": true,
+      "gaussian": true,
+      "derivative": false,
+      "k_gate": 5.0,
+      "theta_gate": 0.5,
+      "kappa_depth": 2.0,
+      "beta_sigma": 2.0,
+      "norm_base": 10.0,
+      "mu_low": 0.3,
+      "mu_span": 0.5,
+      "sigma_floor": 0.001,
+      "eps": 1e-06
+    },
+    "alpha": 0.0,
+    "seed": 0,
+    "model": "gpt2",
+    "n_layers": 12,
+    "mean_lift": 0.0,
+    "lifts": [
+      0.0,
+      0.0
+    ],
+    "mean_drift": -0.0,
+    "drift_metric": "seq_nll_diff_neutral",
+    "n_facts": 2,
+    "n_neutral": 2
+  },
+  {
+    "variant": "A3",
+    "config": {
+      "enabled": true,
+      "orthogonal": true,
+      "gaussian": true,
+      "derivative": true,
+      "k_gate": 5.0,
+      "theta_gate": 0.5,
+      "kappa_depth": 2.0,
+      "beta_sigma": 2.0,
+      "norm_base": 10.0,
+      "mu_low": 0.3,
+      "mu_span": 0.5,
+      "sigma_floor": 0.001,
+      "eps": 1e-06
+    },
+    "alpha": 0.0,
+    "seed": 0,
+    "model": "gpt2",
+    "n_layers": 12,
+    "mean_lift": 0.0,
+    "lifts": [
+      0.0,
+      0.0
+    ],
+    "mean_drift": -0.0,
+    "drift_metric": "seq_nll_diff_neutral",
+    "n_facts": 2,
+    "n_neutral": 2
+  },
+  {
+    "variant": "A4",
+    "config": {
+      "enabled": true,
+      "orthogonal": false,
+      "gaussian": true,
+      "derivative": true,
+      "k_gate": 5.0,
+      "theta_gate": 0.5,
+      "kappa_depth": 2.0,
+      "beta_sigma": 2.0,
+      "norm_base": 10.0,
+      "mu_low": 0.3,
+      "mu_span": 0.5,
+      "sigma_floor": 0.001,
+      "eps": 1e-06
+    },
+    "alpha": 0.0,
+    "seed": 0,
+    "model": "gpt2",
+    "n_layers": 12,
+    "mean_lift": 0.0,
+    "lifts": [
+      0.0,
+      0.0
+    ],
+    "mean_drift": -0.0,
+    "drift_metric": "seq_nll_diff_neutral",
+    "n_facts": 2,
+    "n_neutral": 2
+  }
+]

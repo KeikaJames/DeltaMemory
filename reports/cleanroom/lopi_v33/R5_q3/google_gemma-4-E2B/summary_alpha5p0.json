@@ -1,0 +1,23 @@
+{
+  "model": "google/gemma-4-E2B",
+  "alpha": 5.0,
+  "shield": true,
+  "n_facts": 5,
+  "baseline_accurate": 0,
+  "per_lopi": {
+    "off": {
+      "accurate_implant": 0,
+      "partial_implant": 1,
+      "not_implanted": 4,
+      "accurate_implant_rate": 0.0,
+      "partial_implant_rate": 0.2
+    },
+    "on": {
+      "accurate_implant": 0,
+      "partial_implant": 1,
+      "not_implanted": 4,
+      "accurate_implant_rate": 0.0,
+      "partial_implant_rate": 0.2
+    }
+  }
+}

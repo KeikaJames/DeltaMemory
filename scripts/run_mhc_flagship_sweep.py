@@ -160,12 +160,13 @@ def _seq_nll_patched(patcher, bank, tok, prompt: str, alpha: float) -> float:
     return nll.mean().item()
 
 
-def run_cell(model_name: str, tok, model, alphas, shield_modes, false_facts,
-             neutral_prompts, out_dir: Path, seeds=(0,)):
-    """Run all (shield × α × seed) cells for one model."""
+def run_cell(model_name: str, tok, model, alphas, shield_modes, lopi_modes,
+             false_facts, neutral_prompts, out_dir: Path, seeds=(0,)):
+    """Run all (shield × lopi × α × seed) cells for one model."""
     cell_results = []
     short = model_name.replace("/", "_")
     for shield_on in shield_modes:
+      for lopi_on in lopi_modes:
         for alpha in alphas:
             for seed in seeds:
                 torch.manual_seed(seed)
@@ -174,6 +175,7 @@ def run_cell(model_name: str, tok, model, alphas, shield_modes, false_facts,
                     patcher = AttnNativePatcher(model)
                     bank = fresh_bank(model)
                     bank.mhc_shield = bool(shield_on)
+                    _set_lopi(bank, bool(lopi_on))
                     write_fact(patcher, bank, tok,
                                write_prompt=f["write"],
                                fact_id=f["fact_id"],
@@ -184,12 +186,10 @@ def run_cell(model_name: str, tok, model, alphas, shield_modes, false_facts,
                                               f["read"], target_id, alpha=alpha)
                     lifts.append(inj_lp - base_lp)
 
-                # NLL drift on neutral prompts (one bank injected, neutral context).
-                # We pre-load a single neutral fact so the bank is non-empty;
-                # the question is whether α destabilises forward in unrelated context.
                 patcher = AttnNativePatcher(model)
                 bank = fresh_bank(model)
                 bank.mhc_shield = bool(shield_on)
+                _set_lopi(bank, bool(lopi_on))
                 write_fact(patcher, bank, tok,
                            write_prompt="Fact: The Sun is a star at the centre of the Solar System.",
                            fact_id="neutral_anchor",
@@ -203,6 +203,7 @@ def run_cell(model_name: str, tok, model, alphas, shield_modes, false_facts,
                 cell = dict(
                     model=model_name,
                     shield=bool(shield_on),
+                    lopi=bool(lopi_on),
                     alpha=float(alpha),
                     seed=int(seed),
                     mean_lift=float(sum(lifts) / max(len(lifts), 1)),
@@ -212,15 +213,32 @@ def run_cell(model_name: str, tok, model, alphas, shield_modes, false_facts,
                     n_neutral=len(neutral_prompts),
                 )
                 cell_results.append(cell)
-                print(f"  [{short}] shield={shield_on} α={alpha:>4.2f} seed={seed}"
+                print(f"  [{short}] shield={shield_on} lopi={lopi_on} "
+                      f"α={alpha:>4.2f} seed={seed}"
                       f"  lift={cell['mean_lift']:+.3f}  drift={cell['nll_drift']:+.3f}",
                       flush=True)
+                # Incremental write for crash-safety on long sweeps.
+                with (out_dir / f"{short}.json").open("w") as fh:
+                    json.dump(cell_results, fh, indent=2)
 
-    # Save per-model JSON.
-    out_dir.mkdir(parents=True, exist_ok=True)
-    with (out_dir / f"{short}.json").open("w") as fh:
-        json.dump(cell_results, fh, indent=2)
     return cell_results
+
+
+def _set_lopi(bank, enabled: bool) -> None:
+    """Configure the bank's LOPI wrapper to the v3.4 default profile.
+
+    R-3 strike-1 evidence drove ``orthogonal=False``; ``gaussian`` and
+    ``derivative`` stay on so the layer-routed and topic-derivative
+    components shield drift without the M_perp magnitude artefact.
+    """
+    from deltamemory.memory.lopi import LOPIConfig, LOPIState
+    bank.lopi_cfg = LOPIConfig(
+        enabled=bool(enabled),
+        orthogonal=False,
+        gaussian=True,
+        derivative=True,
+    )
+    bank.lopi_state = LOPIState(num_layers=bank.num_layers)
 
 
 def main():
@@ -230,6 +248,10 @@ def main():
     ap.add_argument("--alphas", nargs="+", type=float,
                     default=[0.05, 0.1, 0.5, 1.0, 2.0, 5.0])
     ap.add_argument("--shield", choices=["off", "on", "both"], default="both")
+    ap.add_argument("--lopi", choices=["off", "on", "both"], default="off",
+                    help="LOPI v3.4 (gauss + gamma) on top of shield. "
+                         "off = legacy v3.2 behaviour; on = LOPI engaged; "
+                         "both = sweep both states for paired comparison.")
     ap.add_argument("--seeds", nargs="+", type=int, default=[0])
     ap.add_argument("--device", default=None)
     ap.add_argument("--dtype", default="bfloat16",
@@ -246,6 +268,13 @@ def main():
     else:
         shield_modes = [False, True]
 
+    if args.lopi == "off":
+        lopi_modes = [False]
+    elif args.lopi == "on":
+        lopi_modes = [True]
+    else:
+        lopi_modes = [False, True]
+
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
     meta = dict(
@@ -253,6 +282,7 @@ def main():
         device=device, dtype=args.dtype,
         models=args.models, alphas=args.alphas,
         shield_modes=[bool(s) for s in shield_modes],
+        lopi_modes=[bool(l) for l in lopi_modes],
         seeds=args.seeds,
         n_false_facts=len(FALSE_FACTS),
         n_neutral=len(NEUTRAL_PROMPTS),
@@ -267,7 +297,7 @@ def main():
         except Exception as exc:
             print(f"[skip] {m}: {exc}", flush=True)
             continue
-        cells = run_cell(m, tok, model, args.alphas, shield_modes,
+        cells = run_cell(m, tok, model, args.alphas, shield_modes, lopi_modes,
                          FALSE_FACTS, NEUTRAL_PROMPTS, out_dir, seeds=args.seeds)
         aggregate.extend(cells)
         del model, tok

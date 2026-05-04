@@ -57,8 +57,23 @@ For each architecture × α ∈ {0.05, ..., 10.0}, we:
 | **10.00** | **−4.297** | **−0.997** | **−0.997** |
 
 At α=1.0, only the multi-stream architectures achieve positive counter-prior lift
-(+0.07 nats vs residual −0.68).  At α=10.0, residual collapses (−4.30) while
-multi-stream stays bounded (−1.00) — a **4.3× stability improvement**.
+(+0.07 nats vs residual −0.68). At α=10.0, residual collapses (−4.30) while
+multi-stream stays bounded at lift −1.00 (a 4.3× *lift-collapse* gap).
+
+> **Amendment 1 (2026-05-04, post-Codex P1 fix).** The earlier
+> `mean_drift` column was a single-token `" The"` log-prob proxy (Codex
+> review on PR #6 flagged dead `pass`/`append(0.0)` placeholders in
+> `scripts/run_mHC3_bank_injection.py:370–386`). Sweep was rerun on Mac
+> MPS bf16 with true sequence-NLL drift; the **lift** column is
+> unaffected by the fix and the headline 4.13-nats medium-scale lift
+> gap stands. The **drift** narrative changes: under real seq-NLL,
+> multi-stream HC/mHC has *higher* neutral drift than residual (e.g.
+> α=1.0 small: HC/mHC +2.26 vs residual +0.70). H2 (drift bound)
+> therefore fails more decisively. The genuine architectural advantage
+> is *lift preservation*, not drift safety; drift safety must come
+> from a separate orthogonal-projection mechanism (Phase R LOPI). All
+> tables below report seq-NLL drift; legacy single-token results
+> preserved at `reports/cleanroom/mHC3_bank_injection/results_legacy_singletok.json`.
 
 ### 3.2 GPT-2 Medium (355M, 24L, 1024d)
 
@@ -92,7 +107,7 @@ Deeper models benefit more from the multi-stream routing constraint.
 | ID | Hypothesis | Verdict | Evidence |
 |---|---|---|---|
 | **H1** | Residual NLL diverges ≥3 nats at α<α* | **PASS** | GPT-2 medium: −3.65 nats at α=1.0. α* < 1.0 confirmed. |
-| **H2** | mHC NLL stays ≤0.5 nats over α∈[0,5] | **FAIL** (original) — **PASS** (revised) | Multi-stream drift bound is 4-5× tighter than residual, but absolute threshold 0.5 nats is too strict. Revised: mHC strictly more stable than residual at every α. |
+| **H2** | mHC NLL stays ≤0.5 nats over α∈[0,5] | **FAIL** (corrected, Amendment 1) | Under true seq-NLL, multi-stream HC/mHC drift is *higher* than residual at every α tested (e.g. α=1.0 small: 2.26 vs 0.70 nats; α=1.0 medium: 1.08 vs −0.06). H2 therefore fails more decisively than the legacy single-token measurement implied. The earlier "revised PASS" was a measurement artifact and is retracted. |
 | **H3** | Unconstrained HC also crashes at some α | **FAIL** (honest negative) | HC and mHC are near-identical at equivalence init. Multi-stream + readout structure alone provides the resilience; SK constraint's incremental contribution is not measurable at this scale. |
 | **H4** | mHC counter-prior lift monotonic in α; residual collapses | **PASS** (partial) | GPT-2 medium: mHC lift positive for α∈[0.1,5.0]; residual negative for all α. Lift is not strictly monotonic (peaks at α=2.0). |
 | **H5** | Layer-norm ||x_L||/||x_0|| ≥10× gap at α=1.5 | **FAIL** (scale-limited) | GPT-2 small norms show injection delta buried in model's own computation. GPT-2 medium probe pending separate instrumentation. |
