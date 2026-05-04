@@ -8,3 +8,4 @@ data/lama_*.jsonl
 reports/experiments/*.log
 reports/experiments/delta_experiment_summary.json
 .dl_logs/
+.claude/

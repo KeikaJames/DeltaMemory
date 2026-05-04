@@ -109,6 +109,11 @@ class AttnNativeBank:
     # columns bit-for-bit unchanged.  Default False keeps v3.1 behaviour.
     # See ``deltamemory.memory.mhc_shield.shield_attention_weights``.
     mhc_shield: bool = False
+    # Stage R (v3.3): Dynamic LOPI configuration + per-call state. Default
+    # cfg.enabled=False makes the LOPI wrapper a no-op so the merged-softmax
+    # branch keeps its v3.2 byte-equal behavior.  See ``deltamemory.memory.lopi``.
+    lopi_cfg: Any = None
+    lopi_state: Any = None
 
     def __post_init__(self) -> None:
         if not self.head_dims:
@@ -120,6 +125,13 @@ class AttnNativeBank:
                                             device=self.device, dtype=self.dtype))
                 self.M_V.append(torch.empty(0, self.num_kv_heads, d,
                                             device=self.device, dtype=self.dtype))
+        # Lazy import to keep top-of-file clean and avoid circulars.
+        if self.lopi_cfg is None:
+            from deltamemory.memory.lopi import LOPIConfig
+            self.lopi_cfg = LOPIConfig()  # enabled=False by default
+        if self.lopi_state is None:
+            from deltamemory.memory.lopi import LOPIState
+            self.lopi_state = LOPIState(num_layers=self.num_layers)
 
     @property
     def empty(self) -> bool:
@@ -425,6 +437,30 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
                     )
                 out_orig = torch.matmul(weights[..., :T_orig], v_repeat)
                 out_bank = torch.matmul(weights[..., T_orig:], alpha * mv_e)
+                # Stage R (v3.3): optional Dynamic LOPI wrapper.  When
+                # ``bank.lopi_cfg.enabled = False`` (default) this is a
+                # no-op and the formula stays bit-for-bit identical to v3.2.
+                lopi_cfg = getattr(bank, "lopi_cfg", None)
+                if lopi_cfg is not None and getattr(lopi_cfg, "enabled", False):
+                    from deltamemory.memory.lopi import apply_lopi
+
+                    lopi_state = bank.lopi_state
+                    out_bank = apply_lopi(
+                        out_bank_native=out_bank,
+                        v_ctx_readout=out_orig,
+                        q_post=q_post,
+                        layer_idx=layer_idx,
+                        state=lopi_state,
+                        cfg=lopi_cfg,
+                    )
+                    # Update the t-1 residual-norm cache for layer_idx using
+                    # the *current* attention output norm as a cheap proxy
+                    # (avoids a full residual-stream hook).  This is the
+                    # PREREGISTRATION §3.5 causality trick.
+                    with torch.no_grad():
+                        lopi_state.prev_residual_norms[layer_idx] = float(
+                            torch.linalg.vector_norm(out_orig, ord=2, dim=-1).mean().item()
+                        )
                 attn_out = (out_orig + out_bank).transpose(1, 2).contiguous()
         else:
             weights = F.softmax(scores_orig, dim=-1, dtype=torch.float32).to(q_post.dtype)
