@@ -22,7 +22,7 @@ class RMSNorm(nn.Module):
         return x * torch.rsqrt(x.pow(2).mean(dim=-1, keepdim=True) + self.eps) * self.weight
 
 
-class RCVHCWriter(nn.Module):
+class MnemeWriter(nn.Module):
     """Write per-block RawMemory and Delta Q/K/V memory.
 
     The writer consumes frozen model outputs but its projections remain

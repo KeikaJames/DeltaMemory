@@ -128,10 +128,10 @@ Until W.5 is complete, **mHC should be considered unvalidated on all MoE archite
 
 | Architecture | MoE V | Current cap | Correct cap |
 |---|---|---|---|
-| Dense (Gemma-4, Qwen2.5, Llama) | N/A | Global col-sum ✓ | Global col-sum ✓ |
+| Dense (Gemma-4, Qwen2.5, Llama) | N/A | Global col-sum  | Global col-sum  |
 | Mixtral 8×7B (FFN-MoE, dense attn) | Shared | Global (approximately OK) | Per-head |
-| Qwen3-MoE (KV-shared, FFN-MoE) | Shared | Global ✗ | Per-expert (router gate) |
-| DeepSeek-V3 MLA (FFN-MoE) | Shared via latent | Global ✗ | Per-expert (approx. per-head) |
+| Qwen3-MoE (KV-shared, FFN-MoE) | Shared | Global  | Per-expert (router gate) |
+| DeepSeek-V3 MLA (FFN-MoE) | Shared via latent | Global  | Per-expert (approx. per-head) |
 
 ---
 

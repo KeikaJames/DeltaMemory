@@ -5,7 +5,7 @@
       "pool": "attn",
       "swap": "on",
       "seed": 0,
-      "report_dir": "/Users/gabiri/projects/RCV-HC/reports/experiments/stage6_phase2_lama/phase2_pool-attn_swap-on_seed-0",
+      "report_dir": "/Users/gabiri/projects/Mneme/reports/experiments/stage6_phase2_lama/phase2_pool-attn_swap-on_seed-0",
       "diagnosis": {
         "control_margin_min": 0.05,
         "diagnosis_skipped": true,
@@ -17,8 +17,8 @@
         "mechanism_supported_on_eval": false
       },
       "paths": {
-        "summary": "/Users/gabiri/projects/RCV-HC/reports/experiments/stage6_phase2_lama/phase2_pool-attn_swap-on_seed-0/delta_experiment_summary.json",
-        "report": "/Users/gabiri/projects/RCV-HC/reports/experiments/stage6_phase2_lama/phase2_pool-attn_swap-on_seed-0/delta_experiment_report.md"
+        "summary": "/Users/gabiri/projects/Mneme/reports/experiments/stage6_phase2_lama/phase2_pool-attn_swap-on_seed-0/delta_experiment_summary.json",
+        "report": "/Users/gabiri/projects/Mneme/reports/experiments/stage6_phase2_lama/phase2_pool-attn_swap-on_seed-0/delta_experiment_report.md"
       }
     },
     {
@@ -26,7 +26,7 @@
       "pool": "attn",
       "swap": "on",
       "seed": 1,
-      "report_dir": "/Users/gabiri/projects/RCV-HC/reports/experiments/stage6_phase2_lama/phase2_pool-attn_swap-on_seed-1",
+      "report_dir": "/Users/gabiri/projects/Mneme/reports/experiments/stage6_phase2_lama/phase2_pool-attn_swap-on_seed-1",
       "diagnosis": {
         "control_margin_min": 0.05,
         "diagnosis_skipped": true,
@@ -38,8 +38,8 @@
         "mechanism_supported_on_eval": false
       },
       "paths": {
-        "summary": "/Users/gabiri/projects/RCV-HC/reports/experiments/stage6_phase2_lama/phase2_pool-attn_swap-on_seed-1/delta_experiment_summary.json",
-        "report": "/Users/gabiri/projects/RCV-HC/reports/experiments/stage6_phase2_lama/phase2_pool-attn_swap-on_seed-1/delta_experiment_report.md"
+        "summary": "/Users/gabiri/projects/Mneme/reports/experiments/stage6_phase2_lama/phase2_pool-attn_swap-on_seed-1/delta_experiment_summary.json",
+        "report": "/Users/gabiri/projects/Mneme/reports/experiments/stage6_phase2_lama/phase2_pool-attn_swap-on_seed-1/delta_experiment_report.md"
       }
     },
     {
@@ -47,7 +47,7 @@
       "pool": "attn",
       "swap": "on",
       "seed": 2,
-      "report_dir": "/Users/gabiri/projects/RCV-HC/reports/experiments/stage6_phase2_lama/phase2_pool-attn_swap-on_seed-2",
+      "report_dir": "/Users/gabiri/projects/Mneme/reports/experiments/stage6_phase2_lama/phase2_pool-attn_swap-on_seed-2",
       "diagnosis": {
         "control_margin_min": 0.05,
         "diagnosis_skipped": true,
@@ -59,8 +59,8 @@
         "mechanism_supported_on_eval": false
       },
       "paths": {
-        "summary": "/Users/gabiri/projects/RCV-HC/reports/experiments/stage6_phase2_lama/phase2_pool-attn_swap-on_seed-2/delta_experiment_summary.json",
-        "report": "/Users/gabiri/projects/RCV-HC/reports/experiments/stage6_phase2_lama/phase2_pool-attn_swap-on_seed-2/delta_experiment_report.md"
+        "summary": "/Users/gabiri/projects/Mneme/reports/experiments/stage6_phase2_lama/phase2_pool-attn_swap-on_seed-2/delta_experiment_summary.json",
+        "report": "/Users/gabiri/projects/Mneme/reports/experiments/stage6_phase2_lama/phase2_pool-attn_swap-on_seed-2/delta_experiment_report.md"
       }
     }
   ]

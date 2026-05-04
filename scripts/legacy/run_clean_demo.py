@@ -15,7 +15,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from deltamemory.core.config import RCVHCCleanConfig
+from deltamemory.core.config import MnemeCleanConfig
 from deltamemory.engine.attention_memory_engine import AttentionMemoryEngine
 from deltamemory.gemma.model_adapter import load_model_bundle
 
@@ -32,7 +32,7 @@ def main() -> int:
 
     text = Path(args.input).read_text(encoding="utf-8")
     bundle = load_model_bundle(args.model, device=args.device, dtype=args.dtype)
-    cfg = RCVHCCleanConfig(model_name=args.model, device=args.device, dtype=args.dtype, block_size=32, memory_dim=128)
+    cfg = MnemeCleanConfig(model_name=args.model, device=args.device, dtype=args.dtype, block_size=32, memory_dim=128)
     engine = AttentionMemoryEngine(bundle, cfg)
     ingest_summary = engine.ingest(text, layers="all")
     engine.save_store(args.store)

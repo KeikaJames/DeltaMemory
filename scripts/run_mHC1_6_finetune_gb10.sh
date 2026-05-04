@@ -5,7 +5,7 @@
 # 之后才能用 scripts/run_mHC2_perturbation_sweep.py 做谱护盾的真实测试。
 #
 # 用法（在 GB10 上）：
-#   cd ~/projects/RCV-HC
+#   cd ~/projects/Mneme
 #   git pull
 #   bash scripts/run_mHC1_6_finetune_gb10.sh
 #

@@ -58,7 +58,12 @@ References:
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Dict
+
 import torch
+
+if TYPE_CHECKING:
+    pass
 
 
 def sinkhorn_knopp_projection(
@@ -152,3 +157,152 @@ def shield_attention_weights(
     bank_capped = (bank * scale).to(weights.dtype)
     native = weights[..., :T_orig]                            # untouched
     return torch.cat([native, bank_capped], dim=-1)
+
+
+def apply_shield_per_expert(
+    weights: torch.Tensor,
+    T_orig: int,
+    kappa: float,
+    expert_gates: Dict[int, torch.Tensor],
+) -> torch.Tensor:
+    """Per-expert mHC bank-column spectral cap (opt-in; default path unchanged).
+
+    This function implements the per-expert column-cap formula for MoE
+    architectures where the FFN router gate provides a per-token, per-expert
+    weight that proxies how much of each token's attention output is "owned"
+    by each expert.  See ``docs/theory/mhc_moe.md`` Section 4 for the
+    derivation.
+
+    .. note:: **Architecture scope — FFN-MoE approximation**
+
+       All currently supported models (Mixtral 8×7B, Qwen3-MoE) use FFN-MoE
+       with *dense attention*.  The per-expert cap is therefore an
+       approximation: the FFN router gate g_e(token) is used as a proxy to
+       bucket attention queries into per-expert populations.  For a true
+       MoE-Attention architecture with per-expert V projections the formula
+       would be exact.  See ``mhc_moe.md`` and the ``deltamemory/arch``
+       module for the full discussion.
+
+    .. warning:: **α=0 red-line**
+
+       When the bank is empty (α=0) the call site must short-circuit *before*
+       calling this function.  If ``weights`` has no bank columns
+       (``T_orig >= weights.size(-1)``), this function returns the input
+       unchanged bit-for-bit.
+
+    Algorithm (weighted-average cap)
+    ---------------------------------
+    Assumes normalised routing: Σ_e g_e(i) = 1 for each token i.
+
+    For each expert e:
+
+    1. Expert-masked bank weight:
+       ``W_e[i, n] = g_e[i] * W[i, T_orig+n]``
+    2. Per-expert column-sum:
+       ``col_sum_e[n] = Σ_i W_e[i, n]``
+    3. Per-expert scale (the core per-expert guarantee):
+       ``cap_e[n] = min(1, κ / col_sum_e[n])``
+       — guarantees ``Σ_i W_e[i,n] * cap_e[n] ≤ κ`` per expert e.
+    4. Weighted-average cap per token:
+       ``cap[i, n] = Σ_e g_e[i] * cap_e[n]``
+
+    Final: ``W_shielded[i, T_orig+n] = W[i, T_orig+n] * cap[i, n]``
+
+    Properties:
+    - When no cap fires (all col_sum_e < κ): cap_e = 1 → cap[i,n] =
+      Σ_e g_e[i] = 1 → W_shielded = W (identity under normalised routing).
+    - cap[i,n] ≤ 1 always (cap_e ≤ 1 and Σ g_e = 1) → shield never amplifies.
+    - Native columns unchanged bit-for-bit.
+    - Single-expert (gate=1.0) reduces to the global ``shield_attention_weights``.
+
+
+
+    Args:
+        weights: Post-softmax attention weights with shape
+            ``[q, T_orig + N]`` — a 2-D view with the batch and head
+            dimensions collapsed.  The caller is responsible for reshaping
+            from ``[B, H, T, T+N]`` to ``[B*H*T, T+N]`` (using the
+            attention head's query axis as the "token" axis).
+
+            .. note::
+
+               For the proxy-gate use case the typical call shape is
+               ``[seq_len, T_orig + N]`` where ``seq_len`` equals the number
+               of tokens in the current forward pass (batch × seq), matching
+               the ``(seq_len,)`` shape of the gate vectors.
+
+        T_orig: Number of native (non-bank) key slots.  Bank columns are
+            ``weights[:, T_orig:]``.
+        kappa: Column-sum cap per expert.  Same semantics as in
+            ``shield_attention_weights``.
+        expert_gates: Dict from expert id (int) to a ``(q,)`` float gate
+            tensor.  Experts not in the dict contribute zero.  Gate tensors
+            must be non-negative.  Shared experts should have gate = 1.0 for
+            every token.
+
+    Returns:
+        Shielded weight tensor of the same shape and dtype as ``weights``.
+        Native columns ``[:, :T_orig]`` are returned bit-for-bit unchanged.
+        When ``expert_gates`` is empty or the bank has no columns, the input
+        is returned unchanged.
+
+    Raises:
+        ValueError: If ``T_orig`` is negative, or if a gate tensor has a
+            shape incompatible with ``weights``.
+
+    Examples
+    --------
+    Degenerate single-expert check (identical to global cap)::
+
+        gates = {0: torch.ones(q)}
+        out = apply_shield_per_expert(weights, T_orig, kappa, gates)
+        # out_bank_cols == shield_attention_weights(weights, N, True, kappa)_bank_cols
+
+    Two-expert toy::
+
+        gates = {0: torch.tensor([0.9, 0.9, 0.1, 0.1]),
+                 1: torch.tensor([0.1, 0.1, 0.9, 0.9])}
+        out = apply_shield_per_expert(weights, T_orig, kappa, gates)
+    """
+    if T_orig < 0:
+        raise ValueError(f"apply_shield_per_expert: T_orig must be ≥ 0, got {T_orig}")
+
+    N = weights.size(-1) - T_orig
+    if N <= 0 or not expert_gates:
+        return weights
+
+    q = weights.size(0)
+    eps = 1e-9
+
+    # Work in float32 for numerical stability; cast back at end.
+    bank = weights[:, T_orig:].to(torch.float32)   # (q, N)
+
+    # Weighted-average cap accumulator:
+    #   cap_per_token[i,n] = Σ_e g_e[i] * cap_e[n]
+    # Assumes normalised routing (Σ_e g_e[i] = 1), so when no cap fires
+    # cap_e[n]=1 → cap_per_token[i,n] = 1 → shielded_bank = bank (identity).
+    # This formulation is correct for FFN-MoE top-k routing where each token's
+    # gate vector sums to 1.
+    cap_per_token = torch.zeros(q, N, dtype=torch.float32, device=bank.device)
+
+    for e, g_e in expert_gates.items():
+        gate = g_e.to(torch.float32).view(q)        # (q,)
+
+        # Per-expert masked bank weight:  W_e[i,n] = g_e[i] * bank[i,n]
+        W_e = gate.unsqueeze(-1) * bank             # (q, N)
+
+        # Per-expert column-sum cap (the per-expert guarantee):
+        #   Σ_i W_e[i,n] * cap_e[n] ≤ kappa  for each slot n
+        col_sum_e = W_e.sum(dim=0).clamp_min(eps)  # (N,)
+        cap_e = (kappa / col_sum_e).clamp(max=1.0)  # (N,)
+
+        # Accumulate weighted cap:  g_e[i] * cap_e[n]
+        cap_per_token += gate.unsqueeze(-1) * cap_e.unsqueeze(0)  # (q, N)
+
+    # Apply the per-token weighted cap to bank columns.
+    # cap_per_token[i,n] ≤ Σ_e g_e[i] = 1 (normalized routing + cap_e ≤ 1).
+    shielded_bank = (bank * cap_per_token).to(weights.dtype)
+
+    native = weights[:, :T_orig]                   # (q, T_orig) — untouched
+    return torch.cat([native, shielded_bank], dim=-1)
+

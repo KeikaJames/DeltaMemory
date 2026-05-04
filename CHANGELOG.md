@@ -4,6 +4,77 @@ All notable changes to DeltaMemory are documented here, organised by
 research stage. Older stages are summarised; the current stage is
 documented in full enough to make the evidence and limits legible.
 
+## Phase v0.4 — pre-registered fleet, methodology decision gate
+
+### Why
+Phases U / V / R-7 produced positive aggregate results but consistent
+per-model failure modes when the strict per-model criterion was applied.
+v0.4 is the first phase to pre-register every sub-experiment before any
+cell runs, so that aggregate-vs-per-model conflicts surface as evidence
+rather than as post-hoc reframing. v0.4 also introduces a formal decision
+gate (W.3) that replaces methods that fail their PREREG instead of
+re-tuning them.
+
+### What landed (selection)
+
+* **W.0 dataset locks** — gold 30-prompt, real LAMA T-REx (500 rows from
+  `manuelberger/lama-trex`), real ConceptNet (500 rows from
+  `peandrew/conceptnet_en_simple`, 15 semantic relations whitelist),
+  azhx counterfact (60), multifact pack (8/32/128), multiturn (20),
+  CAA calibration pairs (16, hand-authored). Synthetic 60/30 stubs are
+  marked deprecated in `experiments/datasets/SHA.md`.
+* **W.1 mHC localize** — drift floor 2.46-2.70 nats across 5 dense
+  models; mHC shield reduces by 44-73 percent but does not cure content
+  drift. Per-model verdict: FAIL. (`experiments/W1_mhc_localize/REPORT.md`)
+* **W.2 LOPI dissection** — 9450 cells, 2.87 h on MPS, 3 models x 7 alpha
+  x 5 arms x 3 seeds x 30 prompts. Q1 (M-perp), Q2 (Gaussian), Q3
+  (gamma_t derivative gate) all FAIL the per-model PREREG criterion.
+  Q3 is unanimous (gate pinned at 1.0 because LOPIState resets per
+  prompt). (`experiments/W2_lopi_dissect/REPORT.md`)
+* **W.3 methodology decision gate** — DECISION.md formally demotes mHC
+  and LOPI to ablation-only flags; promotes V-scale to default-on; lifts
+  CAA-injector (X.3) to the main-line candidate slot. ECOR (X.7) remains
+  opt-in, gated on W-T3 round-1 outcomes.
+  (`experiments/W3_decision/DECISION.md`)
+* **W.4 PREREG + smoke** — CAA paired comparison contract (5 models x 3
+  methods x 7 alpha x 3 seeds x 30 prompts = 9450 cells, paired Wilcoxon
+  + Holm, 1e-4 alpha=0 red line). Pre-flight on gpt2-medium passed
+  alpha=0 bit-equality with max |drift| = 0.
+  (`experiments/W4_caa_baseline/{PREREG,SMOKE}.md`)
+* **W.5 PREREG (deferred)** — MoE per-expert column-cap shield on
+  Qwen3-MoE-A3B; 1890-cell grid; alpha=0 red line; FFN-router-as-attn-cap
+  approximation acknowledged at module level. Hardware target 128 GB.
+* **W.6 PREREG (deferred)** — counter-prior Pareto, 12,600 cells. H6a
+  steering, H6b override, H6c Pareto frontier (kl_unrel < 0.5 nats at
+  argmin nll_new), H6d alpha=0 red line. Symmetric Jensen-Shannon as the
+  unrelated-tokens metric.
+* **W.7 / W.8 / W.9 PREREGs (deferred)** — long-context degradation,
+  multi-fact interference, multi-turn override. All three depend on the
+  W.4 method-winner outcome.
+* **W-T3 SPEC** — repair specification for the four LOPI defects:
+  Gaussian centering, gamma_t state-carry (requires lifting LOPIState
+  ownership and adding generate-mode evaluation), M-perp alpha-adaptive
+  scaling, and a Qwen Gaussian-x-M-perp interference probe. Round-1
+  is post-ship and re-promotes LOPI from ablation only if at least two
+  of the three coding fixes pass their PREREG acceptance arms.
+
+### Red lines preserved
+
+* Frozen LLM weights at every phase.
+* alpha=0 bit-equality, threshold 1e-4, encoded as `redline_violation`
+  flag in every cells.jsonl.
+* Per-model strict criterion is the verdict; aggregates are reported but
+  do not override per-model failures.
+* No method continues without an explicit decision-gate ruling
+  (W.3-style) when its pre-registered hypotheses fail.
+
+### Identifier purge
+
+The legacy project identifier "RCV-HC" / "RCVHC" / "rcvhc" is purged from
+the codebase (commit `09ed55d0`). The package keeps the name
+`deltamemory` for backward-compatibility of imports; the project label
+moves to **Mneme** in non-code documentation.
+
 ## Phase R-7 — v3.6 V-scale calibrated bank schema
 
 ### Why

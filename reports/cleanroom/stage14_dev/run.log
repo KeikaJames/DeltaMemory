@@ -1,7 +1,9 @@
 [stage14-dev] 33 facts, seeds=[0, 1, 2]
 [stage14-dev] loading google/gemma-4-E2B on mps bf16…
 [transformers] `torch_dtype` is deprecated! Use `dtype` instead!
-Loading weights:   0%|          | 0/1951 [00:00<?, ?it/s]Loading weights: 100%|██████████| 1951/1951 [00:00<00:00, 57205.58it/s]
+
+Loading weights:   0%|          | 0/1951 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 1951/1951 [00:00<00:00, 57205.58it/s]
 [stage14-dev] model ready in 11.0s
 [stage14-dev] B0_no_memory seed=0…
 [stage14-dev]   recall@1 = 0.3535  (10.1s)
@@ -33,4 +35,4 @@
 [stage14-dev]   recall@1 = 0.0000  (13.5s)
 [stage14-dev] v3_multi_tau05 seed=2…
 [stage14-dev]   recall@1 = 0.0000  (13.8s)
-[stage14-dev] wrote /Users/gabiri/projects/RCV-HC/reports/cleanroom/stage14_dev/REPORT.md
+[stage14-dev] wrote /Users/gabiri/projects/Mneme/reports/cleanroom/stage14_dev/REPORT.md

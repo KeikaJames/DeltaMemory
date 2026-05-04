@@ -6,7 +6,7 @@ import argparse
 import json
 from pathlib import Path
 
-from deltamemory.core.config import RCVHCCleanConfig
+from deltamemory.core.config import MnemeCleanConfig
 from deltamemory.engine.attention_memory_engine import AttentionMemoryEngine
 from deltamemory.gemma.model_adapter import load_model_bundle
 from deltamemory.memory.attention_store import AttentionMemoryStore
@@ -54,7 +54,7 @@ def main(argv: list[str] | None = None) -> int:
 def _ingest(args: argparse.Namespace) -> int:
     text = Path(args.input).read_text(encoding="utf-8")
     bundle = load_model_bundle(args.model, device=args.device, dtype=args.dtype)
-    cfg = RCVHCCleanConfig(
+    cfg = MnemeCleanConfig(
         model_name=args.model,
         block_size=args.block_size,
         memory_dim=args.memory_dim,
@@ -74,7 +74,7 @@ def _ingest(args: argparse.Namespace) -> int:
 def _ask(args: argparse.Namespace) -> int:
     bundle = load_model_bundle(args.model, device=args.device, dtype=args.dtype)
     store = AttentionMemoryStore.load(args.store)
-    cfg = RCVHCCleanConfig(
+    cfg = MnemeCleanConfig(
         model_name=args.model,
         memory_dim=store.memory_dim,
         top_k=args.top_k,

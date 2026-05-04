@@ -5,14 +5,14 @@ _warnings.filterwarnings("ignore", category=DeprecationWarning)
 import pytest
 pytestmark = pytest.mark.filterwarnings("ignore::DeprecationWarning")
 
-from deltamemory.core.config import RCVHCCleanConfig
+from deltamemory.core.config import MnemeCleanConfig
 from deltamemory.engine.attention_memory_engine import AttentionMemoryEngine
 from deltamemory.gemma.model_adapter import load_model_bundle, trainable_base_params
 
 
 def test_engine_ingest_ask_keeps_source_out_of_prompt(demo_text):
     bundle = load_model_bundle("mock-gemma", device="cpu", dtype="float32")
-    cfg = RCVHCCleanConfig(model_name="mock-gemma", memory_dim=32, block_size=8, top_k=2)
+    cfg = MnemeCleanConfig(model_name="mock-gemma", memory_dim=32, block_size=8, top_k=2)
     engine = AttentionMemoryEngine(bundle, cfg)
     summary = engine.ingest(demo_text)
     assert summary["memory_blocks"] > 0

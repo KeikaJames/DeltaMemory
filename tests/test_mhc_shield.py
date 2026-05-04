@@ -165,7 +165,7 @@ def test_shield_only_caps_when_above_kappa():
 def model_bundle():
     from deltamemory.gemma.model_adapter import load_model_bundle
 
-    device = os.environ.get("RCVHC_TEST_DEVICE")
+    device = os.environ.get("MNEME_TEST_DEVICE")
     if device is None:
         if torch.cuda.is_available():
             device = "cuda"

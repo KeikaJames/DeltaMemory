@@ -131,9 +131,9 @@ $$
 
 ### U-LOPI Phase S
 
-v3.4 把 `norm_base = 10.0` 写死，按 Gemma-4-E2B 校准，其它家族的 residual
-尺度差 10–100×，于是被静默拖累。Phase S 用一次冷启动 profile 替代这个全
-局常数：在小型中性语料上前向，统计 `‖hidden_states[ℓ]‖₂`，与 bank 一并持
+v3.4 将 `norm_base = 10.0` 设为固定常数，按 Gemma-4-E2B 校准；其它模型族
+的 residual 尺度相差 10–100×，因此在跨架构上表现受限。Phase S 以一次冷启
+动 profile 取代该全局常数：在小型中性语料上前向，统计 `‖hidden_states[ℓ]‖₂`，与 bank 一并持
 久化。深度信号在 Z-score 空间计算，`μ_t` 自动锚定到该架构的尖峰层：
 
 $$
@@ -184,7 +184,7 @@ $$
 | R-4 / v3.4 | 跨架构 α-safety sweep（Gemma / Qwen3 / GLM-4） | `reports/cleanroom/lopi_v33/R4_xarch/` | 12 cell 全部 α=0 bit-equal |
 | R-5.1 / v3.4 | Q3 对抗 chat × LOPI（Gemma-4-E2B） | `reports/cleanroom/lopi_v33/R5_q3/` | 仅 LOPI 配置在 α∈{8,10} 把最易事实拉到 partial implant |
 | R-6 / v3.4 | 持久化 AttnNativeBank（safetensors + filelock） | `tests/test_bank_persistence.py` | 同 dtype 下往返 bit-equal |
-| **S / v3.5** | U-LOPI 自动校准 profiler（`ulopi_v35`） | `deltamemory/memory/lopi_profiler.py`、`tests/test_lopi_profiler.py`、`tests/test_lopi_universal.py` | 取代写死的 `norm_base=10.0`；同一份 LOPI 跑遍 Gemma / Qwen3 / GLM-4 / Llama / GPT-2 |
+| **S / v3.5** | U-LOPI 自动校准 profiler（`ulopi_v35`） | `deltamemory/memory/lopi_profiler.py`、`tests/test_lopi_profiler.py`、`tests/test_lopi_universal.py` | 以冷启动 profile 取代固定常数 `norm_base=10.0`；同一份 LOPI 适配 Gemma / Qwen3 / GLM-4 / Llama / GPT-2 |
 | **R-7 / v3.6** | bank 侧 V-scale 校准（`ulopi_v36`） | `deltamemory/memory/attn_native_bank.py`、`tests/test_value_scale_calibration.py` | 无 v_norm 家族只 cap M_V RMS、不放大小 V；Gemma 原生 v_norm 不动 |
 
 每阶段长篇叙事日志（rationale、原始 transcript 索引、DeepSeek-32B 边界、

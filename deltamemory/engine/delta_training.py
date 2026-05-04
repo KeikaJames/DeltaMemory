@@ -16,7 +16,7 @@ from typing import Any
 import torch
 import torch.nn.functional as F
 
-from deltamemory.core.config import RCVHCCleanConfig, resolve_layer_policy
+from deltamemory.core.config import MnemeCleanConfig, resolve_layer_policy
 from deltamemory.core.types import AttentionMemoryItem
 from deltamemory.engine.attention_memory_engine import compute_answer_metrics
 from deltamemory.gemma.attention_injector import (
@@ -29,7 +29,7 @@ from deltamemory.gemma.model_adapter import (
     load_model_bundle,
     trainable_base_params,
 )
-from deltamemory.memory.writer import RCVHCWriter, fit_memory_dim, split_source_snippets
+from deltamemory.memory.writer import MnemeWriter, fit_memory_dim, split_source_snippets
 
 TRAIN_EVAL_MODES = [
     "no_memory",
@@ -70,7 +70,7 @@ def run_delta_training(cfg: DeltaTrainingConfig) -> dict[str, Any]:
     torch.manual_seed(7)
     text = Path(cfg.input_path).read_text(encoding="utf-8")
     bundle = load_model_bundle(cfg.model, device=cfg.device, dtype=cfg.dtype)
-    clean_cfg = RCVHCCleanConfig(
+    clean_cfg = MnemeCleanConfig(
         model_name=cfg.model,
         memory_dim=cfg.memory_dim,
         block_size=cfg.block_size,
@@ -82,7 +82,7 @@ def run_delta_training(cfg: DeltaTrainingConfig) -> dict[str, Any]:
         dtype=cfg.dtype,
     )
     hidden_size = get_hidden_size(bundle.model)
-    writer = RCVHCWriter(hidden_size, cfg.memory_dim, cfg.block_size).to(bundle.device, dtype=bundle.dtype)
+    writer = MnemeWriter(hidden_size, cfg.memory_dim, cfg.block_size).to(bundle.device, dtype=bundle.dtype)
     projector = QKVDeltaProjector(cfg.memory_dim, hidden_size, cfg.alpha_scale, cfg.gate_bias).to(
         bundle.device, dtype=bundle.dtype
     )
@@ -205,7 +205,7 @@ def write_training_report(summary: dict[str, Any], report_dir: str | Path) -> di
 
 
 def _evaluate_modes(
-    writer: RCVHCWriter,
+    writer: MnemeWriter,
     injector: GemmaAttentionInjector,
     context_out,
     prompt: dict[str, torch.Tensor],
@@ -244,7 +244,7 @@ def _evaluate_modes(
 
 
 def _live_memories(
-    writer: RCVHCWriter,
+    writer: MnemeWriter,
     context_out,
     snippets: list[str],
     layer_ids: list[int],

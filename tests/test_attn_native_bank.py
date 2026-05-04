@@ -34,10 +34,10 @@ def model_bundle():
 
     Skips if the model is not cached locally and offline mode is enforced
     (CI-friendly): we never trigger a multi-GB download from a unit test.
-    Device auto-selects CUDA → MPS → CPU; override with ``RCVHC_TEST_DEVICE``.
+    Device auto-selects CUDA → MPS → CPU; override with ``MNEME_TEST_DEVICE``.
     """
     from deltamemory.gemma.model_adapter import load_model_bundle
-    device = os.environ.get("RCVHC_TEST_DEVICE")
+    device = os.environ.get("MNEME_TEST_DEVICE")
     if device is None:
         if torch.cuda.is_available():
             device = "cuda"
