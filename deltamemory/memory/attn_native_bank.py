@@ -223,10 +223,18 @@ class AttnNativeBank:
         """
         if len(per_layer_K) != self.num_layers:
             raise ValueError(f"expected {self.num_layers} layer K, got {len(per_layer_K)}")
+        if len(per_layer_V) != self.num_layers:
+            raise ValueError(f"expected {self.num_layers} layer V, got {len(per_layer_V)}")
         for layer in range(self.num_layers):
             d = self.head_dims[layer]
-            k = per_layer_K[layer].to(self.device, self.dtype).reshape(1, self.num_kv_heads, d)
-            v = per_layer_V[layer].to(self.device, self.dtype).reshape(1, self.num_kv_heads, d)
+            try:
+                k = per_layer_K[layer].to(self.device, self.dtype).reshape(1, self.num_kv_heads, d)
+                v = per_layer_V[layer].to(self.device, self.dtype).reshape(1, self.num_kv_heads, d)
+            except RuntimeError as e:
+                raise ValueError(
+                    f"append: layer {layer} K/V shape mismatch (expected "
+                    f"[1,{self.num_kv_heads},{d}]): {e}"
+                ) from e
             self.M_K[layer] = torch.cat([self.M_K[layer], k], dim=0)
             self.M_V[layer] = torch.cat([self.M_V[layer], v], dim=0)
         self.fact_ids.append(fact_id)
@@ -245,11 +253,30 @@ class AttnNativeBank:
         """
         if len(per_layer_K_batches) != self.num_layers:
             raise ValueError(f"expected {self.num_layers} layer K, got {len(per_layer_K_batches)}")
+        if len(per_layer_V_batches) != self.num_layers:
+            raise ValueError(f"expected {self.num_layers} layer V, got {len(per_layer_V_batches)}")
+        if len(fact_ids) != len(addresses):
+            raise ValueError(
+                f"bulk_append: fact_ids ({len(fact_ids)}) and addresses "
+                f"({len(addresses)}) must have equal length"
+            )
         n = len(fact_ids)
         for layer in range(self.num_layers):
             d = self.head_dims[layer]
-            k = per_layer_K_batches[layer].to(self.device, self.dtype).reshape(n, self.num_kv_heads, d)
-            v = per_layer_V_batches[layer].to(self.device, self.dtype).reshape(n, self.num_kv_heads, d)
+            for name, src in (("K", per_layer_K_batches[layer]), ("V", per_layer_V_batches[layer])):
+                if src.shape[0] != n:
+                    raise ValueError(
+                        f"bulk_append: layer {layer} {name} batch dim ({src.shape[0]}) "
+                        f"must equal len(fact_ids) ({n})"
+                    )
+            try:
+                k = per_layer_K_batches[layer].to(self.device, self.dtype).reshape(n, self.num_kv_heads, d)
+                v = per_layer_V_batches[layer].to(self.device, self.dtype).reshape(n, self.num_kv_heads, d)
+            except RuntimeError as e:
+                raise ValueError(
+                    f"bulk_append: layer {layer} K/V shape mismatch (expected "
+                    f"[{n},{self.num_kv_heads},{d}]): {e}"
+                ) from e
             self.M_K[layer] = torch.cat([self.M_K[layer], k], dim=0)
             self.M_V[layer] = torch.cat([self.M_V[layer], v], dim=0)
         self.fact_ids.extend(fact_ids)

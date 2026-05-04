@@ -78,21 +78,28 @@ def _logits(model, tokenizer, prompt: str) -> torch.Tensor:
 
 
 def test_empty_bank_is_bit_equal(model_bundle):
-    """Gate 13A.1: empty bank => patched output == baseline output."""
+    """Gate 13A.1: empty bank => patched output == baseline output (torch.equal)."""
     model = model_bundle.model
     tok = model_bundle.tokenizer
     prompt = "The capital of France is"
-    base = _logits(model, tok, prompt).float()
+    base = _logits(model, tok, prompt)
     patcher = AttnNativePatcher(model)
     bank = fresh_bank(model)
-    patched = forward_with_bank(patcher, bank, tok, prompt, alpha=1.0).float()
-    diff = (base - patched).abs().max().item()
-    print(f"\n[bit-equal empty]  max-abs-diff = {diff:.3e}")
-    assert diff < 1e-3, f"empty-bank deviation too large: {diff:.3e}"
+    patched = forward_with_bank(patcher, bank, tok, prompt, alpha=1.0)
+    # Empty bank takes the do_inject=False fast path (attn_native_bank.py:453-459)
+    # which is the exact baseline forward. Must be bit-equal.
+    if not torch.equal(base, patched):
+        diff = (base.float() - patched.float()).abs().max().item()
+        raise AssertionError(f"empty-bank not bit-equal: max-abs-diff={diff:.3e}")
 
 
 def test_alpha_zero_is_bit_equal_with_facts(model_bundle):
-    """Gate 13A.2: alpha=0 with non-empty bank => still bit-equal."""
+    """Gate 13A.2: alpha=0 with non-empty bank => still bit-equal (torch.equal).
+
+    The do_inject guard requires alpha > 0; at alpha=0 the bank is fully
+    skipped regardless of contents, so the patched forward is identical to
+    the baseline.
+    """
     model = model_bundle.model
     tok = model_bundle.tokenizer
     patcher = AttnNativePatcher(model)
@@ -102,11 +109,11 @@ def test_alpha_zero_is_bit_equal_with_facts(model_bundle):
                fact_id="paris_mayor",
                address="mayor of Paris")
     prompt = "The capital of France is"
-    base = _logits(model, tok, prompt).float()
-    out = forward_with_bank(patcher, bank, tok, prompt, alpha=0.0).float()
-    diff = (base - out).abs().max().item()
-    print(f"\n[alpha=0 with bank]  max-abs-diff = {diff:.3e}")
-    assert diff < 1e-3, f"alpha=0 deviation too large: {diff:.3e}"
+    base = _logits(model, tok, prompt)
+    out = forward_with_bank(patcher, bank, tok, prompt, alpha=0.0)
+    if not torch.equal(base, out):
+        diff = (base.float() - out.float()).abs().max().item()
+        raise AssertionError(f"alpha=0-with-bank not bit-equal: max-abs-diff={diff:.3e}")
 
 
 def test_single_fact_recall(model_bundle):

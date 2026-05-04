@@ -26,10 +26,16 @@ Wiring note
 -----------
 ``lopi.py::apply_lopi`` returns the *bank contribution* ``s·M_perp``, while
 ``lopi_inject`` returns the *full readout* ``V_ctx + s·M_perp`` (or its ECOR
-equivalent). These interfaces differ by a ``V_ctx`` addend; wiring into
-``apply_lopi`` would require restructuring the caller's summation site in
-``attn_native_bank.py``. To avoid silent regression risk, ECOR is left as a
-standalone function for W-T3.6 to wire externally (opt-in only).
+equivalent). The two interfaces differ by a ``V_ctx`` addend.
+
+**Wiring status (W-T3.6 round 2, commit dfb6e4db):** ECOR is now wired into
+``apply_lopi`` behind ``LOPIConfig.use_ecor``. When the flag is set,
+``apply_lopi`` invokes ``lopi_inject`` for the readout and subtracts
+``v_ctx_readout`` to recover the bank contribution. Strict bit-equality is
+preserved in all degenerate paths (``use_ecor=False`` OR
+``ecor_cfg.enabled=False`` OR ``ecor_cfg.soft_blend == 0``) by short-circuiting
+to the legacy multiplication ``s·M_perp`` without going through
+``lopi_inject``.
 
 Author: KeikaJames, 2026-05-04 (Phase X.7, PREREGISTRATION ecor_v10).
 """

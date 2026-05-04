@@ -195,6 +195,12 @@ def run_cell(model_name: str, tok, model, alphas, shield_modes, lopi_modes,
                            address="the Sun")
                 base_nlls, inj_nlls = [], []
                 for p in neutral_prompts:
+                    # H3 fix: reset LOPI state between independent prompts so
+                    # prev-Q / prev-residual-norm tracking from prompt N-1
+                    # does not contaminate prompt N's drift measurement.
+                    state = getattr(bank, "lopi_state", None)
+                    if state is not None and hasattr(state, "reset"):
+                        state.reset()
                     base_nlls.append(_seq_nll(model, tok, p))
                     inj_nlls.append(_seq_nll_patched(patcher, bank, tok, p, alpha=alpha))
                 drift = (sum(inj_nlls) - sum(base_nlls)) / max(len(base_nlls), 1)
