@@ -24,8 +24,8 @@ Unique cells per model: **56** (shield=off only uses κ=1; α=0 produces 0 drift
 
 | Model | Status | Notes |
 |-------|--------|-------|
-| Qwen/Qwen2.5-0.5B | ✅ **Run** | LlamaAdapter via Qwen2Attention |
-| Qwen/Qwen2.5-1.5B | ✅ **Run** | LlamaAdapter via Qwen2Attention |
+| Qwen/Qwen2.5-0.5B |  **Run** | LlamaAdapter via Qwen2Attention |
+| Qwen/Qwen2.5-1.5B |  **Run** | LlamaAdapter via Qwen2Attention |
 | gpt2 | ⏭ **Skipped** | Uses `transformer.h[i].attn` — not compatible with AttnNativePatcher (requires `model.layers[i].self_attn`) |
 | gpt2-medium | ⏭ **Skipped** | Same architecture as gpt2 |
 | meta-llama/Llama-3.2-1B | ⏭ **Skipped** | Gated repository; 403 auth error even with HF_TOKEN |
@@ -51,8 +51,8 @@ Unique cells per model: **56** (shield=off only uses κ=1; α=0 produces 0 drift
 
 | Model | PASS? | mean_drift (shield+V-scale, α≥1) |
 |-------|-------|----------------------------------|
-| Qwen/Qwen2.5-0.5B | ❌ FAIL | **3.31 nats** |
-| Qwen/Qwen2.5-1.5B | ❌ FAIL | **4.39 nats** |
+| Qwen/Qwen2.5-0.5B |  FAIL | **3.31 nats** |
+| Qwen/Qwen2.5-1.5B |  FAIL | **4.39 nats** |
 
 **Threshold:** ≤ 0.5 nats. Both models miss by **6–9×**.
 

@@ -204,7 +204,7 @@ BitFit 只微调 transformer 的**偏置项（bias terms）**，参数量约 0.0
 
 ## 末段：启发列表
 
-### ✅ 必试（必须在 Phase W 中跑 / 对照）
+###  必试（必须在 Phase W 中跑 / 对照）
 
 | Trick / 方法 | 来自 | Phase W 子相位 | 动作 |
 |---|---|---|---|
@@ -217,7 +217,7 @@ BitFit 只微调 transformer 的**偏置项（bias terms）**，参数量约 0.0
 | OLMoE router log 验证 W.5 公式 | Muennighoff+ 2024 | W.5 | 用开源 router checkpoint 复现 col-sum 期望值 |
 | ActAdd 风格向量（单对样本版） | Turner+ 2023 | W.4 | 在 CAA 的 ablation 中包含单对 vs 多对方向向量比较 |
 
-### ⚙️ 看情况（W-Tune 各环可能引入）
+###  看情况（W-Tune 各环可能引入）
 
 | Trick / 方法 | 来自 | 触发条件 | 动作 |
 |---|---|---|---|
@@ -229,7 +229,7 @@ BitFit 只微调 transformer 的**偏置项（bias terms）**，参数量约 0.0
 | FV（Function Vector）提取 fact 向量 | Todd+ 2024 | W.4 ablation | 比较 FV-style ICL 提取 vs LOPI 正交投影的效率 |
 | DeepNorm 方差上界参照 | Wang+ 2022 | W.0.2 diagnostics 设计 | 在 residual_norm 监控中加入 DeepNorm 预期上界标注 |
 
-### ❌ 不试（不在冻结权重路线 / 需要训练 / 超出算力）
+###  不试（不在冻结权重路线 / 需要训练 / 超出算力）
 
 | 方法 | 原因 |
 |---|---|

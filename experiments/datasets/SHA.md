@@ -4,14 +4,14 @@
 
 | dataset | n_entries | sha256 | source | seed | status |
 |---|---|---|---|---|---|
-| gold_30prompts.jsonl | 30 | 86a49c410821e58b84bbb5502d316616eadc29cacc3cd7987307393779b047a2 | HF wikitext-2-raw-v1@main | 42 | ✓ reachable |
-| counterfact_60.jsonl | 60 | c3e1ac771493452bcb718053b7513cbd49b6dd4d762feddd144b7e2f75fd52a6 | HF azhx/counterfact@main | 42 | ✓ reachable |
+| gold_30prompts.jsonl | 30 | 86a49c410821e58b84bbb5502d316616eadc29cacc3cd7987307393779b047a2 | HF wikitext-2-raw-v1@main | 42 |  reachable |
+| counterfact_60.jsonl | 60 | c3e1ac771493452bcb718053b7513cbd49b6dd4d762feddd144b7e2f75fd52a6 | HF azhx/counterfact@main | 42 |  reachable |
 | lama_trex_60.jsonl | 60 | efe6b0aafc2136ffe7f5bd95070e5ca53fc2c1ce8a531f12bbb6b5a5073726c3 | synthetic (41 relations × coverage) | 42 | ◇ synthetic |
 | conceptnet_30.jsonl | 30 | ebf470dc0e587831c6130d8eb7f6307e742e2e1ae080e5a34b41f6bd8982e57b | synthetic | 42 | ◇ synthetic |
-| multifact_pack_8.jsonl | 8 | 14012a5981e5a44b2888c2304470a70ae0073be8c68fc51c52f7466ff02154d8 | synthetic (lexicon-locked) | 42 | ✓ |
-| multifact_pack_32.jsonl | 32 | 9be1d9697893bef7c5857a38fb27b7b660bb05e0e7196b8d3fbd9935a60e8eaf | synthetic (lexicon-locked) | 42 | ✓ |
-| multifact_pack_128.jsonl | 128 | 4df0bbb4c0f0cda02d15d395c95a297d901919e7511d072922a70ffac0cbfa81 | synthetic (lexicon-locked) | 42 | ✓ |
-| multiturn_dialogues_20.jsonl | 20 | 5d87a541b9f02c2358fe1841aeb064845e109a2c4f1f9315cd61a551bb46f2b9 | hand-crafted templates | 42 | ✓ |
+| multifact_pack_8.jsonl | 8 | 14012a5981e5a44b2888c2304470a70ae0073be8c68fc51c52f7466ff02154d8 | synthetic (lexicon-locked) | 42 |  |
+| multifact_pack_32.jsonl | 32 | 9be1d9697893bef7c5857a38fb27b7b660bb05e0e7196b8d3fbd9935a60e8eaf | synthetic (lexicon-locked) | 42 |  |
+| multifact_pack_128.jsonl | 128 | 4df0bbb4c0f0cda02d15d395c95a297d901919e7511d072922a70ffac0cbfa81 | synthetic (lexicon-locked) | 42 |  |
+| multiturn_dialogues_20.jsonl | 20 | 5d87a541b9f02c2358fe1841aeb064845e109a2c4f1f9315cd61a551bb46f2b9 | hand-crafted templates | 42 |  |
 
 ## Notes
 

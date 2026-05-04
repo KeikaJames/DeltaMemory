@@ -16,10 +16,10 @@ They do not. Empirically:
 
 | Architecture | Native V norm (per head) | Has native `v_norm` | Typical $\|M_V\|$ relative to Gemma |
 |---|---|---|---|
-| Gemma-4-E2B | Bounded by internal `v_norm` | ✓ | 1× (baseline) |
-| Qwen2.5-0.5B | Unbounded | ✗ | ~5–10× |
-| Llama-3.2-1B | Unbounded | ✗ | ~3–7× |
-| GLM-4-9B | Unbounded | ✗ | ~2–5× |
+| Gemma-4-E2B | Bounded by internal `v_norm` |  | 1× (baseline) |
+| Qwen2.5-0.5B | Unbounded |  | ~5–10× |
+| Llama-3.2-1B | Unbounded |  | ~3–7× |
+| GLM-4-9B | Unbounded |  | ~2–5× |
 
 With $\|M_V\|$ varying by 10×, a fixed $\alpha = 1.0$ represents wildly different injection energies. The V-scale module (Phase R-7) addresses this at **write time**, when bank values are captured, by capping each bank V vector's per-head RMS to a fixed target.
 

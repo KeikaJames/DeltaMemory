@@ -14,10 +14,10 @@ The Q2 sweep ran mHC shield (on/off) across a grid of models, $\alpha$ values, a
 
 | Model | Has `v_norm` | mHC result | Notes |
 |---|---|---|---|
-| Gemma-4-E2B | ✓ | **Full PASS** | Drift controlled at all tested $\alpha$. Only model where mHC alone was sufficient. |
-| Qwen2.5-0.5B | ✗ | H1 fail | Drift floor 2–12 nats. mHC reduced drift partially; did not clear threshold. |
-| GLM-4-9B-Chat | ✗ | H1 fail | Same pattern as Qwen. |
-| DeepSeek (dense) | ✗ | H1 fail | Same pattern. |
+| Gemma-4-E2B |  | **Full PASS** | Drift controlled at all tested $\alpha$. Only model where mHC alone was sufficient. |
+| Qwen2.5-0.5B |  | H1 fail | Drift floor 2–12 nats. mHC reduced drift partially; did not clear threshold. |
+| GLM-4-9B-Chat |  | H1 fail | Same pattern as Qwen. |
+| DeepSeek (dense) |  | H1 fail | Same pattern. |
 
 **Root cause analysis.** The H1 failures on no-`v_norm` models are not evidence that mHC is mathematically wrong. The column cap correctly bounds $\sigma_{\max}(W_{:,T:}) \leq \kappa$. However, on Qwen/GLM, $\|M_V\|$ is 5–10× larger than on Gemma (no native `v_norm`), so the injection energy $\kappa \cdot \alpha \|M_V\|$ remains large even with the column cap active. mHC without V-scale is insufficient for no-`v_norm` families. **R-7 (V-scale) was introduced precisely because of this failure pattern.**
 
@@ -81,16 +81,16 @@ None of these are confirmed diagnoses. They are failure-mode hypotheses for Phas
 
 | Component | Claim | Evidence level | Notes |
 |---|---|---|---|
-| mHC math (column cap bounds $\sigma_{\max}$) | Correct | ✅ Proven (linear algebra, unit tests) | No empirical doubt. |
-| mHC on Gemma (with `v_norm`) | Works | ✅ Q2 168-cell full PASS | Only one model family. |
-| mHC on no-`v_norm` models | Partial | ⚠️ H1 fail without V-scale | R-7 fixes Qwen2.5-0.5B; others untested. |
-| mHC + V-scale cross-arch | Unvalidated | ⚠️ 1 data point (Qwen2.5-0.5B) | Must run W.1 full grid. |
-| mHC on MoE | Unknown | ❌ Never run | Formula is wrong; no data. |
-| LOPI at $\alpha = 8$ (GPT-2) | Works | ✅ 65–95% drift reduction (R-3) | Narrow regime, single model. |
-| LOPI at production $\alpha$ (1–5) | Weak | ⚠️ No consistent win in R-3 or S-7 | Active area of investigation. |
-| LOPI auto-mode vs. static | Regression | ❌ S-7 Qwen2.5-0.5B: auto ≤ static | Root cause unknown. |
-| Chat implant (5 facts, Gemma) | Failed | ❌ R-5.1: 0/5 strict implant | Log-prob improves; greedy does not. |
-| Cross-arch $\alpha$-linearity | Unvalidated | ❌ No experiment | Requires both V-scale + direction alignment (W.4). |
+| mHC math (column cap bounds $\sigma_{\max}$) | Correct |  Proven (linear algebra, unit tests) | No empirical doubt. |
+| mHC on Gemma (with `v_norm`) | Works |  Q2 168-cell full PASS | Only one model family. |
+| mHC on no-`v_norm` models | Partial |  H1 fail without V-scale | R-7 fixes Qwen2.5-0.5B; others untested. |
+| mHC + V-scale cross-arch | Unvalidated |  1 data point (Qwen2.5-0.5B) | Must run W.1 full grid. |
+| mHC on MoE | Unknown |  Never run | Formula is wrong; no data. |
+| LOPI at $\alpha = 8$ (GPT-2) | Works |  65–95% drift reduction (R-3) | Narrow regime, single model. |
+| LOPI at production $\alpha$ (1–5) | Weak |  No consistent win in R-3 or S-7 | Active area of investigation. |
+| LOPI auto-mode vs. static | Regression |  S-7 Qwen2.5-0.5B: auto ≤ static | Root cause unknown. |
+| Chat implant (5 facts, Gemma) | Failed |  R-5.1: 0/5 strict implant | Log-prob improves; greedy does not. |
+| Cross-arch $\alpha$-linearity | Unvalidated |  No experiment | Requires both V-scale + direction alignment (W.4). |
 
 ---
 
