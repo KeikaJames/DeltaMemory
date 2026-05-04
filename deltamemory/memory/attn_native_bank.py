@@ -60,7 +60,7 @@ from __future__ import annotations
 import math
 from contextlib import contextmanager
 from dataclasses import dataclass, field
-from typing import Any, Iterable
+from typing import Any, Iterable, Literal
 
 import torch
 import torch.nn as nn
@@ -70,6 +70,39 @@ import torch.nn.functional as F
 # ---------------------------------------------------------------------------
 # Bank
 # ---------------------------------------------------------------------------
+
+ValueScaleMode = Literal["none", "auto_unit_rms", "unit_rms"]
+
+
+def _scale_bank_value_capture(
+    v: torch.Tensor,
+    *,
+    mode: str,
+    has_native_v_norm: bool,
+    target_rms: float,
+    eps: float,
+) -> torch.Tensor:
+    """Scale captured bank V so alpha has comparable meaning across families.
+
+    ``auto_unit_rms`` is the production default: Gemma-4 already applies native
+    ``v_norm`` and is left untouched; Qwen/Llama/GLM-style families without
+    native V normalization store bank values at fixed per-head RMS.
+    """
+    if mode == "none" or (mode == "auto_unit_rms" and has_native_v_norm):
+        return v
+    if mode not in {"auto_unit_rms", "unit_rms"}:
+        raise ValueError(
+            f"value_scale_mode must be one of 'none', 'auto_unit_rms', "
+            f"'unit_rms', got {mode!r}"
+        )
+    if target_rms <= 0.0:
+        raise ValueError(f"value_target_rms must be > 0, got {target_rms!r}")
+    if eps <= 0.0:
+        raise ValueError(f"value_scale_eps must be > 0, got {eps!r}")
+    rms = torch.linalg.vector_norm(v.float(), ord=2, dim=-1, keepdim=True)
+    rms = rms / (v.size(-1) ** 0.5)
+    scaled = v.float() * (float(target_rms) / rms.clamp_min(float(eps)))
+    return scaled.to(v.dtype)
 
 @dataclass
 class AttnNativeBank:
@@ -114,6 +147,13 @@ class AttnNativeBank:
     # branch keeps its v3.2 byte-equal behavior.  See ``deltamemory.memory.lopi``.
     lopi_cfg: Any = None
     lopi_state: Any = None
+    # Stage R-7: bank-side V magnitude calibration.  Families without native
+    # v_norm (Qwen/Llama/GLM) otherwise store much larger M_V than Gemma, so the
+    # same alpha means different perturbation energy.  ``auto_unit_rms`` keeps
+    # Gemma untouched and normalizes only no-v_norm families at write time.
+    value_scale_mode: ValueScaleMode = "auto_unit_rms"
+    value_target_rms: float = 1.0
+    value_scale_eps: float = 1e-6
 
     def __post_init__(self) -> None:
         if not self.head_dims:
@@ -216,6 +256,9 @@ class AttnNativeBank:
             "address_strs": list(self.address_strs),
             "bank_temperature": float(self.bank_temperature),
             "mhc_shield": bool(self.mhc_shield),
+            "value_scale_mode": str(self.value_scale_mode),
+            "value_target_rms": float(self.value_target_rms),
+            "value_scale_eps": float(self.value_scale_eps),
         }
 
     @classmethod
@@ -226,7 +269,10 @@ class AttnNativeBank:
                    head_dims=list(sd.get("head_dims") or [sd["head_dim"]] * sd["num_layers"]),
                    device=device, dtype=dtype,
                    bank_temperature=float(sd.get("bank_temperature", 1.0)),
-                   mhc_shield=bool(sd.get("mhc_shield", False)))
+                   mhc_shield=bool(sd.get("mhc_shield", False)),
+                   value_scale_mode=sd.get("value_scale_mode", "auto_unit_rms"),
+                   value_target_rms=float(sd.get("value_target_rms", 1.0)),
+                   value_scale_eps=float(sd.get("value_scale_eps", 1e-6)))
         bank.M_K = [t.to(device, dtype) for t in sd["M_K"]]
         bank.M_V = [t.to(device, dtype) for t in sd["M_V"]]
         bank.fact_ids = list(sd["fact_ids"])
@@ -362,16 +408,15 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
             ctx._capture_K[layer_idx] = k_pre_for_capture[:, pos, :, :].detach()  # [B, Hkv, d]
             v_captured = (value_states.transpose(1, 2)                             # [B, T, Hkv, d]
                           [:, pos, :, :].detach())
-            # Bank-side V RMS normalization for families without native v_norm.
-            # Gemma-4 has native v_norm (RMSNorm) that normalizes V activations;
-            # Qwen3 / Llama / GLM-4 lack it, causing 6-11x larger V magnitudes
-            # and preventing a single alpha from working across architectures.
-            # We normalize captured V to unit per-head RMS so alpha has uniform
-            # meaning.  This is a bank-only operation — the LLM forward is
-            # unchanged and alpha=0 bit-equality is preserved.
-            if not hasattr(self, "v_norm") or not callable(getattr(self, "v_norm", None)):
-                rms = v_captured.norm(dim=-1, keepdim=True) / (v_captured.size(-1) ** 0.5)
-                v_captured = v_captured / rms.clamp_min(1e-6)
+            capture_bank = ctx.capture_bank
+            if capture_bank is not None:
+                v_captured = _scale_bank_value_capture(
+                    v_captured,
+                    mode=getattr(capture_bank, "value_scale_mode", "auto_unit_rms"),
+                    has_native_v_norm=adapter.has_native_v_norm(self),
+                    target_rms=float(getattr(capture_bank, "value_target_rms", 1.0)),
+                    eps=float(getattr(capture_bank, "value_scale_eps", 1e-6)),
+                )
             ctx._capture_V[layer_idx] = v_captured
 
         # --- standard attention ---
@@ -583,6 +628,7 @@ class AttnNativePatcher:
         self.alpha: float = 0.0
         self.capture_mode: bool = False
         self.capture_pos: int | None = None
+        self.capture_bank: AttnNativeBank | None = None
         self._capture_K: list[torch.Tensor | None] = [None] * self.num_layers
         self._capture_V: list[torch.Tensor | None] = [None] * self.num_layers
 
@@ -608,15 +654,17 @@ class AttnNativePatcher:
             self.remove()
 
     @contextmanager
-    def capturing(self, capture_pos: int | None = None):
+    def capturing(self, capture_pos: int | None = None, bank: AttnNativeBank | None = None):
         self.capture_mode = True
         self.capture_pos = capture_pos
+        self.capture_bank = bank
         self._capture_K = [None] * self.num_layers
         self._capture_V = [None] * self.num_layers
         try:
             yield
         finally:
             self.capture_mode = False
+            self.capture_bank = None
 
     @contextmanager
     def injecting(self, bank: AttnNativeBank, alpha: float = 1.0):
@@ -697,7 +745,7 @@ def write_fact(
         )
 
     for site in sites:
-        with patcher.patched(), patcher.capturing(capture_pos=site.token_pos), torch.no_grad():
+        with patcher.patched(), patcher.capturing(capture_pos=site.token_pos, bank=bank), torch.no_grad():
             patcher.model(input_ids=ids, attention_mask=am, use_cache=False)
         K_per_layer = []
         V_per_layer = []

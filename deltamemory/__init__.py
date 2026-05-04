@@ -18,7 +18,7 @@ but are not part of the recommended path.
 """
 from __future__ import annotations
 
-__version__ = "0.3.5"  # Phase S — U-LOPI
+__version__ = "0.3.6"  # Phase R-7 — V-scale calibrated bank schema
 
 # Lazy-friendly: top-level imports must not break if optional deps (faiss)
 # are missing on a given machine; persistence/profiler tolerate this.

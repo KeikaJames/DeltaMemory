@@ -70,11 +70,12 @@ Banks created on Phase R (`profile_mode='static'`) continue to load — see §3.
 
 ---
 
-## 3. Bank schema bump: `lopi_v33` → `ulopi_v35`
+## 3. Bank schema bumps: `lopi_v33` → `ulopi_v35` → `ulopi_v36`
 
 `deltamemory.memory.bank_persistence.VERSION` advanced to **`ulopi_v35`** in
-Phase S. The previous on-disk format `lopi_v33` (Phase R-6) remains loadable
-via the `_LEGACY_VERSIONS` tuple in `bank_persistence.py`.
+Phase S and **`ulopi_v36`** in R-7. The previous on-disk formats `lopi_v33`
+and `ulopi_v35` remain loadable via the `_LEGACY_VERSIONS` tuple in
+`bank_persistence.py`.
 
 ### What changed in `ulopi_v35`
 
@@ -84,13 +85,22 @@ via the `_LEGACY_VERSIONS` tuple in `bank_persistence.py`.
 - A `LOPIProfile` sidecar (mu_base / sigma_base / fingerprints) is stored
   alongside the safetensors bank when `profile_mode='auto'`.
 
+### What changed in `ulopi_v36`
+
+- `AttnNativeBank` persists `value_scale_mode`, `value_target_rms`, and
+  `value_scale_eps`.
+- The default `value_scale_mode='auto_unit_rms'` leaves Gemma-style native
+  `v_norm` layers untouched and stores no-v_norm family `M_V` values at fixed
+  per-head RMS. This makes `alpha` less architecture-scale-dependent while
+  preserving `alpha=0` bit-equality.
+
 ### Migrating a persisted Phase-R bank
 
 If you have `lopi_v33` banks on disk:
 
 1. **Read-only continues to work** — `load_bank(path)` accepts `lopi_v33` and
    surfaces it through the same `AttnNativeBank` API.
-2. **To upgrade in place to `ulopi_v35`:**
+2. **To upgrade in place to the current schema (`ulopi_v36`):**
 
    ```python
    from deltamemory.memory.bank_persistence import load_bank, save_bank
@@ -99,7 +109,7 @@ If you have `lopi_v33` banks on disk:
    bank = load_bank(old_path, model=model)        # accepts lopi_v33
    bank.lopi.profile_mode = "auto"                # opt into U-LOPI
    # First read against `model` will materialise the profile.
-   save_bank(bank, new_path)                      # writes ulopi_v35
+   save_bank(bank, new_path)                      # writes ulopi_v36
    ```
 
    The migration is one-way: `save_bank` always writes the current `VERSION`.

@@ -4,6 +4,34 @@ All notable changes to DeltaMemory are documented here, organised by
 research stage. Older stages are summarised; the current stage is
 documented in full enough to make the evidence and limits legible.
 
+## Phase R-7 — v3.6 V-scale calibrated bank schema
+
+### Why
+R-4/S-7 showed that LOPI's Gaussian focusing reduces drift, but Qwen/GLM
+retain a high absolute drift floor.  The strongest diagnosis is architecture
+V-scale mismatch: Gemma-style attention has native `v_norm`, while Qwen/Llama
+/ GLM families do not, so the same `alpha` injects very different M_V energy.
+
+### What
+* `AttnNativeBank` now has explicit bank-side value-scale config:
+  `value_scale_mode`, `value_target_rms`, and `value_scale_eps`.
+* The default `value_scale_mode="auto_unit_rms"` leaves native-v_norm families
+  untouched and normalizes no-v_norm family bank values to fixed per-head RMS
+  at write time.
+* The capture path now receives the active bank config rather than applying an
+  implicit hard-coded heuristic.
+* Persistence schema advanced to `ulopi_v36`; `lopi_v33` and `ulopi_v35`
+  remain readable.
+* New `tests/test_value_scale_calibration.py` plus persistence round-trip /
+  config-hash isolation coverage.
+
+### Red lines preserved
+* Frozen LLM weights — only bank values are scaled at write time.
+* α = 0 bit-equality — the injection branch is skipped at α=0, and native
+  sequence attention is unchanged.
+* Gemma native-v_norm path stays byte-equivalent because auto mode does not
+  touch captured V when the attention module exposes `v_norm`.
+
 ## Stage 16 — v3.2 mHC spectral shield (universal α)
 
 ### Why

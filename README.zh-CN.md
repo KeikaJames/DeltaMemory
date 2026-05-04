@@ -72,7 +72,7 @@ with patcher.patched(), patcher.injecting(bank, alpha=1.0), torch.no_grad():
     out = model.generate(**tok(read_prompt, return_tensors="pt"), max_new_tokens=8)
 print(tok.decode(out[0], skip_special_tokens=True))
 
-# 5) 持久化（Phase R-6，版本 "ulopi_v35"）；load_bank 会同时还原 profile。
+# 5) 持久化（schema "ulopi_v36"）；load_bank 会同时还原 profile 与 V-scale 配置。
 save_bank(bank, root="./banks", model_name=model_name)
 ```
 
@@ -158,13 +158,13 @@ LLM 权重前后逐位一致（由 `test_lopi_profiler.py::test_profile_does_not
 
 按版本、内容寻址的 bank 存储：`<root>/<model_safe>/<config_sha>/`，其中
 `config_sha` 是 bank 相关配置（架构 shape + LOPI cfg + bank 温度 + shield
-开关）的 sha256。每层 `M_K`/`M_V` 写进同一个 zero-copy mmap-able
+开关 + V-scale 校准）的 sha256。每层 `M_K`/`M_V` 写进同一个 zero-copy mmap-able
 `bank.safetensors`；并发写由 `filelock` 串行化，读端凭 `os.replace` 原子
 切换只看到完整快照。落盘内容包含 Phase S 的 `LOPIProfile`，重新加载会同
-时恢复按架构的校准。格式版本：`ulopi_v35`。
+时恢复按架构的校准。格式版本：`ulopi_v36`。
 
 $$
-\mathrm{config\_sha} \;=\; \mathrm{sha256}\!\bigl(\,\mathrm{shape}\;\Vert\;\mathrm{LOPIConfig}\;\Vert\;\tau\;\Vert\;\mathrm{shield}\bigr)
+\mathrm{config\_sha} \;=\; \mathrm{sha256}\!\bigl(\,\mathrm{shape}\;\Vert\;\mathrm{LOPIConfig}\;\Vert\;\tau\;\Vert\;\mathrm{shield}\;\Vert\;\mathrm{VScale}\bigr)
 $$
 
 * 文件：[`deltamemory/memory/bank_persistence.py`](deltamemory/memory/bank_persistence.py)
@@ -185,6 +185,7 @@ $$
 | R-5.1 / v3.4 | Q3 对抗 chat × LOPI（Gemma-4-E2B） | `reports/cleanroom/lopi_v33/R5_q3/` | 仅 LOPI 配置在 α∈{8,10} 把最易事实拉到 partial implant |
 | R-6 / v3.4 | 持久化 AttnNativeBank（safetensors + filelock） | `tests/test_bank_persistence.py` | 同 dtype 下往返 bit-equal |
 | **S / v3.5** | U-LOPI 自动校准 profiler（`ulopi_v35`） | `deltamemory/memory/lopi_profiler.py`、`tests/test_lopi_profiler.py`、`tests/test_lopi_universal.py` | 取代写死的 `norm_base=10.0`；同一份 LOPI 跑遍 Gemma / Qwen3 / GLM-4 / Llama / GPT-2 |
+| **R-7 / v3.6** | bank 侧 V-scale 校准（`ulopi_v36`） | `deltamemory/memory/attn_native_bank.py`、`tests/test_value_scale_calibration.py` | 无 v_norm 家族把 M_V 存为固定 per-head RMS；Gemma 原生 v_norm 不动 |
 
 每阶段长篇叙事日志（rationale、原始 transcript 索引、DeepSeek-32B 边界、
 v3.1 图表、按架构 α 默认值）见 [`docs/HISTORY.md`](docs/HISTORY.md)。
