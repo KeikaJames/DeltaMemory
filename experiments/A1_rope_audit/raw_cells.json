@@ -1,0 +1,1064 @@
+{
+  "env": {
+    "torch": "2.11.0",
+    "transformers": "5.7.0",
+    "commit": "dfb6e4db6f3404e4cc9873b2f10113ab45426b70",
+    "dtype": "bfloat16",
+    "device": "mps",
+    "python": "3.11.14",
+    "mps_available": true
+  },
+  "model": "Qwen/Qwen2.5-0.5B",
+  "rows": [
+    {
+      "gap_requested_tokens": 0,
+      "gap_actual_tokens": 0,
+      "fact_ids": [
+        "blue",
+        "red"
+      ],
+      "bank_col_sum_mean_by_slot": {
+        "0": 29.50254162152608,
+        "1": 29.768751621246338
+      },
+      "bank_col_sum_raw": [
+        {
+          "step": 0,
+          "layer": 0,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 31.210636138916016
+        },
+        {
+          "step": 0,
+          "layer": 0,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 31.210636138916016
+        },
+        {
+          "step": 0,
+          "layer": 1,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 23.9420166015625
+        },
+        {
+          "step": 0,
+          "layer": 1,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 23.96771240234375
+        },
+        {
+          "step": 0,
+          "layer": 2,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 39.46245574951172
+        },
+        {
+          "step": 0,
+          "layer": 2,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 43.451072692871094
+        },
+        {
+          "step": 0,
+          "layer": 3,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 26.70296859741211
+        },
+        {
+          "step": 0,
+          "layer": 3,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 22.444583892822266
+        },
+        {
+          "step": 0,
+          "layer": 4,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 42.38874816894531
+        },
+        {
+          "step": 0,
+          "layer": 4,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 28.360916137695312
+        },
+        {
+          "step": 0,
+          "layer": 5,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 31.185142517089844
+        },
+        {
+          "step": 0,
+          "layer": 5,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 22.67858123779297
+        },
+        {
+          "step": 0,
+          "layer": 6,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 48.718017578125
+        },
+        {
+          "step": 0,
+          "layer": 6,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 42.3504638671875
+        },
+        {
+          "step": 0,
+          "layer": 7,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 27.265832901000977
+        },
+        {
+          "step": 0,
+          "layer": 7,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 15.04372501373291
+        },
+        {
+          "step": 0,
+          "layer": 8,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 45.53736114501953
+        },
+        {
+          "step": 0,
+          "layer": 8,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 36.71654510498047
+        },
+        {
+          "step": 0,
+          "layer": 9,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 14.314922332763672
+        },
+        {
+          "step": 0,
+          "layer": 9,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 8.734855651855469
+        },
+        {
+          "step": 0,
+          "layer": 10,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 39.17047119140625
+        },
+        {
+          "step": 0,
+          "layer": 10,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 32.485748291015625
+        },
+        {
+          "step": 0,
+          "layer": 11,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 13.525712966918945
+        },
+        {
+          "step": 0,
+          "layer": 11,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 9.191335678100586
+        },
+        {
+          "step": 0,
+          "layer": 12,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 22.265220642089844
+        },
+        {
+          "step": 0,
+          "layer": 12,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 17.720558166503906
+        },
+        {
+          "step": 0,
+          "layer": 13,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 20.84808349609375
+        },
+        {
+          "step": 0,
+          "layer": 13,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 15.029644966125488
+        },
+        {
+          "step": 0,
+          "layer": 14,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 30.938629150390625
+        },
+        {
+          "step": 0,
+          "layer": 14,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 26.394699096679688
+        },
+        {
+          "step": 0,
+          "layer": 15,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 27.50320816040039
+        },
+        {
+          "step": 0,
+          "layer": 15,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 22.604726791381836
+        },
+        {
+          "step": 0,
+          "layer": 16,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 16.152917861938477
+        },
+        {
+          "step": 0,
+          "layer": 16,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 9.181795120239258
+        },
+        {
+          "step": 0,
+          "layer": 17,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 26.377960205078125
+        },
+        {
+          "step": 0,
+          "layer": 17,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 41.371551513671875
+        },
+        {
+          "step": 0,
+          "layer": 18,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 28.86929702758789
+        },
+        {
+          "step": 0,
+          "layer": 18,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 34.175758361816406
+        },
+        {
+          "step": 0,
+          "layer": 19,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 32.133934020996094
+        },
+        {
+          "step": 0,
+          "layer": 19,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 39.88221740722656
+        },
+        {
+          "step": 0,
+          "layer": 20,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 18.457496643066406
+        },
+        {
+          "step": 0,
+          "layer": 20,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 30.47711181640625
+        },
+        {
+          "step": 0,
+          "layer": 21,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 19.952430725097656
+        },
+        {
+          "step": 0,
+          "layer": 21,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 34.89613342285156
+        },
+        {
+          "step": 0,
+          "layer": 22,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 34.54931640625
+        },
+        {
+          "step": 0,
+          "layer": 22,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 58.4908447265625
+        },
+        {
+          "step": 0,
+          "layer": 23,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 46.588218688964844
+        },
+        {
+          "step": 0,
+          "layer": 23,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 67.58882141113281
+        }
+      ]
+    },
+    {
+      "gap_requested_tokens": 4,
+      "gap_actual_tokens": 4,
+      "fact_ids": [
+        "blue",
+        "red"
+      ],
+      "bank_col_sum_mean_by_slot": {
+        "0": 25.336611876885097,
+        "1": 32.16537634531657
+      },
+      "bank_col_sum_raw": [
+        {
+          "step": 0,
+          "layer": 0,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 31.210636138916016
+        },
+        {
+          "step": 0,
+          "layer": 0,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 31.210636138916016
+        },
+        {
+          "step": 0,
+          "layer": 1,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 24.143585205078125
+        },
+        {
+          "step": 0,
+          "layer": 1,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 22.17334747314453
+        },
+        {
+          "step": 0,
+          "layer": 2,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 40.782508850097656
+        },
+        {
+          "step": 0,
+          "layer": 2,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 39.207969665527344
+        },
+        {
+          "step": 0,
+          "layer": 3,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 25.652050018310547
+        },
+        {
+          "step": 0,
+          "layer": 3,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 29.48162841796875
+        },
+        {
+          "step": 0,
+          "layer": 4,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 38.70896911621094
+        },
+        {
+          "step": 0,
+          "layer": 4,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 33.51835632324219
+        },
+        {
+          "step": 0,
+          "layer": 5,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 27.098278045654297
+        },
+        {
+          "step": 0,
+          "layer": 5,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 30.559175491333008
+        },
+        {
+          "step": 0,
+          "layer": 6,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 46.5718994140625
+        },
+        {
+          "step": 0,
+          "layer": 6,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 48.9970703125
+        },
+        {
+          "step": 0,
+          "layer": 7,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 24.66901206970215
+        },
+        {
+          "step": 0,
+          "layer": 7,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 20.601797103881836
+        },
+        {
+          "step": 0,
+          "layer": 8,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 43.002098083496094
+        },
+        {
+          "step": 0,
+          "layer": 8,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 43.85240173339844
+        },
+        {
+          "step": 0,
+          "layer": 9,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 13.13133716583252
+        },
+        {
+          "step": 0,
+          "layer": 9,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 13.385502815246582
+        },
+        {
+          "step": 0,
+          "layer": 10,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 40.29278564453125
+        },
+        {
+          "step": 0,
+          "layer": 10,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 40.02801513671875
+        },
+        {
+          "step": 0,
+          "layer": 11,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 14.137575149536133
+        },
+        {
+          "step": 0,
+          "layer": 11,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 11.947892189025879
+        },
+        {
+          "step": 0,
+          "layer": 12,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 24.778465270996094
+        },
+        {
+          "step": 0,
+          "layer": 12,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 27.5869140625
+        },
+        {
+          "step": 0,
+          "layer": 13,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 14.841436386108398
+        },
+        {
+          "step": 0,
+          "layer": 13,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 11.806697845458984
+        },
+        {
+          "step": 0,
+          "layer": 14,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 29.295989990234375
+        },
+        {
+          "step": 0,
+          "layer": 14,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 32.673004150390625
+        },
+        {
+          "step": 0,
+          "layer": 15,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 26.532241821289062
+        },
+        {
+          "step": 0,
+          "layer": 15,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 28.85088348388672
+        },
+        {
+          "step": 0,
+          "layer": 16,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 3.4318830966949463
+        },
+        {
+          "step": 0,
+          "layer": 16,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 8.850702285766602
+        },
+        {
+          "step": 0,
+          "layer": 17,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 17.433143615722656
+        },
+        {
+          "step": 0,
+          "layer": 17,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 33.25836181640625
+        },
+        {
+          "step": 0,
+          "layer": 18,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 18.619516372680664
+        },
+        {
+          "step": 0,
+          "layer": 18,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 40.05229949951172
+        },
+        {
+          "step": 0,
+          "layer": 19,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 20.851215362548828
+        },
+        {
+          "step": 0,
+          "layer": 19,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 49.75431823730469
+        },
+        {
+          "step": 0,
+          "layer": 20,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 14.032905578613281
+        },
+        {
+          "step": 0,
+          "layer": 20,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 40.756317138671875
+        },
+        {
+          "step": 0,
+          "layer": 21,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 12.652793884277344
+        },
+        {
+          "step": 0,
+          "layer": 21,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 27.165283203125
+        },
+        {
+          "step": 0,
+          "layer": 22,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 22.4036865234375
+        },
+        {
+          "step": 0,
+          "layer": 22,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 48.904541015625
+        },
+        {
+          "step": 0,
+          "layer": 23,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 33.80467224121094
+        },
+        {
+          "step": 0,
+          "layer": 23,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 57.345916748046875
+        }
+      ]
+    },
+    {
+      "gap_requested_tokens": 64,
+      "gap_actual_tokens": 64,
+      "fact_ids": [
+        "blue",
+        "red"
+      ],
+      "bank_col_sum_mean_by_slot": {
+        "0": 25.17878524462382,
+        "1": 31.853621006011963
+      },
+      "bank_col_sum_raw": [
+        {
+          "step": 0,
+          "layer": 0,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 31.210636138916016
+        },
+        {
+          "step": 0,
+          "layer": 0,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 31.210636138916016
+        },
+        {
+          "step": 0,
+          "layer": 1,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 24.704559326171875
+        },
+        {
+          "step": 0,
+          "layer": 1,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 19.111557006835938
+        },
+        {
+          "step": 0,
+          "layer": 2,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 41.00325012207031
+        },
+        {
+          "step": 0,
+          "layer": 2,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 39.14347839355469
+        },
+        {
+          "step": 0,
+          "layer": 3,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 26.42074966430664
+        },
+        {
+          "step": 0,
+          "layer": 3,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 29.554183959960938
+        },
+        {
+          "step": 0,
+          "layer": 4,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 43.63030242919922
+        },
+        {
+          "step": 0,
+          "layer": 4,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 24.325477600097656
+        },
+        {
+          "step": 0,
+          "layer": 5,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 26.874465942382812
+        },
+        {
+          "step": 0,
+          "layer": 5,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 41.82094192504883
+        },
+        {
+          "step": 0,
+          "layer": 6,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 45.953033447265625
+        },
+        {
+          "step": 0,
+          "layer": 6,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 49.077911376953125
+        },
+        {
+          "step": 0,
+          "layer": 7,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 28.115570068359375
+        },
+        {
+          "step": 0,
+          "layer": 7,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 24.55954360961914
+        },
+        {
+          "step": 0,
+          "layer": 8,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 51.80491256713867
+        },
+        {
+          "step": 0,
+          "layer": 8,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 39.900909423828125
+        },
+        {
+          "step": 0,
+          "layer": 9,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 13.864847183227539
+        },
+        {
+          "step": 0,
+          "layer": 9,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 18.97087860107422
+        },
+        {
+          "step": 0,
+          "layer": 10,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 44.419158935546875
+        },
+        {
+          "step": 0,
+          "layer": 10,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 40.37750244140625
+        },
+        {
+          "step": 0,
+          "layer": 11,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 9.113563537597656
+        },
+        {
+          "step": 0,
+          "layer": 11,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 8.426481246948242
+        },
+        {
+          "step": 0,
+          "layer": 12,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 19.044212341308594
+        },
+        {
+          "step": 0,
+          "layer": 12,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 18.72748565673828
+        },
+        {
+          "step": 0,
+          "layer": 13,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 15.27624797821045
+        },
+        {
+          "step": 0,
+          "layer": 13,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 9.701465606689453
+        },
+        {
+          "step": 0,
+          "layer": 14,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 20.27159881591797
+        },
+        {
+          "step": 0,
+          "layer": 14,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 22.977584838867188
+        },
+        {
+          "step": 0,
+          "layer": 15,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 20.334632873535156
+        },
+        {
+          "step": 0,
+          "layer": 15,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 16.68556022644043
+        },
+        {
+          "step": 0,
+          "layer": 16,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 12.604239463806152
+        },
+        {
+          "step": 0,
+          "layer": 16,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 8.427909851074219
+        },
+        {
+          "step": 0,
+          "layer": 17,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 22.695877075195312
+        },
+        {
+          "step": 0,
+          "layer": 17,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 40.90172576904297
+        },
+        {
+          "step": 0,
+          "layer": 18,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 24.714920043945312
+        },
+        {
+          "step": 0,
+          "layer": 18,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 34.807891845703125
+        },
+        {
+          "step": 0,
+          "layer": 19,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 22.558189392089844
+        },
+        {
+          "step": 0,
+          "layer": 19,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 36.18853759765625
+        },
+        {
+          "step": 0,
+          "layer": 20,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 10.832542419433594
+        },
+        {
+          "step": 0,
+          "layer": 20,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 40.29896545410156
+        },
+        {
+          "step": 0,
+          "layer": 21,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 9.36126708984375
+        },
+        {
+          "step": 0,
+          "layer": 21,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 39.02904510498047
+        },
+        {
+          "step": 0,
+          "layer": 22,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 18.50347900390625
+        },
+        {
+          "step": 0,
+          "layer": 22,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 66.1944580078125
+        },
+        {
+          "step": 0,
+          "layer": 23,
+          "token": 0,
+          "signal_name": "bank_col_sum",
+          "value": 20.97859001159668
+        },
+        {
+          "step": 0,
+          "layer": 23,
+          "token": 1,
+          "signal_name": "bank_col_sum",
+          "value": 64.0667724609375
+        }
+      ]
+    }
+  ]
+}
