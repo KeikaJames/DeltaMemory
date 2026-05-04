@@ -1,0 +1,56 @@
+{
+  "env": {
+    "torch": "2.11.0",
+    "transformers": "5.7.0",
+    "commit": "dfb6e4db6f3404e4cc9873b2f10113ab45426b70",
+    "dtype": "bfloat16",
+    "device": "mps",
+    "python": "3.11.14"
+  },
+  "rows": [
+    {
+      "profile": "experiments/W_T3_6_ulopi_profiler/qwen05/profile.json",
+      "L": 24,
+      "profile_mu_arch": 5,
+      "static_gaussian": {
+        "mu": 12.0,
+        "sigma": 4.0,
+        "peak_layer": 12
+      },
+      "sigma_radius_rule": {
+        "argmax_layer": 5,
+        "score": 444.2674560546875
+      },
+      "residual_spectral_proxy": {
+        "argmax_layer": 5,
+        "score": 1.2993551769729126
+      },
+      "logit_lens_gain_proxy": {
+        "argmax_layer": 23,
+        "score": 195.62620544433594
+      }
+    },
+    {
+      "profile": "experiments/W_T3_6_ulopi_profiler/qwen15/profile.json",
+      "L": 28,
+      "profile_mu_arch": 5,
+      "static_gaussian": {
+        "mu": 14.0,
+        "sigma": 4.666666666666667,
+        "peak_layer": 14
+      },
+      "sigma_radius_rule": {
+        "argmax_layer": 5,
+        "score": 5071.0546875
+      },
+      "residual_spectral_proxy": {
+        "argmax_layer": 5,
+        "score": 1.1526478940165763
+      },
+      "logit_lens_gain_proxy": {
+        "argmax_layer": 2,
+        "score": 1592.977294921875
+      }
+    }
+  ]
+}
