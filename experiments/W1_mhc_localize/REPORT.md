@@ -1,7 +1,7 @@
 # W.1 — mHC Shield Failure Localization
 
 **Branch:** `feat/v04-w1-mhc-localize`  
-**Date:** 2025-07  
+**Date:** 2026-05  
 **Verdict:** **FAIL** (drift floor >> 0.5 nats acceptance threshold)
 
 ---
