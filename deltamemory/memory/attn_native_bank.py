@@ -514,6 +514,11 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
                 scores = torch.cat([scores_orig, scores_bank], dim=-1)
                 weights = F.softmax(scores, dim=-1, dtype=torch.float32).to(q_post.dtype)
                 T_orig = scores_orig.size(-1)
+                # Phase X.1: diagnostic hook — pre-shield bank attention signals.
+                # Zero overhead when no recorder is active (_RECORDER is None).
+                import deltamemory.diagnostics as _diag_mod  # noqa: PLC0415
+                if _diag_mod._RECORDER is not None:
+                    _diag_mod._RECORDER.record_bank_attn(layer_idx, weights, T_orig)
                 # Stage 16 (v3.2): optional mHC spectral shield.  When
                 # ``bank.mhc_shield = True`` bank-column column-sums are
                 # capped at ≤ kappa (default 1.0), bounding spectral

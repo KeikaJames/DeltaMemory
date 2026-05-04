@@ -18,7 +18,7 @@ but are not part of the recommended path.
 """
 from __future__ import annotations
 
-__version__ = "0.3.6"  # Phase R-7 — V-scale calibrated bank schema
+__version__ = "0.4.0"  # Phase X.1 — DiagnosticRecorder
 
 # Lazy-friendly: top-level imports must not break if optional deps (faiss)
 # are missing on a given machine; persistence/profiler tolerate this.
@@ -51,6 +51,7 @@ from deltamemory.memory.lopi_profiler import (
     profile_residuals,
     save_profile,
 )
+from deltamemory.diagnostics import DiagnosticRecorder
 
 __all__ = [
     "__version__",
@@ -67,4 +68,6 @@ __all__ = [
     # persistence
     "compute_config_sha", "list_banks", "load_bank",
     "resolve_location", "save_bank",
+    # diagnostics (Phase X.1)
+    "DiagnosticRecorder",
 ]
