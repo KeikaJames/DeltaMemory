@@ -74,7 +74,7 @@ with patcher.patched(), patcher.injecting(bank, alpha=1.0), torch.no_grad():
     out = model.generate(**tok(read_prompt, return_tensors="pt"), max_new_tokens=8)
 print(tok.decode(out[0], skip_special_tokens=True))
 
-# 5) Persist (Phase R-6, version "ulopi_v35"); load_bank restores the profile too.
+# 5) Persist (schema "ulopi_v36"); load_bank restores the profile + V-scale config.
 save_bank(bank, root="./banks", model_name=model_name)
 ```
 
@@ -168,14 +168,14 @@ exactly for regression checks.
 Versioned, content-addressed bank storage at
 `<root>/<model_safe>/<config_sha>/`, where `config_sha` is sha256 of the
 bank-relevant config (architecture shape + LOPI cfg + bank temperature +
-shield flag). `M_K`/`M_V` per layer are written as a single zero-copy
+shield flag + V-scale calibration). `M_K`/`M_V` per layer are written as a single zero-copy
 mmap-able `bank.safetensors`; concurrent writes are serialised through
 `filelock` and readers see only fully-written snapshots thanks to atomic
 `os.replace`. The persisted snapshot includes the Phase S `LOPIProfile`, so
-reloads inherit per-arch calibration. Format version: `ulopi_v35`.
+reloads inherit per-arch calibration. Format version: `ulopi_v36`.
 
 $$
-\mathrm{config\_sha} \;=\; \mathrm{sha256}\!\bigl(\,\mathrm{shape}\;\Vert\;\mathrm{LOPIConfig}\;\Vert\;\tau\;\Vert\;\mathrm{shield}\bigr)
+\mathrm{config\_sha} \;=\; \mathrm{sha256}\!\bigl(\,\mathrm{shape}\;\Vert\;\mathrm{LOPIConfig}\;\Vert\;\tau\;\Vert\;\mathrm{shield}\;\Vert\;\mathrm{VScale}\bigr)
 $$
 
 * File: [`deltamemory/memory/bank_persistence.py`](deltamemory/memory/bank_persistence.py)
@@ -196,6 +196,7 @@ $$
 | R-5.1 / v3.4 | Q3 adversarial chat × LOPI on Gemma-4-E2B | `reports/cleanroom/lopi_v33/R5_q3/` | LOPI is the only configuration that elevates the easiest-fact pair to partial implant at α∈{8,10} |
 | R-6 / v3.4 | persistent AttnNativeBank (safetensors + filelock) | `tests/test_bank_persistence.py` | round-trip bit-equal under same dtype |
 | **S / v3.5** | U-LOPI auto-calibration profiler (`ulopi_v35`) | `deltamemory/memory/lopi_profiler.py`, `tests/test_lopi_profiler.py`, `tests/test_lopi_universal.py` | replaces hard-coded `norm_base=10.0`; same LOPI across Gemma / Qwen3 / GLM-4 / Llama / GPT-2 |
+| **R-7 / v3.6** | bank-side V-scale calibration (`ulopi_v36`) | `deltamemory/memory/attn_native_bank.py`, `tests/test_value_scale_calibration.py` | no-v_norm families cap M_V RMS without amplifying small V; Gemma native v_norm stays untouched |
 
 The long-form narrative log (per-stage rationale, raw transcripts pointer,
 DeepSeek-32B limitation, v3.1 figure set, per-architecture α defaults) lives

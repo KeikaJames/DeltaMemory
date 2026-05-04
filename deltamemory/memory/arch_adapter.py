@@ -61,6 +61,10 @@ class ArchAdapter:
         fn = getattr(attn, "v_norm", None)
         return fn(v) if callable(fn) else v
 
+    def has_native_v_norm(self, attn: nn.Module) -> bool:
+        """Whether this attention module normalizes V in the native forward."""
+        return callable(getattr(attn, "v_norm", None))
+
     # --- RoPE (must override) ------------------------------------------------
     def apply_rope(
         self,

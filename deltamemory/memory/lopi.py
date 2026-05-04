@@ -385,6 +385,11 @@ def apply_lopi(
     else:
         m_perp = out_bank_native
 
+    # Phase X.1: m_perp energy ratio diagnostic (zero overhead when off).
+    import deltamemory.diagnostics as _diag_mod  # noqa: PLC0415
+    if _diag_mod._RECORDER is not None:
+        _diag_mod._RECORDER.record_m_perp_ratio(layer_idx, m_perp, out_bank_native)
+
     # 2. Layer Gaussian (scalar, broadcasts).
     if cfg.gaussian:
         w_ell = layer_gaussian_weight(
@@ -406,6 +411,10 @@ def apply_lopi(
         gamma_t = derivative_gate(q_post, q_prev, cfg.k_gate, cfg.theta_gate)
     else:
         gamma_t = torch.tensor(1.0, device=m_perp.device, dtype=m_perp.dtype)
+
+    # Phase X.1: LOPI gate diagnostics (zero overhead when recorder is off).
+    if _diag_mod._RECORDER is not None:
+        _diag_mod._RECORDER.record_lopi_gamma_w(layer_idx, gamma_t, w_ell)
 
     out_bank_lopi = gamma_t * w_ell * m_perp
 

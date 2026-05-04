@@ -163,7 +163,7 @@ def test_tuple_location_form(tmp_path: Path):
 
 
 def test_legacy_version_still_loadable(tmp_path: Path):
-    """v3.4 banks (lopi_v33) must still load under v3.5 (ulopi_v35)."""
+    """v3.4 banks (lopi_v33) must still load under newer schemas."""
     import json
     bank = _make_bank(n_facts=2)
     loc = save_bank(bank, tmp_path, model_name="m")
@@ -172,6 +172,43 @@ def test_legacy_version_still_loadable(tmp_path: Path):
     loc.meta_path.write_text(json.dumps(meta))
     reloaded = load_bank(loc)
     assert _bank_tensors_equal(bank, reloaded)
+
+
+def test_ulopi_v35_version_still_loadable(tmp_path: Path):
+    """v3.5 banks (ulopi_v35) must still load under v3.6 value-scale schema."""
+    import json
+    bank = _make_bank(n_facts=2)
+    loc = save_bank(bank, tmp_path, model_name="m")
+    meta = json.loads(loc.meta_path.read_text())
+    meta["version"] = "ulopi_v35"
+    meta.pop("value_scale_mode", None)
+    meta.pop("value_target_rms", None)
+    meta.pop("value_scale_eps", None)
+    loc.meta_path.write_text(json.dumps(meta))
+    reloaded = load_bank(loc)
+    assert _bank_tensors_equal(bank, reloaded)
+    assert reloaded.value_scale_mode == "auto_rms_cap"
+    assert reloaded.value_target_rms == 0.5
+
+
+def test_value_scale_config_round_trip(tmp_path: Path):
+    bank = _make_bank(n_facts=2)
+    bank.value_scale_mode = "unit_rms"
+    bank.value_target_rms = 0.25
+    loc = save_bank(bank, tmp_path, model_name="m")
+    reloaded = load_bank(loc)
+    assert reloaded.value_scale_mode == "unit_rms"
+    assert reloaded.value_target_rms == 0.25
+
+
+def test_value_scale_config_isolates_config_sha(tmp_path: Path):
+    bank_a = _make_bank(n_facts=1)
+    bank_b = _make_bank(n_facts=1)
+    bank_a.value_scale_mode = "none"
+    bank_b.value_scale_mode = "unit_rms"
+    loc_a = save_bank(bank_a, tmp_path, model_name="m")
+    loc_b = save_bank(bank_b, tmp_path, model_name="m")
+    assert loc_a.config_sha != loc_b.config_sha
 
 
 def test_lopi_profile_round_trip(tmp_path: Path):

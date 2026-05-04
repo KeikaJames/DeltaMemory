@@ -41,12 +41,12 @@ try:
 except ImportError:  # pragma: no cover - hard dep, tested in CI
     FileLock = None  # type: ignore
 
-VERSION = "ulopi_v35"
+VERSION = "ulopi_v36"
 META_FILENAME = "meta.json"
 TENSORS_FILENAME = "bank.safetensors"
 LOCK_FILENAME = ".lock"
-# v3.4 banks (lopi_v33) remain readable: see _LEGACY_VERSIONS in load_bank.
-_LEGACY_VERSIONS = ("lopi_v33",)
+# v3.4/v3.5 banks remain readable: see _LEGACY_VERSIONS in load_bank.
+_LEGACY_VERSIONS = ("lopi_v33", "ulopi_v35")
 
 
 # ---------------------------------------------------------------------------
@@ -198,7 +198,11 @@ def save_bank(
         bank_temperature=sd.get("bank_temperature", 1.0),
         mhc_shield=sd.get("mhc_shield", False),
         lopi_cfg=_lopi_cfg_to_dict(getattr(bank, "lopi_cfg", None)),
-        extra={"profile_corpus_sha": profile_corpus_sha},
+        extra={
+            "profile_corpus_sha": profile_corpus_sha,
+            "value_scale_mode": sd.get("value_scale_mode", "auto_rms_cap"),
+            "value_target_rms": float(sd.get("value_target_rms", 0.5)),
+        },
     )
     loc = resolve_location(root, model_name, config_sha)
     loc.dir.mkdir(parents=True, exist_ok=True)
@@ -225,6 +229,9 @@ def save_bank(
             "dtype": dtype_str,
             "bank_temperature": float(sd.get("bank_temperature", 1.0)),
             "mhc_shield": bool(sd.get("mhc_shield", False)),
+            "value_scale_mode": str(sd.get("value_scale_mode", "auto_rms_cap")),
+            "value_target_rms": float(sd.get("value_target_rms", 0.5)),
+            "value_scale_eps": float(sd.get("value_scale_eps", 1e-6)),
             "lopi_cfg": _lopi_cfg_to_dict(getattr(bank, "lopi_cfg", None)),
             "lopi_profile": profile_dict,
             "n_facts": int(sd["M_K"][0].size(0)) if sd["M_K"] else 0,
@@ -299,6 +306,9 @@ def load_bank(
         "address_strs": list(meta.get("address_strs", [])),
         "bank_temperature": float(meta.get("bank_temperature", 1.0)),
         "mhc_shield": bool(meta.get("mhc_shield", False)),
+        "value_scale_mode": str(meta.get("value_scale_mode", "auto_rms_cap")),
+        "value_target_rms": float(meta.get("value_target_rms", 0.5)),
+        "value_scale_eps": float(meta.get("value_scale_eps", 1e-6)),
     }
     bank = AttnNativeBank.from_state_dict(sd, device=device, dtype=target_dtype)
 
