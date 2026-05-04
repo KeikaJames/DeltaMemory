@@ -1,0 +1,60 @@
+{"id": "lama_trex_001", "subject": "Isaac Newton", "relation": "P17", "object": "United States", "prompt": "Isaac Newton P17"}
+{"id": "lama_trex_002", "subject": "Nikola Tesla", "relation": "P19", "object": "Brazil", "prompt": "Nikola Tesla P19"}
+{"id": "lama_trex_003", "subject": "Carl Sagan", "relation": "P20", "object": "Japan", "prompt": "Carl Sagan P20"}
+{"id": "lama_trex_004", "subject": "Isaac Newton", "relation": "P27", "object": "Spain", "prompt": "Isaac Newton P27"}
+{"id": "lama_trex_005", "subject": "Leonardo da Vinci", "relation": "P30", "object": "Italy", "prompt": "Leonardo da Vinci P30"}
+{"id": "lama_trex_006", "subject": "Niels Bohr", "relation": "P131", "object": "France", "prompt": "Niels Bohr P131"}
+{"id": "lama_trex_007", "subject": "Albert Einstein", "relation": "P159", "object": "Germany", "prompt": "Albert Einstein P159"}
+{"id": "lama_trex_008", "subject": "Richard Feynman", "relation": "P264", "object": "Brazil", "prompt": "Richard Feynman P264"}
+{"id": "lama_trex_009", "subject": "Brian Greene", "relation": "P276", "object": "Poland", "prompt": "Brian Greene P276"}
+{"id": "lama_trex_010", "subject": "Albert Einstein", "relation": "P279", "object": "Spain", "prompt": "Albert Einstein P279"}
+{"id": "lama_trex_011", "subject": "Richard Feynman", "relation": "P361", "object": "Spain", "prompt": "Richard Feynman P361"}
+{"id": "lama_trex_012", "subject": "Niels Bohr", "relation": "P569", "object": "Brazil", "prompt": "Niels Bohr P569"}
+{"id": "lama_trex_013", "subject": "Richard Dawkins", "relation": "P570", "object": "Italy", "prompt": "Richard Dawkins P570"}
+{"id": "lama_trex_014", "subject": "Nikola Tesla", "relation": "P571", "object": "United States", "prompt": "Nikola Tesla P571"}
+{"id": "lama_trex_015", "subject": "Jane Goodall", "relation": "P625", "object": "Norway", "prompt": "Jane Goodall P625"}
+{"id": "lama_trex_016", "subject": "Charles Darwin", "relation": "P740", "object": "Russia", "prompt": "Charles Darwin P740"}
+{"id": "lama_trex_017", "subject": "Stephen Hawking", "relation": "P937", "object": "India", "prompt": "Stephen Hawking P937"}
+{"id": "lama_trex_018", "subject": "Charles Darwin", "relation": "P580", "object": "United Kingdom", "prompt": "Charles Darwin P580"}
+{"id": "lama_trex_019", "subject": "Leonardo da Vinci", "relation": "P582", "object": "Sweden", "prompt": "Leonardo da Vinci P582"}
+{"id": "lama_trex_020", "subject": "Isaac Newton", "relation": "P585", "object": "Switzerland", "prompt": "Isaac Newton P585"}
+{"id": "lama_trex_021", "subject": "Louis Pasteur", "relation": "P658", "object": "Poland", "prompt": "Louis Pasteur P658"}
+{"id": "lama_trex_022", "subject": "Nikola Tesla", "relation": "P684", "object": "France", "prompt": "Nikola Tesla P684"}
+{"id": "lama_trex_023", "subject": "Richard Dawkins", "relation": "P703", "object": "Spain", "prompt": "Richard Dawkins P703"}
+{"id": "lama_trex_024", "subject": "Isaac Newton", "relation": "P749", "object": "Sweden", "prompt": "Isaac Newton P749"}
+{"id": "lama_trex_025", "subject": "Leonardo da Vinci", "relation": "P800", "object": "Spain", "prompt": "Leonardo da Vinci P800"}
+{"id": "lama_trex_026", "subject": "Galileo Galilei", "relation": "P810", "object": "Poland", "prompt": "Galileo Galilei P810"}
+{"id": "lama_trex_027", "subject": "Louis Pasteur", "relation": "P813", "object": "Italy", "prompt": "Louis Pasteur P813"}
+{"id": "lama_trex_028", "subject": "Richard Feynman", "relation": "P825", "object": "Germany", "prompt": "Richard Feynman P825"}
+{"id": "lama_trex_029", "subject": "Marie Curie", "relation": "P854", "object": "Brazil", "prompt": "Marie Curie P854"}
+{"id": "lama_trex_030", "subject": "Galileo Galilei", "relation": "P921", "object": "Germany", "prompt": "Galileo Galilei P921"}
+{"id": "lama_trex_031", "subject": "Carl Sagan", "relation": "P930", "object": "United Kingdom", "prompt": "Carl Sagan P930"}
+{"id": "lama_trex_032", "subject": "Pierre Curie", "relation": "P1001", "object": "Russia", "prompt": "Pierre Curie P1001"}
+{"id": "lama_trex_033", "subject": "Richard Dawkins", "relation": "P1366", "object": "Switzerland", "prompt": "Richard Dawkins P1366"}
+{"id": "lama_trex_034", "subject": "Jane Goodall", "relation": "P1412", "object": "Switzerland", "prompt": "Jane Goodall P1412"}
+{"id": "lama_trex_035", "subject": "Louis Pasteur", "relation": "P1416", "object": "India", "prompt": "Louis Pasteur P1416"}
+{"id": "lama_trex_036", "subject": "Nikola Tesla", "relation": "P1344", "object": "Germany", "prompt": "Nikola Tesla P1344"}
+{"id": "lama_trex_037", "subject": "Michio Kaku", "relation": "P1345", "object": "China", "prompt": "Michio Kaku P1345"}
+{"id": "lama_trex_038", "subject": "Neil deGrasse Tyson", "relation": "P1346", "object": "Brazil", "prompt": "Neil deGrasse Tyson P1346"}
+{"id": "lama_trex_039", "subject": "Jane Goodall", "relation": "P1347", "object": "Denmark", "prompt": "Jane Goodall P1347"}
+{"id": "lama_trex_040", "subject": "Pierre Curie", "relation": "P1348", "object": "Russia", "prompt": "Pierre Curie P1348"}
+{"id": "lama_trex_041", "subject": "Neil deGrasse Tyson", "relation": "P1349", "object": "Brazil", "prompt": "Neil deGrasse Tyson P1349"}
+{"id": "lama_trex_042", "subject": "Charles Darwin", "relation": "P27", "object": "Brazil", "prompt": "Charles Darwin P27"}
+{"id": "lama_trex_043", "subject": "Marie Curie", "relation": "P658", "object": "Sweden", "prompt": "Marie Curie P658"}
+{"id": "lama_trex_044", "subject": "Nikola Tesla", "relation": "P30", "object": "India", "prompt": "Nikola Tesla P30"}
+{"id": "lama_trex_045", "subject": "Sean Carroll", "relation": "P658", "object": "India", "prompt": "Sean Carroll P658"}
+{"id": "lama_trex_046", "subject": "Stephen Wolfram", "relation": "P810", "object": "Denmark", "prompt": "Stephen Wolfram P810"}
+{"id": "lama_trex_047", "subject": "Stephen Hawking", "relation": "P937", "object": "Japan", "prompt": "Stephen Hawking P937"}
+{"id": "lama_trex_048", "subject": "Carl Sagan", "relation": "P1344", "object": "Spain", "prompt": "Carl Sagan P1344"}
+{"id": "lama_trex_049", "subject": "Nikola Tesla", "relation": "P1346", "object": "Norway", "prompt": "Nikola Tesla P1346"}
+{"id": "lama_trex_050", "subject": "Sean Carroll", "relation": "P810", "object": "Switzerland", "prompt": "Sean Carroll P810"}
+{"id": "lama_trex_051", "subject": "Carl Sagan", "relation": "P276", "object": "Netherlands", "prompt": "Carl Sagan P276"}
+{"id": "lama_trex_052", "subject": "Stephen Wolfram", "relation": "P131", "object": "France", "prompt": "Stephen Wolfram P131"}
+{"id": "lama_trex_053", "subject": "Isaac Newton", "relation": "P279", "object": "China", "prompt": "Isaac Newton P279"}
+{"id": "lama_trex_054", "subject": "Niels Bohr", "relation": "P1347", "object": "Germany", "prompt": "Niels Bohr P1347"}
+{"id": "lama_trex_055", "subject": "Pierre Curie", "relation": "P800", "object": "Poland", "prompt": "Pierre Curie P800"}
+{"id": "lama_trex_056", "subject": "Richard Dawkins", "relation": "P1412", "object": "Russia", "prompt": "Richard Dawkins P1412"}
+{"id": "lama_trex_057", "subject": "Neil deGrasse Tyson", "relation": "P17", "object": "United Kingdom", "prompt": "Neil deGrasse Tyson P17"}
+{"id": "lama_trex_058", "subject": "Neil deGrasse Tyson", "relation": "P580", "object": "Australia", "prompt": "Neil deGrasse Tyson P580"}
+{"id": "lama_trex_059", "subject": "Isaac Newton", "relation": "P582", "object": "Norway", "prompt": "Isaac Newton P582"}
+{"id": "lama_trex_060", "subject": "Jane Goodall", "relation": "P921", "object": "United States", "prompt": "Jane Goodall P921"}
