@@ -1,0 +1,25 @@
+{
+  "M_winner": "caa",
+  "models": {
+    "gpt2-medium": {
+      "best_alpha": 1.0,
+      "best_kl_unrel": 0.005414993688464165,
+      "best_median_nll_new": 7.851154327392578,
+      "frontier": [
+        {
+          "alpha": 0.0,
+          "median_kl_unrel": -2.0386843324615712e-10,
+          "median_nll_new": 8.944920539855957,
+          "n": 5
+        },
+        {
+          "alpha": 1.0,
+          "median_kl_unrel": 0.005414993688464165,
+          "median_nll_new": 7.851154327392578,
+          "n": 5
+        }
+      ],
+      "passes_h6c": true
+    }
+  }
+}

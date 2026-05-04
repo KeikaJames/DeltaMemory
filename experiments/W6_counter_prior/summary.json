@@ -1,0 +1,75 @@
+{
+  "M_winner": "caa",
+  "alphas": [
+    0.0,
+    1.0
+  ],
+  "h6a": {
+    "cells": [
+      {
+        "alpha": 0.0,
+        "ci95_hi": 0.0,
+        "ci95_lo": 0.0,
+        "holm_reject": false,
+        "median_diff": 0.0,
+        "model": "gpt2-medium",
+        "n_pairs": 5,
+        "p_raw": 1.0,
+        "wilcoxon_stat": NaN
+      },
+      {
+        "alpha": 1.0,
+        "ci95_hi": -0.823789119720459,
+        "ci95_lo": -2.345262050628662,
+        "holm_reject": false,
+        "median_diff": -1.093766212463379,
+        "model": "gpt2-medium",
+        "n_pairs": 5,
+        "p_raw": 0.0625,
+        "wilcoxon_stat": 0.0
+      }
+    ],
+    "family_size": 2,
+    "holm_threshold": 0.01,
+    "n_reject": 0,
+    "name": "median_p [nll_new(M_winner) - nll_new(none)] < 0"
+  },
+  "h6b": {
+    "cells": [
+      {
+        "alpha": 0.0,
+        "ci95_hi": 7.25,
+        "ci95_lo": 0.5,
+        "holm_reject": false,
+        "median_diff": 6.0,
+        "model": "gpt2-medium",
+        "n_pairs": 5,
+        "p_raw": 0.0625,
+        "wilcoxon_stat": 0.0
+      },
+      {
+        "alpha": 1.0,
+        "ci95_hi": 5.25,
+        "ci95_lo": -1.5,
+        "holm_reject": false,
+        "median_diff": 2.499999523162842,
+        "model": "gpt2-medium",
+        "n_pairs": 5,
+        "p_raw": 0.3125,
+        "wilcoxon_stat": 3.0
+      }
+    ],
+    "family_size": 2,
+    "holm_threshold": 0.01,
+    "n_reject": 0,
+    "name": "median_p [nll_new(M_winner) - nll_true(M_winner)] < 0"
+  },
+  "models": [
+    "gpt2-medium"
+  ],
+  "n_cells_method_unsupported": 0,
+  "n_cells_real": 20,
+  "n_cells_redline_violation": 0,
+  "n_cells_relation_template_missing": 0,
+  "n_cells_total": 20
+}
