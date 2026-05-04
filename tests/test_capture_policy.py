@@ -1,8 +1,6 @@
 """Tests for Stage 14B/14C address-conditional capture policy."""
 from __future__ import annotations
 
-from types import SimpleNamespace
-
 import torch
 
 from deltamemory.memory.capture_policy import (

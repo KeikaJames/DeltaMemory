@@ -1,7 +1,6 @@
 """Tests for Stage 14A InfoNCE K-projector."""
 from __future__ import annotations
 
-import pytest
 import torch
 
 from deltamemory.memory.k_projector import (

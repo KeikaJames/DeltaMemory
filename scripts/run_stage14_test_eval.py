@@ -31,7 +31,6 @@ import torch
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
-from scripts.run_stage14_dev_sweep import FactRecord, _target_first_token_id  # noqa: E402
 from deltamemory.memory.attn_native_bank import (  # noqa: E402
     AttnNativePatcher,
     forward_with_bank,
@@ -39,6 +38,10 @@ from deltamemory.memory.attn_native_bank import (  # noqa: E402
     write_fact,
 )
 from deltamemory.memory.k_projector import KProjectorBank  # noqa: E402
+from scripts.run_stage14_dev_sweep import (  # noqa: E402
+    FactRecord,
+    _target_first_token_id,
+)
 
 
 def _load_test(split_path: Path | None = None) -> list[FactRecord]:

@@ -14,8 +14,8 @@ need query-side context from the frozen base model).
 
 from .address_encoders import (
     AddressEncoder,
-    MeanPoolEncoder,
     AttnPoolEncoder,
+    MeanPoolEncoder,
     MultiLayerEncoder,
     PromptHiddenEncoder,
     ResidualMLPEncoder,

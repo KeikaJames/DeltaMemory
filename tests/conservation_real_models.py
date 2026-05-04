@@ -30,7 +30,6 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from deltamemory.memory.attn_native_bank import AttnNativePatcher, fresh_bank
 
-
 MODEL_REGISTRY = {
     "gemma-4-E2B":   "google/gemma-4-E2B",
     "gemma-4-31b":   "google/gemma-4-31B-it",

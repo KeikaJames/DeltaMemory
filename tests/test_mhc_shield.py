@@ -6,14 +6,14 @@ Run:
 from __future__ import annotations
 
 import os
+
 import pytest
 import torch
 
 from deltamemory.memory.mhc_shield import (
-    sinkhorn_knopp_projection,
     shield_attention_weights,
+    sinkhorn_knopp_projection,
 )
-
 
 # ---------------------------------------------------------------------------
 # Unit tests on the projector itself (no LLM required, runs everywhere)
@@ -211,7 +211,10 @@ def test_shield_alpha_zero_bit_equal(model_bundle):
     the un-patched model (the call site short-circuits when α=0 because
     do_inject becomes False)."""
     from deltamemory.memory.attn_native_bank import (
-        AttnNativePatcher, fresh_bank, write_fact, forward_with_bank,
+        AttnNativePatcher,
+        forward_with_bank,
+        fresh_bank,
+        write_fact,
     )
 
     bundle = model_bundle
@@ -236,7 +239,10 @@ def test_shield_alpha_one_modifies_logits(model_bundle):
     """Sanity: with mHC shield ON and α=1, output should differ from α=0
     baseline (i.e. injection still happens; the shield doesn't kill the signal)."""
     from deltamemory.memory.attn_native_bank import (
-        AttnNativePatcher, fresh_bank, write_fact, forward_with_bank,
+        AttnNativePatcher,
+        forward_with_bank,
+        fresh_bank,
+        write_fact,
     )
 
     bundle = model_bundle

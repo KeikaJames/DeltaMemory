@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+import warnings as _warnings
+_warnings.filterwarnings("ignore", category=DeprecationWarning)
+import pytest
+pytestmark = pytest.mark.filterwarnings("ignore::DeprecationWarning")
+
 import torch
 
 from deltamemory.core.types import AttentionMemoryItem

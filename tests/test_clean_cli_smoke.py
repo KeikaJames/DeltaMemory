@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+import warnings as _warnings
+_warnings.filterwarnings("ignore", category=DeprecationWarning)
+import pytest
+pytestmark = pytest.mark.filterwarnings("ignore::DeprecationWarning")
+
 import json
-from pathlib import Path
 
 from deltamemory.cli import main
 

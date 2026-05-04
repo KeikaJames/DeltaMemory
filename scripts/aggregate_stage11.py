@@ -10,8 +10,9 @@ Every headline metric gets a 10k paired bootstrap 95% CI. A gate is reported
 PASS only if the CI lower bound exceeds the threshold (NOT just the mean).
 """
 from __future__ import annotations
-import json
+
 import hashlib
+import json
 import math
 import random
 import statistics

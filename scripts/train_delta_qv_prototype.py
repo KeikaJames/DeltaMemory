@@ -5,12 +5,16 @@ from __future__ import annotations
 
 import argparse
 import json
-from pathlib import Path
 import sys
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from deltamemory.engine.delta_training import DeltaTrainingConfig, run_delta_training, write_training_report
+from deltamemory.engine.delta_training import (
+    DeltaTrainingConfig,
+    run_delta_training,
+    write_training_report,
+)
 
 
 def main() -> int:

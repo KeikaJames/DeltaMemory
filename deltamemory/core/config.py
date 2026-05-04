@@ -5,7 +5,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Sequence
 
-
 QKV_MODES = {
     "no_memory",
     "raw_memory",

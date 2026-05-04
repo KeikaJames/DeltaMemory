@@ -1,6 +1,7 @@
 """Phase mHC7 — Generate 5 SVG figures for mHC alpha-safety report."""
+import json
+import math
 from pathlib import Path
-import json, math
 
 OUT = Path("docs/figures/mhc")
 OUT.mkdir(parents=True, exist_ok=True)

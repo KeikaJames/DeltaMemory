@@ -6,7 +6,6 @@ import random
 from statistics import median
 from typing import Any
 
-
 PRIMARY_BASELINES = [
     "no_memory",
     "raw_memory",

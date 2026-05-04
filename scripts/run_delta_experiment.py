@@ -5,12 +5,16 @@ from __future__ import annotations
 
 import argparse
 import json
-from pathlib import Path
 import sys
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from deltamemory.engine.delta_experiment import DeltaExperimentConfig, run_delta_experiment, write_delta_experiment_report
+from deltamemory.engine.delta_experiment import (
+    DeltaExperimentConfig,
+    run_delta_experiment,
+    write_delta_experiment_report,
+)
 
 
 def main() -> int:

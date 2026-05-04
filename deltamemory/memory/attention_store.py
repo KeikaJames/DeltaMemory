@@ -7,6 +7,7 @@ Deprecated since v0.3 (Phase Q): use ``deltamemory.AttnNativePatcher`` /
 from __future__ import annotations
 
 import warnings as _w
+
 _w.warn(
     "deltamemory.memory.attention_store is the pre-Phase-Q legacy path; new code should use "
     "deltamemory.AttnNativePatcher / fresh_bank / LOPIConfig (Phase R+).",

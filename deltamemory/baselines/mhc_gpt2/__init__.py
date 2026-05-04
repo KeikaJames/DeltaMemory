@@ -13,8 +13,8 @@ modified; the GPT-2 / mHC-GPT-2 weights themselves remain frozen at inference.
 
 from .mhc import MhcProjector
 from .sinkhorn import sinkhorn_knopp
-from .transformers.gpt2_mhc import MhcGPT2Config, MhcGPT2LMHeadModel, MhcGPT2Model
 from .transformers.convert_gpt2 import convert_gpt2_lm_head_model
+from .transformers.gpt2_mhc import MhcGPT2Config, MhcGPT2LMHeadModel, MhcGPT2Model
 
 __all__ = [
     "MhcProjector",

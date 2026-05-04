@@ -10,7 +10,6 @@ from torch import nn
 from deltamemory.core.types import AttentionMemoryItem, QKVTrace
 from deltamemory.gemma.model_adapter import get_decoder
 
-
 QKV_INTERVENTION_MODES = {
     "no_memory",
     "delta_v",

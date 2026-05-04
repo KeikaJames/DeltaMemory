@@ -2,6 +2,7 @@
 """Stage 11 SVG figures (paper-style, no matplotlib dependency at the
 output level — pure SVG so Gits/web renderers handle them)."""
 from __future__ import annotations
+
 import json
 from pathlib import Path
 

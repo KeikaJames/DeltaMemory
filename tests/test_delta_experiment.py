@@ -1,10 +1,23 @@
 from __future__ import annotations
 
-from pathlib import Path
-from collections import Counter
+import warnings as _warnings
+_warnings.filterwarnings("ignore", category=DeprecationWarning)
+import pytest
+pytestmark = pytest.mark.filterwarnings("ignore::DeprecationWarning")
 
-from deltamemory.engine.delta_dataset import DELTA_TASK_SUITES, make_delta_memory_examples, make_later_reference_examples
-from deltamemory.engine.delta_experiment import DeltaExperimentConfig, run_delta_experiment, write_delta_experiment_report
+from collections import Counter
+from pathlib import Path
+
+from deltamemory.engine.delta_dataset import (
+    DELTA_TASK_SUITES,
+    make_delta_memory_examples,
+    make_later_reference_examples,
+)
+from deltamemory.engine.delta_experiment import (
+    DeltaExperimentConfig,
+    run_delta_experiment,
+    write_delta_experiment_report,
+)
 
 
 def test_later_reference_examples_have_required_fields():
@@ -340,9 +353,8 @@ def test_writer_attn_pool_runs_in_mock_smoke(tmp_path):
 
 
 def test_update_readme_charts_round_trip(tmp_path):
-    import json as _json
-    import sys as _sys
     import importlib.util
+    import json as _json
     repo_root = Path(__file__).resolve().parents[1]
     spec = importlib.util.spec_from_file_location(
         "update_readme_charts", repo_root / "scripts" / "update_readme_charts.py"

@@ -23,175 +23,233 @@
 <p align="center">
   <a href="docs/design.md">设计</a> ·
   <a href="docs/apple_silicon.md">Apple Silicon</a> ·
-  <a href="transcripts/v31_intervention/CROSS_ARCH_REPORT.md">v3.1 跨架构报告</a> ·
+  <a href="docs/HISTORY.md">阶段历史</a> ·
   <a href="reports/cleanroom">实验报告</a>
 </p>
 
 ---
 
-DeltaMemory 是一个研究原型，目标是在**冻结 LLM** 里加入持久化外置记忆。
-当前主线统一叫 **DeltaMemory attn-native bank**。
+DeltaMemory 是一个研究原型，目标是在**冻结 LLM** 上加一层持久化外置记忆。
+每层 attention 被拼进一份外置 K/V bank，读阶段 prompt 里只有问题，基座
+权重始终冻结。Phase R+ 的标准栈把 bank 与一个免训练的注入包装层（Dynamic
+LOPI v3.4）和一次性残差 profiler（U-LOPI Phase S）配成一套，使得同一份代
+码在 Gemma / Qwen3 / GLM-4 / Llama / GPT-2 上无需手调 α。它**不是 RAG**，
+**不是 prompt insertion**，也**不是权重编辑**。
 
-它**不是 RAG**，**不是 prompt insertion**，也**不是权重编辑**。读阶段的
-prompt 里只有问题；答案信息来自每层 attention 拼接进去的外置 K/V bank。
-基座 LLM 权重始终冻结。
+## Quick start
 
-## 当前核心结果：反先验记忆注入
+```python
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from deltamemory import (
+    AttnNativePatcher, fresh_bank, write_fact,
+    profile_residuals, LOPIConfig,
+    save_bank, load_bank,
+)
 
-最强测试不是强化模型本来就知道的事实，而是把一条**错误事实**写入 bank，
-再问对应问题，看冻结模型是否提高这个反先验目标 token 的 log-prob。
+model_name = "google/gemma-4-E2B"
+tok = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.bfloat16)
+model.eval()
 
-这个结果现在已经在两个模型家族、两个硬件后端上复现：
+# 1) bank + 每层 attention patcher（包在冻结 LLM 之外）。
+patcher = AttnNativePatcher(model)
+bank = fresh_bank(model)
+bank.lopi_cfg = LOPIConfig(enabled=True, profile_mode="auto")  # Phase S 自动校准
 
-| 模型 | 硬件 | α | 反先验结果 |
-|---|---|---:|---:|
-| `google/gemma-4-E2B` | GB10 CUDA bf16 | 1.0 | **5 / 5 正向** |
-| `google/gemma-4-E2B` | Mac MPS bf16 | 1.0 | **5 / 5 正向** |
-| `Qwen/Qwen3-4B-Instruct-2507` | GB10 CUDA bf16 | 0.05 | **5 / 5 正向** |
-| `Qwen/Qwen3-4B-Instruct-2507` | Mac MPS bf16 | 0.05 | **5 / 5 正向** |
-| `deepseek-ai/DeepSeek-R1-Distill-Qwen-32B` | GB10 CUDA bf16 | 0.05–0.30 sweep | 混合；32B 强先验需要训练过的 projector |
+# 2) U-LOPI 冷启动：一次性残差 profile -> 按架构的 Z-score 基线。
+prof = profile_residuals(model, tok)            # forward-only，权重 bit-equal
+bank.attach_lopi_profile(model, tok)            # 把 profile 绑到 bank.lopi_state
 
-<p align="center"><img src="docs/figures/v31/v31_false_fact_lift.svg" alt="反先验目标 log-prob 提升" width="860"></p>
+# 3) 写入一条事实。
+write_fact(patcher, bank, tok,
+           write_prompt="Fact: Python was created by Ada Lovelace.",
+           fact_id="py_ada", address="Python")
 
-最干净的单例：
+# 4) 挂上 bank 解码。
+read_prompt = "Q: Who created the Python programming language?\nA:"
+with patcher.patched(), patcher.injecting(bank, alpha=1.0), torch.no_grad():
+    out = model.generate(**tok(read_prompt, return_tensors="pt"), max_new_tokens=8)
+print(tok.decode(out[0], skip_special_tokens=True))
 
-```text
-写入 bank:  Fact: Python was created by Ada Lovelace.
-读 prompt:  Q: Who created the Python programming language?
-             A:
-目标 token: " Ada"
+# 5) 持久化（Phase R-6，版本 "ulopi_v35"）；load_bank 会同时还原 profile。
+save_bank(bank, root="./banks", model_name=model_name)
 ```
 
-Gemma-4-E2B 在无记忆时把 `" Ada"` 放在约 `-12` nats。挂上 bank 后，
-LLM 权重不变，`" Ada"` 在 **GB10 CUDA 上提升 +2.68 nats**，在
-**Mac MPS 上提升 +2.86 nats**。
+`bank.attach_lopi_profile(...)` 是 `profile_residuals` 的一层薄包装：把
+profile 绑到 `bank.lopi_state` 并校验层数与 bank shape 一致。
+`LOPIConfig(enabled=False)` 时 merged-softmax 分支与 v3.1 老路径逐位等价；
+`α=0` / 空 bank 与原模型逐位等价。
 
-## 机制
+## 架构
 
-DeltaMemory v3.1 直接注入到每个受支持的 attention 层：
+### AttnNativeBank
+
+冻结 LLM 的外置 attention bank。每个非共享 attention 层 ℓ，bank 在模型的
+`num_key_value_heads` 分辨率下存 pre-RoPE K 和 post-norm V，并直接拼进
+attention：
 
 $$
 \mathrm{Attn}_\ell\bigl(Q,\; [K\,;\, M_K^{(\ell)}],\; [V\,;\, \alpha M_V^{(\ell)}]\bigr)
 $$
 
-`M_K` 和 `M_V` 来自一次写入 forward。读阶段它们被拼接进冻结模型的
-attention 计算。v3 系列唯一可训练面是 bank 侧 K-projector；它不改 LLM
-token 路径，并且 `α=0` / empty bank 时与原模型逐位一致。
+bank 没有任何可训练参数；检索空间**就是**模型自己的 K-space，attention
+softmax 充当对比引擎。GQA / MQA 复用模型自带的 `repeat_kv`；KV-shared 层
+（如 Gemma 4）在读阶段查询其源层的 bank slot，所以每个 attention 层都看
+得到 bank。
 
-<p align="center"><img src="docs/figures/v31/v31_architecture.svg" alt="DeltaMemory v3.1 架构" width="860"></p>
+* 文件：[`deltamemory/memory/attn_native_bank.py`](deltamemory/memory/attn_native_bank.py)
+* Patcher：`AttnNativePatcher`。辅助：`fresh_bank`、`write_fact`、`forward_with_bank`。
+* Bit-equal sanity：`tests/test_attn_native_bank.py`。
 
-## 证据表
+### Dynamic LOPI v3.4
 
-下表都是 `Δ = target_logprob(v3_attn_bank) − target_logprob(B0_no_memory)`。
-目标 token 是刻意违背模型先验的答案。
+merged-softmax 分支的免训练包装层，把
 
-| 目标 | 写入 bank 的事实 | Gemma GB10 | Gemma Mac | Qwen3 GB10 | Qwen3 Mac |
-|---|---|---:|---:|---:|---:|
-| Napoleon | Paris mayor is Napoleon Bonaparte | +0.586 | +0.729 | +0.764 | +0.543 |
-| Pablo | Eiffel Tower architect is Pablo Picasso | +1.376 | +1.511 | +0.244 | +0.496 |
-| Vincent | Mona Lisa was painted by Vincent van Gogh | +1.189 | +1.146 | +0.852 | +0.855 |
-| Isaac | General relativity was developed by Isaac Newton | +0.698 | +0.757 | +1.047 | +1.010 |
-| Ada | Python was created by Ada Lovelace | +2.678 | +2.855 | +1.446 | +1.595 |
+`out_bank = weights[..., T:] @ (alpha * mv_e)`
 
-<p align="center"><img src="docs/figures/v31/v31_cross_hardware.svg" alt="GB10 CUDA 和 Mac MPS 的反先验复现" width="860"></p>
+替换为三个独立、可配置开关的分量：
 
-原始输入、输出、top-5 预测和目标 log-prob 已逐字提交：
+$$
+\mathrm{out\_bank}_{\mathrm{LOPI}} \;=\; \gamma_t \cdot w(\ell, t) \cdot M_\perp,
+\quad M_\perp = M_V - \mathrm{proj}_{V_{\mathrm{ctx}}}(M_V)
+$$
 
-- `transcripts/v31_intervention/gemma-4-e2b-gb10-FALSE/`
-- `transcripts/v31_intervention/gemma-4-e2b-mac-FALSE/`
-- `transcripts/v31_intervention/qwen3-4b-gb10-FALSE/`
-- `transcripts/v31_intervention/qwen3-4b-mac-FALSE/`
-- `transcripts/v31_intervention/deepseek-r1-distill-qwen-32b-gb10-FALSE*/`
+* **Orthogonal Novelty**（`M_perp`）丢掉与上下文 V 平行的冗余分量。
+  （v3.4 默认关闭；v3.3 ablation 时可打开。）
+* **Adaptive Layer Gaussian** `w(ℓ, t)` —— 关于层号的 Gaussian，中心 `μ_t`
+  由上一步残差范数驱动，宽度 `σ_t` 受运行中 mHC 最大-σ 稳定信号收缩。
+* **Derivative Gate** `γ_t = sigmoid(k · (‖Q_t − Q_{t-1}‖₂ − θ))`：话题
+  稳定时静音，话题切换时打开。
 
-## DeepSeek-32B 边界
+`LOPIConfig(enabled=True, orthogonal=False, gaussian=True, derivative=True)`
+是 v3.4 默认；`enabled=False` 与 `α=0` 都与原模型逐位等价。
 
-DeepSeek-R1-Distill-Qwen-32B 走 Qwen2/Llama-family adapter。真实事实强化的
-工作点大约是 `α=0.05`，但反先验目标在这个 32B 模型上起点更低、先验更强。
-identity-init bank 能改善部分目标，但还不能 5 条全覆盖。
+* 文件：[`deltamemory/memory/lopi.py`](deltamemory/memory/lopi.py)
+* 公开符号：`LOPIConfig`、`LOPIState`、`apply_lopi`、`derivative_gate`、
+  `layer_gaussian_weight`、`orthogonal_novelty`。
 
-<p align="center"><img src="docs/figures/v31/v31_deepseek_alpha.svg" alt="DeepSeek-32B 反先验 alpha sweep" width="860"></p>
+### U-LOPI Phase S
 
-这被记录为 identity-init bank 的真实边界。下一步研究方向是给
-Qwen2/DeepSeek 路线训练 K-projector，专门攻克 32B 反先验覆盖。
+v3.4 把 `norm_base = 10.0` 写死，按 Gemma-4-E2B 校准，其它家族的 residual
+尺度差 10–100×，于是被静默拖累。Phase S 用一次冷启动 profile 替代这个全
+局常数：在小型中性语料上前向，统计 `‖hidden_states[ℓ]‖₂`，与 bank 一并持
+久化。深度信号在 Z-score 空间计算，`μ_t` 自动锚定到该架构的尖峰层：
 
-## 召回背景
+$$
+z_\ell(t) \;=\; \frac{N_t(\ell) - \mu_{\mathrm{base}}(\ell)}{\sigma_{\mathrm{base}}(\ell) + \varepsilon},
+\qquad
+\mu_{\mathrm{arch}} \;=\; \arg\max_\ell\, \sigma_{\mathrm{base}}(\ell)
+$$
 
-反先验测试证明的是因果注入。完整 held-out recall benchmark 则展示 v3.1
-在 Gemma-4 dev_v31 上的整体位置：
+只是一次 `output_hidden_states=True` 的前向，不引入任何 `nn.Parameter`，
+LLM 权重前后逐位一致（由 `test_lopi_profiler.py::test_profile_does_not_mutate_weights`
+验证）。`LOPIConfig(profile_mode="auto")`（默认）下，`norm_base` /
+`mu_low` / `mu_span` 在运行时被忽略；`profile_mode="static"` 用于回归 v3.4
+完全一致的行为。
 
-<p align="center"><img src="docs/figures/v31/v31_recall_context.svg" alt="Gemma-4 dev_v31 held-out recall 背景" width="860"></p>
+* 文件：[`deltamemory/memory/lopi_profiler.py`](deltamemory/memory/lopi_profiler.py)
+* 公开符号：`LOPIProfile`、`profile_residuals`、`default_profile_corpus`、
+  `save_profile`、`load_profile`。
+* 跨架构覆盖：`tests/test_lopi_universal.py`（Gemma / Qwen3 / GLM-4 /
+  Llama / GPT-2 的 shape 与 bit-equality 检查）。
 
-| 条件 | recall@1 |
-|---|---:|
-| B0 no memory | 0.351 |
-| v2 raw bank | 0.012 |
-| **v3.1 K-projector** | **0.559** |
-| B1 prompt insertion | 0.637 |
-| B2 RAG oracle | 0.656 |
+### 持久化（Phase R-6）
 
-结论要窄而硬：v3.1 明显拉起 raw bank，也能因果性移动反先验 logits；
-但在完整 held-out recall 上还没有超过 prompt/RAG 上界。
+按版本、内容寻址的 bank 存储：`<root>/<model_safe>/<config_sha>/`，其中
+`config_sha` 是 bank 相关配置（架构 shape + LOPI cfg + bank 温度 + shield
+开关）的 sha256。每层 `M_K`/`M_V` 写进同一个 zero-copy mmap-able
+`bank.safetensors`；并发写由 `filelock` 串行化，读端凭 `os.replace` 原子
+切换只看到完整快照。落盘内容包含 Phase S 的 `LOPIProfile`，重新加载会同
+时恢复按架构的校准。格式版本：`ulopi_v35`。
 
-## 代际整理
+$$
+\mathrm{config\_sha} \;=\; \mathrm{sha256}\!\bigl(\,\mathrm{shape}\;\Vert\;\mathrm{LOPIConfig}\;\Vert\;\tau\;\Vert\;\mathrm{shield}\bigr)
+$$
 
-| 代际 | 机制 | 可训练面 | LLM 权重 | 当前解读 |
-|---|---|---|---|---|
-| v1 / Stages 8–12 | 外置 writer、地址 bank、残差/logit-side 路线 | writer / projector / LoRA 视阶段而定 | 冻结 | 有用 pilot；旧术语已废弃 |
-| v2 / Stage 13 | raw per-layer K/V bank 拼进 attention | 无 | 冻结 | locality bit-equal；没有 K-space 桥时 chat recall 失败 |
-| v3 / Stage 14 | v2 + InfoNCE K-projector | bank 侧 K-projector | 冻结 | 预注册测试对 B0 为负；对 raw v2 为正 |
-| **v3.1 / Stage 15** | attn-native bank + per-arch α + 跨架构 adapter | 仅 bank 侧 K-projector | 冻结 | Gemma-4/Qwen3 在 GB10/Mac 上复现反先验注入 |
+* 文件：[`deltamemory/memory/bank_persistence.py`](deltamemory/memory/bank_persistence.py)
+* 公开符号：`save_bank`、`load_bank`、`list_banks`、`compute_config_sha`、
+  `resolve_location`。
+* 往返测试：`tests/test_bank_persistence.py`。
 
-## 按架构设置 α
+## 阶段表
 
-`scripts/run_intervention_demo.py` 现在默认从 `ArchAdapter.default_alpha`
-读取 `--alpha`：
+| Phase | 内容 | 报告目录 | 状态 |
+|---|---|---|---|
+| Stages 0–14 | v1 → v3（writer / address bank / K-projector） | `reports/cleanroom/{stage13b_*,stage14_*}/`、`transcripts/v31_intervention/` | 已被取代；详见 [`docs/HISTORY.md`](docs/HISTORY.md) |
+| Stage 15 / v3.1 | attn-native bank + 按架构 α + 跨架构 adapter | `reports/cleanroom/v31_bench/`、`transcripts/v31_intervention/` | Gemma-4 / Qwen3 在 GB10/Mac 上复现 |
+| Stage 16 / v3.2 | mHC 谱 shield（bank 列向 column-cap） | `reports/cleanroom/mhc_flagship_sweep/` | σ_max(W) ≤ 1；α=0 bit-equality 保持 |
+| R-3 / v3.3 | Dynamic LOPI ablation（A0–A4，630 cells） | `reports/cleanroom/lopi_v33/` | 已预注册，详见 `AGGREGATE.md` / `FINDINGS.md` |
+| R-3.5 / v3.4 | 默认翻转 → `orthogonal=False, gaussian=True, derivative=True` | `reports/cleanroom/lopi_v33/R35_NORM_PROBE.md` | 高 α drift 收敛 + α=1 lift 保留 |
+| R-4 / v3.4 | 跨架构 α-safety sweep（Gemma / Qwen3 / GLM-4） | `reports/cleanroom/lopi_v33/R4_xarch/` | 12 cell 全部 α=0 bit-equal |
+| R-5.1 / v3.4 | Q3 对抗 chat × LOPI（Gemma-4-E2B） | `reports/cleanroom/lopi_v33/R5_q3/` | 仅 LOPI 配置在 α∈{8,10} 把最易事实拉到 partial implant |
+| R-6 / v3.4 | 持久化 AttnNativeBank（safetensors + filelock） | `tests/test_bank_persistence.py` | 同 dtype 下往返 bit-equal |
+| **S / v3.5** | U-LOPI 自动校准 profiler（`ulopi_v35`） | `deltamemory/memory/lopi_profiler.py`、`tests/test_lopi_profiler.py`、`tests/test_lopi_universal.py` | 取代写死的 `norm_base=10.0`；同一份 LOPI 跑遍 Gemma / Qwen3 / GLM-4 / Llama / GPT-2 |
 
-| Adapter | 默认 α | 原因 |
-|---|---:|---|
-| Gemma4Adapter | 1.0 | Gemma-4 有 `v_norm`，bank V 激活较小 |
-| Qwen3Adapter | 0.05 | 没有 `v_norm`；α=1 会压垮 logits |
-| LlamaAdapter / Qwen2-family | 0.05 | 覆盖 Llama-style 和 DeepSeek-R1-Distill-Qwen-32B 路线 |
-| Glm4Adapter | 0.05 | GLM-family attention 的保守默认值 |
+每阶段长篇叙事日志（rationale、原始 transcript 索引、DeepSeek-32B 边界、
+v3.1 图表、按架构 α 默认值）见 [`docs/HISTORY.md`](docs/HISTORY.md)。
+每阶段代码 / 配置 diff 见 [`CHANGELOG.md`](CHANGELOG.md)。
 
-## 复现 README 图表
+## 复现实验
 
-README 中的图全部从已提交 JSON 重新生成：
+端到端 repro 脚本（跨架构 sweep、干预 demo）：
 
 ```bash
-python3 scripts/make_v31_readme_figures.py
+bash repro_v3.sh          # v3 / Stage 14 baseline 路线
+bash repro_v31.sh         # v3.1 跨架构 sweep + 图表
 ```
 
-运行干预 demo：
+Phase R+ cleanroom 报告所用的 benchmark driver：
 
 ```bash
-# Gemma-4，默认 α=1.0
+python scripts/run_v31_benchmark.py --help        # v3.1 baseline benchmark
+python scripts/run_v31_benchmark_mps.py --help    # Apple Silicon 上的 MPS 变体
+```
+
+v3.1 干预 demo（true / 反先验事实，按架构 α 默认值）：
+
+```bash
 python scripts/run_intervention_demo.py \
   --model google/gemma-4-E2B \
-  --device cuda \
-  --dtype bfloat16 \
-  --false-facts
-
-# Qwen3，默认 α=0.05
-python scripts/run_intervention_demo.py \
-  --model Qwen/Qwen3-4B-Instruct-2507 \
-  --device cuda \
-  --dtype bfloat16 \
+  --device cuda --dtype bfloat16 \
   --false-facts
 ```
 
 Apple Silicon 路线见 [`docs/apple_silicon.md`](docs/apple_silicon.md)。
+v3.1 反先验测试的原始输入、输出、top-5 预测、目标 log-prob 已逐字提交到
+`transcripts/v31_intervention/`；跨架构和 U-LOPI 的数据放在
+`reports/cleanroom/lopi_v33/`（R-3、R-3.5、R-4、R-5.1）。
+
+## 测试
+
+```bash
+pytest tests/ --ignore=tests/conservation_real_models.py
+```
+
+预期：**107 passed, 6 skipped**（共收集 113 个）。被完全忽略的
+`conservation_real_models.py` 会下载多 GB HF 权重，opt-in，详见其模块
+docstring。Phase S 重点覆盖：
+`test_lopi_profiler.py`（profile bit-equality）和
+`test_lopi_universal.py`（Gemma / Qwen3 / GLM-4 / Llama / GPT-2 的跨架构
+shape + bit-equality）。
 
 ## 仓库地图
 
 | 路径 | 用途 |
 |---|---|
-| `deltamemory/` | 库代码、attention-bank patcher、架构 adapter |
+| `deltamemory/memory/attn_native_bank.py` | AttnNativeBank + 每层 patcher |
+| `deltamemory/memory/lopi.py` | Dynamic LOPI v3.4 注入器 |
+| `deltamemory/memory/lopi_profiler.py` | U-LOPI Phase S residual profiler |
+| `deltamemory/memory/bank_persistence.py` | safetensors + filelock bank 存储 |
+| `deltamemory/memory/arch_adapter.py` | 各架构 adapter + α 默认值 |
+| `deltamemory/__init__.py` | 顶层公开 API（Phase S） |
 | `scripts/run_intervention_demo.py` | 跨架构 true/false-fact 干预 demo |
-| `scripts/make_v31_readme_figures.py` | README SVG 图表生成脚本 |
-| `transcripts/v31_intervention/` | 原始输入、输出、top-5、目标 log-prob |
+| `scripts/run_v31_benchmark*.py` | Phase R+ benchmark driver |
+| `repro_v3.sh`、`repro_v31.sh` | 端到端 repro 脚本 |
+| `transcripts/v31_intervention/` | v3.1 原始 input/output/log-prob |
 | `reports/cleanroom/` | 预注册和 cleanroom 实验报告 |
-| `docs/figures/v31/` | 当前 README 图表 |
-| `tests/` | 单测和 real-model conservation 检查 |
+| `docs/HISTORY.md` | 长篇阶段叙事日志 |
+| `tests/` | 单测 + real-model conservation 检查 |
 
 ## 许可证
 

@@ -23,7 +23,10 @@ Usage (multi-model, GB10):
 """
 from __future__ import annotations
 
-import argparse, json, sys, time
+import argparse
+import json
+import sys
+import time
 from pathlib import Path
 
 import torch
@@ -32,9 +35,10 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from scripts.run_stage14_test_eval import _load_test, _recall_no_bank, _recall_with_bank
+
 from deltamemory.memory.attn_native_bank import AttnNativePatcher
 from deltamemory.memory.k_projector import KProjectorBank
+from scripts.run_stage14_test_eval import _load_test, _recall_no_bank, _recall_with_bank
 
 
 def _prompt_insertion_recall(model, tok, facts, seed: int) -> list[float]:

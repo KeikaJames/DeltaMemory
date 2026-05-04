@@ -13,10 +13,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
+import numpy as np
+from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
 
 OUT = Path(__file__).resolve().parent.parent / "docs" / "figures" / "v2"
 OUT.mkdir(parents=True, exist_ok=True)
