@@ -1,0 +1,500 @@
+{"id": "lama_trex_0001", "subject": "A605 road", "relation": "P131", "object": "Northamptonshire", "prompt": "A605 road is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0002", "subject": "Kupreanof Island", "relation": "P131", "object": "Alaska", "prompt": "Kupreanof Island is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0003", "subject": "Pershing County", "relation": "P131", "object": "Nevada", "prompt": "Pershing County is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0004", "subject": "Porcupine Hills", "relation": "P131", "object": "Manitoba", "prompt": "Porcupine Hills is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0005", "subject": "Minnesota State Highway 36", "relation": "P131", "object": "Minnesota", "prompt": "Minnesota State Highway 36 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0006", "subject": "Knoxville metropolitan area", "relation": "P131", "object": "Tennessee", "prompt": "Knoxville metropolitan area is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0007", "subject": "Helensvale railway station", "relation": "P131", "object": "Queensland", "prompt": "Helensvale railway station is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0008", "subject": "Lopburi", "relation": "P131", "object": "Thailand", "prompt": "Lopburi is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0009", "subject": "Squantz Pond State Park", "relation": "P131", "object": "Connecticut", "prompt": "Squantz Pond State Park is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0010", "subject": "Ballyfermot", "relation": "P131", "object": "Dublin", "prompt": "Ballyfermot is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0011", "subject": "York Mills Bus Terminal", "relation": "P131", "object": "Ontario", "prompt": "York Mills Bus Terminal is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0012", "subject": "Downtown East Village, Calgary", "relation": "P131", "object": "Alberta", "prompt": "Downtown East Village, Calgary is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0013", "subject": "Barnett Shale", "relation": "P131", "object": "Texas", "prompt": "Barnett Shale is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0014", "subject": "California State Route 9", "relation": "P131", "object": "California", "prompt": "California State Route 9 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0015", "subject": "Mark Twain National Forest", "relation": "P131", "object": "Missouri", "prompt": "Mark Twain National Forest is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0016", "subject": "Fort Humboldt State Historic Park", "relation": "P131", "object": "California", "prompt": "Fort Humboldt State Historic Park is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0017", "subject": "East Humboldt Range", "relation": "P131", "object": "Nevada", "prompt": "East Humboldt Range is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0018", "subject": "Illinois Route 21", "relation": "P131", "object": "Illinois", "prompt": "Illinois Route 21 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0019", "subject": "Xishuangbanna Dai Autonomous Prefecture", "relation": "P131", "object": "Yunnan", "prompt": "Xishuangbanna Dai Autonomous Prefecture is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0020", "subject": "Edmonton City Centre (Blatchford Field) Airport", "relation": "P131", "object": "Alberta", "prompt": "Edmonton City Centre (Blatchford Field) Airport is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0021", "subject": "St. Mirren Park", "relation": "P131", "object": "Paisley", "prompt": "St. Mirren Park is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0022", "subject": "Saharsa district", "relation": "P131", "object": "Bihar", "prompt": "Saharsa district is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0023", "subject": "Tete Province", "relation": "P131", "object": "Mozambique", "prompt": "Tete Province is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0024", "subject": "Sam Rayburn Reservoir", "relation": "P131", "object": "Texas", "prompt": "Sam Rayburn Reservoir is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0025", "subject": "Lawrence Heights", "relation": "P131", "object": "Ontario", "prompt": "Lawrence Heights is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0026", "subject": "Berens River", "relation": "P131", "object": "Manitoba", "prompt": "Berens River is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0027", "subject": "Commerce Court", "relation": "P131", "object": "Ontario", "prompt": "Commerce Court is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0028", "subject": "Lone Pine Koala Sanctuary", "relation": "P131", "object": "Queensland", "prompt": "Lone Pine Koala Sanctuary is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0029", "subject": "Interstate 64 in Virginia", "relation": "P131", "object": "Virginia", "prompt": "Interstate 64 in Virginia is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0030", "subject": "Grand Canyon National Park Airport", "relation": "P131", "object": "Arizona", "prompt": "Grand Canyon National Park Airport is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0031", "subject": "Al-Aqsa Mosque", "relation": "P131", "object": "Jerusalem", "prompt": "Al-Aqsa Mosque is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0032", "subject": "Leech Lake", "relation": "P131", "object": "Minnesota", "prompt": "Leech Lake is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0033", "subject": "Black Pine Mountains", "relation": "P131", "object": "Idaho", "prompt": "Black Pine Mountains is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0034", "subject": "Agriculture in Saskatchewan", "relation": "P131", "object": "Saskatchewan", "prompt": "Agriculture in Saskatchewan is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0035", "subject": "Prestwood", "relation": "P131", "object": "Buckinghamshire", "prompt": "Prestwood is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0036", "subject": "M-140", "relation": "P131", "object": "Michigan", "prompt": "M-140 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0037", "subject": "Dean Court", "relation": "P131", "object": "Bournemouth", "prompt": "Dean Court is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0038", "subject": "Andheri", "relation": "P131", "object": "Mumbai", "prompt": "Andheri is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0039", "subject": "Fifth Avenue", "relation": "P131", "object": "Manhattan", "prompt": "Fifth Avenue is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0040", "subject": "Gateway Motorsports Park", "relation": "P131", "object": "Illinois", "prompt": "Gateway Motorsports Park is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0041", "subject": "Hitchin", "relation": "P131", "object": "Hertfordshire", "prompt": "Hitchin is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0042", "subject": "North Hennepin Community College", "relation": "P131", "object": "Minnesota", "prompt": "North Hennepin Community College is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0043", "subject": "Schofield Barracks", "relation": "P131", "object": "Hawaii", "prompt": "Schofield Barracks is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0044", "subject": "Franz Liszt Academy of Music", "relation": "P131", "object": "Budapest", "prompt": "Franz Liszt Academy of Music is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0045", "subject": "Union Montreal", "relation": "P131", "object": "Montreal", "prompt": "Union Montreal is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0046", "subject": "Stuttgart-Bad Cannstatt station", "relation": "P131", "object": "Stuttgart", "prompt": "Stuttgart-Bad Cannstatt station is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0047", "subject": "Massachusetts Route 3", "relation": "P131", "object": "Massachusetts", "prompt": "Massachusetts Route 3 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0048", "subject": "Cornerhouse", "relation": "P131", "object": "Manchester", "prompt": "Cornerhouse is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0049", "subject": "Uinta Basin", "relation": "P131", "object": "Utah", "prompt": "Uinta Basin is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0050", "subject": "Jewish Museum", "relation": "P131", "object": "Berlin", "prompt": "Jewish Museum is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0051", "subject": "Holyrood Secondary School", "relation": "P131", "object": "Scotland", "prompt": "Holyrood Secondary School is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0052", "subject": "Reinhardswald", "relation": "P131", "object": "Hesse", "prompt": "Reinhardswald is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0053", "subject": "Edina High School", "relation": "P131", "object": "Minnesota", "prompt": "Edina High School is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0054", "subject": "SkyDome Arena", "relation": "P131", "object": "Coventry", "prompt": "SkyDome Arena is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0055", "subject": "Palazzo Borghese", "relation": "P131", "object": "Rome", "prompt": "Palazzo Borghese is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0056", "subject": "Blackpool Airport", "relation": "P131", "object": "Lancashire", "prompt": "Blackpool Airport is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0057", "subject": "Saladin Governorate", "relation": "P131", "object": "Iraq", "prompt": "Saladin Governorate is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0058", "subject": "Pfrimm", "relation": "P131", "object": "Hesse", "prompt": "Pfrimm is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0059", "subject": "Pomfret School", "relation": "P131", "object": "Connecticut", "prompt": "Pomfret School is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0060", "subject": "Norwegian Museum of Cultural History", "relation": "P131", "object": "Oslo", "prompt": "Norwegian Museum of Cultural History is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0061", "subject": "Alexandra Palace railway station", "relation": "P131", "object": "London", "prompt": "Alexandra Palace railway station is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0062", "subject": "San Lorenzo Valley", "relation": "P131", "object": "California", "prompt": "San Lorenzo Valley is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0063", "subject": "Fraunces Tavern", "relation": "P131", "object": "Manhattan", "prompt": "Fraunces Tavern is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0064", "subject": "Downtown Orlando", "relation": "P131", "object": "Florida", "prompt": "Downtown Orlando is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0065", "subject": "Christ Church Cathedral, Indianapolis", "relation": "P131", "object": "Indiana", "prompt": "Christ Church Cathedral, Indianapolis is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0066", "subject": "Pennsylvania Route 664", "relation": "P131", "object": "Pennsylvania", "prompt": "Pennsylvania Route 664 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0067", "subject": "Absheron District", "relation": "P131", "object": "Azerbaijan", "prompt": "Absheron District is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0068", "subject": "Davao Region", "relation": "P131", "object": "Philippines", "prompt": "Davao Region is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0069", "subject": "Bonegilla Migrant Reception and Training Centre", "relation": "P131", "object": "Victoria", "prompt": "Bonegilla Migrant Reception and Training Centre is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0070", "subject": "Hotel Bristol", "relation": "P131", "object": "Warsaw", "prompt": "Hotel Bristol is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0071", "subject": "Haas House", "relation": "P131", "object": "Vienna", "prompt": "Haas House is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0072", "subject": "Ryerson University", "relation": "P131", "object": "Ontario", "prompt": "Ryerson University is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0073", "subject": "Ohio gubernatorial elections", "relation": "P131", "object": "Ohio", "prompt": "Ohio gubernatorial elections is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0074", "subject": "Hyattsville", "relation": "P131", "object": "Maryland", "prompt": "Hyattsville is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0075", "subject": "City of Boroondara", "relation": "P131", "object": "Melbourne", "prompt": "City of Boroondara is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0076", "subject": "San Gregorio Armeno", "relation": "P131", "object": "Naples", "prompt": "San Gregorio Armeno is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0077", "subject": "Sestri Ponente", "relation": "P131", "object": "Genoa", "prompt": "Sestri Ponente is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0078", "subject": "Kazan Conservatory", "relation": "P131", "object": "Kazan", "prompt": "Kazan Conservatory is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0079", "subject": "Nevada State Route 599", "relation": "P131", "object": "Nevada", "prompt": "Nevada State Route 599 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0080", "subject": "Mauna Kea", "relation": "P131", "object": "Hawaii", "prompt": "Mauna Kea is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0081", "subject": "Flin Flon", "relation": "P131", "object": "Manitoba", "prompt": "Flin Flon is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0082", "subject": "Araria district", "relation": "P131", "object": "Bihar", "prompt": "Araria district is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0083", "subject": "Lufkin", "relation": "P131", "object": "Texas", "prompt": "Lufkin is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0084", "subject": "Gympie North railway station", "relation": "P131", "object": "Queensland", "prompt": "Gympie North railway station is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0085", "subject": "Gulf Coast of the United States", "relation": "P131", "object": "Texas", "prompt": "Gulf Coast of the United States is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0086", "subject": "National War Museum", "relation": "P131", "object": "Edinburgh", "prompt": "National War Museum is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0087", "subject": "Cincinnati Reds", "relation": "P131", "object": "Cincinnati", "prompt": "Cincinnati Reds is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0088", "subject": "Redwood Meadows, Alberta", "relation": "P131", "object": "Alberta", "prompt": "Redwood Meadows, Alberta is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0089", "subject": "Walton Arts Center", "relation": "P131", "object": "Arkansas", "prompt": "Walton Arts Center is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0090", "subject": "Pennsylvania Route 94", "relation": "P131", "object": "Pennsylvania", "prompt": "Pennsylvania Route 94 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0091", "subject": "Hershey Country Club", "relation": "P131", "object": "Pennsylvania", "prompt": "Hershey Country Club is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0092", "subject": "Ezhupunna", "relation": "P131", "object": "Kerala", "prompt": "Ezhupunna is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0093", "subject": "Ipswich", "relation": "P131", "object": "Queensland", "prompt": "Ipswich is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0094", "subject": "Langwathby", "relation": "P131", "object": "Eden", "prompt": "Langwathby is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0095", "subject": "Bracondale Hill", "relation": "P131", "object": "Toronto", "prompt": "Bracondale Hill is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0096", "subject": "Somali Region", "relation": "P131", "object": "Ethiopia", "prompt": "Somali Region is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0097", "subject": "Poplar River First Nation", "relation": "P131", "object": "Manitoba", "prompt": "Poplar River First Nation is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0098", "subject": "Josefstadt", "relation": "P131", "object": "Vienna", "prompt": "Josefstadt is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0099", "subject": "Tom McCall Waterfront Park", "relation": "P131", "object": "Oregon", "prompt": "Tom McCall Waterfront Park is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0100", "subject": "North Holland", "relation": "P131", "object": "Netherlands", "prompt": "North Holland is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0101", "subject": "Arundel Formation", "relation": "P131", "object": "Maryland", "prompt": "Arundel Formation is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0102", "subject": "Norfolk State University", "relation": "P131", "object": "Virginia", "prompt": "Norfolk State University is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0103", "subject": "Missouri Route 52", "relation": "P131", "object": "Missouri", "prompt": "Missouri Route 52 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0104", "subject": "Broughton in Furness", "relation": "P131", "object": "England", "prompt": "Broughton in Furness is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0105", "subject": "Pennsylvania Route 443", "relation": "P131", "object": "Pennsylvania", "prompt": "Pennsylvania Route 443 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0106", "subject": "Connecticut Route 12", "relation": "P131", "object": "Connecticut", "prompt": "Connecticut Route 12 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0107", "subject": "Alabama Splash Adventure", "relation": "P131", "object": "Alabama", "prompt": "Alabama Splash Adventure is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0108", "subject": "Southwest Philadelphia", "relation": "P131", "object": "Philadelphia", "prompt": "Southwest Philadelphia is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0109", "subject": "North Shore Medical Center", "relation": "P131", "object": "Boston", "prompt": "North Shore Medical Center is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0110", "subject": "Milbertshofen-Am Hart", "relation": "P131", "object": "Munich", "prompt": "Milbertshofen-Am Hart is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0111", "subject": "Seoul station", "relation": "P131", "object": "Seoul", "prompt": "Seoul station is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0112", "subject": "Prey Veng Province", "relation": "P131", "object": "Cambodia", "prompt": "Prey Veng Province is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0113", "subject": "Schell Creek Range", "relation": "P131", "object": "Nevada", "prompt": "Schell Creek Range is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0114", "subject": "Virginia State Route 33", "relation": "P131", "object": "Virginia", "prompt": "Virginia State Route 33 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0115", "subject": "Khedoi", "relation": "P131", "object": "Gujarat", "prompt": "Khedoi is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0116", "subject": "Hope", "relation": "P131", "object": "Arkansas", "prompt": "Hope is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0117", "subject": "Gangseo District", "relation": "P131", "object": "Seoul", "prompt": "Gangseo District is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0118", "subject": "Leech Lake Indian Reservation", "relation": "P131", "object": "Minnesota", "prompt": "Leech Lake Indian Reservation is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0119", "subject": "Liechtenstein Museum", "relation": "P131", "object": "Vienna", "prompt": "Liechtenstein Museum is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0120", "subject": "Kalamazoo County", "relation": "P131", "object": "Michigan", "prompt": "Kalamazoo County is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0121", "subject": "Idylwyld Drive", "relation": "P131", "object": "Saskatchewan", "prompt": "Idylwyld Drive is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0122", "subject": "Alabama State Route 20", "relation": "P131", "object": "Alabama", "prompt": "Alabama State Route 20 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0123", "subject": "Kalani High School", "relation": "P131", "object": "Honolulu", "prompt": "Kalani High School is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0124", "subject": "Lakhpat", "relation": "P131", "object": "Gujarat", "prompt": "Lakhpat is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0125", "subject": "Hauser & Wirth", "relation": "P131", "object": "Switzerland", "prompt": "Hauser & Wirth is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0126", "subject": "Lwengo District", "relation": "P131", "object": "Uganda", "prompt": "Lwengo District is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0127", "subject": "Tijuana River", "relation": "P131", "object": "California", "prompt": "Tijuana River is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0128", "subject": "Oudegracht", "relation": "P131", "object": "Utrecht", "prompt": "Oudegracht is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0129", "subject": "Via Ardeatina", "relation": "P131", "object": "Rome", "prompt": "Via Ardeatina is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0130", "subject": "Torresdale", "relation": "P131", "object": "Philadelphia", "prompt": "Torresdale is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0131", "subject": "Fort Nashborough", "relation": "P131", "object": "Tennessee", "prompt": "Fort Nashborough is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0132", "subject": "City of Hervey Bay", "relation": "P131", "object": "Queensland", "prompt": "City of Hervey Bay is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0133", "subject": "assassination of John F. Kennedy", "relation": "P131", "object": "Dallas", "prompt": "assassination of John F. Kennedy is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0134", "subject": "Texas Medical Center", "relation": "P131", "object": "Texas", "prompt": "Texas Medical Center is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0135", "subject": "Ma'an Governorate", "relation": "P131", "object": "Jordan", "prompt": "Ma'an Governorate is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0136", "subject": "Lunenfeld-Tanenbaum Research Institute", "relation": "P131", "object": "Ontario", "prompt": "Lunenfeld-Tanenbaum Research Institute is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0137", "subject": "Kuppalli", "relation": "P131", "object": "Karnataka", "prompt": "Kuppalli is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0138", "subject": "Interstate 69", "relation": "P131", "object": "Michigan", "prompt": "Interstate 69 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0139", "subject": "Cloutierville", "relation": "P131", "object": "Louisiana", "prompt": "Cloutierville is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0140", "subject": "Drake Well", "relation": "P131", "object": "Pennsylvania", "prompt": "Drake Well is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0141", "subject": "Matabitchuan River", "relation": "P131", "object": "Ontario", "prompt": "Matabitchuan River is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0142", "subject": "Cupar", "relation": "P131", "object": "Fife", "prompt": "Cupar is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0143", "subject": "East River Greenway", "relation": "P131", "object": "Manhattan", "prompt": "East River Greenway is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0144", "subject": "Pennsylvania Route 696", "relation": "P131", "object": "Pennsylvania", "prompt": "Pennsylvania Route 696 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0145", "subject": "Boundary Cone", "relation": "P131", "object": "Arizona", "prompt": "Boundary Cone is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0146", "subject": "Paudash Lake", "relation": "P131", "object": "Ontario", "prompt": "Paudash Lake is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0147", "subject": "Antelope Canyon", "relation": "P131", "object": "Arizona", "prompt": "Antelope Canyon is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0148", "subject": "Fife Coastal Path", "relation": "P131", "object": "Fife", "prompt": "Fife Coastal Path is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0149", "subject": "Oregon Route 8", "relation": "P131", "object": "Oregon", "prompt": "Oregon Route 8 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0150", "subject": "Austin College", "relation": "P131", "object": "Texas", "prompt": "Austin College is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0151", "subject": "Castle Morpeth", "relation": "P131", "object": "Northumberland", "prompt": "Castle Morpeth is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0152", "subject": "15th arrondissement of Paris", "relation": "P131", "object": "Paris", "prompt": "15th arrondissement of Paris is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0153", "subject": "Mel Lastman Square", "relation": "P131", "object": "Ontario", "prompt": "Mel Lastman Square is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0154", "subject": "Cuba", "relation": "P131", "object": "Illinois", "prompt": "Cuba is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0155", "subject": "Johns Hopkins University", "relation": "P131", "object": "Maryland", "prompt": "Johns Hopkins University is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0156", "subject": "Pulaski County Special School District", "relation": "P131", "object": "Arkansas", "prompt": "Pulaski County Special School District is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0157", "subject": "Maravanthe", "relation": "P131", "object": "Karnataka", "prompt": "Maravanthe is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0158", "subject": "Ohio State Route 315", "relation": "P131", "object": "Ohio", "prompt": "Ohio State Route 315 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0159", "subject": "Hamilton Heights", "relation": "P131", "object": "Manhattan", "prompt": "Hamilton Heights is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0160", "subject": "Astara District", "relation": "P131", "object": "Azerbaijan", "prompt": "Astara District is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0161", "subject": "Manatawny Creek", "relation": "P131", "object": "Pennsylvania", "prompt": "Manatawny Creek is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0162", "subject": "Museo Correr", "relation": "P131", "object": "Venice", "prompt": "Museo Correr is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0163", "subject": "Massachusetts Route 103", "relation": "P131", "object": "Massachusetts", "prompt": "Massachusetts Route 103 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0164", "subject": "Panteion University", "relation": "P131", "object": "Athens", "prompt": "Panteion University is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0165", "subject": "Dhule Lok Sabha constituency", "relation": "P131", "object": "Maharashtra", "prompt": "Dhule Lok Sabha constituency is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0166", "subject": "Llanegryn", "relation": "P131", "object": "Wales", "prompt": "Llanegryn is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0167", "subject": "Bon Pastor", "relation": "P131", "object": "Barcelona", "prompt": "Bon Pastor is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0168", "subject": "U.S. Route 30 in Indiana", "relation": "P131", "object": "Indiana", "prompt": "U.S. Route 30 in Indiana is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0169", "subject": "Northern Italy", "relation": "P131", "object": "Italy", "prompt": "Northern Italy is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0170", "subject": "Caja de Muertos", "relation": "P131", "object": "Ponce", "prompt": "Caja de Muertos is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0171", "subject": "Windigo Lake", "relation": "P131", "object": "Wisconsin", "prompt": "Windigo Lake is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0172", "subject": "Wadhwan", "relation": "P131", "object": "Gujarat", "prompt": "Wadhwan is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0173", "subject": "Mount San Antonio", "relation": "P131", "object": "California", "prompt": "Mount San Antonio is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0174", "subject": "Vale of Glamorgan", "relation": "P131", "object": "Wales", "prompt": "Vale of Glamorgan is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0175", "subject": "Maryland County", "relation": "P131", "object": "Liberia", "prompt": "Maryland County is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0176", "subject": "Acton Burnell Castle", "relation": "P131", "object": "Shropshire", "prompt": "Acton Burnell Castle is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0177", "subject": "Big Thicket National Preserve", "relation": "P131", "object": "Texas", "prompt": "Big Thicket National Preserve is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0178", "subject": "War of Independence Victory Column", "relation": "P131", "object": "Tallinn", "prompt": "War of Independence Victory Column is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0179", "subject": "Ohio State Route 125", "relation": "P131", "object": "Ohio", "prompt": "Ohio State Route 125 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0180", "subject": "North Portal", "relation": "P131", "object": "Saskatchewan", "prompt": "North Portal is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0181", "subject": "Galerie des Machines", "relation": "P131", "object": "Paris", "prompt": "Galerie des Machines is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0182", "subject": "Maryland Route 22", "relation": "P131", "object": "Maryland", "prompt": "Maryland Route 22 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0183", "subject": "El Tarf Province", "relation": "P131", "object": "Algeria", "prompt": "El Tarf Province is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0184", "subject": "Ca' Pesaro", "relation": "P131", "object": "Venice", "prompt": "Ca' Pesaro is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0185", "subject": "Sittingbourne F.C.", "relation": "P131", "object": "Kent", "prompt": "Sittingbourne F.C. is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0186", "subject": "Byzantine & Christian Museum", "relation": "P131", "object": "Athens", "prompt": "Byzantine & Christian Museum is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0187", "subject": "Breaux Bridge", "relation": "P131", "object": "Louisiana", "prompt": "Breaux Bridge is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0188", "subject": "Malha", "relation": "P131", "object": "Jerusalem", "prompt": "Malha is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0189", "subject": "Boston University Marsh Chapel", "relation": "P131", "object": "Massachusetts", "prompt": "Boston University Marsh Chapel is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0190", "subject": "Dr. Babasaheb Ambedkar Marathwada University", "relation": "P131", "object": "India", "prompt": "Dr. Babasaheb Ambedkar Marathwada University is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0191", "subject": "DuPage County", "relation": "P131", "object": "Illinois", "prompt": "DuPage County is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0192", "subject": "Siazan District", "relation": "P131", "object": "Azerbaijan", "prompt": "Siazan District is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0193", "subject": "Vermilion Pass", "relation": "P131", "object": "Alberta", "prompt": "Vermilion Pass is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0194", "subject": "Thule people", "relation": "P131", "object": "Greenland", "prompt": "Thule people is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0195", "subject": "Warszawa Wschodnia Osobowa railway station", "relation": "P131", "object": "Warsaw", "prompt": "Warszawa Wschodnia Osobowa railway station is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0196", "subject": "Bureau of Indian Standards", "relation": "P131", "object": "India", "prompt": "Bureau of Indian Standards is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0197", "subject": "Zaragoza Province", "relation": "P131", "object": "Aragon", "prompt": "Zaragoza Province is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0198", "subject": "Huddlesford Junction", "relation": "P131", "object": "Staffordshire", "prompt": "Huddlesford Junction is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0199", "subject": "Des Moines International Airport", "relation": "P131", "object": "Iowa", "prompt": "Des Moines International Airport is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0200", "subject": "Dallas Public Library", "relation": "P131", "object": "Dallas", "prompt": "Dallas Public Library is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0201", "subject": "Zoo Miami", "relation": "P131", "object": "Florida", "prompt": "Zoo Miami is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0202", "subject": "Kosciuszko Bridge", "relation": "P131", "object": "Brooklyn", "prompt": "Kosciuszko Bridge is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0203", "subject": "Phoenix Symphony Hall", "relation": "P131", "object": "Arizona", "prompt": "Phoenix Symphony Hall is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0204", "subject": "Rickenbacker Air National Guard Base", "relation": "P131", "object": "Ohio", "prompt": "Rickenbacker Air National Guard Base is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0205", "subject": "Muchalls Castle", "relation": "P131", "object": "Scotland", "prompt": "Muchalls Castle is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0206", "subject": "Westridge School", "relation": "P131", "object": "Pasadena", "prompt": "Westridge School is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0207", "subject": "Alexander Hamilton Bridge", "relation": "P131", "object": "Manhattan", "prompt": "Alexander Hamilton Bridge is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0208", "subject": "SEC Armadillo", "relation": "P131", "object": "Glasgow", "prompt": "SEC Armadillo is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0209", "subject": "Madhepura district", "relation": "P131", "object": "Bihar", "prompt": "Madhepura district is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0210", "subject": "Raft River Mountains", "relation": "P131", "object": "Utah", "prompt": "Raft River Mountains is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0211", "subject": "State Library of Victoria", "relation": "P131", "object": "Melbourne", "prompt": "State Library of Victoria is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0212", "subject": "Randalls Island", "relation": "P131", "object": "Manhattan", "prompt": "Randalls Island is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0213", "subject": "Oxshott", "relation": "P131", "object": "Surrey", "prompt": "Oxshott is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0214", "subject": "Burdur Province", "relation": "P131", "object": "Turkey", "prompt": "Burdur Province is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0215", "subject": "El Oued Province", "relation": "P131", "object": "Algeria", "prompt": "El Oued Province is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0216", "subject": "Parkland County", "relation": "P131", "object": "Alberta", "prompt": "Parkland County is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0217", "subject": "Utah County", "relation": "P131", "object": "Utah", "prompt": "Utah County is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0218", "subject": "Istanbul Technical University", "relation": "P131", "object": "Istanbul", "prompt": "Istanbul Technical University is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0219", "subject": "Operation Teapot", "relation": "P131", "object": "Nevada", "prompt": "Operation Teapot is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0220", "subject": "Fall Creek Falls State Park", "relation": "P131", "object": "Tennessee", "prompt": "Fall Creek Falls State Park is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0221", "subject": "Gasparilla Island", "relation": "P131", "object": "Florida", "prompt": "Gasparilla Island is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0222", "subject": "Many Peaks", "relation": "P131", "object": "Queensland", "prompt": "Many Peaks is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0223", "subject": "Vadnagar", "relation": "P131", "object": "Gujarat", "prompt": "Vadnagar is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0224", "subject": "Farrington High School", "relation": "P131", "object": "Hawaii", "prompt": "Farrington High School is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0225", "subject": "Interstate 75", "relation": "P131", "object": "Tennessee", "prompt": "Interstate 75 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0226", "subject": "Manipal University", "relation": "P131", "object": "Karnataka", "prompt": "Manipal University is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0227", "subject": "Central European University", "relation": "P131", "object": "Budapest", "prompt": "Central European University is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0228", "subject": "Iowa", "relation": "P131", "object": "Iowa", "prompt": "Iowa is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0229", "subject": "Riverway, Townsville", "relation": "P131", "object": "Queensland", "prompt": "Riverway, Townsville is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0230", "subject": "Stratford Army Engine Plant", "relation": "P131", "object": "Connecticut", "prompt": "Stratford Army Engine Plant is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0231", "subject": "Gainesville Municipal Airport", "relation": "P131", "object": "Texas", "prompt": "Gainesville Municipal Airport is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0232", "subject": "Haizhu District", "relation": "P131", "object": "Guangzhou", "prompt": "Haizhu District is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0233", "subject": "Nordstrand IF", "relation": "P131", "object": "Oslo", "prompt": "Nordstrand IF is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0234", "subject": "Eurovision Song Contest 1989", "relation": "P131", "object": "Lausanne", "prompt": "Eurovision Song Contest 1989 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0235", "subject": "Autauga County", "relation": "P131", "object": "Alabama", "prompt": "Autauga County is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0236", "subject": "Bryan Air Force Base", "relation": "P131", "object": "Texas", "prompt": "Bryan Air Force Base is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0237", "subject": "Ilam Province", "relation": "P131", "object": "Iran", "prompt": "Ilam Province is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0238", "subject": "Morecambe", "relation": "P131", "object": "Lancaster", "prompt": "Morecambe is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0239", "subject": "Kuthiyathodu grama panchayat", "relation": "P131", "object": "Kerala", "prompt": "Kuthiyathodu grama panchayat is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0240", "subject": "WMTX", "relation": "P131", "object": "Florida", "prompt": "WMTX is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0241", "subject": "Southeast Texas", "relation": "P131", "object": "Texas", "prompt": "Southeast Texas is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0242", "subject": "Klaskanine River", "relation": "P131", "object": "Oregon", "prompt": "Klaskanine River is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0243", "subject": "Andrews University", "relation": "P131", "object": "Michigan", "prompt": "Andrews University is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0244", "subject": "Anahuac National Wildlife Refuge", "relation": "P131", "object": "Texas", "prompt": "Anahuac National Wildlife Refuge is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0245", "subject": "Lincoln Square Synagogue", "relation": "P131", "object": "Manhattan", "prompt": "Lincoln Square Synagogue is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0246", "subject": "Boroughmuir High School", "relation": "P131", "object": "Edinburgh", "prompt": "Boroughmuir High School is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0247", "subject": "McClain County", "relation": "P131", "object": "Oklahoma", "prompt": "McClain County is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0248", "subject": "Barksdale Air Force Base", "relation": "P131", "object": "Louisiana", "prompt": "Barksdale Air Force Base is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0249", "subject": "Crook, County Durham", "relation": "P131", "object": "England", "prompt": "Crook, County Durham is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0250", "subject": "La Bayou", "relation": "P131", "object": "Nevada", "prompt": "La Bayou is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0251", "subject": "Coalport", "relation": "P131", "object": "Shropshire", "prompt": "Coalport is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0252", "subject": "Galatasaray High School", "relation": "P131", "object": "Istanbul", "prompt": "Galatasaray High School is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0253", "subject": "Hasland", "relation": "P131", "object": "Derbyshire", "prompt": "Hasland is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0254", "subject": "Littoral", "relation": "P131", "object": "Cameroon", "prompt": "Littoral is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0255", "subject": "Mandarin Oriental, Bangkok", "relation": "P131", "object": "Bangkok", "prompt": "Mandarin Oriental, Bangkok is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0256", "subject": "Waynesville School District", "relation": "P131", "object": "Missouri", "prompt": "Waynesville School District is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0257", "subject": "Kingsley Field Air National Guard Base", "relation": "P131", "object": "Oregon", "prompt": "Kingsley Field Air National Guard Base is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0258", "subject": "Fingask Castle", "relation": "P131", "object": "Scotland", "prompt": "Fingask Castle is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0259", "subject": "Pea Ridge National Military Park", "relation": "P131", "object": "Arkansas", "prompt": "Pea Ridge National Military Park is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0260", "subject": "Llandaff Cathedral", "relation": "P131", "object": "Cardiff", "prompt": "Llandaff Cathedral is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0261", "subject": "Samuel Merritt University", "relation": "P131", "object": "California", "prompt": "Samuel Merritt University is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0262", "subject": "A227 road", "relation": "P131", "object": "Kent", "prompt": "A227 road is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0263", "subject": "Downtown Houston", "relation": "P131", "object": "Houston", "prompt": "Downtown Houston is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0264", "subject": "Middletown Area School District", "relation": "P131", "object": "Pennsylvania", "prompt": "Middletown Area School District is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0265", "subject": "Ohio State Route 4", "relation": "P131", "object": "Ohio", "prompt": "Ohio State Route 4 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0266", "subject": "Chevron Science Center", "relation": "P131", "object": "Pittsburgh", "prompt": "Chevron Science Center is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0267", "subject": "Six Rivers National Forest", "relation": "P131", "object": "California", "prompt": "Six Rivers National Forest is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0268", "subject": "Massachusetts Route 28", "relation": "P131", "object": "Massachusetts", "prompt": "Massachusetts Route 28 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0269", "subject": "Rose Tower", "relation": "P131", "object": "Dubai", "prompt": "Rose Tower is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0270", "subject": "Gramercy Park Hotel", "relation": "P131", "object": "Manhattan", "prompt": "Gramercy Park Hotel is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0271", "subject": "Nevada Cancer Institute", "relation": "P131", "object": "Nevada", "prompt": "Nevada Cancer Institute is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0272", "subject": "2013 Internazionali BNL d'Italia", "relation": "P131", "object": "Rome", "prompt": "2013 Internazionali BNL d'Italia is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0273", "subject": "Ohio State Route 2", "relation": "P131", "object": "Ohio", "prompt": "Ohio State Route 2 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0274", "subject": "Piasa", "relation": "P131", "object": "Illinois", "prompt": "Piasa is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0275", "subject": "Kingsborough Community College", "relation": "P131", "object": "Brooklyn", "prompt": "Kingsborough Community College is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0276", "subject": "Haaga", "relation": "P131", "object": "Helsinki", "prompt": "Haaga is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0277", "subject": "Vienna International Centre", "relation": "P131", "object": "Vienna", "prompt": "Vienna International Centre is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0278", "subject": "Camp Mabry", "relation": "P131", "object": "Texas", "prompt": "Camp Mabry is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0279", "subject": "Area codes 402 and 531", "relation": "P131", "object": "Nebraska", "prompt": "Area codes 402 and 531 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0280", "subject": "Wychavon", "relation": "P131", "object": "Worcestershire", "prompt": "Wychavon is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0281", "subject": "Masaya Department", "relation": "P131", "object": "Nicaragua", "prompt": "Masaya Department is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0282", "subject": "Bedworth", "relation": "P131", "object": "England", "prompt": "Bedworth is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0283", "subject": "2010 Winter Olympics", "relation": "P131", "object": "Vancouver", "prompt": "2010 Winter Olympics is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0284", "subject": "University of Massachusetts Boston", "relation": "P131", "object": "Boston", "prompt": "University of Massachusetts Boston is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0285", "subject": "Brown University", "relation": "P131", "object": "Providence", "prompt": "Brown University is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0286", "subject": "Belait District", "relation": "P131", "object": "Brunei", "prompt": "Belait District is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0287", "subject": "Union University", "relation": "P131", "object": "Tennessee", "prompt": "Union University is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0288", "subject": "Ohio State Route 108", "relation": "P131", "object": "Ohio", "prompt": "Ohio State Route 108 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0289", "subject": "Tixtla", "relation": "P131", "object": "Guerrero", "prompt": "Tixtla is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0290", "subject": "WinStar World Casino", "relation": "P131", "object": "Oklahoma", "prompt": "WinStar World Casino is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0291", "subject": "Upper Canada District School Board", "relation": "P131", "object": "Ontario", "prompt": "Upper Canada District School Board is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0292", "subject": "Bering Glacier", "relation": "P131", "object": "Alaska", "prompt": "Bering Glacier is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0293", "subject": "Keystone Corridor", "relation": "P131", "object": "Pennsylvania", "prompt": "Keystone Corridor is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0294", "subject": "Tanga Region", "relation": "P131", "object": "Tanzania", "prompt": "Tanga Region is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0295", "subject": "Torreys Peak", "relation": "P131", "object": "Colorado", "prompt": "Torreys Peak is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0296", "subject": "Pennsylvania Route 198", "relation": "P131", "object": "Pennsylvania", "prompt": "Pennsylvania Route 198 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0297", "subject": "University of Music and Performing Arts Vienna", "relation": "P131", "object": "Vienna", "prompt": "University of Music and Performing Arts Vienna is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0298", "subject": "Sitkalidak Island", "relation": "P131", "object": "Alaska", "prompt": "Sitkalidak Island is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0299", "subject": "Lakewood Church", "relation": "P131", "object": "Houston", "prompt": "Lakewood Church is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0300", "subject": "Uttaradit", "relation": "P131", "object": "Thailand", "prompt": "Uttaradit is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0301", "subject": "Rhayader", "relation": "P131", "object": "Wales", "prompt": "Rhayader is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0302", "subject": "Marsden State High School", "relation": "P131", "object": "Queensland", "prompt": "Marsden State High School is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0303", "subject": "Southampton Castle", "relation": "P131", "object": "Southampton", "prompt": "Southampton Castle is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0304", "subject": "Kampong Thom Province", "relation": "P131", "object": "Cambodia", "prompt": "Kampong Thom Province is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0305", "subject": "Newport Southbank Bridge", "relation": "P131", "object": "Newport", "prompt": "Newport Southbank Bridge is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0306", "subject": "Florence Charterhouse", "relation": "P131", "object": "Florence", "prompt": "Florence Charterhouse is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0307", "subject": "Temple Lot", "relation": "P131", "object": "Independence", "prompt": "Temple Lot is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0308", "subject": "Asquith", "relation": "P131", "object": "Saskatchewan", "prompt": "Asquith is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0309", "subject": "Olds College", "relation": "P131", "object": "Alberta", "prompt": "Olds College is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0310", "subject": "Bowerhill", "relation": "P131", "object": "Wiltshire", "prompt": "Bowerhill is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0311", "subject": "Redland Bay", "relation": "P131", "object": "Queensland", "prompt": "Redland Bay is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0312", "subject": "Lake Constance", "relation": "P131", "object": "Bavaria", "prompt": "Lake Constance is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0313", "subject": "Ottawa River", "relation": "P131", "object": "Quebec", "prompt": "Ottawa River is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0314", "subject": "Otterbein University", "relation": "P131", "object": "Ohio", "prompt": "Otterbein University is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0315", "subject": "Atna Peaks", "relation": "P131", "object": "Alaska", "prompt": "Atna Peaks is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0316", "subject": "Wiseton", "relation": "P131", "object": "England", "prompt": "Wiseton is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0317", "subject": "Babelsberg Palace", "relation": "P131", "object": "Brandenburg", "prompt": "Babelsberg Palace is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0318", "subject": "Owens Valley Radio Observatory", "relation": "P131", "object": "California", "prompt": "Owens Valley Radio Observatory is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0319", "subject": "Valencian Community", "relation": "P131", "object": "Spain", "prompt": "Valencian Community is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0320", "subject": "Braddock, Cornwall", "relation": "P131", "object": "Cornwall", "prompt": "Braddock, Cornwall is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0321", "subject": "Wellington Phoenix FC", "relation": "P131", "object": "Wellington", "prompt": "Wellington Phoenix FC is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0322", "subject": "Cumberland University", "relation": "P131", "object": "Tennessee", "prompt": "Cumberland University is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0323", "subject": "Patrick Henry College", "relation": "P131", "object": "Virginia", "prompt": "Patrick Henry College is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0324", "subject": "Brooklyn Navy Yard", "relation": "P131", "object": "Brooklyn", "prompt": "Brooklyn Navy Yard is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0325", "subject": "Kanata South Ward", "relation": "P131", "object": "Ottawa", "prompt": "Kanata South Ward is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0326", "subject": "Bethany University", "relation": "P131", "object": "California", "prompt": "Bethany University is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0327", "subject": "Little Bear River", "relation": "P131", "object": "Utah", "prompt": "Little Bear River is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0328", "subject": "University of Washington", "relation": "P131", "object": "Seattle", "prompt": "University of Washington is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0329", "subject": "Hanover Tavern", "relation": "P131", "object": "Virginia", "prompt": "Hanover Tavern is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0330", "subject": "Rotunde (Vienna)", "relation": "P131", "object": "Vienna", "prompt": "Rotunde (Vienna) is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0331", "subject": "San Antonio River", "relation": "P131", "object": "Texas", "prompt": "San Antonio River is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0332", "subject": "Wharton County", "relation": "P131", "object": "Texas", "prompt": "Wharton County is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0333", "subject": "Drighlington", "relation": "P131", "object": "Leeds", "prompt": "Drighlington is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0334", "subject": "Lancaster Catholic High School", "relation": "P131", "object": "Pennsylvania", "prompt": "Lancaster Catholic High School is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0335", "subject": "Liwan District", "relation": "P131", "object": "Guangzhou", "prompt": "Liwan District is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0336", "subject": "Loschwitz", "relation": "P131", "object": "Dresden", "prompt": "Loschwitz is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0337", "subject": "Vancouver Art Gallery", "relation": "P131", "object": "Vancouver", "prompt": "Vancouver Art Gallery is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0338", "subject": "Film Forum", "relation": "P131", "object": "Manhattan", "prompt": "Film Forum is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0339", "subject": "Drexel University College of Medicine", "relation": "P131", "object": "Pennsylvania", "prompt": "Drexel University College of Medicine is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0340", "subject": "Anschutz Medical Campus", "relation": "P131", "object": "Colorado", "prompt": "Anschutz Medical Campus is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0341", "subject": "Rowhedge", "relation": "P131", "object": "Essex", "prompt": "Rowhedge is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0342", "subject": "Royal National Theatre", "relation": "P131", "object": "London", "prompt": "Royal National Theatre is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0343", "subject": "Uttangi", "relation": "P131", "object": "Karnataka", "prompt": "Uttangi is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0344", "subject": "Letham, Angus", "relation": "P131", "object": "Angus", "prompt": "Letham, Angus is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0345", "subject": "Servus Credit Union Place", "relation": "P131", "object": "Alberta", "prompt": "Servus Credit Union Place is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0346", "subject": "Mount Carmel", "relation": "P131", "object": "Illinois", "prompt": "Mount Carmel is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0347", "subject": "Jablanica District", "relation": "P131", "object": "Serbia", "prompt": "Jablanica District is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0348", "subject": "Oliver Ames High School", "relation": "P131", "object": "Massachusetts", "prompt": "Oliver Ames High School is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0349", "subject": "Nou Barris", "relation": "P131", "object": "Barcelona", "prompt": "Nou Barris is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0350", "subject": "University of Lagos", "relation": "P131", "object": "Lagos", "prompt": "University of Lagos is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0351", "subject": "Smart Museum of Art", "relation": "P131", "object": "Chicago", "prompt": "Smart Museum of Art is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0352", "subject": "University of Paris III: Sorbonne Nouvelle", "relation": "P131", "object": "Paris", "prompt": "University of Paris III: Sorbonne Nouvelle is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0353", "subject": "Bighorn River", "relation": "P131", "object": "Montana", "prompt": "Bighorn River is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0354", "subject": "National Waterfront Museum", "relation": "P131", "object": "Swansea", "prompt": "National Waterfront Museum is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0355", "subject": "Leinster", "relation": "P131", "object": "Ireland", "prompt": "Leinster is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0356", "subject": "Devikulam", "relation": "P131", "object": "Kerala", "prompt": "Devikulam is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0357", "subject": "Covasna County", "relation": "P131", "object": "Romania", "prompt": "Covasna County is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0358", "subject": "Most Slovenského národného povstania", "relation": "P131", "object": "Bratislava", "prompt": "Most Slovenského národného povstania is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0359", "subject": "Shanghai Ghetto", "relation": "P131", "object": "Shanghai", "prompt": "Shanghai Ghetto is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0360", "subject": "Henbury", "relation": "P131", "object": "England", "prompt": "Henbury is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0361", "subject": "Nice Lawn Tennis Club", "relation": "P131", "object": "Nice", "prompt": "Nice Lawn Tennis Club is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0362", "subject": "Holland, Manitoba", "relation": "P131", "object": "Manitoba", "prompt": "Holland, Manitoba is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0363", "subject": "Portobello, Edinburgh", "relation": "P131", "object": "Edinburgh", "prompt": "Portobello, Edinburgh is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0364", "subject": "Manitoba Highway 1", "relation": "P131", "object": "Manitoba", "prompt": "Manitoba Highway 1 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0365", "subject": "Moyamensing", "relation": "P131", "object": "Philadelphia", "prompt": "Moyamensing is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0366", "subject": "Baranya County", "relation": "P131", "object": "Hungary", "prompt": "Baranya County is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0367", "subject": "Griebnitz Canal", "relation": "P131", "object": "Berlin", "prompt": "Griebnitz Canal is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0368", "subject": "Point Douglas", "relation": "P131", "object": "Manitoba", "prompt": "Point Douglas is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0369", "subject": "Botad", "relation": "P131", "object": "Gujarat", "prompt": "Botad is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0370", "subject": "Sheaf Square", "relation": "P131", "object": "Sheffield", "prompt": "Sheaf Square is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0371", "subject": "home counties", "relation": "P131", "object": "England", "prompt": "home counties is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0372", "subject": "Alte Oper", "relation": "P131", "object": "Frankfurt", "prompt": "Alte Oper is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0373", "subject": "Nelson Airport, New Zealand", "relation": "P131", "object": "Nelson", "prompt": "Nelson Airport, New Zealand is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0374", "subject": "Leelanau Peninsula", "relation": "P131", "object": "Michigan", "prompt": "Leelanau Peninsula is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0375", "subject": "Edirne Province", "relation": "P131", "object": "Turkey", "prompt": "Edirne Province is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0376", "subject": "Middlesbrough F.C.", "relation": "P131", "object": "Middlesbrough", "prompt": "Middlesbrough F.C. is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0377", "subject": "Kishacoquillas Valley", "relation": "P131", "object": "Pennsylvania", "prompt": "Kishacoquillas Valley is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0378", "subject": "Whittier College", "relation": "P131", "object": "California", "prompt": "Whittier College is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0379", "subject": "Sikkim", "relation": "P131", "object": "India", "prompt": "Sikkim is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0380", "subject": "Swifts Creek", "relation": "P131", "object": "Victoria", "prompt": "Swifts Creek is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0381", "subject": "Greater Nevada Field", "relation": "P131", "object": "Reno", "prompt": "Greater Nevada Field is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0382", "subject": "Saskatchewan Highway 11", "relation": "P131", "object": "Saskatchewan", "prompt": "Saskatchewan Highway 11 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0383", "subject": "Sears Point", "relation": "P131", "object": "California", "prompt": "Sears Point is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0384", "subject": "Al Muthanna Governorate", "relation": "P131", "object": "Iraq", "prompt": "Al Muthanna Governorate is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0385", "subject": "Libby Dam", "relation": "P131", "object": "Montana", "prompt": "Libby Dam is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0386", "subject": "Pacific Union College", "relation": "P131", "object": "California", "prompt": "Pacific Union College is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0387", "subject": "Fenn Tower", "relation": "P131", "object": "Ohio", "prompt": "Fenn Tower is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0388", "subject": "German National Library", "relation": "P131", "object": "Frankfurt", "prompt": "German National Library is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0389", "subject": "Lake Texana", "relation": "P131", "object": "Texas", "prompt": "Lake Texana is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0390", "subject": "Marian High School (Mishawaka, Indiana)", "relation": "P131", "object": "Indiana", "prompt": "Marian High School (Mishawaka, Indiana) is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0391", "subject": "New Smyrna Speedway", "relation": "P131", "object": "Florida", "prompt": "New Smyrna Speedway is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0392", "subject": "Raimund Theater", "relation": "P131", "object": "Vienna", "prompt": "Raimund Theater is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0393", "subject": "Sungai Mamberamo", "relation": "P131", "object": "Papua", "prompt": "Sungai Mamberamo is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0394", "subject": "Hartley County", "relation": "P131", "object": "Texas", "prompt": "Hartley County is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0395", "subject": "Grayson Stadium", "relation": "P131", "object": "Savannah", "prompt": "Grayson Stadium is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0396", "subject": "Berlin State Opera", "relation": "P131", "object": "Berlin", "prompt": "Berlin State Opera is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0397", "subject": "Politecnico di Milano", "relation": "P131", "object": "Milan", "prompt": "Politecnico di Milano is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0398", "subject": "Little Belt Mountains", "relation": "P131", "object": "Montana", "prompt": "Little Belt Mountains is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0399", "subject": "Southeast Fairbanks Census Area", "relation": "P131", "object": "Alaska", "prompt": "Southeast Fairbanks Census Area is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0400", "subject": "Nakheel Tower", "relation": "P131", "object": "Dubai", "prompt": "Nakheel Tower is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0401", "subject": "Huntingdon County", "relation": "P131", "object": "Pennsylvania", "prompt": "Huntingdon County is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0402", "subject": "Newstead House Board of Trustees", "relation": "P131", "object": "Queensland", "prompt": "Newstead House Board of Trustees is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0403", "subject": "M'Sila Province", "relation": "P131", "object": "Algeria", "prompt": "M'Sila Province is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0404", "subject": "West Tennessee", "relation": "P131", "object": "Tennessee", "prompt": "West Tennessee is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0405", "subject": "Galata", "relation": "P131", "object": "Istanbul", "prompt": "Galata is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0406", "subject": "South Boston", "relation": "P131", "object": "Boston", "prompt": "South Boston is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0407", "subject": "Dungarpur district", "relation": "P131", "object": "Rajasthan", "prompt": "Dungarpur district is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0408", "subject": "A25 road", "relation": "P131", "object": "Surrey", "prompt": "A25 road is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0409", "subject": "Massachusetts Route 53", "relation": "P131", "object": "Massachusetts", "prompt": "Massachusetts Route 53 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0410", "subject": "Amreli district", "relation": "P131", "object": "Gujarat", "prompt": "Amreli district is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0411", "subject": "Quebec", "relation": "P131", "object": "Canada", "prompt": "Quebec is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0412", "subject": "Dakor", "relation": "P131", "object": "Gujarat", "prompt": "Dakor is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0413", "subject": "Monmouth Police Station", "relation": "P131", "object": "Monmouth", "prompt": "Monmouth Police Station is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0414", "subject": "University of Bologna", "relation": "P131", "object": "Bologna", "prompt": "University of Bologna is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0415", "subject": "North Central Texas College", "relation": "P131", "object": "Texas", "prompt": "North Central Texas College is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0416", "subject": "Wavertree", "relation": "P131", "object": "England", "prompt": "Wavertree is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0417", "subject": "Kelly Field Annex", "relation": "P131", "object": "Texas", "prompt": "Kelly Field Annex is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0418", "subject": "Lemsford", "relation": "P131", "object": "Hertfordshire", "prompt": "Lemsford is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0419", "subject": "Ashridge", "relation": "P131", "object": "Hertfordshire", "prompt": "Ashridge is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0420", "subject": "Texas State Highway 170", "relation": "P131", "object": "Texas", "prompt": "Texas State Highway 170 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0421", "subject": "Barkatpura", "relation": "P131", "object": "Hyderabad", "prompt": "Barkatpura is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0422", "subject": "Marshall Space Flight Center", "relation": "P131", "object": "Alabama", "prompt": "Marshall Space Flight Center is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0423", "subject": "Regla", "relation": "P131", "object": "Havana", "prompt": "Regla is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0424", "subject": "Zion Canyon", "relation": "P131", "object": "Utah", "prompt": "Zion Canyon is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0425", "subject": "Centre Pierre Charbonneau", "relation": "P131", "object": "Montreal", "prompt": "Centre Pierre Charbonneau is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0426", "subject": "Gorseinon", "relation": "P131", "object": "Swansea", "prompt": "Gorseinon is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0427", "subject": "Tibesti Region", "relation": "P131", "object": "Chad", "prompt": "Tibesti Region is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0428", "subject": "Pigtown", "relation": "P131", "object": "Baltimore", "prompt": "Pigtown is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0429", "subject": "City of Melbourne", "relation": "P131", "object": "Melbourne", "prompt": "City of Melbourne is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0430", "subject": "Crucible Theatre", "relation": "P131", "object": "Sheffield", "prompt": "Crucible Theatre is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0431", "subject": "Rancho Los Encinos", "relation": "P131", "object": "California", "prompt": "Rancho Los Encinos is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0432", "subject": "Framingham Railroad Station", "relation": "P131", "object": "Massachusetts", "prompt": "Framingham Railroad Station is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0433", "subject": "Ternopil Oblast", "relation": "P131", "object": "Ukraine", "prompt": "Ternopil Oblast is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0434", "subject": "Nez Perce County", "relation": "P131", "object": "Idaho", "prompt": "Nez Perce County is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0435", "subject": "Halls Stream", "relation": "P131", "object": "Vermont", "prompt": "Halls Stream is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0436", "subject": "Perry Barr", "relation": "P131", "object": "Birmingham", "prompt": "Perry Barr is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0437", "subject": "Noosa Heads", "relation": "P131", "object": "Queensland", "prompt": "Noosa Heads is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0438", "subject": "Maryland Route 224", "relation": "P131", "object": "Maryland", "prompt": "Maryland Route 224 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0439", "subject": "Tanglewood", "relation": "P131", "object": "Massachusetts", "prompt": "Tanglewood is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0440", "subject": "Louisiana Highway 91", "relation": "P131", "object": "Louisiana", "prompt": "Louisiana Highway 91 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0441", "subject": "Santa Fe Trail", "relation": "P131", "object": "Kansas", "prompt": "Santa Fe Trail is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0442", "subject": "Hi Corbett Field", "relation": "P131", "object": "Tucson", "prompt": "Hi Corbett Field is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0443", "subject": "Nevada State Route 535", "relation": "P131", "object": "Nevada", "prompt": "Nevada State Route 535 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0444", "subject": "Birmingham Repertory Theatre", "relation": "P131", "object": "Birmingham", "prompt": "Birmingham Repertory Theatre is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0445", "subject": "Derna District", "relation": "P131", "object": "Libya", "prompt": "Derna District is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0446", "subject": "Holy Sepulchre, Cambridge", "relation": "P131", "object": "Cambridge", "prompt": "Holy Sepulchre, Cambridge is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0447", "subject": "Willamette Valley AVA", "relation": "P131", "object": "Oregon", "prompt": "Willamette Valley AVA is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0448", "subject": "Alebtong District", "relation": "P131", "object": "Uganda", "prompt": "Alebtong District is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0449", "subject": "Toora", "relation": "P131", "object": "Victoria", "prompt": "Toora is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0450", "subject": "Koboko District", "relation": "P131", "object": "Uganda", "prompt": "Koboko District is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0451", "subject": "Cadgwith", "relation": "P131", "object": "Cornwall", "prompt": "Cadgwith is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0452", "subject": "Nanticoke, Ontario", "relation": "P131", "object": "Ontario", "prompt": "Nanticoke, Ontario is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0453", "subject": "A697 road", "relation": "P131", "object": "Northumberland", "prompt": "A697 road is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0454", "subject": "Lexington Avenue", "relation": "P131", "object": "Manhattan", "prompt": "Lexington Avenue is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0455", "subject": "Sparkassen-Arena", "relation": "P131", "object": "Kiel", "prompt": "Sparkassen-Arena is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0456", "subject": "M5 motorway", "relation": "P131", "object": "Devon", "prompt": "M5 motorway is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0457", "subject": "Electoral district of South Bourke", "relation": "P131", "object": "Victoria", "prompt": "Electoral district of South Bourke is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0458", "subject": "Stout Army Air Field", "relation": "P131", "object": "Indiana", "prompt": "Stout Army Air Field is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0459", "subject": "Chemnitz", "relation": "P131", "object": "Saxony", "prompt": "Chemnitz is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0460", "subject": "Minneapolis City Hall", "relation": "P131", "object": "Minneapolis", "prompt": "Minneapolis City Hall is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0461", "subject": "UL Bend National Wildlife Refuge", "relation": "P131", "object": "Montana", "prompt": "UL Bend National Wildlife Refuge is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0462", "subject": "Fermilab", "relation": "P131", "object": "Illinois", "prompt": "Fermilab is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0463", "subject": "Piatt County", "relation": "P131", "object": "Illinois", "prompt": "Piatt County is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0464", "subject": "German Research Centre for Artificial Intelligence", "relation": "P131", "object": "Bremen", "prompt": "German Research Centre for Artificial Intelligence is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0465", "subject": "Donskoy Monastery", "relation": "P131", "object": "Moscow", "prompt": "Donskoy Monastery is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0466", "subject": "Rupanyup", "relation": "P131", "object": "Victoria", "prompt": "Rupanyup is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0467", "subject": "Pinecreek", "relation": "P131", "object": "Minnesota", "prompt": "Pinecreek is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0468", "subject": "San Giovanni degli Eremiti", "relation": "P131", "object": "Palermo", "prompt": "San Giovanni degli Eremiti is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0469", "subject": "Sam Hill Memorial Bridge", "relation": "P131", "object": "Oregon", "prompt": "Sam Hill Memorial Bridge is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0470", "subject": "Brownhills", "relation": "P131", "object": "England", "prompt": "Brownhills is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0471", "subject": "Albian Sands", "relation": "P131", "object": "Alberta", "prompt": "Albian Sands is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0472", "subject": "Great Whale River", "relation": "P131", "object": "Quebec", "prompt": "Great Whale River is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0473", "subject": "Boscombe", "relation": "P131", "object": "Dorset", "prompt": "Boscombe is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0474", "subject": "Salzburg Cathedral", "relation": "P131", "object": "Salzburg", "prompt": "Salzburg Cathedral is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0475", "subject": "Saratov Oblast", "relation": "P131", "object": "Russia", "prompt": "Saratov Oblast is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0476", "subject": "Shunyi Olympic Rowing-Canoeing Park", "relation": "P131", "object": "Beijing", "prompt": "Shunyi Olympic Rowing-Canoeing Park is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0477", "subject": "Aneto", "relation": "P131", "object": "Aragon", "prompt": "Aneto is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0478", "subject": "The New School for Jazz and Contemporary Music", "relation": "P131", "object": "Manhattan", "prompt": "The New School for Jazz and Contemporary Music is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0479", "subject": "Holmbury St Mary", "relation": "P131", "object": "Surrey", "prompt": "Holmbury St Mary is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0480", "subject": "Alba Iulia", "relation": "P131", "object": "Alba", "prompt": "Alba Iulia is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0481", "subject": "Massachusetts Bay Transportation Authority", "relation": "P131", "object": "Boston", "prompt": "Massachusetts Bay Transportation Authority is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0482", "subject": "East Berbice-Corentyne", "relation": "P131", "object": "Guyana", "prompt": "East Berbice-Corentyne is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0483", "subject": "Castle", "relation": "P131", "object": "Belfast", "prompt": "Castle is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0484", "subject": "Open University of Catalonia", "relation": "P131", "object": "Barcelona", "prompt": "Open University of Catalonia is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0485", "subject": "Hammond Civic Center", "relation": "P131", "object": "Hammond", "prompt": "Hammond Civic Center is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0486", "subject": "Augsburg Central Station", "relation": "P131", "object": "Augsburg", "prompt": "Augsburg Central Station is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0487", "subject": "Louisiana Highway 28", "relation": "P131", "object": "Louisiana", "prompt": "Louisiana Highway 28 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0488", "subject": "Minnesota State Highway 21", "relation": "P131", "object": "Minnesota", "prompt": "Minnesota State Highway 21 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0489", "subject": "Cannock Chase", "relation": "P131", "object": "Staffordshire", "prompt": "Cannock Chase is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0490", "subject": "Prattville High School", "relation": "P131", "object": "Alabama", "prompt": "Prattville High School is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0491", "subject": "Chuy Region", "relation": "P131", "object": "Kyrgyzstan", "prompt": "Chuy Region is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0492", "subject": "Disney's Hollywood Studios", "relation": "P131", "object": "Florida", "prompt": "Disney's Hollywood Studios is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0493", "subject": "Grand Union Canal", "relation": "P131", "object": "Berkshire", "prompt": "Grand Union Canal is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0494", "subject": "Muskegon River", "relation": "P131", "object": "Michigan", "prompt": "Muskegon River is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0495", "subject": "Plymouth Rock", "relation": "P131", "object": "Massachusetts", "prompt": "Plymouth Rock is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0496", "subject": "Eldkvarn", "relation": "P131", "object": "Stockholm", "prompt": "Eldkvarn is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0497", "subject": "Texas State Highway 72", "relation": "P131", "object": "Texas", "prompt": "Texas State Highway 72 is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0498", "subject": "Shetland Islands", "relation": "P131", "object": "Scotland", "prompt": "Shetland Islands is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0499", "subject": "Place Bonaventure", "relation": "P131", "object": "Quebec", "prompt": "Place Bonaventure is located in", "source": "manuelberger/lama-trex"}
+{"id": "lama_trex_0500", "subject": "Growler Valley", "relation": "P131", "object": "Arizona", "prompt": "Growler Valley is located in", "source": "manuelberger/lama-trex"}

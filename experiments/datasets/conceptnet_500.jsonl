@@ -1,0 +1,500 @@
+{"id": "conceptnet_0001", "subject": "abandoned tractor", "relation": "AtLocation", "object": "meadow", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0002", "subject": "abc islands", "relation": "AtLocation", "object": "caribbean sea", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0003", "subject": "above water", "relation": "AtLocation", "object": "sea", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0004", "subject": "abu", "relation": "AtLocation", "object": "honshu", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0005", "subject": "abu", "relation": "AtLocation", "object": "japan", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0006", "subject": "abyss", "relation": "AtLocation", "object": "bottom of sea", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0007", "subject": "acadia national park", "relation": "AtLocation", "object": "maine", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0008", "subject": "acadian french", "relation": "AtLocation", "object": "maine", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0009", "subject": "acadian french", "relation": "AtLocation", "object": "new brunswick", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0010", "subject": "acadian french", "relation": "AtLocation", "object": "nova scotia", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0011", "subject": "acadian french", "relation": "AtLocation", "object": "prince edward island", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0012", "subject": "acadian french", "relation": "AtLocation", "object": "united states", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0013", "subject": "acar", "relation": "AtLocation", "object": "street", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0014", "subject": "acc", "relation": "AtLocation", "object": "india", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0015", "subject": "acc", "relation": "AtLocation", "object": "mumbai", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0016", "subject": "accelerator", "relation": "AtLocation", "object": "vehicle", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0017", "subject": "accident", "relation": "AtLocation", "object": "roadblock", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0018", "subject": "accomadations", "relation": "AtLocation", "object": "motel", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0019", "subject": "accommodation", "relation": "AtLocation", "object": "canada", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0020", "subject": "accommodation", "relation": "AtLocation", "object": "inn", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0021", "subject": "accommodation building", "relation": "AtLocation", "object": "bedroom", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0022", "subject": "accommodations", "relation": "AtLocation", "object": "camp ground", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0023", "subject": "accommodations", "relation": "AtLocation", "object": "motel", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0024", "subject": "accommodations", "relation": "AtLocation", "object": "theater", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0025", "subject": "accomodation", "relation": "AtLocation", "object": "motel", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0026", "subject": "accordian bag", "relation": "AtLocation", "object": "accordian", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0027", "subject": "accordian bag", "relation": "AtLocation", "object": "music shop", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0028", "subject": "accordian bag", "relation": "AtLocation", "object": "music store", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0029", "subject": "accordian bag", "relation": "AtLocation", "object": "musical instrument store", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0030", "subject": "accordian bag", "relation": "AtLocation", "object": "orchestra pit", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0031", "subject": "accordian bag", "relation": "AtLocation", "object": "scotland", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0032", "subject": "accordion", "relation": "AtLocation", "object": "band", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0033", "subject": "accordion", "relation": "AtLocation", "object": "instrument room", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0034", "subject": "accordion", "relation": "AtLocation", "object": "music store", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0035", "subject": "accordion", "relation": "AtLocation", "object": "polish wedding", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0036", "subject": "accordion", "relation": "AtLocation", "object": "polka band", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0037", "subject": "accordion", "relation": "AtLocation", "object": "san francisco", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0038", "subject": "accordion", "relation": "AtLocation", "object": "variety show", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0039", "subject": "account book", "relation": "AtLocation", "object": "bank", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0040", "subject": "account book", "relation": "AtLocation", "object": "desk", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0041", "subject": "account book", "relation": "AtLocation", "object": "desk drawer", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0042", "subject": "account book", "relation": "AtLocation", "object": "purse", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0043", "subject": "accountant", "relation": "AtLocation", "object": "firm", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0044", "subject": "accounting books", "relation": "AtLocation", "object": "cabinet", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0045", "subject": "acetaminophen", "relation": "AtLocation", "object": "medicine chest", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0046", "subject": "acid", "relation": "AtLocation", "object": "chemistry lab", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0047", "subject": "acid", "relation": "AtLocation", "object": "stomach", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0048", "subject": "acit", "relation": "AtLocation", "object": "chemistry lab", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0049", "subject": "acklins", "relation": "AtLocation", "object": "atlantic ocean", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0050", "subject": "acne", "relation": "AtLocation", "object": "mcdonalds", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0051", "subject": "acne medication", "relation": "AtLocation", "object": "bathroom", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0052", "subject": "acne medication", "relation": "AtLocation", "object": "cupboard", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0053", "subject": "acne medication", "relation": "AtLocation", "object": "drug store", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0054", "subject": "acne medication", "relation": "AtLocation", "object": "drugstore", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0055", "subject": "acne medication", "relation": "AtLocation", "object": "pharmacy", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0056", "subject": "acne medication", "relation": "AtLocation", "object": "teenage girl's bathroom drawer", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0057", "subject": "acne medication", "relation": "AtLocation", "object": "teenager's purse", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0058", "subject": "acne medication", "relation": "AtLocation", "object": "tube", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0059", "subject": "aconcagua", "relation": "AtLocation", "object": "argentina", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0060", "subject": "acorn", "relation": "AtLocation", "object": "forest", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0061", "subject": "acorn", "relation": "AtLocation", "object": "ground", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0062", "subject": "acorn", "relation": "AtLocation", "object": "tree", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0063", "subject": "acorn on ground", "relation": "AtLocation", "object": "park", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0064", "subject": "acorns", "relation": "AtLocation", "object": "roof", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0065", "subject": "acorns", "relation": "AtLocation", "object": "tree", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0066", "subject": "acoustic ceiling", "relation": "AtLocation", "object": "concert hall", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0067", "subject": "acoustic ceiling", "relation": "AtLocation", "object": "music department", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0068", "subject": "acoustic ceiling", "relation": "AtLocation", "object": "music hall", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0069", "subject": "acoustic ceiling", "relation": "AtLocation", "object": "office building", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0070", "subject": "acoustic ceiling", "relation": "AtLocation", "object": "opera house", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0071", "subject": "acoustic ceiling", "relation": "AtLocation", "object": "orchestra house", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0072", "subject": "acoustic ceiling", "relation": "AtLocation", "object": "room", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0073", "subject": "acoustic ceiling", "relation": "AtLocation", "object": "theater", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0074", "subject": "acoustic ceiling in", "relation": "AtLocation", "object": "music hall", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0075", "subject": "acoustic guitar", "relation": "AtLocation", "object": "band", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0076", "subject": "acoustic guitar", "relation": "AtLocation", "object": "closet", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0077", "subject": "acoustic guitar", "relation": "AtLocation", "object": "folk band", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0078", "subject": "acoustic guitar", "relation": "AtLocation", "object": "folk concert", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0079", "subject": "acoustic guitar", "relation": "AtLocation", "object": "folk group", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0080", "subject": "acoustic guitar", "relation": "AtLocation", "object": "house", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0081", "subject": "acoustic guitar", "relation": "AtLocation", "object": "lesbian bar", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0082", "subject": "acoustic guitar", "relation": "AtLocation", "object": "music room", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0083", "subject": "acoustic guitar", "relation": "AtLocation", "object": "music shop", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0084", "subject": "acoustic guitar", "relation": "AtLocation", "object": "rock band", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0085", "subject": "acoustic guitar", "relation": "AtLocation", "object": "studio", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0086", "subject": "acrylic", "relation": "AtLocation", "object": "art store", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0087", "subject": "acrylic", "relation": "AtLocation", "object": "factory", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0088", "subject": "acrylic", "relation": "AtLocation", "object": "paint", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0089", "subject": "acrylic", "relation": "AtLocation", "object": "paint store", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0090", "subject": "acrylic", "relation": "AtLocation", "object": "painting", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0091", "subject": "action figure", "relation": "AtLocation", "object": "bathtub", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0092", "subject": "action figure", "relation": "AtLocation", "object": "child's room", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0093", "subject": "action figure", "relation": "AtLocation", "object": "little boy's toy box", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0094", "subject": "action figure", "relation": "AtLocation", "object": "theater", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0095", "subject": "action figure", "relation": "AtLocation", "object": "toy chest", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0096", "subject": "action figure", "relation": "AtLocation", "object": "toy department", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0097", "subject": "action figure", "relation": "AtLocation", "object": "toy store", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0098", "subject": "action figure", "relation": "AtLocation", "object": "toybox", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0099", "subject": "action figures", "relation": "AtLocation", "object": "toy store", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0100", "subject": "activists", "relation": "AtLocation", "object": "demonstration", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0101", "subject": "actor", "relation": "AtLocation", "object": "movie", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0102", "subject": "actor", "relation": "AtLocation", "object": "show", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0103", "subject": "actor", "relation": "AtLocation", "object": "television", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0104", "subject": "actor", "relation": "AtLocation", "object": "theater", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0105", "subject": "actors", "relation": "AtLocation", "object": "movie", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0106", "subject": "actors", "relation": "AtLocation", "object": "movies", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0107", "subject": "actors", "relation": "AtLocation", "object": "opera", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0108", "subject": "actors", "relation": "AtLocation", "object": "play", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0109", "subject": "actors", "relation": "AtLocation", "object": "show", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0110", "subject": "actors", "relation": "AtLocation", "object": "television", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0111", "subject": "actors", "relation": "AtLocation", "object": "theater", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0112", "subject": "actors putting on play", "relation": "AtLocation", "object": "theatre", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0113", "subject": "actresses", "relation": "AtLocation", "object": "movies", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0114", "subject": "ad", "relation": "AtLocation", "object": "newspaper", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0115", "subject": "adam's peak", "relation": "AtLocation", "object": "sri lanka", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0116", "subject": "adamorobe sign language", "relation": "AtLocation", "object": "ghana", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0117", "subject": "address", "relation": "AtLocation", "object": "house", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0118", "subject": "address", "relation": "AtLocation", "object": "telephone book", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0119", "subject": "address book", "relation": "AtLocation", "object": "desk", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0120", "subject": "address book", "relation": "AtLocation", "object": "suitcase", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0121", "subject": "address books", "relation": "AtLocation", "object": "cabinet", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0122", "subject": "address label", "relation": "AtLocation", "object": "desk drawer", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0123", "subject": "address label", "relation": "AtLocation", "object": "drawer", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0124", "subject": "address label", "relation": "AtLocation", "object": "envelope", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0125", "subject": "address label", "relation": "AtLocation", "object": "junk mail", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0126", "subject": "address label", "relation": "AtLocation", "object": "office", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0127", "subject": "address label", "relation": "AtLocation", "object": "office supply store", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0128", "subject": "address label", "relation": "AtLocation", "object": "parcel", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0129", "subject": "address label", "relation": "AtLocation", "object": "printer", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0130", "subject": "address label", "relation": "AtLocation", "object": "trash", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0131", "subject": "addresses", "relation": "AtLocation", "object": "cabinet", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0132", "subject": "addresses", "relation": "AtLocation", "object": "phonebook", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0133", "subject": "adhesive bandage", "relation": "AtLocation", "object": "boo boo", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0134", "subject": "adhesive bandage", "relation": "AtLocation", "object": "bookshop", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0135", "subject": "adhesive bandage", "relation": "AtLocation", "object": "drug store", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0136", "subject": "adhesive bandage", "relation": "AtLocation", "object": "first aid kit", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0137", "subject": "adhesive bandage", "relation": "AtLocation", "object": "hospitals", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0138", "subject": "adhesive bandage", "relation": "AtLocation", "object": "medicine cabinet", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0139", "subject": "adhesive bandage", "relation": "AtLocation", "object": "pharmacy", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0140", "subject": "adhesive pad", "relation": "AtLocation", "object": "carpet", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0141", "subject": "adidas", "relation": "AtLocation", "object": "germany", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0142", "subject": "adirondack chairs", "relation": "AtLocation", "object": "porch", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0143", "subject": "adjenda", "relation": "AtLocation", "object": "meeting", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0144", "subject": "admiralty island", "relation": "AtLocation", "object": "abc islands", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0145", "subject": "admission ticket", "relation": "AtLocation", "object": "movie", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0146", "subject": "adonara", "relation": "AtLocation", "object": "lesser sunda islands", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0147", "subject": "ads", "relation": "AtLocation", "object": "newspaper", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0148", "subject": "adultery", "relation": "AtLocation", "object": "friend's wedding", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0149", "subject": "advertisement", "relation": "AtLocation", "object": "bus", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0150", "subject": "advertisement", "relation": "AtLocation", "object": "comercial", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0151", "subject": "advertisement", "relation": "AtLocation", "object": "email", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0152", "subject": "advertisement", "relation": "AtLocation", "object": "la ville", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0153", "subject": "advertisement", "relation": "AtLocation", "object": "magazine", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0154", "subject": "advertisement", "relation": "AtLocation", "object": "mail", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0155", "subject": "advertisement", "relation": "AtLocation", "object": "mail box", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0156", "subject": "advertisement", "relation": "AtLocation", "object": "store", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0157", "subject": "advertisement", "relation": "AtLocation", "object": "tv", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0158", "subject": "advertisement", "relation": "AtLocation", "object": "web page", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0159", "subject": "advertisement billboard", "relation": "AtLocation", "object": "bus stop", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0160", "subject": "advertisements", "relation": "AtLocation", "object": "mail bags", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0161", "subject": "advertisements", "relation": "AtLocation", "object": "mail box", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0162", "subject": "advertisements", "relation": "AtLocation", "object": "soccer game", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0163", "subject": "advertisements", "relation": "AtLocation", "object": "subway", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0164", "subject": "advertisements", "relation": "AtLocation", "object": "television", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0165", "subject": "advertising", "relation": "AtLocation", "object": "newspaper", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0166", "subject": "advertising panel", "relation": "AtLocation", "object": "advertising agency", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0167", "subject": "advertising panel", "relation": "AtLocation", "object": "airport", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0168", "subject": "advertising panel", "relation": "AtLocation", "object": "hockey rink", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0169", "subject": "advertising panel", "relation": "AtLocation", "object": "loo in metro stations", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0170", "subject": "advertising panel", "relation": "AtLocation", "object": "magazine", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0171", "subject": "advertising panel", "relation": "AtLocation", "object": "new york", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0172", "subject": "advertising panel", "relation": "AtLocation", "object": "newspaper", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0173", "subject": "advertising panel", "relation": "AtLocation", "object": "underground", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0174", "subject": "advertisments", "relation": "AtLocation", "object": "bus", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0175", "subject": "advertisments", "relation": "AtLocation", "object": "newspaper", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0176", "subject": "adverts", "relation": "AtLocation", "object": "magazine", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0177", "subject": "adverts", "relation": "AtLocation", "object": "mail", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0178", "subject": "advice", "relation": "AtLocation", "object": "doctor", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0179", "subject": "aeolic greek", "relation": "AtLocation", "object": "aeolis", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0180", "subject": "aeolic greek", "relation": "AtLocation", "object": "thessaly", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0181", "subject": "aerial bomb", "relation": "AtLocation", "object": "air", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0182", "subject": "aerial bomb", "relation": "AtLocation", "object": "airforce", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0183", "subject": "aerial bomb", "relation": "AtLocation", "object": "airplane", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0184", "subject": "aerial bomb", "relation": "AtLocation", "object": "military bomber", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0185", "subject": "aerial bomb", "relation": "AtLocation", "object": "plane", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0186", "subject": "aerial bomb", "relation": "AtLocation", "object": "stealth bomber", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0187", "subject": "aerial bomb", "relation": "AtLocation", "object": "war", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0188", "subject": "aetna", "relation": "AtLocation", "object": "united states", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0189", "subject": "affairs", "relation": "AtLocation", "object": "work", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0190", "subject": "afrikaans", "relation": "AtLocation", "object": "namibia", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0191", "subject": "afrikaans", "relation": "AtLocation", "object": "south africa", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0192", "subject": "afro seminole creole", "relation": "AtLocation", "object": "mexico", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0193", "subject": "afro seminole creole", "relation": "AtLocation", "object": "united states", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0194", "subject": "after shave lotion", "relation": "AtLocation", "object": "cabinet", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0195", "subject": "agco", "relation": "AtLocation", "object": "united states", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0196", "subject": "agenda", "relation": "AtLocation", "object": "meeting", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0197", "subject": "agendas", "relation": "AtLocation", "object": "conference", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0198", "subject": "agent provocateur", "relation": "AtLocation", "object": "london", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0199", "subject": "agent provocateur", "relation": "AtLocation", "object": "united kingdom", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0200", "subject": "aggravation", "relation": "AtLocation", "object": "mall", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0201", "subject": "agora", "relation": "AtLocation", "object": "kazan", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0202", "subject": "agora", "relation": "AtLocation", "object": "russia", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0203", "subject": "agro", "relation": "AtLocation", "object": "kiev", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0204", "subject": "agro", "relation": "AtLocation", "object": "ukraine", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0205", "subject": "ahy", "relation": "AtLocation", "object": "loft", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0206", "subject": "aiplane", "relation": "AtLocation", "object": "airport", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0207", "subject": "air", "relation": "AtLocation", "object": "airport", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0208", "subject": "air", "relation": "AtLocation", "object": "balloon", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0209", "subject": "air", "relation": "AtLocation", "object": "bridge", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0210", "subject": "air", "relation": "AtLocation", "object": "bus", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0211", "subject": "air", "relation": "AtLocation", "object": "cupboard", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0212", "subject": "air", "relation": "AtLocation", "object": "house", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0213", "subject": "air", "relation": "AtLocation", "object": "jar", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0214", "subject": "air", "relation": "AtLocation", "object": "lungs", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0215", "subject": "air", "relation": "AtLocation", "object": "mail box", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0216", "subject": "air", "relation": "AtLocation", "object": "pocket", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0217", "subject": "air", "relation": "AtLocation", "object": "sky", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0218", "subject": "air", "relation": "AtLocation", "object": "space shuttle", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0219", "subject": "air", "relation": "AtLocation", "object": "supermarket", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0220", "subject": "air", "relation": "AtLocation", "object": "surface of earth", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0221", "subject": "air", "relation": "AtLocation", "object": "theatre", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0222", "subject": "air", "relation": "AtLocation", "object": "top of mountain", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0223", "subject": "air", "relation": "AtLocation", "object": "train station", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0224", "subject": "air bubble", "relation": "AtLocation", "object": "water", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0225", "subject": "air bubbles", "relation": "AtLocation", "object": "water", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0226", "subject": "air conditioner", "relation": "AtLocation", "object": "building", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0227", "subject": "air conditioner", "relation": "AtLocation", "object": "car", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0228", "subject": "air conditioner", "relation": "AtLocation", "object": "computer room", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0229", "subject": "air conditioner", "relation": "AtLocation", "object": "hard", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0230", "subject": "air conditioner", "relation": "AtLocation", "object": "home", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0231", "subject": "air conditioner", "relation": "AtLocation", "object": "house", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0232", "subject": "air conditioner", "relation": "AtLocation", "object": "office", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0233", "subject": "air conditioner", "relation": "AtLocation", "object": "office building", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0234", "subject": "air conditioner", "relation": "AtLocation", "object": "south", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0235", "subject": "air conditioner", "relation": "AtLocation", "object": "texas", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0236", "subject": "air conditioner", "relation": "AtLocation", "object": "warm climates", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0237", "subject": "air conditioning", "relation": "AtLocation", "object": "car", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0238", "subject": "air conditioning", "relation": "AtLocation", "object": "hot room", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0239", "subject": "air conditioning", "relation": "AtLocation", "object": "house", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0240", "subject": "air conditioning", "relation": "AtLocation", "object": "icerink", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0241", "subject": "air conditioning", "relation": "AtLocation", "object": "movie theatre", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0242", "subject": "air conditioning", "relation": "AtLocation", "object": "offices", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0243", "subject": "air conditioning", "relation": "AtLocation", "object": "rich home", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0244", "subject": "air freshener", "relation": "AtLocation", "object": "car", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0245", "subject": "air hockey game set", "relation": "AtLocation", "object": "sporting goods store", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0246", "subject": "air hostess", "relation": "AtLocation", "object": "plane", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0247", "subject": "air mail stamp", "relation": "AtLocation", "object": "desk", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0248", "subject": "air rifle", "relation": "AtLocation", "object": "sporting goods store", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0249", "subject": "air terminal", "relation": "AtLocation", "object": "air port", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0250", "subject": "air terminal", "relation": "AtLocation", "object": "airport", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0251", "subject": "air terminal", "relation": "AtLocation", "object": "city", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0252", "subject": "air terminal", "relation": "AtLocation", "object": "detroit", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0253", "subject": "air terminal", "relation": "AtLocation", "object": "international air port", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0254", "subject": "air ticket", "relation": "AtLocation", "object": "air terminal", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0255", "subject": "air ticket", "relation": "AtLocation", "object": "airline terminal", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0256", "subject": "air ticket", "relation": "AtLocation", "object": "airport", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0257", "subject": "air ticket", "relation": "AtLocation", "object": "billfold", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0258", "subject": "air ticket", "relation": "AtLocation", "object": "briefcase", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0259", "subject": "air ticket", "relation": "AtLocation", "object": "envelope", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0260", "subject": "air ticket", "relation": "AtLocation", "object": "suitcase", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0261", "subject": "air traffic control tower", "relation": "AtLocation", "object": "airport", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0262", "subject": "air traffic controller", "relation": "AtLocation", "object": "airport", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0263", "subject": "aircraft", "relation": "AtLocation", "object": "air", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0264", "subject": "aircraft", "relation": "AtLocation", "object": "sky", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0265", "subject": "airline representatives", "relation": "AtLocation", "object": "airport", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0266", "subject": "airline seat", "relation": "AtLocation", "object": "airplane factory", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0267", "subject": "airline seat", "relation": "AtLocation", "object": "front of plane", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0268", "subject": "airline seat", "relation": "AtLocation", "object": "onboard plane", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0269", "subject": "airlock", "relation": "AtLocation", "object": "space shuttle", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0270", "subject": "airplane", "relation": "AtLocation", "object": "air", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0271", "subject": "airplane", "relation": "AtLocation", "object": "airplane hangar", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0272", "subject": "airplane", "relation": "AtLocation", "object": "hangar", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0273", "subject": "airplane", "relation": "AtLocation", "object": "hanger", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0274", "subject": "airplane", "relation": "AtLocation", "object": "military base", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0275", "subject": "airplane", "relation": "AtLocation", "object": "sky", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0276", "subject": "airplane seat", "relation": "AtLocation", "object": "airplane", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0277", "subject": "airplane seat", "relation": "AtLocation", "object": "plane", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0278", "subject": "airplanes", "relation": "AtLocation", "object": "air", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0279", "subject": "airplanes", "relation": "AtLocation", "object": "aircraft carrier", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0280", "subject": "airplanes", "relation": "AtLocation", "object": "military base", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0281", "subject": "airplanes", "relation": "AtLocation", "object": "sky", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0282", "subject": "airplanes", "relation": "AtLocation", "object": "war", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0283", "subject": "airport", "relation": "AtLocation", "object": "city", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0284", "subject": "airport", "relation": "AtLocation", "object": "suitcase", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0285", "subject": "airy", "relation": "AtLocation", "object": "mars", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0286", "subject": "aisle", "relation": "AtLocation", "object": "building", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0287", "subject": "aisle", "relation": "AtLocation", "object": "church", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0288", "subject": "aisle", "relation": "AtLocation", "object": "department store", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0289", "subject": "aisle", "relation": "AtLocation", "object": "drugstore", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0290", "subject": "aisle", "relation": "AtLocation", "object": "grocery store", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0291", "subject": "aisle", "relation": "AtLocation", "object": "guide rope", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0292", "subject": "aisle", "relation": "AtLocation", "object": "sanctuary", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0293", "subject": "aisle", "relation": "AtLocation", "object": "store", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0294", "subject": "aisle", "relation": "AtLocation", "object": "supermarket", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0295", "subject": "aisles", "relation": "AtLocation", "object": "plane", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0296", "subject": "aisles", "relation": "AtLocation", "object": "store", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0297", "subject": "aisles", "relation": "AtLocation", "object": "theatre", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0298", "subject": "aker", "relation": "AtLocation", "object": "norway", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0299", "subject": "aker", "relation": "AtLocation", "object": "oslo", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0300", "subject": "al gore", "relation": "AtLocation", "object": "orbit", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0301", "subject": "alarm clock", "relation": "AtLocation", "object": "home", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0302", "subject": "albertina", "relation": "AtLocation", "object": "austria", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0303", "subject": "albertina", "relation": "AtLocation", "object": "vienna", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0304", "subject": "album", "relation": "AtLocation", "object": "book case", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0305", "subject": "album", "relation": "AtLocation", "object": "book shelf", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0306", "subject": "album", "relation": "AtLocation", "object": "cd case", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0307", "subject": "album", "relation": "AtLocation", "object": "closet", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0308", "subject": "album", "relation": "AtLocation", "object": "music store", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0309", "subject": "album", "relation": "AtLocation", "object": "musicstore", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0310", "subject": "album", "relation": "AtLocation", "object": "philatelist's shop", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0311", "subject": "album", "relation": "AtLocation", "object": "photo shop", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0312", "subject": "album", "relation": "AtLocation", "object": "record store", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0313", "subject": "album", "relation": "AtLocation", "object": "recordstore", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0314", "subject": "album", "relation": "AtLocation", "object": "scrapbook store", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0315", "subject": "alchohol", "relation": "AtLocation", "object": "friend's wedding", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0316", "subject": "alcholic drinks", "relation": "AtLocation", "object": "bar", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0317", "subject": "alcohol", "relation": "AtLocation", "object": "beer", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0318", "subject": "alcohol", "relation": "AtLocation", "object": "chemistry lab", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0319", "subject": "alcohol", "relation": "AtLocation", "object": "distillery", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0320", "subject": "alcohol", "relation": "AtLocation", "object": "fraternity house", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0321", "subject": "alcohol", "relation": "AtLocation", "object": "fridge", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0322", "subject": "alcohol", "relation": "AtLocation", "object": "friend's wedding", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0323", "subject": "alcohol", "relation": "AtLocation", "object": "plane", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0324", "subject": "alcohol", "relation": "AtLocation", "object": "pub", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0325", "subject": "alcohol", "relation": "AtLocation", "object": "restaurants", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0326", "subject": "alcohol", "relation": "AtLocation", "object": "supermarket", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0327", "subject": "alcohol", "relation": "AtLocation", "object": "wine", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0328", "subject": "alcohol at parties", "relation": "AtLocation", "object": "fraternity house", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0329", "subject": "alcohol drinks", "relation": "AtLocation", "object": "bar", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0330", "subject": "alcoholic", "relation": "AtLocation", "object": "bar", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0331", "subject": "alcoholic", "relation": "AtLocation", "object": "bridge", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0332", "subject": "alcoholic", "relation": "AtLocation", "object": "homeless shelter", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0333", "subject": "alcoholic", "relation": "AtLocation", "object": "neighbor's house", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0334", "subject": "alcoholic", "relation": "AtLocation", "object": "park", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0335", "subject": "alcoholic", "relation": "AtLocation", "object": "prison", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0336", "subject": "alcoholic beverage", "relation": "AtLocation", "object": "bar", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0337", "subject": "alcoholic beverages", "relation": "AtLocation", "object": "bar", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0338", "subject": "alcoholic beverages", "relation": "AtLocation", "object": "bowling alley", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0339", "subject": "alcoholic beverages", "relation": "AtLocation", "object": "fraternity house", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0340", "subject": "alcoholic drink", "relation": "AtLocation", "object": "pub", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0341", "subject": "alcoholics", "relation": "AtLocation", "object": "bar", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0342", "subject": "alcoholics", "relation": "AtLocation", "object": "fraternity house", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0343", "subject": "alcoholics", "relation": "AtLocation", "object": "liquor store", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0344", "subject": "alcon", "relation": "AtLocation", "object": "switzerland", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0345", "subject": "alcon", "relation": "AtLocation", "object": "united states", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0346", "subject": "alemannic german", "relation": "AtLocation", "object": "austria", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0347", "subject": "alemannic german", "relation": "AtLocation", "object": "france", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0348", "subject": "alemannic german", "relation": "AtLocation", "object": "germany", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0349", "subject": "alemannic german", "relation": "AtLocation", "object": "italy", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0350", "subject": "alemannic german", "relation": "AtLocation", "object": "liechtenstein", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0351", "subject": "alemannic german", "relation": "AtLocation", "object": "piedmont", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0352", "subject": "alemannic german", "relation": "AtLocation", "object": "swabia", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0353", "subject": "alemannic german", "relation": "AtLocation", "object": "switzerland", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0354", "subject": "alemannic german", "relation": "AtLocation", "object": "venezuela", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0355", "subject": "alert police officers", "relation": "AtLocation", "object": "roadblock", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0356", "subject": "aletschhorn", "relation": "AtLocation", "object": "switzerland", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0357", "subject": "aletschhorn", "relation": "AtLocation", "object": "valais", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0358", "subject": "aleutian islands", "relation": "AtLocation", "object": "bering sea", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0359", "subject": "aleutian islands", "relation": "AtLocation", "object": "pacific ocean", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0360", "subject": "algae", "relation": "AtLocation", "object": "swimming pool", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0361", "subject": "algae", "relation": "AtLocation", "object": "water", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0362", "subject": "algae", "relation": "AtLocation", "object": "waterfall", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0363", "subject": "algerian arabic", "relation": "AtLocation", "object": "algeria", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0364", "subject": "alice in wonderland", "relation": "AtLocation", "object": "disneyland", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0365", "subject": "aliens", "relation": "AtLocation", "object": "outer space", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0366", "subject": "aliens", "relation": "AtLocation", "object": "roswell", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0367", "subject": "aliens", "relation": "AtLocation", "object": "space", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0368", "subject": "aliens", "relation": "AtLocation", "object": "universe", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0369", "subject": "aliens", "relation": "AtLocation", "object": "weekly world news", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0370", "subject": "alkaloid", "relation": "AtLocation", "object": "republic of macedonia", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0371", "subject": "alkaloid", "relation": "AtLocation", "object": "skopje", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0372", "subject": "all around", "relation": "AtLocation", "object": "air", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0373", "subject": "all books", "relation": "AtLocation", "object": "home", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0374", "subject": "all lazy employees", "relation": "AtLocation", "object": "water cooler", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0375", "subject": "all sorts of clothes", "relation": "AtLocation", "object": "clothes drawer", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0376", "subject": "all types of stores", "relation": "AtLocation", "object": "mall", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0377", "subject": "alley", "relation": "AtLocation", "object": "big city", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0378", "subject": "alley", "relation": "AtLocation", "object": "towns", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0379", "subject": "alligator", "relation": "AtLocation", "object": "beach", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0380", "subject": "alligator", "relation": "AtLocation", "object": "swamp", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0381", "subject": "almond butter", "relation": "AtLocation", "object": "jar", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0382", "subject": "aloe vera", "relation": "AtLocation", "object": "medicine chest", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0383", "subject": "alot of alcohol", "relation": "AtLocation", "object": "party", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0384", "subject": "alot of empty beer bottles", "relation": "AtLocation", "object": "fraternity house", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0385", "subject": "alot of poor people", "relation": "AtLocation", "object": "zimbabwe", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0386", "subject": "alphabetized articles", "relation": "AtLocation", "object": "encyclopedia", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0387", "subject": "alpine", "relation": "AtLocation", "object": "dieppe", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0388", "subject": "alpine", "relation": "AtLocation", "object": "france", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0389", "subject": "alta", "relation": "AtLocation", "object": "athens", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0390", "subject": "alta", "relation": "AtLocation", "object": "greece", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0391", "subject": "altar", "relation": "AtLocation", "object": "ceremony", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0392", "subject": "altar", "relation": "AtLocation", "object": "sanctuary", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0393", "subject": "altar", "relation": "AtLocation", "object": "synagogue", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0394", "subject": "altar", "relation": "AtLocation", "object": "temple", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0395", "subject": "altar server", "relation": "AtLocation", "object": "church", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0396", "subject": "altenburg", "relation": "AtLocation", "object": "germany", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0397", "subject": "altenburg", "relation": "AtLocation", "object": "hesse", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0398", "subject": "alter", "relation": "AtLocation", "object": "church", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0399", "subject": "althing", "relation": "AtLocation", "object": "iceland", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0400", "subject": "alto", "relation": "AtLocation", "object": "chior", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0401", "subject": "alto", "relation": "AtLocation", "object": "choir", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0402", "subject": "alto", "relation": "AtLocation", "object": "concerto", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0403", "subject": "alto", "relation": "AtLocation", "object": "marching band", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0404", "subject": "alto", "relation": "AtLocation", "object": "symphony", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0405", "subject": "alu", "relation": "AtLocation", "object": "ethiopia", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0406", "subject": "aluminum foil", "relation": "AtLocation", "object": "trash", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0407", "subject": "amager", "relation": "AtLocation", "object": "øresund", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0408", "subject": "amdo tibetan", "relation": "AtLocation", "object": "china", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0409", "subject": "amdo tibetan", "relation": "AtLocation", "object": "gansu", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0410", "subject": "amdo tibetan", "relation": "AtLocation", "object": "qinghai", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0411", "subject": "amdo tibetan", "relation": "AtLocation", "object": "sichuan", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0412", "subject": "amdo tibetan", "relation": "AtLocation", "object": "tibet", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0413", "subject": "american bricks set", "relation": "AtLocation", "object": "toy store", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0414", "subject": "american civil war", "relation": "AtLocation", "object": "atlantic ocean", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0415", "subject": "american civil war", "relation": "AtLocation", "object": "northeastern united states", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0416", "subject": "american civil war", "relation": "AtLocation", "object": "southern united states", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0417", "subject": "american civil war", "relation": "AtLocation", "object": "western united states", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0418", "subject": "american english", "relation": "AtLocation", "object": "united states", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0419", "subject": "american express", "relation": "AtLocation", "object": "new york city", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0420", "subject": "american flag", "relation": "AtLocation", "object": "moon", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0421", "subject": "american flag", "relation": "AtLocation", "object": "suface of moon", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0422", "subject": "american flags left behind by astronauts", "relation": "AtLocation", "object": "suface of moon", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0423", "subject": "american revolutionary war", "relation": "AtLocation", "object": "atlantic ocean", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0424", "subject": "american revolutionary war", "relation": "AtLocation", "object": "balearic islands", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0425", "subject": "american revolutionary war", "relation": "AtLocation", "object": "caribbean sea", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0426", "subject": "american revolutionary war", "relation": "AtLocation", "object": "gibraltar", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0427", "subject": "american revolutionary war", "relation": "AtLocation", "object": "indian subcontinent", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0428", "subject": "american sign language", "relation": "AtLocation", "object": "central africa", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0429", "subject": "american sign language", "relation": "AtLocation", "object": "north america", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0430", "subject": "american sign language", "relation": "AtLocation", "object": "west africa", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0431", "subject": "americans", "relation": "AtLocation", "object": "america", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0432", "subject": "amharic", "relation": "AtLocation", "object": "ethiopia", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0433", "subject": "ammonia", "relation": "AtLocation", "object": "cabinet", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0434", "subject": "ammunition", "relation": "AtLocation", "object": "gun", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0435", "subject": "ammunition", "relation": "AtLocation", "object": "war", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0436", "subject": "ammunition depot", "relation": "AtLocation", "object": "military base", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0437", "subject": "amnesia", "relation": "AtLocation", "object": "ibiza", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0438", "subject": "amoeba", "relation": "AtLocation", "object": "water", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0439", "subject": "amonia", "relation": "AtLocation", "object": "chemistry lab", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0440", "subject": "amoxicillin", "relation": "AtLocation", "object": "medicine chest", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0441", "subject": "amphitheatre", "relation": "AtLocation", "object": "greece", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0442", "subject": "amphitheatre", "relation": "AtLocation", "object": "movie house", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0443", "subject": "amphitheatre", "relation": "AtLocation", "object": "outside", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0444", "subject": "amphitheatre", "relation": "AtLocation", "object": "park", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0445", "subject": "ampicillin", "relation": "AtLocation", "object": "medicine chest", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0446", "subject": "amunition", "relation": "AtLocation", "object": "sporting goods store", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0447", "subject": "amusement", "relation": "AtLocation", "object": "circus", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0448", "subject": "amusement", "relation": "AtLocation", "object": "disneyland", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0449", "subject": "amusement", "relation": "AtLocation", "object": "movies", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0450", "subject": "amusement ride", "relation": "AtLocation", "object": "carnival", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0451", "subject": "amusement ride", "relation": "AtLocation", "object": "disneyland", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0452", "subject": "amusements", "relation": "AtLocation", "object": "fairgrounds", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0453", "subject": "amway", "relation": "AtLocation", "object": "michigan", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0454", "subject": "amway", "relation": "AtLocation", "object": "united states", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0455", "subject": "analgesic", "relation": "AtLocation", "object": "medicine chest", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0456", "subject": "anarchy", "relation": "AtLocation", "object": "england", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0457", "subject": "anarchy", "relation": "AtLocation", "object": "normandy", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0458", "subject": "ance", "relation": "AtLocation", "object": "mcdonalds", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0459", "subject": "anchor", "relation": "AtLocation", "object": "end of line", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0460", "subject": "ancient greek", "relation": "AtLocation", "object": "mediterranean sea", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0461", "subject": "and apple", "relation": "AtLocation", "object": "apple orchard", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0462", "subject": "andaman islands", "relation": "AtLocation", "object": "bay of bengal", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0463", "subject": "anecdote", "relation": "AtLocation", "object": "story", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0464", "subject": "anemone", "relation": "AtLocation", "object": "aquarium store", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0465", "subject": "anemone", "relation": "AtLocation", "object": "ass", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0466", "subject": "anemone", "relation": "AtLocation", "object": "atlantic ocean", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0467", "subject": "anemone", "relation": "AtLocation", "object": "big sur", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0468", "subject": "anemone", "relation": "AtLocation", "object": "biology book", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0469", "subject": "anemone", "relation": "AtLocation", "object": "book", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0470", "subject": "anemone", "relation": "AtLocation", "object": "bottom of ocean", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0471", "subject": "anemone", "relation": "AtLocation", "object": "bottom of sea", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0472", "subject": "anemone", "relation": "AtLocation", "object": "bug", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0473", "subject": "anemone", "relation": "AtLocation", "object": "bulb catalog", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0474", "subject": "anemone", "relation": "AtLocation", "object": "cartoon", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0475", "subject": "anemone", "relation": "AtLocation", "object": "catalog", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0476", "subject": "anemone", "relation": "AtLocation", "object": "clusters of rocks", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0477", "subject": "anemone", "relation": "AtLocation", "object": "coral sea", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0478", "subject": "anemone", "relation": "AtLocation", "object": "dictionary", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0479", "subject": "anemone", "relation": "AtLocation", "object": "dirt", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0480", "subject": "anemone", "relation": "AtLocation", "object": "dirt growing", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0481", "subject": "anemone", "relation": "AtLocation", "object": "dont like", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0482", "subject": "anemone", "relation": "AtLocation", "object": "encyclopedia under letter", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0483", "subject": "anemone", "relation": "AtLocation", "object": "field of flowers", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0484", "subject": "anemone", "relation": "AtLocation", "object": "floral arrangement", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0485", "subject": "anemone", "relation": "AtLocation", "object": "florida keys", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0486", "subject": "anemone", "relation": "AtLocation", "object": "flower bed", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0487", "subject": "anemone", "relation": "AtLocation", "object": "flower pot", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0488", "subject": "anemone", "relation": "AtLocation", "object": "flower shop", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0489", "subject": "anemone", "relation": "AtLocation", "object": "flower vase arranged", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0490", "subject": "anemone", "relation": "AtLocation", "object": "forest", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0491", "subject": "anemone", "relation": "AtLocation", "object": "garden shop", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0492", "subject": "anemone", "relation": "AtLocation", "object": "gardening catalog", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0493", "subject": "anemone", "relation": "AtLocation", "object": "greenhouse", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0494", "subject": "anemone", "relation": "AtLocation", "object": "gulf of mexico", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0495", "subject": "anemone", "relation": "AtLocation", "object": "intertidal zone", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0496", "subject": "anemone", "relation": "AtLocation", "object": "it's natural habitat", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0497", "subject": "anemone", "relation": "AtLocation", "object": "japan", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0498", "subject": "anemone", "relation": "AtLocation", "object": "kelp forest", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0499", "subject": "anemone", "relation": "AtLocation", "object": "lab dish", "source": "peandrew/conceptnet_en_simple"}
+{"id": "conceptnet_0500", "subject": "anemone", "relation": "AtLocation", "object": "maine", "source": "peandrew/conceptnet_en_simple"}

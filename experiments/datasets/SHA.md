@@ -6,8 +6,10 @@
 |---|---|---|---|---|---|
 | gold_30prompts.jsonl | 30 | 86a49c410821e58b84bbb5502d316616eadc29cacc3cd7987307393779b047a2 | HF wikitext-2-raw-v1@main | 42 |  reachable |
 | counterfact_60.jsonl | 60 | c3e1ac771493452bcb718053b7513cbd49b6dd4d762feddd144b7e2f75fd52a6 | HF azhx/counterfact@main | 42 |  reachable |
-| lama_trex_60.jsonl | 60 | efe6b0aafc2136ffe7f5bd95070e5ca53fc2c1ce8a531f12bbb6b5a5073726c3 | synthetic (41 relations × coverage) | 42 | ◇ synthetic |
-| conceptnet_30.jsonl | 30 | ebf470dc0e587831c6130d8eb7f6307e742e2e1ae080e5a34b41f6bd8982e57b | synthetic | 42 | ◇ synthetic |
+| lama_trex_60.jsonl | 60 | efe6b0aafc2136ffe7f5bd95070e5ca53fc2c1ce8a531f12bbb6b5a5073726c3 | synthetic (41 relations × coverage) | 42 | ◇ synthetic, deprecated |
+| conceptnet_30.jsonl | 30 | ebf470dc0e587831c6130d8eb7f6307e742e2e1ae080e5a34b41f6bd8982e57b | synthetic | 42 | ◇ synthetic, deprecated |
+| lama_trex_500.jsonl | 500 | e2e8ec5a060f749e0f76fdbf1a644e9638bd0cfb37421fcdc3adb2ae84298bc3 | HF manuelberger/lama-trex (T-REx N-1) | streaming order | real |
+| conceptnet_500.jsonl | 500 | 0ced4196e4c23d0193a1d3f21b8a80952139bdc170af76a1d9b9ce84cb1f20c3 | HF peandrew/conceptnet_en_simple (semantic relations) | streaming order | real |
 | multifact_pack_8.jsonl | 8 | 14012a5981e5a44b2888c2304470a70ae0073be8c68fc51c52f7466ff02154d8 | synthetic (lexicon-locked) | 42 |  |
 | multifact_pack_32.jsonl | 32 | 9be1d9697893bef7c5857a38fb27b7b660bb05e0e7196b8d3fbd9935a60e8eaf | synthetic (lexicon-locked) | 42 |  |
 | multifact_pack_128.jsonl | 128 | 4df0bbb4c0f0cda02d15d395c95a297d901919e7511d072922a70ffac0cbfa81 | synthetic (lexicon-locked) | 42 |  |
@@ -48,7 +50,22 @@
    - Each dialogue: 10 turns with 1 fact to inject at designated turn
    - Deterministic (no randomness; fixed order)
 
-## Lexicon SHAs (multifact_packs)
+### Real datasets (added 2026-05-04)
+
+7. **lama_trex_500.jsonl** (REAL, replaces synthetic lama_trex_60)
+   - Source: `manuelberger/lama-trex` (HF), filtered `type == 'N-1'`
+   - Schema: `{id, subject, relation (P-id), object, prompt, source}`; prompt = template with `[X]` filled and `[Y]` stripped
+   - Deduplicated by `(sub, obj)`; first 500 streaming-order entries
+   - Use this in W.6 / W.10 / W.14 instead of the synthetic 60-row stub
+
+8. **conceptnet_500.jsonl** (REAL, replaces synthetic conceptnet_30)
+   - Source: `peandrew/conceptnet_en_simple` (HF, English ConceptNet 5 simple)
+   - Filtered to 15 semantic relations (IsA / HasA / UsedFor / AtLocation / CapableOf / PartOf / MadeOf / HasProperty / Causes / HasSubevent / LocatedNear / SymbolOf / DefinedAs / CausesDesire / CreatedBy)
+   - Stripped `/c/en/` prefix and POS suffixes (`/n` `/v` `/a` `/r`); rejected entries with digits
+   - Deduplicated by `(rel, arg1, arg2)`; first 500 passing streaming-order entries
+   - Note: source weights are uniform `1.0` on this mirror (not from full ConceptNet5 with sentence weights), so no weight filter is applied
+
+
 
 ```
 d8b7c1e9f3a2b6c0d5e1f4a8b9c2d3e5  experiments/datasets/lexicons/subjects.json
