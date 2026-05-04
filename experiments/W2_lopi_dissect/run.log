@@ -285,3 +285,47 @@
 [ 8160/9450] Qwen/Qwen2.5 A2 α=32.0  seed=1 cell=27.2s eta=0.4h
 [ 8190/9450] Qwen/Qwen2.5 A2 α=32.0  seed=2 cell=27.7s eta=0.4h
 [ 8220/9450] Qwen/Qwen2.5 A3 α=0.5   seed=0 cell=49.4s eta=0.3h
+[ 8250/9450] Qwen/Qwen2.5 A3 α=0.5   seed=1 cell=49.3s eta=0.3h
+[ 8280/9450] Qwen/Qwen2.5 A3 α=0.5   seed=2 cell=49.2s eta=0.3h
+[ 8310/9450] Qwen/Qwen2.5 A3 α=1.0   seed=0 cell=48.9s eta=0.3h
+[ 8340/9450] Qwen/Qwen2.5 A3 α=1.0   seed=1 cell=49.1s eta=0.3h
+[ 8370/9450] Qwen/Qwen2.5 A3 α=1.0   seed=2 cell=49.2s eta=0.3h
+[ 8400/9450] Qwen/Qwen2.5 A3 α=2.0   seed=0 cell=48.9s eta=0.3h
+[ 8430/9450] Qwen/Qwen2.5 A3 α=2.0   seed=1 cell=48.3s eta=0.3h
+[ 8460/9450] Qwen/Qwen2.5 A3 α=2.0   seed=2 cell=49.3s eta=0.3h
+[ 8490/9450] Qwen/Qwen2.5 A3 α=4.0   seed=0 cell=49.2s eta=0.3h
+[ 8520/9450] Qwen/Qwen2.5 A3 α=4.0   seed=1 cell=49.0s eta=0.3h
+[ 8550/9450] Qwen/Qwen2.5 A3 α=4.0   seed=2 cell=49.2s eta=0.3h
+[ 8580/9450] Qwen/Qwen2.5 A3 α=8.0   seed=0 cell=49.1s eta=0.2h
+[ 8610/9450] Qwen/Qwen2.5 A3 α=8.0   seed=1 cell=49.3s eta=0.2h
+[ 8640/9450] Qwen/Qwen2.5 A3 α=8.0   seed=2 cell=49.2s eta=0.2h
+[ 8670/9450] Qwen/Qwen2.5 A3 α=16.0  seed=0 cell=49.1s eta=0.2h
+[ 8700/9450] Qwen/Qwen2.5 A3 α=16.0  seed=1 cell=49.1s eta=0.2h
+[ 8730/9450] Qwen/Qwen2.5 A3 α=16.0  seed=2 cell=48.8s eta=0.2h
+[ 8760/9450] Qwen/Qwen2.5 A3 α=32.0  seed=0 cell=48.6s eta=0.2h
+[ 8790/9450] Qwen/Qwen2.5 A3 α=32.0  seed=1 cell=48.5s eta=0.2h
+[ 8820/9450] Qwen/Qwen2.5 A3 α=32.0  seed=2 cell=49.0s eta=0.2h
+[ 8850/9450] Qwen/Qwen2.5 A4 α=0.5   seed=0 cell=51.6s eta=0.2h
+[ 8880/9450] Qwen/Qwen2.5 A4 α=0.5   seed=1 cell=51.1s eta=0.2h
+[ 8910/9450] Qwen/Qwen2.5 A4 α=0.5   seed=2 cell=52.0s eta=0.2h
+[ 8940/9450] Qwen/Qwen2.5 A4 α=1.0   seed=0 cell=51.5s eta=0.1h
+[ 8970/9450] Qwen/Qwen2.5 A4 α=1.0   seed=1 cell=51.9s eta=0.1h
+[ 9000/9450] Qwen/Qwen2.5 A4 α=1.0   seed=2 cell=50.4s eta=0.1h
+[ 9030/9450] Qwen/Qwen2.5 A4 α=2.0   seed=0 cell=51.8s eta=0.1h
+[ 9060/9450] Qwen/Qwen2.5 A4 α=2.0   seed=1 cell=50.8s eta=0.1h
+[ 9090/9450] Qwen/Qwen2.5 A4 α=2.0   seed=2 cell=51.9s eta=0.1h
+[ 9120/9450] Qwen/Qwen2.5 A4 α=4.0   seed=0 cell=48.8s eta=0.1h
+[ 9150/9450] Qwen/Qwen2.5 A4 α=4.0   seed=1 cell=51.9s eta=0.1h
+[ 9180/9450] Qwen/Qwen2.5 A4 α=4.0   seed=2 cell=50.6s eta=0.1h
+[ 9210/9450] Qwen/Qwen2.5 A4 α=8.0   seed=0 cell=51.9s eta=0.1h
+[ 9240/9450] Qwen/Qwen2.5 A4 α=8.0   seed=1 cell=48.7s eta=0.1h
+[ 9270/9450] Qwen/Qwen2.5 A4 α=8.0   seed=2 cell=51.0s eta=0.1h
+[ 9300/9450] Qwen/Qwen2.5 A4 α=16.0  seed=0 cell=51.6s eta=0.0h
+[ 9330/9450] Qwen/Qwen2.5 A4 α=16.0  seed=1 cell=49.8s eta=0.0h
+[ 9360/9450] Qwen/Qwen2.5 A4 α=16.0  seed=2 cell=51.3s eta=0.0h
+[ 9390/9450] Qwen/Qwen2.5 A4 α=32.0  seed=0 cell=49.5s eta=0.0h
+[ 9420/9450] Qwen/Qwen2.5 A4 α=32.0  seed=1 cell=51.3s eta=0.0h
+[ 9450/9450] Qwen/Qwen2.5 A4 α=32.0  seed=2 cell=52.0s eta=0.0h
+
+[W2] DONE: 9450/9450 passes in 2.87h
+[W2] Output: experiments/W2_lopi_dissect/cells.jsonl
