@@ -1,0 +1,20 @@
+[W4] models=['gpt2-medium', 'Qwen/Qwen2.5-0.5B', 'Qwen/Qwen2.5-1.5B']
+[W4] methods=['none', 'lopi_default', 'caa'] alphas=[0.0, 0.25, 0.5, 1.0, 2.0, 4.0, 8.0] seeds=[0, 1, 2]
+[W4] n_prompts=30 resumed_done=5041
+[load] gpt2-medium  device=mps  dtype=torch.bfloat16
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/292 [00:00<?, ?it/s]Loading weights: 100%|██████████| 292/292 [00:00<00:00, 4506.65it/s]
+[W4] computing baselines for gpt2-medium
+[W4] CAA calibrated for gpt2-medium layer=8 ||s||=65.261
+[load] Qwen/Qwen2.5-0.5B  device=mps  dtype=torch.bfloat16
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 33776.19it/s]
+[W4] computing baselines for Qwen/Qwen2.5-0.5B
+[W4] CAA calibrated for Qwen/Qwen2.5-0.5B layer=5 ||s||=34.819
+[load] Qwen/Qwen2.5-1.5B  device=mps  dtype=torch.bfloat16
+Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]Loading weights: 100%|██████████| 338/338 [00:00<00:00, 34888.88it/s]
+[W4] computing baselines for Qwen/Qwen2.5-1.5B
+[W4] CAA calibrated for Qwen/Qwen2.5-1.5B layer=5 ||s||=164.260
+[W4] wrote env.json -> experiments/W4_caa_baseline/env.json
+
+[W4] DONE: 5040 forward passes in 0.6 min
+[W4] Output: experiments/W4_caa_baseline/cells.jsonl
