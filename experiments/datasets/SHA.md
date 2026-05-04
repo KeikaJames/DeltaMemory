@@ -10,6 +10,7 @@
 | conceptnet_30.jsonl | 30 | ebf470dc0e587831c6130d8eb7f6307e742e2e1ae080e5a34b41f6bd8982e57b | synthetic | 42 | ◇ synthetic, deprecated |
 | lama_trex_500.jsonl | 500 | e2e8ec5a060f749e0f76fdbf1a644e9638bd0cfb37421fcdc3adb2ae84298bc3 | HF manuelberger/lama-trex (T-REx N-1) | streaming order | real |
 | conceptnet_500.jsonl | 500 | 0ced4196e4c23d0193a1d3f21b8a80952139bdc170af76a1d9b9ce84cb1f20c3 | HF peandrew/conceptnet_en_simple (semantic relations) | streaming order | real |
+| caa_calibration_pairs.jsonl | 16 | f8d4d42a4677a0abcdd441715f31e5f16a3c7e567ce6e1710167e848ce8803ed | hand-authored (W.4 PREREG) | n/a | hand-authored |
 | multifact_pack_8.jsonl | 8 | 14012a5981e5a44b2888c2304470a70ae0073be8c68fc51c52f7466ff02154d8 | synthetic (lexicon-locked) | 42 |  |
 | multifact_pack_32.jsonl | 32 | 9be1d9697893bef7c5857a38fb27b7b660bb05e0e7196b8d3fbd9935a60e8eaf | synthetic (lexicon-locked) | 42 |  |
 | multifact_pack_128.jsonl | 128 | 4df0bbb4c0f0cda02d15d395c95a297d901919e7511d072922a70ffac0cbfa81 | synthetic (lexicon-locked) | 42 |  |
