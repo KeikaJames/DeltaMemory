@@ -41,10 +41,12 @@ try:
 except ImportError:  # pragma: no cover - hard dep, tested in CI
     FileLock = None  # type: ignore
 
-VERSION = "lopi_v33"
+VERSION = "ulopi_v35"
 META_FILENAME = "meta.json"
 TENSORS_FILENAME = "bank.safetensors"
 LOCK_FILENAME = ".lock"
+# v3.4 banks (lopi_v33) remain readable: see _LEGACY_VERSIONS in load_bank.
+_LEGACY_VERSIONS = ("lopi_v33",)
 
 
 # ---------------------------------------------------------------------------
@@ -139,13 +141,27 @@ def _lopi_cfg_to_dict(cfg: Any) -> dict[str, Any] | None:
     if cfg is None:
         return None
     keys = ("enabled", "orthogonal", "gaussian", "derivative",
-            "norm_base", "k_shift", "theta_shift",
-            "kappa_depth", "beta_sigma", "mu_lo", "mu_hi", "epsilon")
+            "profile_mode", "z_clamp", "auto_mu_c",
+            "norm_base", "k_shift", "theta_shift", "k_gate", "theta_gate",
+            "kappa_depth", "beta_sigma", "mu_lo", "mu_hi", "mu_low", "mu_span",
+            "sigma_floor", "epsilon", "eps")
     out: dict[str, Any] = {}
     for k in keys:
         if hasattr(cfg, k):
             out[k] = getattr(cfg, k)
     return out
+
+
+def _lopi_profile_to_dict(state: Any) -> dict[str, Any] | None:
+    """Phase S — extract LOPIProfile (if any) from a bank's lopi_state."""
+    if state is None:
+        return None
+    profile = getattr(state, "profile", None)
+    if profile is None:
+        return None
+    if hasattr(profile, "asdict"):
+        return profile.asdict()
+    return dict(profile)  # type: ignore[arg-type]
 
 
 def save_bank(
@@ -169,6 +185,9 @@ def save_bank(
             dtype_str = str(t.dtype).replace("torch.", "")
             break
 
+    profile_dict = _lopi_profile_to_dict(getattr(bank, "lopi_state", None))
+    profile_corpus_sha = profile_dict.get("profile_corpus_sha") if profile_dict else None
+
     config_sha = compute_config_sha(
         model_name=model_name,
         num_layers=sd["num_layers"],
@@ -179,6 +198,7 @@ def save_bank(
         bank_temperature=sd.get("bank_temperature", 1.0),
         mhc_shield=sd.get("mhc_shield", False),
         lopi_cfg=_lopi_cfg_to_dict(getattr(bank, "lopi_cfg", None)),
+        extra={"profile_corpus_sha": profile_corpus_sha},
     )
     loc = resolve_location(root, model_name, config_sha)
     loc.dir.mkdir(parents=True, exist_ok=True)
@@ -206,6 +226,7 @@ def save_bank(
             "bank_temperature": float(sd.get("bank_temperature", 1.0)),
             "mhc_shield": bool(sd.get("mhc_shield", False)),
             "lopi_cfg": _lopi_cfg_to_dict(getattr(bank, "lopi_cfg", None)),
+            "lopi_profile": profile_dict,
             "n_facts": int(sd["M_K"][0].size(0)) if sd["M_K"] else 0,
             "fact_ids": list(sd.get("fact_ids", [])),
             "address_strs": list(sd.get("address_strs", [])),
@@ -247,9 +268,10 @@ def load_bank(
     with location.meta_path.open("r", encoding="utf-8") as fh:
         meta = json.load(fh)
 
-    if meta.get("version") != VERSION:
+    on_disk_version = meta.get("version")
+    if on_disk_version != VERSION and on_disk_version not in _LEGACY_VERSIONS:
         raise ValueError(
-            f"bank schema version mismatch: on-disk={meta.get('version')!r} "
+            f"bank schema version mismatch: on-disk={on_disk_version!r} "
             f"runtime={VERSION!r}; migration not implemented"
         )
 
@@ -278,7 +300,19 @@ def load_bank(
         "bank_temperature": float(meta.get("bank_temperature", 1.0)),
         "mhc_shield": bool(meta.get("mhc_shield", False)),
     }
-    return AttnNativeBank.from_state_dict(sd, device=device, dtype=target_dtype)
+    bank = AttnNativeBank.from_state_dict(sd, device=device, dtype=target_dtype)
+
+    # Phase S — restore the LOPI profile (if any).  We attach it directly to
+    # the bank's freshly-constructed lopi_state so reloads inherit the
+    # auto-calibration without needing to re-profile the model.
+    profile_dict = meta.get("lopi_profile")
+    if profile_dict:
+        try:
+            from deltamemory.memory.lopi_profiler import LOPIProfile
+            bank.lopi_state.profile = LOPIProfile.from_dict(profile_dict)
+        except Exception:  # pragma: no cover -- defensive; profile is optional
+            pass
+    return bank
 
 
 def storage_bytes(location: BankLocation) -> int:

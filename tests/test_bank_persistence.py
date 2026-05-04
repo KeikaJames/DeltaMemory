@@ -157,3 +157,64 @@ def test_tuple_location_form(tmp_path: Path):
     loc = save_bank(bank, tmp_path, model_name="m")
     reloaded = load_bank((tmp_path, "m", loc.config_sha))
     assert _bank_tensors_equal(bank, reloaded)
+
+
+# ---------------------------------------------------------------------------
+# Phase S — LOPI profile round-trip
+
+
+def test_legacy_version_still_loadable(tmp_path: Path):
+    """v3.4 banks (lopi_v33) must still load under v3.5 (ulopi_v35)."""
+    import json
+    bank = _make_bank(n_facts=2)
+    loc = save_bank(bank, tmp_path, model_name="m")
+    meta = json.loads(loc.meta_path.read_text())
+    meta["version"] = "lopi_v33"
+    loc.meta_path.write_text(json.dumps(meta))
+    reloaded = load_bank(loc)
+    assert _bank_tensors_equal(bank, reloaded)
+
+
+def test_lopi_profile_round_trip(tmp_path: Path):
+    from deltamemory.memory.lopi_profiler import LOPIProfile
+    bank = _make_bank(n_facts=2, num_layers=4)
+    bank.lopi_state.profile = LOPIProfile(
+        model_name="dummy/test",
+        num_layers=4,
+        mu_base=[1.0, 2.0, 3.0, 4.0],
+        sigma_base=[0.1, 0.2, 0.3, 0.4],
+        mu_arch=2,
+        eta_sigma=0.7,
+        profile_corpus_sha="cafef00d" * 2,
+        n_prompts=10,
+        dtype="float32",
+    )
+    loc = save_bank(bank, tmp_path, model_name="dummy/test")
+    reloaded = load_bank(loc)
+    assert reloaded.lopi_state.profile is not None
+    p = reloaded.lopi_state.profile
+    assert p.mu_arch == 2
+    assert p.eta_sigma == 0.7
+    assert p.mu_base == [1.0, 2.0, 3.0, 4.0]
+    assert p.sigma_base == [0.1, 0.2, 0.3, 0.4]
+    assert p.profile_corpus_sha == "cafef00d" * 2
+
+
+def test_profile_corpus_sha_isolates_config_sha(tmp_path: Path):
+    """Banks with different profile_corpus_sha must hash to different config_sha."""
+    from deltamemory.memory.lopi_profiler import LOPIProfile
+    bank_a = _make_bank(n_facts=1)
+    bank_b = _make_bank(n_facts=1)
+    bank_a.lopi_state.profile = LOPIProfile(
+        model_name="m", num_layers=4, mu_base=[1.0]*4, sigma_base=[0.1]*4,
+        mu_arch=0, eta_sigma=1.0, profile_corpus_sha="a" * 16,
+        n_prompts=5, dtype="float32",
+    )
+    bank_b.lopi_state.profile = LOPIProfile(
+        model_name="m", num_layers=4, mu_base=[1.0]*4, sigma_base=[0.1]*4,
+        mu_arch=0, eta_sigma=1.0, profile_corpus_sha="b" * 16,
+        n_prompts=5, dtype="float32",
+    )
+    loc_a = save_bank(bank_a, tmp_path, model_name="m")
+    loc_b = save_bank(bank_b, tmp_path, model_name="m")
+    assert loc_a.config_sha != loc_b.config_sha

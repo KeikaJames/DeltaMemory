@@ -233,6 +233,43 @@ class AttnNativeBank:
         bank.address_strs = list(sd["address_strs"])
         return bank
 
+    # ------------------------------------------------------------------
+    # Phase S — U-LOPI profile attachment
+    # ------------------------------------------------------------------
+
+    def attach_lopi_profile(self, model: Any, tokenizer: Any, *,
+                            prompts: Any = None,
+                            device: Any = None,
+                            dtype: Any = None) -> Any:
+        """One-shot cold-start residual profile -> ``self.lopi_state.profile``.
+
+        Forward-only.  No gradient, no nn.Parameter introduced.  After the
+        call ``self.lopi_state.profile`` holds a :class:`LOPIProfile` and
+        ``self.lopi_cfg.profile_mode == "auto"`` will route the depth
+        signal through Z-score space.
+
+        Returns the attached :class:`LOPIProfile`.
+        """
+        from deltamemory.memory.lopi_profiler import profile_residuals
+
+        prof = profile_residuals(
+            model, tokenizer,
+            prompts=prompts,
+            device=device if device is not None else self.device,
+            dtype=dtype,
+        )
+        if prof.num_layers != self.num_layers:
+            # Profile counts include LM hidden_states output (block outputs).
+            # If they disagree the bank shape and the model decoder are out
+            # of sync; surface immediately rather than silently mismatching
+            # mu_arch indices.
+            raise ValueError(
+                f"profile.num_layers={prof.num_layers} != bank.num_layers="
+                f"{self.num_layers}; refusing to attach mismatched profile"
+            )
+        self.lopi_state.profile = prof
+        return prof
+
 
 # ---------------------------------------------------------------------------
 # Patched forward
@@ -445,6 +482,15 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
                     from deltamemory.memory.lopi import apply_lopi
 
                     lopi_state = bank.lopi_state
+                    # Phase S (B1 causality fix): on the first layer of each
+                    # forward, promote the prior forward's pending norms to
+                    # the read-only snapshot that all layers of THIS forward
+                    # will read.  Writes from this forward go to pending and
+                    # are promoted at the next forward.  Without this swap
+                    # the v3.4 docstring's "causality trick" was a no-op for
+                    # any layer index > 0.
+                    if layer_idx == 0:
+                        lopi_state.commit_step()
                     out_bank = apply_lopi(
                         out_bank_native=out_bank,
                         v_ctx_readout=out_orig,
@@ -453,12 +499,9 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
                         state=lopi_state,
                         cfg=lopi_cfg,
                     )
-                    # Update the t-1 residual-norm cache for layer_idx using
-                    # the *current* attention output norm as a cheap proxy
-                    # (avoids a full residual-stream hook).  This is the
-                    # PREREGISTRATION §3.5 causality trick.
+                    # Write current-step norm to pending (NOT prev) -- see B1
                     with torch.no_grad():
-                        lopi_state.prev_residual_norms[layer_idx] = float(
+                        lopi_state.pending_residual_norms[layer_idx] = float(
                             torch.linalg.vector_norm(out_orig, ord=2, dim=-1).mean().item()
                         )
                 attn_out = (out_orig + out_bank).transpose(1, 2).contiguous()
