@@ -6,9 +6,9 @@ import argparse
 import json
 from pathlib import Path
 
-from deltamemory.core.config import MnemeCleanConfig
-from deltamemory.engine.attention_memory_engine import AttentionMemoryEngine
-from deltamemory.gemma.model_adapter import load_model_bundle
+from deltamemory.legacy.core.config import MnemeCleanConfig
+from deltamemory.legacy.engine.attention_memory_engine import AttentionMemoryEngine
+from deltamemory.legacy.gemma.model_adapter import load_model_bundle
 from deltamemory.memory.attention_store import AttentionMemoryStore
 
 

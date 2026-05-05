@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from scripts.aggregate_flagship_q2 import check_hypotheses, render_report
+from scripts.legacy.aggregate_flagship_q2 import check_hypotheses, render_report
 
 
 def test_partial_sweep_no_shield_on_does_not_raise(tmp_path: Path) -> None:

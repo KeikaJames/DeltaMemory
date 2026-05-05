@@ -21,7 +21,7 @@ from typing import Iterable
 import torch
 import torch.nn.functional as F
 
-from deltamemory.core.types import AttentionMemoryItem, RetrievalRecord
+from deltamemory.legacy.core.types import AttentionMemoryItem, RetrievalRecord
 
 
 class AttentionMemoryStore:

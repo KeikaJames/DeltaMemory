@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import torch
 
-from deltamemory.core.types import RetrievalRecord
+from deltamemory.legacy.core.types import RetrievalRecord
 from deltamemory.memory.attention_store import AttentionMemoryStore
 
 

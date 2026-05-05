@@ -1,33 +1,11 @@
-"""Stage 9 address-encoder variants.
-
-The Stage 8 v3 baseline mean-pools static input embeddings of the address
-tokens. That representation is structurally limited: at N=4096 retrieval
-recall@1 saturates around 0.83 regardless of KeyProjector tuning. This
-module provides richer encoders intended to break that ceiling.
-
-Encoders all expose:
-    encode(model, tokenizer, addresses, prompts) -> Tensor (B, H_addr)
-
-where prompts is the read prompt for each fact (used by encoders that
-need query-side context from the frozen base model).
-"""
-
-from .address_encoders import (
-    AddressEncoder,
-    AttnPoolEncoder,
-    MeanPoolEncoder,
-    MultiLayerEncoder,
-    PromptHiddenEncoder,
-    ResidualMLPEncoder,
-    build_encoder,
+"""Deprecated path; module relocated to deltamemory.legacy.encoders."""
+import warnings as _warnings
+_warnings.warn(
+    "deltamemory.encoders has moved to deltamemory.legacy.encoders; "
+    "please update your imports. This shim will be removed in v0.6.",
+    DeprecationWarning, stacklevel=2,
 )
-
-__all__ = [
-    "AddressEncoder",
-    "MeanPoolEncoder",
-    "AttnPoolEncoder",
-    "MultiLayerEncoder",
-    "PromptHiddenEncoder",
-    "ResidualMLPEncoder",
-    "build_encoder",
-]
+from deltamemory.legacy.encoders import *  # noqa: F401,F403
+from deltamemory.legacy import encoders as _impl  # noqa: F401
+import sys as _sys
+_sys.modules[__name__] = _impl

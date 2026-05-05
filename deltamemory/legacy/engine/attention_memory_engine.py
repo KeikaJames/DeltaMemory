@@ -10,13 +10,13 @@ from typing import Any
 import torch
 import torch.nn.functional as F
 
-from deltamemory.core.config import MnemeCleanConfig, resolve_layer_policy
-from deltamemory.core.types import AttentionMemoryItem
-from deltamemory.gemma.attention_injector import (
+from deltamemory.legacy.core.config import MnemeCleanConfig, resolve_layer_policy
+from deltamemory.legacy.core.types import AttentionMemoryItem
+from deltamemory.legacy.gemma.attention_injector import (
     GemmaAttentionInjector,
     QKVDeltaProjector,
 )
-from deltamemory.gemma.model_adapter import (
+from deltamemory.legacy.gemma.model_adapter import (
     ModelBundle,
     exposed_qkv_layers,
     get_hidden_size,
