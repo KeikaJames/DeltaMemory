@@ -15,6 +15,7 @@ Keep-a-Changelog format. Dates are omitted for historical backfill; commit SHAs 
 - Infra files deleted in PR #27 (`71125860`).
 ### Fixed
 - CI/audit/diagnostics issues (`d51ddfef`, `265e1303`, `d02664a8`, `bf0eb65d`).
+- RoPE relative-position invariance pinned for `AttnNativeBank` (pre-RoPE bank scoring contract); LOPI profiler cross-architecture generality pinned for GQA / MoE / post-norm / variable layer count; `lopi.py` docstring corrected to remove stale "configurable pre/post-RoPE Q" claim. New tests: `test_rope_relpos_invariance.py`, `test_profiler_generality.py`. New docs: `docs/rope_invariants.md`, `docs/profiler_generality.md`.
 ### Security
 - FastAPI security notes; PR-only workflow guardrails (`05c5a30d`, `3a0571a6`).
 
