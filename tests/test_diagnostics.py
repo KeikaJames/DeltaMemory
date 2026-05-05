@@ -143,7 +143,7 @@ def test_recorder_on_collects_all_5_signals(tiny_bundle_lopi):
         "attn_entropy_bank",
         "lopi_gamma_t",
         "lopi_w_ell",
-        "m_perp_energy_ratio",
+        "lopi_m_perp_energy_ratio",
         "residual_norm",
     }
 

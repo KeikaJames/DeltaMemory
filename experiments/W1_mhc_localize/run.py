@@ -202,8 +202,8 @@ def extract_signals(rec_df) -> dict:
     if len(aen):
         out["attn_entropy_native_mean"] = float(aen.mean())
 
-    # m_perp_energy_ratio
-    mpe = rec_df[rec_df["signal_name"] == "m_perp_energy_ratio"]["value"]
+    # m_perp_energy_ratio (accept both legacy bare name and v0.4 'lopi_' prefix)
+    mpe = rec_df[rec_df["signal_name"].isin(["m_perp_energy_ratio", "lopi_m_perp_energy_ratio"])]["value"]
     if len(mpe):
         out["m_perp_energy_ratio_mean"] = float(mpe.mean())
     else:
