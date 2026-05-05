@@ -1,0 +1,4 @@
+# vLLM runtime dependency for Mneme integration.
+# Exact pin is deferred to D-7 of the v0.5 plan (compatibility audit with
+# vLLM's internal attention backend API, which changed between 0.6 and 0.7).
+vllm>=0.6.0,<0.8.0
