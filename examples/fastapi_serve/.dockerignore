@@ -1,0 +1,15 @@
+# Build-context exclusions — keep context well under 50 MB
+__pycache__/
+.git/
+.venv*/
+tests/
+experiments/
+reports/
+*.pyc
+*.swp
+.DS_Store
+transcripts/
+eval/
+docs/figures/
+*.jsonl
+*.png
