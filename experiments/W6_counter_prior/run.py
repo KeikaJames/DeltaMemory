@@ -118,6 +118,7 @@ def append_cell(path: Path, row: dict) -> None:
     open_fn = gzip.open if str(path).endswith(".gz") else open
     with open_fn(path, "at") as f:
         f.write(json.dumps(row) + "\n")
+        f.flush()
 
 
 def load_done_keys(path: Path) -> set[str]:
@@ -616,6 +617,14 @@ def run_grid(args: argparse.Namespace) -> None:
 
     # ------------------------------------------------------------------
     # Env stamp
+    try:
+        import transformers as _tf
+        transformers_ver = _tf.__version__
+    except Exception:
+        transformers_ver = None
+    total_cells_planned = (
+        len(models) * len(methods) * len(alphas) * len(seeds) * len(prompts)
+    )
     env_stub = {
         "prereg_version": PREREG_VERSION,
         "method_winner": M_winner,
@@ -623,6 +632,7 @@ def run_grid(args: argparse.Namespace) -> None:
         "alphas": alphas,
         "seeds": seeds,
         "models": models,
+        "methods": methods,
         "n_prompts": len(prompts),
         "n_unrelated_windows": n_unrelated,
         "dropped_prompts": len(dropped),
@@ -631,8 +641,10 @@ def run_grid(args: argparse.Namespace) -> None:
         "lama_sha1": sha1_of_file(LAMA_PATH),
         "smoke": bool(args.smoke),
         "torch": torch.__version__,
+        "transformers": transformers_ver,
         "device": device,
         "dtype": args.dtype,
+        "total_cells_planned": total_cells_planned,
     }
     try:
         import subprocess
@@ -763,7 +775,31 @@ def run_grid(args: argparse.Namespace) -> None:
                                   f"alpha={alpha} seed={seed} "
                                   f"prompt={prow['id']}: {exc!r}",
                                   file=sys.stderr, flush=True)
+                            tb = traceback.format_exc()
                             traceback.print_exc()
+                            failed_row = {
+                                "cell_id": cid,
+                                "model": model_name,
+                                "method": method,
+                                "alpha": float(alpha),
+                                "seed": int(seed),
+                                "prompt_id": prow["id"],
+                                "subject": prow.get("subject", ""),
+                                "relation": prow.get("relation", ""),
+                                "nll_new": float("nan"),
+                                "nll_true": float("nan"),
+                                "kl_unrel": float("nan"),
+                                "drift": float("nan"),
+                                "status": "failed",
+                                "exc": repr(exc),
+                                "traceback": tb,
+                                "method_unsupported": False,
+                                "relation_template_missing": False,
+                                "redline_violation": False,
+                            }
+                            append_cell(out_path, failed_row)
+                            done.add(cid)
+                            passes += 1
                             continue
 
                         row["cell_id"] = cid
