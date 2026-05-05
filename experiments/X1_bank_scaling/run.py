@@ -169,9 +169,9 @@ def run_cell(*, model, tok, patcher, target_fact: dict, distractors: list[dict],
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", required=True, type=Path)
-    ap.add_argument("--device", default="cpu")
-    ap.add_argument("--dtype", choices=["fp32", "bf16"], default="fp32")
-    ap.add_argument("--model", default="Qwen/Qwen2.5-0.5B")
+    ap.add_argument("--device", default="mps")
+    ap.add_argument("--dtype", choices=["fp32", "bf16"], default="bf16")
+    ap.add_argument("--model", default="google/gemma-3-1b-it")
     ap.add_argument("--Ns", nargs="+", type=int, default=DEFAULT_NS)
     ap.add_argument("--arms", nargs="+", default=DEFAULT_ARMS)
     ap.add_argument("--alphas", nargs="+", type=float, default=[0.0, 1.0])

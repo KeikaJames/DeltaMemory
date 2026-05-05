@@ -183,6 +183,16 @@ class AttnNativeBank:
         if self.lopi_state is None:
             from deltamemory.memory.lopi import LOPIState
             self.lopi_state = LOPIState(num_layers=self.num_layers)
+        # Phase X.7 — bank lifecycle (default = unbounded, bit-equal to v0.4).
+        # See experiments/X7_forget_merge/PREREG.md for the locked design.
+        if not hasattr(self, "bank_capacity"):
+            self.bank_capacity: int = 0
+        if not hasattr(self, "bank_evict_policy"):
+            self.bank_evict_policy: str = "lru"
+        self._x7_global_step: int = 0
+        self._x7_write_step: list[int] = []
+        self._x7_last_access: list[int] = []
+        self._x7_access_count: list[int] = []
 
     @property
     def empty(self) -> bool:
@@ -201,6 +211,9 @@ class AttnNativeBank:
                                           device=self.device, dtype=self.dtype)
         self.fact_ids.clear()
         self.address_strs.clear()
+        self._x7_write_step.clear()
+        self._x7_last_access.clear()
+        self._x7_access_count.clear()
         if self.lopi_state is not None and hasattr(self.lopi_state, "reset"):
             self.lopi_state.reset()
 
@@ -246,6 +259,11 @@ class AttnNativeBank:
             self.M_V[layer] = torch.cat([self.M_V[layer], v], dim=0)
         self.fact_ids.append(fact_id)
         self.address_strs.append(address)
+        self._x7_global_step += 1
+        self._x7_write_step.append(self._x7_global_step)
+        self._x7_last_access.append(self._x7_global_step)
+        self._x7_access_count.append(0)
+        self._x7_compact()
 
     def bulk_append(
         self,
@@ -283,6 +301,64 @@ class AttnNativeBank:
             self.M_V[layer] = torch.cat([self.M_V[layer], v], dim=0)
         self.fact_ids.extend(fact_ids)
         self.address_strs.extend(addresses)
+        for _ in range(n):
+            self._x7_global_step += 1
+            self._x7_write_step.append(self._x7_global_step)
+            self._x7_last_access.append(self._x7_global_step)
+            self._x7_access_count.append(0)
+        self._x7_compact()
+
+    def _x7_compact(self) -> None:
+        """Phase X.7: enforce bank_capacity by evicting per ``bank_evict_policy``.
+
+        Default ``bank_capacity == 0`` ⇒ unbounded ⇒ no-op (bit-equal to v0.4).
+        Per-layer ``M_K`` / ``M_V`` slices stay aligned with metadata lists.
+        """
+        cap = int(getattr(self, "bank_capacity", 0) or 0)
+        if cap <= 0:
+            return
+        n = self.size
+        if n <= cap:
+            return
+        n_drop = n - cap
+        policy = str(getattr(self, "bank_evict_policy", "lru"))
+        if policy == "fifo":
+            keep_idx = list(range(n_drop, n))
+        elif policy == "lru":
+            order = sorted(
+                range(n),
+                key=lambda i: (
+                    self._x7_last_access[i],
+                    self._x7_access_count[i],
+                    self._x7_write_step[i],
+                ),
+            )
+            drop = set(order[:n_drop])
+            keep_idx = [i for i in range(n) if i not in drop]
+        else:
+            raise ValueError(
+                f"unknown bank_evict_policy {policy!r}; expected 'lru' or 'fifo'"
+            )
+        keep_t = torch.tensor(keep_idx, dtype=torch.long)
+        for layer in range(self.num_layers):
+            self.M_K[layer] = self.M_K[layer].index_select(0, keep_t.to(self.M_K[layer].device))
+            self.M_V[layer] = self.M_V[layer].index_select(0, keep_t.to(self.M_V[layer].device))
+        self.fact_ids = [self.fact_ids[i] for i in keep_idx]
+        self.address_strs = [self.address_strs[i] for i in keep_idx]
+        self._x7_write_step = [self._x7_write_step[i] for i in keep_idx]
+        self._x7_last_access = [self._x7_last_access[i] for i in keep_idx]
+        self._x7_access_count = [self._x7_access_count[i] for i in keep_idx]
+
+    def _x7_note_access(self, bank_idx: list[int]) -> None:
+        """Phase X.7: forward-side hook to update access stats. No-op when capacity disabled."""
+        if int(getattr(self, "bank_capacity", 0) or 0) <= 0:
+            return
+        self._x7_global_step += 1
+        step = self._x7_global_step
+        for i in bank_idx:
+            if 0 <= i < len(self._x7_last_access):
+                self._x7_last_access[i] = step
+                self._x7_access_count[i] += 1
 
     def state_dict(self) -> dict:
         return {
@@ -551,6 +627,13 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
                 scores = torch.cat([scores_orig, scores_bank], dim=-1)
                 weights = F.softmax(scores, dim=-1, dtype=torch.float32).to(q_post.dtype)
                 T_orig = scores_orig.size(-1)
+                # Phase X.7: forward-side LRU access tracker. Gated on
+                # bank_capacity > 0 so the default path stays bit-equal.
+                if int(getattr(bank, "bank_capacity", 0) or 0) > 0:
+                    bank_w = weights[..., T_orig:]
+                    if bank_w.size(-1) > 0:
+                        idxs = bank_w.detach().argmax(dim=-1).reshape(-1).tolist()
+                        bank._x7_note_access(list({int(i) for i in idxs}))
                 # Phase X.1: diagnostic hook — pre-shield bank attention signals.
                 # Zero overhead when no recorder is active (_RECORDER is None).
                 import deltamemory.diagnostics as _diag_mod  # noqa: PLC0415
