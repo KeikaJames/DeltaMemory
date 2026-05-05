@@ -11,6 +11,7 @@ weights or HF downloads — they only assert that class-name dispatch works.
 from __future__ import annotations
 
 import pytest
+import torch
 import torch.nn as nn
 
 from deltamemory.memory.arch_adapter import (
@@ -19,7 +20,6 @@ from deltamemory.memory.arch_adapter import (
     Gemma4Adapter,
     Glm4Adapter,
     LlamaAdapter,
-    Phi3Adapter,
     Qwen3Adapter,
     pick_adapter,
 )
@@ -39,7 +39,6 @@ EXPECTED = [
     ("Gemma3Attention", Gemma3Adapter),
     ("Gemma2Attention", Gemma2Adapter),
     ("Qwen3Attention", Qwen3Adapter),
-    ("Phi3Attention", Phi3Adapter),
     ("LlamaAttention", LlamaAdapter),
     ("Qwen2Attention", LlamaAdapter),
     ("MistralAttention", LlamaAdapter),
@@ -71,3 +70,46 @@ def test_gemma3_does_not_collide_with_gemma3n():
     assert isinstance(pick_adapter(g3), Gemma3Adapter)
     g3n = _stub("Gemma3nTextAttention")
     assert isinstance(pick_adapter(g3n), Gemma4Adapter)
+
+
+def test_gemma3_norms_required():
+    """Regression: Gemma3Adapter must enforce q_norm and k_norm presence.
+
+    Gemma-3 natively applies q_norm and k_norm after proj+reshape, before rope.
+    Our patched forward (attn_native_bank.py lines ~403-417) respects this
+    order. If either norm is missing, applying it is a logic error: patched
+    forward will call adapter.apply_q_norm / apply_k_norm and expect a callable.
+    """
+    # Stub without q_norm
+    class Gemma3AttentionNoQNorm(nn.Module):
+        pass
+    attn_no_q = Gemma3AttentionNoQNorm()
+    attn_no_q.__class__.__name__ = "Gemma3Attention"
+    adapter = Gemma3Adapter()
+    dummy_q = torch.zeros(1, 8, 512)
+    with pytest.raises(AssertionError, match="q_norm"):
+        adapter.apply_q_norm(attn_no_q, dummy_q)
+
+    # Stub without k_norm
+    class Gemma3AttentionNoKNorm(nn.Module):
+        pass
+    attn_no_k = Gemma3AttentionNoKNorm()
+    attn_no_k.__class__.__name__ = "Gemma3Attention"
+    dummy_k = torch.zeros(1, 8, 512)
+    with pytest.raises(AssertionError, match="k_norm"):
+        adapter.apply_k_norm(attn_no_k, dummy_k)
+
+
+def test_phi3_remains_unmapped():
+    """Regression: Phi3Adapter removed because HF Phi3Attention uses fused
+    qkv_proj, not separate q/k/v_proj. Patched forward (attn_native_bank.py
+    lines ~403-417) assumes separate projections (self.q_proj, self.k_proj,
+    self.v_proj), so matching Phi3Attention would crash at runtime.
+
+    This test confirms Phi3Attention is not mapped to any adapter and raises
+    NotImplementedError, blocking silent runtime failure. A future PR can add
+    a fused-qkv codepath if Phi3 is adopted.
+    """
+    phi3 = _stub("Phi3Attention")
+    with pytest.raises(NotImplementedError, match="No ArchAdapter matches"):
+        pick_adapter(phi3)
