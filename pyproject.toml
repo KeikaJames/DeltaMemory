@@ -25,6 +25,9 @@ dependencies = [
 [project.optional-dependencies]
 test = ["pytest"]
 
+[project.scripts]
+dm-bench = "deltamemory.bench.__main__:main"
+
 [tool.setuptools.packages.find]
 include = ["deltamemory*"]
 
