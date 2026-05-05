@@ -224,12 +224,92 @@ class Glm4Adapter(ArchAdapter):
 
 
 # ---------------------------------------------------------------------------
+# Gemma-3 (gemma-3-270m / gemma-3-1b-it; used in W.4 PREREG)
+# ---------------------------------------------------------------------------
+
+class Gemma3Adapter(ArchAdapter):
+    """Adapter for Gemma3Attention (NOT Gemma3n / NOT Gemma-4).
+
+    Plain Gemma-3 (gemma-3-270m, gemma-3-1b-it) has no q/k/v norms, no
+    KV-sharing, and uses Llama-style ``apply_rotary_pos_emb`` with
+    ``unsqueeze_dim=1``. Distinct module path from Gemma-4 (which is
+    ``modeling_gemma4``); this adapter imports from ``modeling_gemma3``.
+    """
+
+    def __init__(self):
+        super().__init__(name="gemma3", default_alpha=0.05)
+
+    @classmethod
+    def matches(cls, attn_module: nn.Module) -> bool:
+        n = type(attn_module).__name__
+        return n == "Gemma3Attention"
+
+    def apply_rope(self, q, k, cos, sin):
+        from transformers.models.gemma3.modeling_gemma3 import apply_rotary_pos_emb
+        q_t = q.transpose(1, 2)
+        k_t = k.transpose(1, 2)
+        q2, k2 = apply_rotary_pos_emb(q_t, k_t, cos, sin, unsqueeze_dim=1)
+        return q2.transpose(1, 2), k2.transpose(1, 2)
+
+
+# ---------------------------------------------------------------------------
+# Gemma-2 (legacy completeness)
+# ---------------------------------------------------------------------------
+
+class Gemma2Adapter(ArchAdapter):
+    """Adapter for Gemma2Attention. Same shape as Gemma-3 / Llama (no norms,
+    standard RoPE, ``unsqueeze_dim=1``)."""
+
+    def __init__(self):
+        super().__init__(name="gemma2", default_alpha=0.05)
+
+    @classmethod
+    def matches(cls, attn_module: nn.Module) -> bool:
+        return type(attn_module).__name__ == "Gemma2Attention"
+
+    def apply_rope(self, q, k, cos, sin):
+        from transformers.models.gemma2.modeling_gemma2 import apply_rotary_pos_emb
+        q_t = q.transpose(1, 2)
+        k_t = k.transpose(1, 2)
+        q2, k2 = apply_rotary_pos_emb(q_t, k_t, cos, sin, unsqueeze_dim=1)
+        return q2.transpose(1, 2), k2.transpose(1, 2)
+
+
+# ---------------------------------------------------------------------------
+# Phi-3 / Phi-3.5 (Microsoft)
+# ---------------------------------------------------------------------------
+
+class Phi3Adapter(ArchAdapter):
+    """Adapter for Phi3Attention. No q/k/v norms; standard RoPE with
+    ``unsqueeze_dim=1``. Calibrated default_alpha unchanged from Llama default
+    until per-arch sweep is run; record per-model overrides in CALIBRATION
+    table when adopted."""
+
+    def __init__(self):
+        super().__init__(name="phi3", default_alpha=0.05)
+
+    @classmethod
+    def matches(cls, attn_module: nn.Module) -> bool:
+        return type(attn_module).__name__ == "Phi3Attention"
+
+    def apply_rope(self, q, k, cos, sin):
+        from transformers.models.phi3.modeling_phi3 import apply_rotary_pos_emb
+        q_t = q.transpose(1, 2)
+        k_t = k.transpose(1, 2)
+        q2, k2 = apply_rotary_pos_emb(q_t, k_t, cos, sin, unsqueeze_dim=1)
+        return q2.transpose(1, 2), k2.transpose(1, 2)
+
+
+# ---------------------------------------------------------------------------
 # Registry
 # ---------------------------------------------------------------------------
 
 _REGISTRY: list[type[ArchAdapter]] = [
     Gemma4Adapter,
+    Gemma3Adapter,
+    Gemma2Adapter,
     Qwen3Adapter,
+    Phi3Adapter,
     LlamaAdapter,
     Glm4Adapter,
 ]
@@ -261,7 +341,10 @@ def register_adapter(cls: type[ArchAdapter]) -> type[ArchAdapter]:
 __all__ = [
     "ArchAdapter",
     "Gemma4Adapter",
+    "Gemma3Adapter",
+    "Gemma2Adapter",
     "Qwen3Adapter",
+    "Phi3Adapter",
     "LlamaAdapter",
     "Glm4Adapter",
     "pick_adapter",
