@@ -393,6 +393,7 @@ def apply_lopi(
     layer_idx: int,
     state: LOPIState,
     cfg: LOPIConfig,
+    alpha: float = 1.0,
 ) -> torch.Tensor:
     """Apply Dynamic LOPI to one attention layer's bank readout.
 
@@ -403,7 +404,7 @@ def apply_lopi(
     Returns the new ``out_bank`` tensor of identical shape to the input.
     Caller should add it to ``out_orig`` exactly as before.
     """
-    if not cfg.enabled:
+    if not cfg.enabled or float(alpha) == 0.0:
         return out_bank_native
 
     # 1. Orthogonal projection (op on the *readouts*, head-wise).
@@ -467,6 +468,28 @@ def apply_lopi(
             cfg=cfg.ecor_cfg,
         )
         out_bank_lopi = v_full - v_ctx_readout
+
+
+    try:
+        from deltamemory.security.audit import audit_event
+
+        out_norm = float(torch.linalg.vector_norm(out_bank_lopi.detach().float()).item())
+        ctx_norm = float(torch.linalg.vector_norm(v_ctx_readout.detach().float()).item())
+        gate_mean = float(gamma_t.detach().float().mean().item())
+        audit_event(
+            event_type="inject",
+            injector="lopi",
+            layer=layer_idx,
+            alpha=float(alpha),
+            signal_summary={
+                "steer_norm": out_norm,
+                "drift_ratio": out_norm / (ctx_norm + 1e-10),
+                "gate_mean": gate_mean,
+            },
+            vector_tensor=gamma_t,
+        )
+    except Exception:
+        pass
 
     # 4. Update t-1 caches for the *next* step.  We keep the latest Q per
     # layer; residual norms are updated by the bank caller (it has access

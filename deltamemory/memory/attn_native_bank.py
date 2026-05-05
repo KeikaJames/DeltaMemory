@@ -596,6 +596,7 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
                         layer_idx=layer_idx,
                         state=lopi_state,
                         cfg=lopi_cfg,
+                        alpha=alpha,
                     )
                     # Write current-step norm to pending (NOT prev) -- see B1
                     with torch.no_grad():
