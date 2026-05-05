@@ -12,6 +12,11 @@ ROOT = Path(__file__).resolve().parents[1]
 W6_DIR = ROOT / "experiments" / "W6_counter_prior"
 SMOKE_PATH = W6_DIR / "cells_smoke.jsonl"
 
+pytestmark = pytest.mark.skipif(
+    not SMOKE_PATH.exists(),
+    reason="W.6 smoke artefacts not generated; run experiments/W6_counter_prior/run.py --smoke first.",
+)
+
 
 def _load_jsonl(path: Path) -> list[dict]:
     rows = []
