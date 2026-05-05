@@ -22,6 +22,10 @@ dependencies = [
   "transformers",
 ]
 
+[project.urls]
+Homepage = "https://github.com/KeikaJames/MnEmE"
+Repository = "https://github.com/KeikaJames/MnEmE"
+
 [project.optional-dependencies]
 test = ["pytest"]
 

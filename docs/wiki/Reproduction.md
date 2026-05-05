@@ -17,7 +17,7 @@ The Apple Silicon path is documented in `docs/apple_silicon.md`. The CUDA path u
 ## 1. Clone + install
 
 ```bash
-git clone https://github.com/KeikaJames/Mneme.git
+git clone https://github.com/KeikaJames/MnEmE.git
 cd Mneme
 python3.11 -m venv .venv-mac
 source .venv-mac/bin/activate

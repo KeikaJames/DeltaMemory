@@ -70,10 +70,10 @@ re-tuning them.
 
 ### Identifier purge
 
-The legacy project identifier "RCV-HC" / "RCVHC" / "rcvhc" is purged from
-the codebase (commit `09ed55d0`). The package keeps the name
-`deltamemory` for backward-compatibility of imports; the project label
-moves to **Mneme** in non-code documentation.
+The legacy pre-Mneme identifiers are purged from the codebase
+(commit `09ed55d0`). The package keeps the name `deltamemory` for
+backward-compatibility of imports; the project label moves to **Mneme**
+in non-code documentation.
 
 ## Phase R-7 — v3.6 V-scale calibrated bank schema
 
