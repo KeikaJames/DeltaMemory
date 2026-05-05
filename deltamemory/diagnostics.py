@@ -364,9 +364,16 @@ class DiagnosticRecorder:
         s_norm = float(torch.linalg.vector_norm(s).item())
         h_norm = float(torch.linalg.vector_norm(h).item())
 
+        # Broadcast multiplicity = B*T (or 1 for a bare D-vector) so the
+        # Frobenius norm matches ``||alpha*gamma*s||_F`` over the full
+        # (..., D) tensor, not just the per-position s norm. Using ``hidden``
+        # as the shape oracle keeps the ungated and gated branches consistent.
+        d_last = s.shape[-1] if s.dim() > 0 else h.shape[-1]
+        multiplicity = max(1, h.numel() // max(1, d_last))
+
         if gamma is None:
             gamma_mean = 1.0
-            perturb_norm = abs(alpha) * s_norm
+            perturb_norm = (multiplicity ** 0.5) * abs(alpha) * s_norm
         else:
             g = gamma.detach().float()
             gamma_mean = float(g.mean().item())
