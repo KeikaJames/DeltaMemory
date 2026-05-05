@@ -262,7 +262,7 @@ def compute_verdicts(cells: list[dict]) -> dict:
 def main():
     ap = argparse.ArgumentParser(description="W.4 aggregate")
     ap.add_argument("--cells", default="experiments/W4_caa_baseline/cells.jsonl")
-    ap.add_argument("--out", default="/tmp/deltamemory/W4_caa_baseline/")
+    ap.add_argument("--out", default="experiments/W4_caa_baseline/")
     args = ap.parse_args()
 
     cells_path = Path(args.cells)
@@ -307,6 +307,58 @@ def main():
     print(f"  LOPI models (>=3 wins): {verdicts['lopi_models_with_3plus_wins']}")
     print(f"  redline violations    : {len(verdicts['redline_violations'])}")
     print(f"  family verdict        : {verdicts['family_verdict']}")
+
+    write_report(out_dir, df, verdicts, len(raw_cells), len(cells))
+
+
+def write_report(out_dir: Path, df, verdicts: dict, n_raw: int, n_used: int) -> None:
+    """Emit a human-readable REPORT.md alongside aggregate.csv / verdicts.json."""
+    import datetime as _dt
+
+    today = _dt.date.today().isoformat()
+    lines: list[str] = []
+    lines.append("# W.4 Final Report — CAA Baseline Aggregate")
+    lines.append("")
+    lines.append(f"**Run date**: {today}")
+    lines.append(f"**Cells (raw / usable)**: {n_raw} / {n_used}")
+    lines.append(f"**Family size**: {verdicts['family_size']} tests "
+                 "(paired Wilcoxon, Holm-Bonferroni, p<0.01)")
+    lines.append(f"**Family verdict**: `{verdicts['family_verdict']}`")
+    lines.append(f"**Redline violations** (max|drift| at α=0 > 1e-4): "
+                 f"{len(verdicts['redline_violations'])}")
+    lines.append("")
+    lines.append("## Per-(model, method, alpha) drift")
+    lines.append("")
+    lines.append("```")
+    lines.append(df.to_string(index=False))
+    lines.append("```")
+    lines.append("")
+    lines.append("## Paired Wilcoxon — CAA vs none (α >= 1)")
+    lines.append("")
+    lines.append("| model | α | n | p | median_diff | sig (Holm p<0.01) |")
+    lines.append("| --- | --- | --- | --- | --- | --- |")
+    for t in verdicts["tests"]:
+        if t["contrast"] != "caa_minus_none" or t["alpha"] < 1.0:
+            continue
+        p = t["p_value"]
+        p_str = f"{p:.2e}" if p == p else "NaN"  # NaN-safe
+        lines.append(
+            f"| {t['model']} | {t['alpha']:.2f} | {t['n_pairs']} | "
+            f"{p_str} | {t['median_diff']:+.4f} | "
+            f"{'**yes**' if t['significant_holm_p<0.01'] else 'no'} |"
+        )
+    lines.append("")
+    lines.append("## Headline counts")
+    lines.append("")
+    lines.append(f"- Significant CAA wins (Holm p<0.01, median_diff<0): "
+                 f"{verdicts['n_significant_caa_wins']}")
+    lines.append(f"- Significant LOPI wins: {verdicts['n_significant_lopi_wins']}")
+    lines.append(f"- CAA models with >=3 wins: {verdicts['caa_models_with_3plus_wins']}")
+    lines.append(f"- LOPI models with >=3 wins: {verdicts['lopi_models_with_3plus_wins']}")
+    lines.append("")
+    out_path = out_dir / "REPORT.md"
+    out_path.write_text("\n".join(lines))
+    print(f"[agg] saved {out_path}")
 
 
 if __name__ == "__main__":

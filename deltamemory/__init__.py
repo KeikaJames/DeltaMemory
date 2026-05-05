@@ -1,5 +1,13 @@
 """Mneme — frozen-LLM external memory via attention-side bank injection.
 
+Public API for v0.4. See ``docs/`` for architecture notes
+(``docs/theory/``), per-phase reports under ``experiments/W*/``, and
+the v0.4 ship status in ``CHANGELOG.md``. The recommended entry points
+are :class:`AttnNativePatcher` + :class:`AttnNativeBank` for the bank,
+:func:`pick_adapter` for HF-model auto-detection, and
+:class:`CAAInjector` / :class:`DiagnosticRecorder` for the W.4 baseline
+and instrumentation paths.
+
 Public API (Phase R/S, recommended for new code)
 ------------------------------------------------
 * :class:`AttnNativePatcher`, :class:`AttnNativeBank` — the canonical bank
@@ -11,6 +19,10 @@ Public API (Phase R/S, recommended for new code)
 * :func:`profile_residuals`, :class:`LOPIProfile` — U-LOPI auto-calibration.
 * :func:`save_bank`, :func:`load_bank` — disk persistence for the bank,
   including the ``LOPIProfile`` (Phase S).
+* :class:`CAAInjector` — W.4 contrastive activation-addition baseline.
+* :class:`DiagnosticRecorder` — Phase X.1 instrumentation.
+* :class:`MoeAttnNativePatcher` — MoE-aware patcher (Phase W.5, optional;
+  ``None`` if the module is not yet present).
 
 Legacy entry points (``deltamemory.gemma``, ``deltamemory.engine``,
 ``deltamemory.memory.attention_store.AttentionMemoryStore``) remain importable
@@ -52,6 +64,14 @@ from deltamemory.memory.lopi_profiler import (
     save_profile,
 )
 from deltamemory.diagnostics import DiagnosticRecorder
+from deltamemory.memory.caa_injector import CAAInjector
+
+try:
+    from deltamemory.memory.moe_attn_patcher import MoeAttnNativePatcher
+    _has_moe = True
+except ImportError:
+    MoeAttnNativePatcher = None
+    _has_moe = False
 
 __all__ = [
     "__version__",
@@ -70,4 +90,8 @@ __all__ = [
     "resolve_location", "save_bank",
     # diagnostics (Phase X.1)
     "DiagnosticRecorder",
+    # W.4 baseline
+    "CAAInjector",
+    # W.5 MoE (conditional; None if module missing)
+    "MoeAttnNativePatcher",
 ]

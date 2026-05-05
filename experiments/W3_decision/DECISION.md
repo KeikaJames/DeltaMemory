@@ -173,3 +173,100 @@ explicitly cite this file and produce new evidence (new W.* cells.jsonl rows
 + aggregate verdicts) sufficient to override.
 
 — W.3 closed.
+
+---
+
+## W.3 FINAL DECISION (2026-05-05)
+
+**VERDICT**: *All three baselines fail W.3 methodology gate; v0.4 ships as
+α=0 bit-equal infra-only release with mHC + V-scale opt-in; reset roadmap
+for W.10+.*
+
+CAA was the last-chance baseline added in §6 of this DECISION as the simpler
+alternative to LOPI and mHC. The W.4 aggregate (5,041 cells, 3 of 5 PREREG
+models — gemma-3-270m and gemma-3-1b-it remain queued but the 3-model picture
+is unambiguous) shows CAA does **not** clear the
+"≥30% drift reduction vs none at α≥1, p<0.01" bar on any cell.
+
+### W.4 headline numbers
+
+Family: 42 paired Wilcoxon tests, Holm-Bonferroni correction at p<0.01.
+Family verdict: `MIXED`. Redline (α=0 bit-equality, 1e-4 tol): **0 violations**.
+
+Per-(model, method) drift at the production-α band, mean nll_drift:
+
+| model              | method | α=1   | α=2    | α=4    | α=8    |
+| ------------------ | ------ | ----- | ------ | ------ | ------ |
+| Qwen2.5-0.5B       | none   | 2.594 | 3.598  | 5.084  | 7.424  |
+| Qwen2.5-0.5B       | caa    | 2.223 | 5.567  | 11.765 | 11.890 |
+| Qwen2.5-1.5B       | none   | 2.490 | 5.138  | 5.855  | 6.867  |
+| Qwen2.5-1.5B       | caa    | 8.550 | 10.041 | 8.585  | 9.562  |
+| gpt2-medium        | none   | 0.000 | 0.000  | 0.000  | 0.000  |
+| gpt2-medium        | caa    | 0.333 | 2.352  | 5.594  | 6.073  |
+
+Paired Wilcoxon (caa − none) at α≥1, all 12 cells reach Holm p<0.01, but the
+sign of `median_diff` is the wrong way round on **11 of 12**:
+
+| model           | α    | n  | p        | median_diff | sig |
+| --------------- | ---- | -- | -------- | ----------- | --- |
+| Qwen2.5-0.5B    | 1.00 | 90 | <1e-15   | **-0.4888** | yes |
+| Qwen2.5-0.5B    | 2.00 | 90 | <1e-15   | +2.0092     | yes |
+| Qwen2.5-0.5B    | 4.00 | 90 | <1e-15   | +6.5047     | yes |
+| Qwen2.5-0.5B    | 8.00 | 90 | <1e-15   | +4.4281     | yes |
+| Qwen2.5-1.5B    | 1.00 | 90 | <1e-15   | +5.7905     | yes |
+| Qwen2.5-1.5B    | 2.00 | 90 | <1e-15   | +4.7720     | yes |
+| Qwen2.5-1.5B    | 4.00 | 90 | <1e-15   | +2.6572     | yes |
+| Qwen2.5-1.5B    | 8.00 | 90 | <1e-15   | +2.6598     | yes |
+| gpt2-medium     | 1.00 | 90 | <1e-15   | +0.3288     | yes |
+| gpt2-medium     | 2.00 | 90 | <1e-15   | +2.3713     | yes |
+| gpt2-medium     | 4.00 | 90 | <1e-15   | +5.4848     | yes |
+| gpt2-medium     | 8.00 | 90 | <1e-15   | +5.9728     | yes |
+
+The single cell where CAA reduces counterfact NLL (Qwen2.5-0.5B α=1.00,
+median_diff = −0.4888) corresponds to ≈19% reduction relative to the
+none-baseline mean drift of 2.594 — short of the 30% bar pre-registered
+in §3 of this DECISION. Every other α≥1 cell shows CAA *increasing* drift
+(positive median_diff). CAA therefore fails the methodology gate the same
+way mHC and LOPI did in W.2 / W.3.
+
+Significant CAA wins (Holm p<0.01, median_diff<0): **3** of 21.
+Significant LOPI wins: **8** of 21. Models with ≥3 CAA wins: **1**
+(Qwen2.5-0.5B). Models with ≥3 LOPI wins: **2**. Neither method clears the
+bar at α≥1.
+
+### Action items
+
+- **Public API (deltamemory/__init__.py, A5a)**: re-export
+  `AttnNativePatcher`, `AttnNativeBank`, `pick_adapter`, `apply_lopi`,
+  `LOPIConfig`, `LOPIState`, `profile_residuals`, `LOPIProfile`,
+  `save_bank`, `load_bank`, `DiagnosticRecorder`, `CAAInjector`,
+  `MoeAttnNativePatcher` (conditional). All with redline-passing α=0
+  bit-equality so the v0.4 release is *infra-only*: callers can wire any of
+  these into their own pipeline, but no preset α>0 configuration is
+  endorsed by the maintainers.
+- **mHC, V-scale**: stay opt-in modes (documented in
+  `docs/quickstart.md`, **not** in the recommended-path README section).
+- **LOPI**: `apply_lopi` stays public but defaults to `profile_mode='off'`
+  and α=0; the `profile_mode='auto'` U-LOPI path stays exposed for
+  experimenters but is flagged "experimental" in docstrings.
+- **CAA**: `CAAInjector` is exposed as a public class for completeness
+  (W.4 reproducibility) but is also flagged "did not pass W.3" in its
+  module docstring; no first-class CLI flag.
+- **Roadmap**: W.6/W.10/W.13/W.14 do not get an `M_winner` from W.4. The
+  v0.4 release ships without a recommended injection recipe. The W.10+
+  roadmap is reset; the next phase is "find an injection method that
+  passes the §3 bar at α≥1 on at least 2/3 of the dense control models",
+  not "scale up an existing baseline".
+- **Honesty register update (§7)**: CAA is added to the list of failing
+  baselines verbatim. The CHANGELOG and `experiments/REPORT_v04.md`
+  reflect this.
+
+### Reference
+
+Commit at decision time: see the merge commit for branch `A5-pubapi-w4`.
+W.4 evidence: `experiments/W4_caa_baseline/{REPORT.md, aggregate.csv,
+verdicts.json, cells.jsonl}` (5,041 cells; 3-of-5 PREREG models executed,
+gemma weights still queued — but the failing direction is unambiguous and
+the gemma cells will not flip 11 of 12 α≥1 sign tests).
+
+— W.3 closed (final).
