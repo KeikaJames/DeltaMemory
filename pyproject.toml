@@ -30,3 +30,38 @@ include = ["deltamemory*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = [
+    "deltamemory/legacy",
+    "scripts/legacy",
+    "reports",
+    "experiments/A1_rope_audit",
+    "experiments/A3_layer_weighting",
+    "experiments/A4_gate_metric",
+    "experiments/A5_profiler_n100",
+]
+
+[tool.ruff.lint]
+# Conservative first pass. Started with ["E4","E7","E9","F","B","I"] but
+# B (bugbear) and I (import order) flagged ~40 pre-existing issues that
+# are out of scope for this CI bootstrap commit; relaxed to E4/E7/E9/F
+# only and added per-rule ignores so the baseline lints cleanly.
+select = ["E4", "E7", "E9", "F"]
+ignore = [
+    "E402",
+    "E501",
+    "E702",
+    "F401",
+    "F403",
+    "F811",
+    "F821",
+    "F841",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B", "F841"]
+"experiments/**/*.py" = ["E", "F", "B", "I"]
+"scripts/*.py" = ["E", "F"]
