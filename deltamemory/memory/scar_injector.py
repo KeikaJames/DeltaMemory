@@ -228,6 +228,22 @@ class SCARInjector(nn.Module):
         target = self.target_mean[layer].to(device=activations.device, dtype=torch.float32)
         delta = target.view(*([1] * (activations.ndim - 1)), -1) - activations.float()
         projected = (delta @ basis) @ basis.T
+
+        # Diagnostics emit (silent no-op when no recorder is active; mirrors
+        # the LOPI / mHC bank pattern). Lazy import avoids circular-import on
+        # module load and keeps SCAR usable without diagnostics installed.
+        try:
+            from deltamemory import diagnostics as _diag_mod
+            if _diag_mod._RECORDER is not None:
+                _diag_mod._RECORDER.record_scar_proj(
+                    layer_idx=layer,
+                    delta=delta,
+                    projected=projected,
+                    alpha=self.alpha,
+                )
+        except Exception:
+            pass
+
         return activations + (self.alpha * projected).to(dtype=activations.dtype)
 
 
