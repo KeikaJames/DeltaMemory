@@ -50,6 +50,8 @@ fi
 
 PY="${PYTHON:-python}"
 DEVICE="${DEVICE:-auto}"
+OUT_ROOT="${OUT_ROOT:-/tmp/deltamemory/repro_v04}"
+mkdir -p "$OUT_ROOT/W4_caa_baseline" "$OUT_ROOT/W6_counter_prior"
 
 if [ "$DEVICE" = "auto" ]; then
     if $PY -c "import torch; assert torch.backends.mps.is_available()" 2>/dev/null; then
@@ -86,11 +88,11 @@ done
 echo
 echo "--- Step 2: W.4 CAA smoke (alpha=0 bit-equality witness) ---"
 $PY experiments/W4_caa_baseline/run.py --smoke \
-    --out experiments/W4_caa_baseline/cells_smoke_repro.jsonl \
+    --out "$OUT_ROOT/W4_caa_baseline/cells_smoke_repro.jsonl" \
     --device "$DEVICE" --dtype bfloat16
 $PY -c "
 import json, sys
-rows = [json.loads(l) for l in open('experiments/W4_caa_baseline/cells_smoke_repro.jsonl')]
+rows = [json.loads(l) for l in open('$OUT_ROOT/W4_caa_baseline/cells_smoke_repro.jsonl')]
 zeros = [r for r in rows if abs(r.get('alpha', -1)) < 1e-9]
 bad = [r for r in zeros if abs(r.get('drift', 0.0)) >= 1e-4]
 print(f'  alpha=0 cells: {len(zeros)}, redline violations: {len(bad)}')
@@ -110,14 +112,14 @@ fi
 echo
 echo "--- Step 3: W.6 counter-prior smoke ---"
 $PY experiments/W6_counter_prior/run.py --smoke \
-    --out experiments/W6_counter_prior/cells_smoke_repro.jsonl \
+    --out "$OUT_ROOT/W6_counter_prior/cells_smoke_repro.jsonl" \
     --device "$DEVICE" --dtype bfloat16
 $PY experiments/W6_counter_prior/aggregate.py \
-    --cells experiments/W6_counter_prior/cells_smoke_repro.jsonl \
-    --out experiments/W6_counter_prior/pareto_repro.json
+    --cells "$OUT_ROOT/W6_counter_prior/cells_smoke_repro.jsonl" \
+    --out "$OUT_ROOT/W6_counter_prior/repro_aggregate"
 $PY -c "
 import json
-p = json.load(open('experiments/W6_counter_prior/pareto_repro.json'))
+p = json.load(open('$OUT_ROOT/W6_counter_prior/repro_aggregate/pareto.json'))
 print(f'  W.6 smoke pareto entries: {len(p)}')
 "
 

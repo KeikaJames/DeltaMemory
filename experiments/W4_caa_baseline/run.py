@@ -322,7 +322,7 @@ def append_cell(path: Path, cell: dict) -> None:
 
 def main():
     ap = argparse.ArgumentParser(description="W.4 CAA baseline runner")
-    ap.add_argument("--out", default="experiments/W4_caa_baseline/cells.jsonl")
+    ap.add_argument("--out", default="/tmp/deltamemory/W4_caa_baseline/cells.jsonl")
     ap.add_argument("--device", default="mps")
     ap.add_argument("--dtype", default="bfloat16")
     ap.add_argument("--models", nargs="+", default=MODELS)

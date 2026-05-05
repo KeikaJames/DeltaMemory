@@ -7,33 +7,29 @@ hand-wavy steering?"
 
 ## 1. What DM actually computes
 
-Let the frozen base model factor as `F = W_lm ∘ T`, where `T` is the full
-transformer body (`model.model`) and `W_lm` is the unembedding (`lm_head`).
-For a read prompt `x` with last real-token position `p`, DM produces:
+The current production path is attention-native external K/V memory. During a
+write pass, Mneme captures per-layer native K/V vectors from a frozen
+Transformer. During a read pass, each supported attention layer computes:
 
 $$
-\tilde{y}(x \mid \mathrm{slot}=k) = \mathrm{softmax}\bigl(W_{lm}(\,T(x)_p + \alpha \cdot b_k\,)\bigr)
+\mathrm{Attn}_\ell(Q, K, V)
+\rightarrow
+\mathrm{Attn}_\ell\bigl(Q,\,[K; M_K^{(\ell)}],\,[V; \alpha M_V^{(\ell)}]\bigr)
 $$
 
-where `b_k = Writer(E[v_k])` is the slot-k bank vector. The Writer is a tiny
-MLP applied to the (frozen) value-token embedding. The bank is keyed by a
-KeyProjector applied to `Encoder(prompt or address)`; retrieval is cosine
-top-1.
+`M_K` and `M_V` are external bank tensors, not model weights. The read prompt
+contains only the question; source text is not appended to the prompt. The base
+model remains frozen, and the bank path is skipped entirely when the bank is
+empty or `α = 0`.
 
-**Crucial structural fact:** injection happens **once**, at the final hidden
-state, before `lm_head`. It is *not* a multi-layer steering vector inserted
-mid-residual, it is *not* an attention bias, and it is *not* a fast-weight
-update. It is mathematically equivalent to a learned, key-routed logit bias:
+For RoPE models, the implementation stores pre-RoPE K and compares bank slots
+against pre-RoPE Q so bank lookup is position-agnostic. For GQA/MQA models,
+bank K/V are stored at `num_key_value_heads` resolution and expanded through
+the model's native repeat-KV path.
 
-$$
-\tilde{y} = \mathrm{softmax}\bigl(W_{lm} T(x)_p + \alpha\, W_{lm} b_k\bigr).
-$$
-
-This makes DM closer to a key-value memory with a learned readout than to
-mid-layer activation steering or to ROME-style edits. We keep this name
-("Mneme") for historical reasons — earlier prototypes did inject at
-every attention V-projection — but the production code path is single-point
-final-residual injection.
+Historical residual-writer / KeyProjector prototypes are kept in legacy
+scripts and reports, but they are not the current mainline mechanism described
+by `deltamemory.memory.attn_native_bank`.
 
 ## 2. Why we claim this is principled, not hand-wavy
 
@@ -42,56 +38,42 @@ stream is fragile because of the linear-representation hypothesis,
 superposition, and a non-linear phase-transition between 'subtle' and
 'destructive' intervention. How do you avoid those?"
 
-Our short answer: **we don't try to solve them at the residual-stream level.
-We solve them at the readout level.**
+Our short answer: **we constrain the external-KV channel and measure the
+resulting drift directly.**
 
-1. **Linear representation hypothesis.** We assume only the final
-   readout layer is linear (it literally is, by construction:
-   `lm_head = nn.Linear`). That's a far weaker assumption than assuming a
-   linear concept geometry mid-residual. The Writer is trained end-to-end
-   so that `W_lm b_k` is a *learned* direction in logit space — we
-   never need to find the "right concept axis" by hand.
+1. **No learned mid-residual concept axis.** The mainline bank captures native
+   attention K/V activations from the same frozen model that will read them.
+   There is no trained Writer in the attention-native path and no assumption
+   that a hand-picked residual direction encodes the fact.
 
-2. **Superposition.** Because the Writer's output is fed directly to
-   `lm_head`, the only way it can interfere with another concept is if its
-   contribution to the **logit vector** of an unrelated query is large.
-   We measure this empirically as the *locality drift* on neutral controls
-   (Stage 10C, 11D, 12-P3). When DM is broadcast (every query sees the
-   whole bank), drift is large (Stage 12 P3 = 75 %). When DM is per-query
-   routed via the encoder/retriever (Stage 11D), drift is 0 % across our
-   tests. Per-query routing is therefore the production policy.
+2. **Superposition.** The bank competes inside attention, so unrelated queries
+   can still read a bank slot if its K is spuriously similar. We measure this
+   as NLL/locality drift and keep the α=0 / empty-bank bit-equality red line as
+   a hard invariant.
 
-3. **Phase transition.** The "narrow window" between sub-threshold and
-   catastrophic injection is exactly what we sweep over with `α` and what
-   the writer's zero-init learns to land inside. Critically, the writer's
-   final layer is initialised to all-zeros (`writer.down`), so before
-   training the injection is exactly zero, and gradient descent walks `α b`
-   into the productive regime under joint CE + InfoNCE objectives. We
-   never hand-pick `α`; we set it to 1.0 once and let the writer scale.
+3. **Phase transition.** The intervention strength is swept through `α`.
+   Architecture adapters provide conservative defaults, and V-scale
+   calibration caps captured bank values for families without native V
+   normalization.
 
-4. **Encoder fingerprinting.** This is *not* solved. Stage 11A shows that
-   even with paraphrase-augmented InfoNCE, our encoder still relies on
-   surface lexical features (held-out paraphrase recall = 0.138). We
-   report this as a real failure rather than papering over it. Solutions
-   we have **not** implemented but think are promising:
-   (a) Givens / Householder orthogonal banks,
-   (b) sparse-autoencoder dictionary banks,
-   (c) closed-form ROME-style edits that bypass the encoder entirely.
+4. **Optional guards.** mHC, LOPI, U-LOPI, and ECOR are explicit ablation
+   toggles. They are not required for the default bank path and should not be
+   presented as evidence unless the corresponding experiment enables them.
 
 ## 3. What we deliberately do *not* claim
 
-- **DM is editable memory at the relation level.** Stage 10F and 11B show
-  this is false: facts in a relation never seen during training cannot be
-  added to the bank with retrieval ≥ 0.5.
-- **DM solves the linear-representation problem.** It doesn't try to —
-  the linear assumption only applies to `lm_head`.
-- **DM survives paraphrase robustness with our current encoders.** It
-  doesn't — see Stage 11A. Different encoder geometry needed.
+- **DM is guaranteed editable memory at the relation level.** The bank can
+  still fail when the frozen model's native attention geometry does not route a
+  query toward the captured slot.
+- **DM solves the linear-representation problem.** It doesn't try to; the
+  mainline path reuses native K/V geometry rather than proving linear concept
+  directions.
+- **DM survives all paraphrase robustness tests.** It doesn't; address/query
+  surface form can still affect whether a bank slot is read.
 - **DM matches RAG at multi-token open answers.** We test only single-
   token LAMA-TREx targets; multi-token decoding is open work.
-- **DM is safe at α=1.0 with broadcast injection.** Broadcast destroys
-  75 % of unrelated answers (Stage 12 P3). Production must use per-query
-  retrieval.
+- **Every ablation improves the bank.** W.2/W.3 demote LOPI/mHC-style guards to
+  optional ablations unless a preregistered run shows a directional benefit.
 
 ## 4. Reproducibility
 

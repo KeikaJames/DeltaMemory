@@ -18,6 +18,7 @@ import torch
 import torch.nn as nn
 
 from deltamemory.memory.lopi_profiler import (
+    _layer_norm_stats,
     default_profile_corpus,
     load_profile,
     profile_residuals,
@@ -175,3 +176,17 @@ def test_eta_sigma_default_one_for_homogeneous():
 def test_empty_prompts_raises():
     with pytest.raises(ValueError):
         profile_residuals(_FakeModel(), _FakeTokenizer(), prompts=[])
+
+
+def test_layer_norm_stats_excludes_padding_tokens():
+    h0 = torch.zeros(2, 2, 2)
+    h1 = torch.tensor([
+        [[3.0, 4.0], [300.0, 400.0]],
+        [[6.0, 8.0], [0.0, 0.0]],
+    ])
+    mask = torch.tensor([[1, 0], [1, 1]])
+
+    mu, sigma = _layer_norm_stats((h0, h1), attention_mask=mask)
+    valid_norms = torch.tensor([5.0, 10.0, 0.0])
+    assert mu == [float(valid_norms.mean().item())]
+    assert sigma == [float(valid_norms.std(unbiased=False).item())]

@@ -1,5 +1,5 @@
 {
-  "Q1": "PASS (A1\u2212A0=-0.034 nats at \u03b1\u22652)",
-  "Q2": "PASS (A2\u2212A1=-0.092 nats; Gaussian reduces drift)",
-  "Q3": "FAIL (A3\u2212A2=+0.000 nats; gate pinned at 1.0)"
+  "Q1": "FAIL (1/3 models; A1\u2212A0=-0.034 nats at \u03b1\u22652)",
+  "Q2": "FAIL (2/3 models; A2\u2212A1=-0.092 nats)",
+  "Q3": "FAIL (0/3 models; A3\u2212A2=+0.000 nats; gate may be pinned)"
 }

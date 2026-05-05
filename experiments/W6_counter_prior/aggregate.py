@@ -251,11 +251,13 @@ def aggregate(cells: list[dict], M_winner: str) -> tuple[dict, dict]:
     rej_a = _holm_bonferroni(p_a, alpha=0.01)
     for c, r in zip(h6a_cells, rej_a):
         c["holm_reject"] = bool(r)
+        c["directional_success"] = bool(r and c["median_diff"] == c["median_diff"] and c["median_diff"] < 0.0)
 
     p_b = [c["p_raw"] for c in h6b_cells]
     rej_b = _holm_bonferroni(p_b, alpha=0.01)
     for c, r in zip(h6b_cells, rej_b):
         c["holm_reject"] = bool(r)
+        c["directional_success"] = bool(r and c["median_diff"] == c["median_diff"] and c["median_diff"] < 0.0)
 
     # Counts.
     redline_count = sum(1 for c in cells if c.get("redline_violation"))
@@ -276,14 +278,16 @@ def aggregate(cells: list[dict], M_winner: str) -> tuple[dict, dict]:
             "family_size": len(h6a_cells),
             "holm_threshold": 0.01,
             "cells": h6a_cells,
-            "n_reject": sum(1 for c in h6a_cells if c["holm_reject"]),
+            "n_holm_reject": sum(1 for c in h6a_cells if c["holm_reject"]),
+            "n_reject": sum(1 for c in h6a_cells if c["directional_success"]),
         },
         "h6b": {
             "name": "median_p [nll_new(M_winner) - nll_true(M_winner)] < 0",
             "family_size": len(h6b_cells),
             "holm_threshold": 0.01,
             "cells": h6b_cells,
-            "n_reject": sum(1 for c in h6b_cells if c["holm_reject"]),
+            "n_holm_reject": sum(1 for c in h6b_cells if c["holm_reject"]),
+            "n_reject": sum(1 for c in h6b_cells if c["directional_success"]),
         },
     }
 
@@ -306,7 +310,7 @@ def _resolve_m_winner(cells_path: Path) -> str:
 def main() -> None:
     ap = argparse.ArgumentParser(description="W.6 counter-prior aggregator")
     ap.add_argument("--cells", default="experiments/W6_counter_prior/cells.jsonl")
-    ap.add_argument("--out", default="experiments/W6_counter_prior/")
+    ap.add_argument("--out", default="/tmp/deltamemory/W6_counter_prior/")
     ap.add_argument("--m-winner", default=None,
                     help="Override M_winner (default: read from env.json).")
     args = ap.parse_args()

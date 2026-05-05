@@ -73,9 +73,9 @@ def compute_verdict(df) -> dict:
     total = len(results)
     if total == 0:
         verdict = "NO_DATA"
-    elif pass_count >= 5:
+    elif pass_count == total:
         verdict = "PASS"
-    elif pass_count >= 3:
+    elif pass_count / total >= 0.6:
         verdict = "PARTIAL"
     else:
         verdict = "FAIL"
@@ -179,7 +179,7 @@ def write_verdict(verdict_info: dict, df, outdir: Path):
 def main():
     parser = argparse.ArgumentParser(description="W.1 aggregate")
     parser.add_argument("--input", default="experiments/W1_mhc_localize/cells.jsonl")
-    parser.add_argument("--outdir", default="experiments/W1_mhc_localize/figures")
+    parser.add_argument("--outdir", default="/tmp/deltamemory/W1_mhc_localize/figures")
     args = parser.parse_args()
 
     input_path = Path(args.input)

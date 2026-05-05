@@ -16,6 +16,7 @@ from deltamemory.memory.bank_persistence import (
     storage_bytes,
 )
 from deltamemory.memory.lopi import LOPIConfig
+from deltamemory.memory.lopi_inject import ECORConfig
 
 
 def _make_bank(*, n_facts: int = 3, num_layers: int = 4, num_kv_heads: int = 2,
@@ -25,9 +26,9 @@ def _make_bank(*, n_facts: int = 3, num_layers: int = 4, num_kv_heads: int = 2,
         device="cpu", dtype=dtype,
     )
     g = torch.Generator().manual_seed(seed)
-    K = [torch.randn(1, num_kv_heads, head_dim, generator=g, dtype=torch.float32).to(dtype)
+    K = [torch.randn(num_kv_heads, head_dim, generator=g, dtype=torch.float32).to(dtype)
          for _ in range(num_layers)]
-    V = [torch.randn(1, num_kv_heads, head_dim, generator=g, dtype=torch.float32).to(dtype)
+    V = [torch.randn(num_kv_heads, head_dim, generator=g, dtype=torch.float32).to(dtype)
          for _ in range(num_layers)]
     for i in range(n_facts):
         bank.append(
@@ -91,6 +92,35 @@ def test_config_sha_isolates_distinct_configs(tmp_path: Path):
     assert loc_a.dir.exists() and loc_b.dir.exists()
 
 
+def test_lopi_ecor_config_round_trip_and_hash_isolation(tmp_path: Path):
+    bank_a = _make_bank(n_facts=1)
+    bank_b = _make_bank(n_facts=1)
+    bank_a.lopi_cfg = LOPIConfig(
+        enabled=True,
+        gaussian=True,
+        derivative=True,
+        use_ecor=False,
+    )
+    bank_b.lopi_cfg = LOPIConfig(
+        enabled=True,
+        gaussian=True,
+        derivative=True,
+        use_ecor=True,
+        ecor_cfg=ECORConfig(enabled=True, soft_blend=1.0, k=0.5),
+    )
+
+    loc_a = save_bank(bank_a, tmp_path, model_name="m")
+    loc_b = save_bank(bank_b, tmp_path, model_name="m")
+    assert loc_a.config_sha != loc_b.config_sha
+
+    reloaded = load_bank(loc_b)
+    assert reloaded.lopi_cfg.enabled is True
+    assert reloaded.lopi_cfg.use_ecor is True
+    assert reloaded.lopi_cfg.ecor_cfg.enabled is True
+    assert reloaded.lopi_cfg.ecor_cfg.soft_blend == 1.0
+    assert reloaded.lopi_cfg.ecor_cfg.k == 0.5
+
+
 def test_config_sha_stable_across_runs():
     sha1 = compute_config_sha(
         model_name="x", num_layers=4, num_kv_heads=2, head_dim=8,
@@ -138,6 +168,14 @@ def test_dtype_round_trip_bfloat16(tmp_path: Path):
     loc = save_bank(bank, tmp_path, model_name="m")
     reloaded = load_bank(loc)
     assert reloaded.M_K[0].dtype == torch.bfloat16
+
+
+def test_dtype_round_trip_float64(tmp_path: Path):
+    bank = _make_bank(n_facts=2, dtype=torch.float64)
+    loc = save_bank(bank, tmp_path, model_name="m")
+    reloaded = load_bank(loc)
+    assert reloaded.M_K[0].dtype == torch.float64
+    assert _bank_tensors_equal(bank, reloaded)
 
 
 def test_overwrite_same_config_sha(tmp_path: Path):
@@ -199,6 +237,25 @@ def test_value_scale_config_round_trip(tmp_path: Path):
     reloaded = load_bank(loc)
     assert reloaded.value_scale_mode == "unit_rms"
     assert reloaded.value_target_rms == 0.25
+
+
+def test_runtime_bank_knobs_round_trip_and_hash_isolation(tmp_path: Path):
+    bank_a = _make_bank(n_facts=1)
+    bank_b = _make_bank(n_facts=1)
+    bank_b.bank_cosine = True
+    bank_b.bank_topk = 3
+    bank_b.bank_separate_softmax = True
+    bank_b.bank_merge_beta = 0.25
+
+    loc_a = save_bank(bank_a, tmp_path, model_name="m")
+    loc_b = save_bank(bank_b, tmp_path, model_name="m")
+    assert loc_a.config_sha != loc_b.config_sha
+
+    reloaded = load_bank(loc_b)
+    assert reloaded.bank_cosine is True
+    assert reloaded.bank_topk == 3
+    assert reloaded.bank_separate_softmax is True
+    assert reloaded.bank_merge_beta == 0.25
 
 
 def test_value_scale_config_isolates_config_sha(tmp_path: Path):

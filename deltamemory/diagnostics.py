@@ -96,6 +96,8 @@ class DiagnosticRecorder:
         self._records: list[dict] = []
         self._current_step: int = -1
         self._hook_handles: list = []
+        self._previous_recorder: Optional["DiagnosticRecorder"] = None
+        self._entered: bool = False
 
     # ------------------------------------------------------------------
     # Context-manager protocol
@@ -105,30 +107,44 @@ class DiagnosticRecorder:
         if not self._enabled:
             return self
         global _RECORDER
+        self._previous_recorder = _RECORDER
         _RECORDER = self
 
-        # Model-level pre-hook: increment step counter once per forward.
-        def _pre_hook(module: Any, args: Any) -> None:
-            self._current_step += 1
+        try:
+            # Model-level pre-hook: increment step counter once per forward.
+            def _pre_hook(module: Any, args: Any) -> None:
+                self._current_step += 1
 
-        self._hook_handles.append(
-            self._model.register_forward_pre_hook(_pre_hook)
-        )
-
-        # Per-decoder-block hook: record residual-stream L2 norms.
-        for i, block in enumerate(self._find_decoder_layers()):
             self._hook_handles.append(
-                block.register_forward_hook(self._make_residual_hook(i))
+                self._model.register_forward_pre_hook(_pre_hook)
             )
 
+            # Per-decoder-block hook: record residual-stream L2 norms.
+            for i, block in enumerate(self._find_decoder_layers()):
+                self._hook_handles.append(
+                    block.register_forward_hook(self._make_residual_hook(i))
+                )
+        except Exception:
+            for h in self._hook_handles:
+                h.remove()
+            self._hook_handles.clear()
+            _RECORDER = self._previous_recorder
+            self._previous_recorder = None
+            raise
+
+        self._entered = True
         return self
 
     def __exit__(self, *_: Any) -> None:
+        if not self._enabled or not self._entered:
+            return
         global _RECORDER
-        _RECORDER = None
         for h in self._hook_handles:
             h.remove()
         self._hook_handles.clear()
+        _RECORDER = self._previous_recorder
+        self._previous_recorder = None
+        self._entered = False
 
     # ------------------------------------------------------------------
     # Decoder-layer discovery (mirrors AttnNativePatcher.__init__ paths)

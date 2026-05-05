@@ -32,11 +32,10 @@
 Mneme is a research prototype for **persistent external memory in a
 frozen LLM**. A per-layer K/V bank is concatenated into supported attention
 layers; the prompt at read time contains only the question, and the base
-weights stay frozen. The Phase R+ canonical stack pairs the bank with a
-training-free injection wrapper (Dynamic LOPI v3.4) and a one-shot residual
-profiler (U-LOPI Phase S) so the same library runs unchanged across
-Gemma / Qwen3 / GLM-4 / Llama / GPT-2 without manual α retuning. It is **not
-RAG**, **not prompt insertion**, and **not a weight edit**.
+weights stay frozen. The default production path is the attention-native bank
+with architecture-specific α defaults and V-scale calibration; Dynamic LOPI /
+U-LOPI and mHC are available as explicit ablation knobs, not hidden prompt
+context. It is **not RAG**, **not prompt insertion**, and **not a weight edit**.
 
 ## Quick start
 
@@ -45,7 +44,7 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from deltamemory import (
     AttnNativePatcher, fresh_bank, write_fact,
-    profile_residuals, LOPIConfig,
+    LOPIConfig,
     save_bank, load_bank,
 )
 
@@ -57,11 +56,11 @@ model.eval()
 # 1) Bank + per-layer attention patcher around the frozen LLM.
 patcher = AttnNativePatcher(model)
 bank = fresh_bank(model)
-bank.lopi_cfg = LOPIConfig(enabled=True, profile_mode="auto")  # Phase S auto-cal
+bank.lopi_cfg = LOPIConfig(enabled=False)  # set True only for LOPI ablations
 
-# 2) U-LOPI cold-start: one-shot residual profile -> per-arch Z-score baselines.
-prof = profile_residuals(model, tok)            # forward-only, weights bit-equal
-bank.attach_lopi_profile(model, tok)            # binds prof onto bank.lopi_state
+# 2) Optional U-LOPI cold-start for LOPI ablations.
+# bank.lopi_cfg = LOPIConfig(enabled=True, profile_mode="auto")
+# bank.attach_lopi_profile(model, tok)          # forward-only, weights bit-equal
 
 # 3) Write a fact into the bank.
 write_fact(patcher, bank, tok,
@@ -74,15 +73,16 @@ with patcher.patched(), patcher.injecting(bank, alpha=1.0), torch.no_grad():
     out = model.generate(**tok(read_prompt, return_tensors="pt"), max_new_tokens=8)
 print(tok.decode(out[0], skip_special_tokens=True))
 
-# 5) Persist (schema "ulopi_v36"); load_bank restores the profile + V-scale config.
+# 5) Persist (schema "ulopi_v36"); load_bank restores LOPI/ECOR, profile,
+#    V-scale, and bank-attention runtime config.
 save_bank(bank, root="./banks", model_name=model_name)
 ```
 
 `bank.attach_lopi_profile(...)` is a thin wrapper around `profile_residuals`
 that binds the profile onto `bank.lopi_state` and validates the layer count
-matches the bank shape. With `LOPIConfig(enabled=False)` the merged-softmax
-branch is bit-for-bit equivalent to the legacy v3.1 formula, and `α=0` /
-empty bank stays bit-equal to the unmodified model.
+matches the bank shape. With `LOPIConfig(enabled=False)` (the default) the
+merged-softmax branch is bit-for-bit equivalent to the legacy v3.1 formula,
+and `α=0` / empty bank stays bit-equal to the unmodified model.
 
 ## Architecture
 
@@ -216,7 +216,6 @@ Phase-R+ benchmark drivers used by the cleanroom reports:
 
 ```bash
 python scripts/run_v31_benchmark.py --help        # v3.1 baseline benchmark
-python scripts/run_v31_benchmark_mps.py --help    # MPS variant for Apple Silicon
 ```
 
 The v3.1 intervention demo (true / counter-prior facts, per-arch α defaults):
@@ -240,9 +239,9 @@ target log-probs) for the v3.1 counter-prior result are committed under
 pytest tests/ --ignore=tests/conservation_real_models.py
 ```
 
-Expected: **107 passed, 6 skipped** (113 collected). The fully skipped suite
-(`conservation_real_models.py`) downloads multi-GB HF checkpoints and is
-opt-in — see its module docstring.
+Expected: all local tests pass. The fully skipped/opt-in conservation suite
+(`conservation_real_models.py`) downloads multi-GB HF checkpoints — see its
+module docstring before running it.
 Phase-S coverage in particular: `test_lopi_profiler.py` (profile bit-equality)
 and `test_lopi_universal.py` (cross-arch shape + bit-equality on Gemma /
 Qwen3 / GLM-4 / Llama / GPT-2).

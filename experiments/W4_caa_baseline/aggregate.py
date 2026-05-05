@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import gzip
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -33,6 +34,11 @@ sys.path.insert(0, str(ROOT))
 REDLINE_TOL = 1e-4
 ALPHA_THRESHOLD = 0.01
 BOOTSTRAP_B = 1000
+
+
+def _stable_seed(*parts: object) -> int:
+    blob = json.dumps([str(p) for p in parts], separators=(",", ":"), sort_keys=False).encode("utf-8")
+    return int(hashlib.sha256(blob).hexdigest()[:8], 16)
 
 
 # ---------------------------------------------------------------------------
@@ -181,7 +187,7 @@ def compute_verdicts(cells: list[dict]) -> dict:
                 x, y = paired_diffs(cells, model, alpha, method, baseline="none")
                 p = wilcoxon_p(x, y) if len(x) > 0 else float("nan")
                 med, lo, hi = bootstrap_median_ci(x, y, B=BOOTSTRAP_B,
-                                                    rng_seed=hash((model, alpha, method)) & 0xFFFF)
+                                                    rng_seed=_stable_seed(model, alpha, method))
                 tests.append({
                     "model": model,
                     "alpha": alpha,
@@ -256,7 +262,7 @@ def compute_verdicts(cells: list[dict]) -> dict:
 def main():
     ap = argparse.ArgumentParser(description="W.4 aggregate")
     ap.add_argument("--cells", default="experiments/W4_caa_baseline/cells.jsonl")
-    ap.add_argument("--out", default="experiments/W4_caa_baseline/")
+    ap.add_argument("--out", default="/tmp/deltamemory/W4_caa_baseline/")
     args = ap.parse_args()
 
     cells_path = Path(args.cells)

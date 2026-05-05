@@ -852,7 +852,7 @@ def _peek_nll_new(path: Path, target_cid: str) -> Optional[float]:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="W.6 counter-prior runner")
-    ap.add_argument("--out", default="experiments/W6_counter_prior/cells.jsonl")
+    ap.add_argument("--out", default="/tmp/deltamemory/W6_counter_prior/cells.jsonl")
     ap.add_argument("--device", default="mps")
     ap.add_argument("--dtype", default="bfloat16")
     ap.add_argument("--models", nargs="+", default=MODELS)

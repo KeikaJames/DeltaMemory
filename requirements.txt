@@ -1,0 +1,11 @@
+filelock
+huggingface-hub
+matplotlib
+numpy
+pandas
+pyyaml
+safetensors
+scipy
+torch
+transformers
+pytest

@@ -21,6 +21,7 @@ set -euo pipefail
 
 MODEL="${MODEL:-google/gemma-4-E2B}"
 DEVICE="${DEVICE:-auto}"
+OUT_DIR="${OUT_DIR:-/tmp/deltamemory/transcripts/v31_repro}"
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
@@ -51,9 +52,9 @@ $PYTHON scripts/run_intervention_demo.py \
     --false-facts \
     --capture-policy period \
     --label "v31_repro" \
-    --out-dir "transcripts/v31_repro"
+    --out-dir "$OUT_DIR"
 
 echo
 echo "=== Done ==="
-echo "Transcript: transcripts/v31_repro/demo.md"
-echo "Raw data:   transcripts/v31_repro/demo.json"
+echo "Transcript: $OUT_DIR/demo.md"
+echo "Raw data:   $OUT_DIR/demo.json"

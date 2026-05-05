@@ -233,6 +233,32 @@ def test_recorder_lopi_disabled_skips_lopi_signals(tiny_bundle_lopi):
     )
 
 
+def test_disabled_nested_recorder_preserves_outer(tiny_bundle):
+    import deltamemory.diagnostics as diag
+    from deltamemory.diagnostics import DiagnosticRecorder
+
+    model, patcher, _bank = tiny_bundle
+    with DiagnosticRecorder(model, patcher, enabled=True) as outer:
+        assert diag._RECORDER is outer
+        with DiagnosticRecorder(model, patcher, enabled=False):
+            assert diag._RECORDER is outer
+        assert diag._RECORDER is outer
+    assert diag._RECORDER is None
+
+
+def test_failed_enter_restores_global_and_removes_hooks():
+    import deltamemory.diagnostics as diag
+    from deltamemory.diagnostics import DiagnosticRecorder
+
+    model = torch.nn.Linear(2, 2)
+    before_hooks = len(model._forward_pre_hooks)
+    with pytest.raises(RuntimeError, match="could not locate decoder layers"):
+        with DiagnosticRecorder(model, patcher=None, enabled=True):
+            pass
+    assert diag._RECORDER is None
+    assert len(model._forward_pre_hooks) == before_hooks
+
+
 # ---------------------------------------------------------------------------
 # Test 5 — overhead: recorder ON adds ≤50% latency vs OFF
 # ---------------------------------------------------------------------------

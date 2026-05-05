@@ -29,7 +29,7 @@ import json
 import os
 import re
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from pathlib import Path
 from typing import Any
 
@@ -137,19 +137,46 @@ def resolve_location(
 # Save / load
 # ---------------------------------------------------------------------------
 
+def _jsonable(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {str(k): _jsonable(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_jsonable(v) for v in value]
+    if isinstance(value, (str, int, float, bool)) or value is None:
+        return value
+    return repr(value)
+
+
 def _lopi_cfg_to_dict(cfg: Any) -> dict[str, Any] | None:
     if cfg is None:
         return None
+    if hasattr(cfg, "asdict"):
+        return _jsonable(cfg.asdict())
     keys = ("enabled", "orthogonal", "gaussian", "derivative",
             "profile_mode", "z_clamp", "auto_mu_c",
             "norm_base", "k_shift", "theta_shift", "k_gate", "theta_gate",
             "kappa_depth", "beta_sigma", "mu_lo", "mu_hi", "mu_low", "mu_span",
-            "sigma_floor", "epsilon", "eps")
+            "sigma_floor", "epsilon", "eps", "use_ecor", "ecor_cfg")
     out: dict[str, Any] = {}
     for k in keys:
         if hasattr(cfg, k):
-            out[k] = getattr(cfg, k)
+            out[k] = _jsonable(getattr(cfg, k))
     return out
+
+
+def _lopi_cfg_from_dict(cfg_dict: dict[str, Any] | None) -> Any:
+    if not cfg_dict:
+        return None
+    from deltamemory.memory.lopi import LOPIConfig
+    from deltamemory.memory.lopi_inject import ECORConfig
+
+    cfg_fields = {f.name for f in fields(LOPIConfig)}
+    kwargs = {k: v for k, v in cfg_dict.items() if k in cfg_fields}
+    ecor_dict = kwargs.get("ecor_cfg")
+    if isinstance(ecor_dict, dict):
+        ecor_fields = {f.name for f in fields(ECORConfig)}
+        kwargs["ecor_cfg"] = ECORConfig(**{k: v for k, v in ecor_dict.items() if k in ecor_fields})
+    return LOPIConfig(**kwargs)
 
 
 def _lopi_profile_to_dict(state: Any) -> dict[str, Any] | None:
@@ -162,6 +189,16 @@ def _lopi_profile_to_dict(state: Any) -> dict[str, Any] | None:
     if hasattr(profile, "asdict"):
         return profile.asdict()
     return dict(profile)  # type: ignore[arg-type]
+
+
+def _bank_runtime_cfg(sd: dict[str, Any]) -> dict[str, Any]:
+    """Runtime attention knobs that affect read semantics but live on bank attrs."""
+    return {
+        "bank_cosine": bool(sd.get("bank_cosine", False)),
+        "bank_topk": int(sd.get("bank_topk", 0) or 0),
+        "bank_separate_softmax": bool(sd.get("bank_separate_softmax", False)),
+        "bank_merge_beta": float(sd.get("bank_merge_beta", 1.0)),
+    }
 
 
 def save_bank(
@@ -202,6 +239,7 @@ def save_bank(
             "profile_corpus_sha": profile_corpus_sha,
             "value_scale_mode": sd.get("value_scale_mode", "auto_rms_cap"),
             "value_target_rms": float(sd.get("value_target_rms", 0.5)),
+            **_bank_runtime_cfg(sd),
         },
     )
     loc = resolve_location(root, model_name, config_sha)
@@ -234,6 +272,7 @@ def save_bank(
             "value_scale_eps": float(sd.get("value_scale_eps", 1e-6)),
             "lopi_cfg": _lopi_cfg_to_dict(getattr(bank, "lopi_cfg", None)),
             "lopi_profile": profile_dict,
+            **_bank_runtime_cfg(sd),
             "n_facts": int(sd["M_K"][0].size(0)) if sd["M_K"] else 0,
             "fact_ids": list(sd.get("fact_ids", [])),
             "address_strs": list(sd.get("address_strs", [])),
@@ -282,11 +321,18 @@ def load_bank(
             f"runtime={VERSION!r}; migration not implemented"
         )
 
-    on_disk_dtype = {
+    dtype_map = {
         "bfloat16": torch.bfloat16,
         "float16": torch.float16,
+        "float": torch.float32,
         "float32": torch.float32,
-    }[meta["dtype"]]
+        "float64": torch.float64,
+        "double": torch.float64,
+    }
+    meta_dtype = str(meta["dtype"])
+    if meta_dtype not in dtype_map:
+        raise ValueError(f"unsupported bank dtype in metadata: {meta_dtype!r}")
+    on_disk_dtype = dtype_map[meta_dtype]
     target_dtype = dtype or on_disk_dtype
 
     # Read tensors
@@ -309,19 +355,23 @@ def load_bank(
         "value_scale_mode": str(meta.get("value_scale_mode", "auto_rms_cap")),
         "value_target_rms": float(meta.get("value_target_rms", 0.5)),
         "value_scale_eps": float(meta.get("value_scale_eps", 1e-6)),
+        "bank_cosine": bool(meta.get("bank_cosine", False)),
+        "bank_topk": int(meta.get("bank_topk", 0) or 0),
+        "bank_separate_softmax": bool(meta.get("bank_separate_softmax", False)),
+        "bank_merge_beta": float(meta.get("bank_merge_beta", 1.0)),
     }
     bank = AttnNativeBank.from_state_dict(sd, device=device, dtype=target_dtype)
+    lopi_cfg = _lopi_cfg_from_dict(meta.get("lopi_cfg"))
+    if lopi_cfg is not None:
+        bank.lopi_cfg = lopi_cfg
 
     # Phase S — restore the LOPI profile (if any).  We attach it directly to
     # the bank's freshly-constructed lopi_state so reloads inherit the
     # auto-calibration without needing to re-profile the model.
     profile_dict = meta.get("lopi_profile")
     if profile_dict:
-        try:
-            from deltamemory.memory.lopi_profiler import LOPIProfile
-            bank.lopi_state.profile = LOPIProfile.from_dict(profile_dict)
-        except Exception:  # pragma: no cover -- defensive; profile is optional
-            pass
+        from deltamemory.memory.lopi_profiler import LOPIProfile
+        bank.lopi_state.profile = LOPIProfile.from_dict(profile_dict)
     return bank
 
 

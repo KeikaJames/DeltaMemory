@@ -254,6 +254,13 @@ def load_model_and_tokenizer(model_name: str, device: torch.device):
 # Main sweep
 # ---------------------------------------------------------------------------
 
+def _cell_key(record: dict) -> str:
+    return (
+        f"{record['model']}|{record['seed']}|{record['alpha']}|"
+        f"{record['shield']}|{record['kappa']}|{record['v_scale']}"
+    )
+
+
 def run_model_sweep(
     model_name: str,
     seeds: list[int],
@@ -262,6 +269,7 @@ def run_model_sweep(
     shields: list[bool] = SHIELDS,
     kappas: list[float] = KAPPAS,
     v_scales: list[bool] = V_SCALES,
+    done_keys: set[str] | None = None,
 ) -> list[dict]:
     device = _get_device()
     print(f"\n=== Model: {model_name} | device: {device} ===", flush=True)
@@ -283,6 +291,7 @@ def run_model_sweep(
     dtype = next(model.parameters()).dtype
     records = []
     cells_done = 0
+    done_keys = done_keys or set()
 
     for seed in seeds:
         print(f"  Seed {seed}", flush=True)
@@ -324,7 +333,18 @@ def run_model_sweep(
 
                         cell_idx += 1
                         cell_label = (f"α={alpha:.1f} shield={int(shield)} "
-                                      f"κ={kappa:.1f} V={int(v_scale)}")
+                                       f"κ={kappa:.1f} V={int(v_scale)}")
+                        candidate = {
+                            "model": model_name,
+                            "seed": seed,
+                            "alpha": alpha,
+                            "shield": shield,
+                            "kappa": kappa,
+                            "v_scale": v_scale,
+                        }
+                        if _cell_key(candidate) in done_keys:
+                            print(f"    [{cell_idx}/{total_cells}] {cell_label} → skip (resume)", flush=True)
+                            continue
                         print(f"    [{cell_idx}/{total_cells}] {cell_label}", end="", flush=True)
                         t0 = time.time()
 
@@ -423,7 +443,7 @@ def main():
     parser = argparse.ArgumentParser(description="W.1 mHC localization sweep")
     parser.add_argument("--model", default="gpt2",
                         help="Model name or 'all' to run all 5 models")
-    parser.add_argument("--output", default="experiments/W1_mhc_localize/cells.jsonl",
+    parser.add_argument("--output", default="/tmp/deltamemory/W1_mhc_localize/cells.jsonl",
                         help="Output JSONL path")
     parser.add_argument("--seeds", nargs="+", type=int, default=[0],
                         help="Random seeds (default: [0], single-seed pilot)")
@@ -442,8 +462,7 @@ def main():
             for line in fh:
                 try:
                     r = json.loads(line)
-                    k = f"{r['model']}|{r['seed']}|{r['alpha']}|{r['shield']}|{r['kappa']}|{r['v_scale']}"
-                    done_keys.add(k)
+                    done_keys.add(_cell_key(r))
                 except Exception:
                     pass
         print(f"Resume: {len(done_keys)} cells already done.", flush=True)
@@ -458,6 +477,7 @@ def main():
             seeds=args.seeds,
             output_path=output_path,
             alphas=args.alphas,
+            done_keys=done_keys,
         )
         if not recs:
             skipped_models.append(model_name)

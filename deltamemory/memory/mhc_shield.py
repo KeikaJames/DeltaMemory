@@ -17,7 +17,7 @@ matrix).
 
 Instead, the shield touches **only the bank columns**.  We cap each
 bank slot's column-sum (the total attention that reads it across all
-queries in the batch) to ≤ ``kappa``.  This bounds the operator-norm of
+batch, head, and query positions) to ≤ ``kappa``.  This bounds the operator-norm of
 the bank-injection map  W_bank · (αM_V) → out_bank  by ``kappa`` while
 leaving the native sequence attention untouched.  Mathematically this
 is equivalent to enforcing spectral non-amplification only on the
@@ -152,8 +152,11 @@ def shield_attention_weights(
 
     eps = 1e-9
     bank = weights[..., T_orig:].to(torch.float32)
-    col_sum = bank.sum(dim=-2, keepdim=True).clamp_min(eps)   # [..., 1, N]
+    # Cap each bank slot globally over every query population represented in
+    # the tensor.  A per-(batch, head) cap would grow as B * H * kappa.
+    col_sum = bank.reshape(-1, bank_size).sum(dim=0).clamp_min(eps)
     scale = (kappa / col_sum).clamp(max=1.0)
+    scale = scale.reshape((1,) * (bank.dim() - 1) + (bank_size,))
     bank_capped = (bank * scale).to(weights.dtype)
     native = weights[..., :T_orig]                            # untouched
     return torch.cat([native, bank_capped], dim=-1)
@@ -305,4 +308,3 @@ def apply_shield_per_expert(
 
     native = weights[:, :T_orig]                   # (q, T_orig) — untouched
     return torch.cat([native, shielded_bank], dim=-1)
-

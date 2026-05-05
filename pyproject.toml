@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "deltamemory"
+version = "0.4.0"
+description = "External K/V memory injected inside frozen Transformer attention."
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+dependencies = [
+  "filelock",
+  "huggingface-hub",
+  "matplotlib",
+  "numpy",
+  "pandas",
+  "pyyaml",
+  "safetensors",
+  "scipy",
+  "torch",
+  "transformers",
+]
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[tool.setuptools.packages.find]
+include = ["deltamemory*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

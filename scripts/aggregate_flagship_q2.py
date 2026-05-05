@@ -288,76 +288,97 @@ def main():
 
 
 def render_svg(models, rows, out_path: Path):
-    """Generate a simple lift-vs-drift SVG for the primary Q2 figure."""
-    model_rows = [r for r in rows if r["model"] == sorted(models)[0]]
-    alphas = sorted(set(r["alpha"] for r in model_rows))
+    """Generate the primary Q2 lift-vs-drift SVG as multi-model small multiples."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
 
-    # Collect data series
-    off_lift = []
-    off_drift = []
-    on_lift = []
-    on_drift = []
-    for alpha in alphas:
-        off = [r for r in model_rows if r["alpha"] == alpha and not r["shield"]]
-        on = [r for r in model_rows if r["alpha"] == alpha and r["shield"]]
-        off_lift.append(off[0]["mean_lift"] if off else 0)
-        off_drift.append(off[0]["mean_drift"] if off else 0)
-        on_lift.append(on[0]["mean_lift"] if on else 0)
-        on_drift.append(on[0]["mean_drift"] if on else 0)
+    palette = {
+        False: "#E76F51",  # shield off
+        True: "#4169E1",   # shield on
+    }
+    labels = {
+        False: "Shield OFF",
+        True: "Shield ON",
+    }
 
-    W, H = 640, 400
-    mx, my = 40, H - 50
-    gw, gh = W - 80, H - 120
+    def model_short(name: str) -> str:
+        if "gemma-4" in name:
+            return "Gemma-4-E2B"
+        if "Qwen3" in name:
+            return "Qwen3-4B"
+        if "GLM-4" in name:
+            return "GLM-4-9B"
+        if "DeepSeek" in name:
+            return "DeepSeek-R1-Distill-Qwen-32B"
+        return name.split("/")[-1]
 
-    # Scale
-    all_l = off_lift + on_lift
-    all_d = off_drift + on_drift
-    l_min, l_max = min(all_l), max(all_l) * 1.15
-    d_min, d_max = min(min(all_d), 0), max(max(all_d), 0.6)
+    models_sorted = sorted(models)
+    ncols = 2
+    nrows = max(1, math.ceil(len(models_sorted) / ncols))
+    fig, axes = plt.subplots(nrows, ncols, figsize=(10.5, 4.0 * nrows), squeeze=False)
 
-    def x(v): return mx + (v - l_min) / max(l_max - l_min, 1) * gw
-    def y(v): return my - (v - d_min) / max(d_max - d_min, 1) * gh
+    for ax, model in zip(axes.flat, models_sorted):
+        model_rows = [r for r in rows if r["model"] == model]
+        alphas = sorted(set(r["alpha"] for r in model_rows))
+        for shield in (False, True):
+            lifts = []
+            drifts = []
+            used_alphas = []
+            for alpha in alphas:
+                row = [r for r in model_rows if r["alpha"] == alpha and r["shield"] is shield]
+                if not row:
+                    continue
+                lifts.append(row[0]["mean_lift"])
+                drifts.append(row[0]["mean_drift"])
+                used_alphas.append(alpha)
+            if not lifts:
+                continue
+            ax.plot(
+                lifts, drifts,
+                color=palette[shield],
+                marker="o",
+                linewidth=2.4,
+                markersize=5,
+                markeredgewidth=0,
+                label=labels[shield],
+            )
+            for idx in (0, len(used_alphas) - 1):
+                ax.annotate(
+                    f"a={used_alphas[idx]:.2g}",
+                    (lifts[idx], drifts[idx]),
+                    textcoords="offset points",
+                    xytext=(6, 4),
+                    fontsize=8,
+                    color=palette[shield],
+                )
 
-    svg = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}">']
-    svg.append(f'<rect width="{W}" height="{H}" fill="white"/>')
-    svg.append(f'<text x="{W/2}" y="22" text-anchor="middle" font-family="system-ui" font-size="14" fill="#1a1a2e">mHC Shield: Counter-Prior Lift vs NLL Drift — Gemma-4-E2B</text>')
+        ax.axhline(0.5, color="#E76F51", linewidth=1.0, linestyle="--", alpha=0.75)
+        ax.text(0.99, 0.5, "0.5 drift cap", transform=ax.get_yaxis_transform(),
+                ha="right", va="bottom", fontsize=8, color="#E76F51")
+        ax.axhline(0.0, color="#111827", linewidth=0.8, linestyle=":", alpha=0.65)
+        ax.set_title(model_short(model), fontsize=11, pad=8, color="#1F2937")
+        ax.set_xlabel("counter-prior lift (nats)", fontsize=10, color="#1F2937")
+        ax.set_ylabel("neutral NLL drift (nats)", fontsize=10, color="#1F2937")
+        ax.grid(True, axis="y", color="#D8DEE9", linewidth=0.8, alpha=0.7)
+        ax.grid(True, axis="x", color="#D8DEE9", linewidth=0.5, alpha=0.35)
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.spines["left"].set_color("#AAB2BD")
+        ax.spines["bottom"].set_color("#AAB2BD")
+        ax.tick_params(labelsize=9, colors="#1F2937")
 
-    # Axes
-    svg.append(f'<line x1="{mx}" y1="{my}" x2="{mx+gw}" y2="{my}" stroke="#ccc" stroke-width="1"/>')
-    svg.append(f'<line x1="{mx}" y1="{my}" x2="{mx}" y2="{my-gh}" stroke="#ccc" stroke-width="1"/>')
+    for ax in axes.flat[len(models_sorted):]:
+        ax.axis("off")
 
-    # Drift threshold line (H1: 0.5 nats)
-    y05 = y(0.5)
-    svg.append(f'<line x1="{mx}" y1="{y05}" x2="{mx+gw}" y2="{y05}" stroke="#FF3B30" stroke-width="1" stroke-dasharray="4,4"/>')
-    svg.append(f'<text x="{mx+gw+4}" y="{y05+4}" font-family="system-ui" font-size="10" fill="#FF3B30">0.5 nats</text>')
-
-    # Data points + connecting lines (shield OFF = red, shield ON = blue)
-    for label, lifts, drifts, color in [
-        ("Shield OFF", off_lift, off_drift, "#FF3B30"),
-        ("Shield ON", on_lift, on_drift, "#007AFF"),
-    ]:
-        pts = [(x(l), y(d)) for l, d in zip(lifts, drifts)]
-        # Connecting line
-        path = " ".join(f"L{px},{py}" for px, py in pts)
-        svg.append(f'<path d="M{pts[0][0]},{pts[0][1]} {path}" fill="none" stroke="{color}" stroke-width="1.5" opacity="0.5"/>')
-        # Points
-        for i, (px, py) in enumerate(pts):
-            svg.append(f'<circle cx="{px}" cy="{py}" r="4" fill="{color}"/>')
-            if i == 0 or i == len(pts) - 1:
-                svg.append(f'<text x="{px+6}" y="{py-4}" font-family="system-ui" font-size="9" fill="{color}">α={alphas[i]:.2f}</text>')
-
-    # Legend
-    svg.append(f'<circle cx="{mx+10}" cy="{my-gh+12}" r="4" fill="#007AFF"/>')
-    svg.append(f'<text x="{mx+20}" y="{my-gh+16}" font-family="system-ui" font-size="11" fill="#333">Shield ON (V2 column cap)</text>')
-    svg.append(f'<circle cx="{mx+10}" cy="{my-gh+30}" r="4" fill="#FF3B30"/>')
-    svg.append(f'<text x="{mx+20}" y="{my-gh+34}" font-family="system-ui" font-size="11" fill="#333">Shield OFF</text>')
-
-    # Axis labels
-    svg.append(f'<text x="{W/2}" y="{H-8}" text-anchor="middle" font-family="system-ui" font-size="11" fill="#666">Counter-Prior Lift (nats)</text>')
-    svg.append(f'<text x="14" y="{H/2}" text-anchor="middle" font-family="system-ui" font-size="10" fill="#666" transform="rotate(-90,14,{H/2})">NLL Drift (nats)</text>')
-
-    svg.append('</svg>')
-    out_path.write_text("\n".join(svg) + "\n")
+    handles, legend_labels = axes.flat[0].get_legend_handles_labels()
+    fig.legend(handles, legend_labels, loc="upper center", ncol=2, frameon=False,
+               bbox_to_anchor=(0.5, 1.01), fontsize=10)
+    fig.suptitle("Phase Q2 mHC shield: lift vs drift across alpha",
+                 fontsize=14, color="#1F2937", y=1.04)
+    fig.tight_layout()
+    fig.savefig(out_path, format="svg", bbox_inches="tight")
+    plt.close(fig)
 
 
 if __name__ == "__main__":

@@ -22,6 +22,7 @@ cd Mneme
 python3.11 -m venv .venv-mac
 source .venv-mac/bin/activate
 pip install -r requirements.txt
+pip install -e .
 ```
 
 ## 2. Conservation law (the red line)
@@ -55,7 +56,8 @@ Expected output:
 python -m pytest tests/ -q
 ```
 
-Expected: `50 passed in <15 s`.
+Expected: all local tests pass. The exact count changes as regression tests
+are added; the heavyweight real-model conservation suite is opt-in.
 
 ## 4. Phase N intervention demo (qualitative)
 

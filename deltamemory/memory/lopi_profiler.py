@@ -83,22 +83,40 @@ def _corpus_sha(prompts: Sequence[str]) -> str:
     return hashlib.sha256(blob).hexdigest()[:16]
 
 
-def _layer_norm_stats(hidden_states: tuple[torch.Tensor, ...]) -> tuple[list[float], list[float]]:
+def _layer_norm_stats(
+    hidden_states: tuple[torch.Tensor, ...],
+    attention_mask: torch.Tensor | None = None,
+) -> tuple[list[float], list[float]]:
     """Return (mu_base, sigma_base) computed over (B, T) for every layer.
 
     ``hidden_states`` is the HF ``output_hidden_states`` tuple: ``len = L+1``
     where index 0 is the embedding output and 1..L are after each transformer
     block.  We profile **block outputs** (1..L) because that is the residual
     state consumed by the next layer's attention -- this matches v3.4
-    LOPI's ``avg_prev_residual_norm`` semantics.
+    LOPI's ``avg_prev_residual_norm`` semantics.  When ``attention_mask`` is
+    provided, padding positions are excluded from the (B, T) population.
     """
     mus: list[float] = []
     sigmas: list[float] = []
+    valid_mask = None
+    if attention_mask is not None:
+        valid_mask = attention_mask.to(dtype=torch.bool, device=hidden_states[0].device)
     for h in hidden_states[1:]:
         # h: (B, T, D)
         norms = torch.linalg.vector_norm(h.float(), ord=2, dim=-1)  # (B, T)
-        mus.append(float(norms.mean().item()))
-        sigmas.append(float(norms.std(unbiased=False).item()))
+        if valid_mask is not None:
+            if tuple(valid_mask.shape) != tuple(norms.shape):
+                raise ValueError(
+                    "attention_mask shape must match hidden state token shape: "
+                    f"mask={tuple(valid_mask.shape)} norms={tuple(norms.shape)}"
+                )
+            vals = norms[valid_mask]
+            if vals.numel() == 0:
+                raise ValueError("profile_residuals: attention_mask has no valid tokens")
+        else:
+            vals = norms.reshape(-1)
+        mus.append(float(vals.mean().item()))
+        sigmas.append(float(vals.std(unbiased=False).item()))
     return mus, sigmas
 
 
@@ -204,7 +222,7 @@ def profile_residuals(
             "check that output_hidden_states=True is supported."
         )
 
-    mu_base, sigma_base = _layer_norm_stats(hidden)
+    mu_base, sigma_base = _layer_norm_stats(hidden, attention_mask=attention_mask)
     mu_arch = _argmax_low_tiebreak(sigma_base)
     cv = _coefficient_of_variation(sigma_base)
     eta_sigma = 0.7 if cv > 0.5 else 1.0

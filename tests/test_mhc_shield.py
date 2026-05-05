@@ -143,6 +143,16 @@ def test_shield_bank_columns_capped():
     )
 
 
+def test_shield_bank_columns_capped_globally_across_batch_and_heads():
+    B, H, T, N = 2, 3, 4, 1
+    w = torch.zeros(B, H, T, T + N)
+    w[..., :T] = 0.1
+    w[..., T:] = 0.6
+    y = shield_attention_weights(w, bank_size=N, enabled=True, kappa=1.0)
+    global_bank_col_sum = y[..., T:].sum(dim=(0, 1, 2))
+    assert global_bank_col_sum.max().item() <= 1.0 + 1e-5
+
+
 def test_shield_only_caps_when_above_kappa():
     """If a bank column already has small mass, the cap is a no-op for it."""
     # Construct: native columns dominate, bank columns have tiny mass.

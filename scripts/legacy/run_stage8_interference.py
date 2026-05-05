@@ -31,11 +31,11 @@ from pathlib import Path
 import torch
 import torch.nn.functional as F
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 
 # Reuse all primitives from run_stage8.py
-from scripts.run_stage8 import (  # noqa: E402
+from scripts.legacy.run_stage8 import (  # noqa: E402
     FastWeightBank, KeyProjector, Writer, build_facts, build_facts_lama,
     _address_key_from_embeddings, _address_token_ids,
     _forward_read_with_injection, _tokenize_read_prompts, _value_embeds,

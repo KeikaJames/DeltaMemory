@@ -201,6 +201,8 @@ class AttnNativeBank:
                                           device=self.device, dtype=self.dtype)
         self.fact_ids.clear()
         self.address_strs.clear()
+        if self.lopi_state is not None and hasattr(self.lopi_state, "reset"):
+            self.lopi_state.reset()
 
     # -------- write path --------
 
@@ -227,14 +229,19 @@ class AttnNativeBank:
             raise ValueError(f"expected {self.num_layers} layer V, got {len(per_layer_V)}")
         for layer in range(self.num_layers):
             d = self.head_dims[layer]
-            try:
-                k = per_layer_K[layer].to(self.device, self.dtype).reshape(1, self.num_kv_heads, d)
-                v = per_layer_V[layer].to(self.device, self.dtype).reshape(1, self.num_kv_heads, d)
-            except RuntimeError as e:
+            expected = (self.num_kv_heads, d)
+            if tuple(per_layer_K[layer].shape) != expected:
                 raise ValueError(
-                    f"append: layer {layer} K/V shape mismatch (expected "
-                    f"[1,{self.num_kv_heads},{d}]): {e}"
-                ) from e
+                    f"append: layer {layer} K shape mismatch "
+                    f"(expected {expected}, got {tuple(per_layer_K[layer].shape)})"
+                )
+            if tuple(per_layer_V[layer].shape) != expected:
+                raise ValueError(
+                    f"append: layer {layer} V shape mismatch "
+                    f"(expected {expected}, got {tuple(per_layer_V[layer].shape)})"
+                )
+            k = per_layer_K[layer].to(self.device, self.dtype).unsqueeze(0)
+            v = per_layer_V[layer].to(self.device, self.dtype).unsqueeze(0)
             self.M_K[layer] = torch.cat([self.M_K[layer], k], dim=0)
             self.M_V[layer] = torch.cat([self.M_V[layer], v], dim=0)
         self.fact_ids.append(fact_id)
@@ -264,19 +271,14 @@ class AttnNativeBank:
         for layer in range(self.num_layers):
             d = self.head_dims[layer]
             for name, src in (("K", per_layer_K_batches[layer]), ("V", per_layer_V_batches[layer])):
-                if src.shape[0] != n:
+                expected = (n, self.num_kv_heads, d)
+                if tuple(src.shape) != expected:
                     raise ValueError(
-                        f"bulk_append: layer {layer} {name} batch dim ({src.shape[0]}) "
-                        f"must equal len(fact_ids) ({n})"
+                        f"bulk_append: layer {layer} {name} shape mismatch "
+                        f"(expected {expected}, got {tuple(src.shape)})"
                     )
-            try:
-                k = per_layer_K_batches[layer].to(self.device, self.dtype).reshape(n, self.num_kv_heads, d)
-                v = per_layer_V_batches[layer].to(self.device, self.dtype).reshape(n, self.num_kv_heads, d)
-            except RuntimeError as e:
-                raise ValueError(
-                    f"bulk_append: layer {layer} K/V shape mismatch (expected "
-                    f"[{n},{self.num_kv_heads},{d}]): {e}"
-                ) from e
+            k = per_layer_K_batches[layer].to(self.device, self.dtype)
+            v = per_layer_V_batches[layer].to(self.device, self.dtype)
             self.M_K[layer] = torch.cat([self.M_K[layer], k], dim=0)
             self.M_V[layer] = torch.cat([self.M_V[layer], v], dim=0)
         self.fact_ids.extend(fact_ids)
@@ -297,6 +299,10 @@ class AttnNativeBank:
             "value_scale_mode": str(self.value_scale_mode),
             "value_target_rms": float(self.value_target_rms),
             "value_scale_eps": float(self.value_scale_eps),
+            "bank_cosine": bool(getattr(self, "bank_cosine", False)),
+            "bank_topk": int(getattr(self, "bank_topk", 0) or 0),
+            "bank_separate_softmax": bool(getattr(self, "bank_separate_softmax", False)),
+            "bank_merge_beta": float(getattr(self, "bank_merge_beta", 1.0)),
         }
 
     @classmethod
@@ -315,6 +321,10 @@ class AttnNativeBank:
         bank.M_V = [t.to(device, dtype) for t in sd["M_V"]]
         bank.fact_ids = list(sd["fact_ids"])
         bank.address_strs = list(sd["address_strs"])
+        bank.bank_cosine = bool(sd.get("bank_cosine", False))
+        bank.bank_topk = int(sd.get("bank_topk", 0) or 0)
+        bank.bank_separate_softmax = bool(sd.get("bank_separate_softmax", False))
+        bank.bank_merge_beta = float(sd.get("bank_merge_beta", 1.0))
         return bank
 
     # ------------------------------------------------------------------

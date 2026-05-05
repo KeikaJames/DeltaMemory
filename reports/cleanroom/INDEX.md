@@ -21,9 +21,8 @@ sweep). Cross-architecture follow-up is in
 R-5 adversarial chat pilot is in
 [`lopi_v33/R5_q3/REPORT.md`](lopi_v33/R5_q3/REPORT.md). There is no
 `R6_storage/` artefact yet; persistent-bank work is referenced as future
-work in R-5. Phase S (U-LOPI auto-calibration profiler) lands in commit
-`aa3825a9` — see [`deltamemory/memory/lopi_profiler.py`](../../deltamemory/memory/lopi_profiler.py);
-no Phase S report has been written yet.
+work in R-5. Phase S / U-LOPI follow-up is summarized in
+[`ulopi_xarch/REPORT.md`](ulopi_xarch/REPORT.md).
 
 ---
 
@@ -31,9 +30,8 @@ no Phase S report has been written yet.
 
 * Commit: **`aa3825a9`** — `feat(S): U-LOPI auto-calibration profiler + 4 latent-bug fixes` (2026-05-04).
 * Code entry point: [`deltamemory/memory/lopi_profiler.py`](../../deltamemory/memory/lopi_profiler.py).
-* Status: **S-7 cross-arch re-sweep on MPS pending.** No INDEX-level
-  Phase S report yet; this row exists so future readers know where the
-  next set of cleanroom artefacts will land.
+* Report: [`ulopi_xarch/REPORT.md`](ulopi_xarch/REPORT.md).
+* Status: **reported; see W-T3.6 follow-up artefacts for later ECOR/CAA comparisons.**
 
 ---
 

@@ -498,7 +498,7 @@ def append_cell(path: Path, cell: dict) -> None:
 
 def main():
     ap = argparse.ArgumentParser(description="W.2 LOPI dissect runner")
-    ap.add_argument("--out", default="experiments/W2_lopi_dissect/cells.jsonl")
+    ap.add_argument("--out", default="/tmp/deltamemory/W2_lopi_dissect/cells.jsonl")
     ap.add_argument("--device", default="mps")
     ap.add_argument("--dtype", default="bfloat16")
     ap.add_argument("--models", nargs="+", default=MODELS)
