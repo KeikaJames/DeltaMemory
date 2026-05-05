@@ -48,29 +48,14 @@ class SCARInjector(nn.Module):
         return all(layer in self.basis and layer in self.target_mean for layer in self.layers)
 
     def _get_decoder_layers(self) -> list[Any]:
-        model = self._model
-        for path in (
-            "model.model.language_model.layers",
-            "model.model.layers",
-            "model.language_model.model.layers",
-            "model.language_model.layers",
-            "language_model.layers",
-            "model.layers",
-            "transformer.h",
-        ):
-            obj: Any = model
-            ok = True
-            for part in path.split("."):
-                obj = getattr(obj, part, None)
-                if obj is None:
-                    ok = False
-                    break
-            if ok and hasattr(obj, "__len__") and len(obj) > 0:
-                return list(obj)
-        raise RuntimeError(
-            "SCARInjector: could not locate decoder layers on the model. "
-            "Expected a standard HuggingFace decoder-layer structure."
-        )
+        from deltamemory.memory._layer_locator import get_decoder_layers
+        try:
+            return get_decoder_layers(self._model)
+        except RuntimeError as exc:
+            raise RuntimeError(
+                "SCARInjector: could not locate decoder layers on the model. "
+                "Expected a standard HuggingFace decoder-layer structure."
+            ) from exc
 
     def _get_attention_output_module(self, layer_idx: int) -> nn.Module:
         layer = self._get_decoder_layers()[layer_idx]
