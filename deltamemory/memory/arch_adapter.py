@@ -7,6 +7,17 @@ function) and never modify weights.
 Each adapter is a stateless object that the patched forward consults at every
 attention call. Adding a new family means writing a new ``ArchAdapter`` subclass
 plus a class-name match rule; the patched forward itself stays generic.
+
+RoPE relative-position contract
+-------------------------------
+``apply_rope`` must take ``(q_pre, k_pre, cos, sin)`` and return new tensors
+``(q_post, k_post)`` without mutating the inputs in place.  The patched
+forward in :mod:`deltamemory.memory.attn_native_bank` keeps the pre-RoPE Q/K
+copies alive and uses them for bank scoring, which makes bank recall
+*position-invariant* (see ``docs/rope_invariants.md``).  Partial-RoPE
+adapters (GLM-4) rotate only a prefix of ``head_dim`` and must leave the
+remaining channels untouched on both Q and K so that the pre-RoPE
+invariant continues to hold over the *full* head_dim.
 """
 from __future__ import annotations
 

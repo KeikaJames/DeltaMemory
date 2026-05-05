@@ -29,7 +29,17 @@ All three components are independent and can be turned on/off via the
 Shape convention
 ----------------
 ``V_ctx``, ``M_V``  : (B, H, T, D)            — post-softmax sub-readouts
-``Q_t``, ``Q_prev`` : (B, H, T, D)            — pre/post-RoPE Q (configurable)
+``Q_t``, ``Q_prev`` : (B, H, T, D)            — Q at the SAME token position
+                                                across two consecutive
+                                                forward passes; the
+                                                derivative-gate norm
+                                                ``‖Q_t − Q_prev‖`` is
+                                                rotation-equivariant under
+                                                RoPE so either pre- or
+                                                post-RoPE convention is
+                                                valid as long as both
+                                                ``Q_t`` and ``Q_prev``
+                                                share the convention
 ``prev_residual_norms`` : list[float] length L (or torch scalar tensor)
 
 Bit-equal degeneracy
