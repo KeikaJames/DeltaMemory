@@ -80,21 +80,20 @@ The committed transcripts in this repo are the **canonical** output; if your num
 
 ## 5. Phase G test eval (the honest negative)
 
-```bash
-bash repro_v3.sh
-```
+Reproduces `reports/cleanroom/stage14_test_gemma4_e2b/REPORT.md` — the held-out
+test eval that **rejected H1** (v3 = 0.278 < B0 = 0.359, p = 0.007). The
+methodology amendment in that report describes Phase G+1 (Stage 15) corrections.
+Run via the per-script Stage 14 entrypoints under
+`scripts/legacy/run_stage14_*.py` (see `scripts/legacy/README.md`).
 
-Reproduces `reports/cleanroom/stage14_test_gemma4_e2b/REPORT.md` — the held-out test eval that **rejected H1** (v3 = 0.278 < B0 = 0.359, p = 0.007). The methodology amendment in that report describes Phase G+1 (Stage 15) corrections.
-
-## 6. Phase M cross-arch benchmark (v3.1, in progress)
-
-When v3.1 is released (`feat(v31): cross-arch K-projector + writer`):
+## 6. Phase M cross-arch benchmark (v3.1)
 
 ```bash
-bash repro_v31.sh --models gemma-4-E2B qwen3-4b deepseek-32b
+python scripts/run_v31_benchmark.py --help
 ```
 
-Will generate `reports/cleanroom/stage15_v31_test/<model>/REPORT.md` per architecture, with the same B0 / B1 / B3 (MEMIT) / B4 (LoRA) baselines.
+Generates `reports/cleanroom/stage15_v31_test/<model>/REPORT.md` per
+architecture, with the same B0 / B1 / B3 (MEMIT) / B4 (LoRA) baselines.
 
 ## 7. Determinism notes
 

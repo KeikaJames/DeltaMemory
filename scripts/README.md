@@ -31,4 +31,4 @@ inventory.
 
 See [`scripts/legacy/`](legacy/) for the 40+ pre-Phase-Q one-shot scripts that
 produced historical artefacts. They are kept for reference but are not invoked
-by the active test suite, `repro_v3.sh`, or `repro_v31.sh`.
+by the active test suite.

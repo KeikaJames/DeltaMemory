@@ -4,13 +4,14 @@ These scripts produced pre-Phase-Q artefacts and are kept here only for
 historical / archeological reference. They are **not** invoked by:
 
 - `tests/`
-- `repro_v3.sh` / `repro_v31.sh`
 - `scripts/run_v31_benchmark*.py`
 - `scripts/run_mhc_flagship_sweep.py`
 - `scripts/run_lopi_*` (Phase R / S)
 
-For canonical reproduction use the top-level `repro_v3.sh` (Stage 14
-v3 pipeline) or `repro_v31.sh` (v3.1 counter-prior intervention demo).
+The historical end-to-end repro drivers `repro_v3.sh` / `repro_v31.sh` were
+removed during the v0.4 cleanroom consolidation; the canonical reproduction
+path is now the per-script invocations documented in `scripts/README.md`
+and the cleanroom reports under `reports/cleanroom/`.
 
 | Script | Purpose | Pinning report |
 |---|---|---|
@@ -35,4 +36,4 @@ v3 pipeline) or `repro_v31.sh` (v3.1 counter-prior intervention demo).
 
 Stage 14 (`run_stage14_dev_sweep.py`, `run_stage14_dev_with_kproj.py`,
 `run_stage14_test_eval.py`, `train_k_projector.py`) is **not** archived
-because `repro_v3.sh` still drives it end-to-end.
+because it remains the canonical Stage 14 reference path for v3.

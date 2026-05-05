@@ -205,13 +205,6 @@ in [`docs/HISTORY.md`](docs/HISTORY.md). Per-stage code/config diffs live in
 
 ## Reproducing experiments
 
-End-to-end repro scripts (cross-architecture sweeps, intervention demos):
-
-```bash
-bash repro_v3.sh          # v3 / Stage 14 baseline path
-bash repro_v31.sh         # v3.1 cross-architecture sweep + figures
-```
-
 Phase-R+ benchmark drivers used by the cleanroom reports:
 
 ```bash
@@ -258,7 +251,6 @@ Qwen3 / GLM-4 / Llama / GPT-2).
 | `deltamemory/__init__.py` | top-level public API (Phase S) |
 | `scripts/run_intervention_demo.py` | cross-architecture true/false-fact demo |
 | `scripts/run_v31_benchmark*.py` | Phase R+ benchmark drivers |
-| `repro_v3.sh`, `repro_v31.sh` | end-to-end repro scripts |
 | `transcripts/v31_intervention/` | v3.1 raw inputs/outputs/log-probs |
 | `reports/cleanroom/` | preregistered and cleanroom experiment reports |
 | `docs/HISTORY.md` | long-form per-stage narrative log |
