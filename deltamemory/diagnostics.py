@@ -336,6 +336,68 @@ class DiagnosticRecorder:
             "value": float(ratio),
         })
 
+    def record_caa_steer(
+        self,
+        layer_idx: int,
+        steering_vector: torch.Tensor,
+        hidden: torch.Tensor,
+        alpha: float,
+        gamma: Optional[torch.Tensor] = None,
+    ) -> None:
+        """Record CAA steering diagnostics at the injection site.
+
+        Emits three signals at token=-1 for the current (step, layer):
+
+        - ``caa_steer_norm``         = ``alpha * ||s||``
+        - ``caa_gate_mean``          = mean of ``gamma`` (1.0 when ungated)
+        - ``caa_hidden_drift_ratio`` = ``||alpha * gamma * s||_F / ||hidden||_F``
+
+        Mirrors :meth:`record_scar_proj` and ``record_lopi_gamma_w`` so
+        downstream W.12 ablation can compare LOPI / SCAR / CAA telemetry on
+        a uniform contract.  Silently skipped when no recorder is active.
+        """
+        step = self._current_step
+        if step < 0:
+            return
+        s = steering_vector.detach().float()
+        h = hidden.detach().float()
+        s_norm = float(torch.linalg.vector_norm(s).item())
+        h_norm = float(torch.linalg.vector_norm(h).item())
+
+        if gamma is None:
+            gamma_mean = 1.0
+            perturb_norm = abs(alpha) * s_norm
+        else:
+            g = gamma.detach().float()
+            gamma_mean = float(g.mean().item())
+            # ||alpha * gamma * s||_F over (B, T, D) broadcast.
+            perturb = (alpha * g) * s.view(*([1] * (g.dim() - 1)), -1)
+            perturb_norm = float(torch.linalg.vector_norm(perturb).item())
+
+        drift_ratio = perturb_norm / (h_norm + 1e-10)
+
+        self._records.append({
+            "step": step,
+            "layer": layer_idx,
+            "token": -1,
+            "signal_name": "caa_steer_norm",
+            "value": float(abs(alpha) * s_norm),
+        })
+        self._records.append({
+            "step": step,
+            "layer": layer_idx,
+            "token": -1,
+            "signal_name": "caa_gate_mean",
+            "value": float(gamma_mean),
+        })
+        self._records.append({
+            "step": step,
+            "layer": layer_idx,
+            "token": -1,
+            "signal_name": "caa_hidden_drift_ratio",
+            "value": float(drift_ratio),
+        })
+
     # ------------------------------------------------------------------
     # Output helpers
     # ------------------------------------------------------------------
