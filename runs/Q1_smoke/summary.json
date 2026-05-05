@@ -1,0 +1,40 @@
+{
+  "prereg_version": "Q1.v1",
+  "total_cells": 2,
+  "ok_cells": 2,
+  "partial": false,
+  "n_observed": 2,
+  "n_expected": 2,
+  "results": [
+    {
+      "model": "gpt2-medium",
+      "alpha": 0.0,
+      "n_cells": 1,
+      "counterfact_hit_rate": 0.0,
+      "counterfact_ci95_lo": 0.0,
+      "counterfact_ci95_hi": 0.0,
+      "canonical_hit_rate": 0.0,
+      "canonical_ci95_lo": 0.0,
+      "canonical_ci95_hi": 0.0,
+      "redline_ok": true
+    },
+    {
+      "model": "gpt2-medium",
+      "alpha": 1.0,
+      "n_cells": 1,
+      "counterfact_hit_rate": 0.0,
+      "counterfact_ci95_lo": 0.0,
+      "counterfact_ci95_hi": 0.0,
+      "canonical_hit_rate": 0.0,
+      "canonical_ci95_lo": 0.0,
+      "canonical_ci95_hi": 0.0,
+      "redline_ok": null
+    }
+  ],
+  "h_q1_verdicts": {
+    "gpt2-medium": {
+      "hit_rate": 0.0,
+      "pass": false
+    }
+  }
+}
