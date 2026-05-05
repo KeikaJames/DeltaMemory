@@ -1,0 +1,13 @@
+# Intended GB10 run plan. Execute on GB10 from ~/desktop/workspace/ with
+# existing mounted weights; do not download models as part of this harness.
+model: google/gemma-3-12b-it
+architecture: gemma3
+dtype: bf16
+backend: cuda
+batch_sweep: [1, 4, 16]
+seq_sweep: [512, 2048, 8192]
+inject_modes: [none, caa, scar, lopi]
+command_template: >
+  python experiments/bench/run_bench.py --model google/gemma-3-12b-it --backend cuda
+  --dtype bf16 --inject {inject} --batch {batch} --seq {seq}
+  --warmup 5 --iters 20 --out experiments/bench/results/gemma3_12b.jsonl

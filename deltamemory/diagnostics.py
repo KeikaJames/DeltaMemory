@@ -28,7 +28,7 @@ Signals recorded (all in long-format rows)
 * ``lopi_gamma_t``        — LOPI derivative gate value per token (requires
                             LOPI enabled AND ``lopi_state`` provided).
 * ``lopi_w_ell``          — LOPI layer Gaussian weight (requires LOPI enabled).
-* ``m_perp_energy_ratio`` — ‖M_⊥‖² / ‖M_V‖² at the orthogonal-projection
+* ``lopi_m_perp_energy_ratio`` — ‖M_⊥‖² / ‖M_V‖² at the orthogonal-projection
                             site inside lopi.py (requires LOPI enabled).
 * ``residual_norm``       — L2 norm of the residual stream per token, per layer.
 
@@ -332,7 +332,7 @@ class DiagnosticRecorder:
             "step": step,
             "layer": layer_idx,
             "token": -1,
-            "signal_name": "m_perp_energy_ratio",
+            "signal_name": "lopi_m_perp_energy_ratio",
             "value": float(ratio),
         })
 
@@ -485,6 +485,21 @@ class DiagnosticRecorder:
         df["token"] = df["token"].astype("int32")
         df["value"] = df["value"].astype("float32")
         return df
+
+    def to_signals(self):
+        """Return typed injector diagnostic rows.
+
+        See :mod:`deltamemory.diagnostics_schema` for the canonical LOPI / SCAR
+        / CAA three-signal contract. Bank and residual rows are intentionally
+        filtered out to keep this method limited to injector telemetry.
+        """
+        from deltamemory.diagnostics_schema import SIGNAL_REGISTRY, parse_records
+
+        records = [
+            rec for rec in self._records
+            if any(str(rec.get("signal_name", "")).startswith(f"{inj}_") for inj in SIGNAL_REGISTRY)
+        ]
+        return parse_records(records)
 
     def dump_parquet(self, path: str) -> None:
         """Write collected signals to Parquet (pyarrow) or JSON-lines fallback.
