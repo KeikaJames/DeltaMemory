@@ -252,6 +252,14 @@ shape + bit-equality）。
 | `docs/HISTORY.md` | 长篇阶段叙事日志 |
 | `tests/` | 单测 + real-model conservation 检查 |
 
+## 生产部署 / API 参考 / 迁移 / 版本策略
+
+- API 参考：[`docs/api/`](docs/api/)（用 `scripts/build_docs.sh` 重新生成）。
+- FastAPI 服务脚手架：[`examples/fastapi_serve/`](examples/fastapi_serve/)。
+- vLLM 集成设计草案：[`examples/vllm_integration/README.md`](examples/vllm_integration/README.md)。
+- v0.3 → v0.4 迁移指南：[`docs/migration_v0.3_to_v0.4.md`](docs/migration_v0.3_to_v0.4.md)。
+- 版本策略：[`docs/versioning.md`](docs/versioning.md)。
+
 ## 许可证
 
 MIT。见 [`LICENSE`](LICENSE)。

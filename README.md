@@ -264,6 +264,14 @@ Qwen3 / GLM-4 / Llama / GPT-2).
 | `docs/HISTORY.md` | long-form per-stage narrative log |
 | `tests/` | unit and real-model conservation checks |
 
+## Production deployment / API reference / Migration / Versioning
+
+- API reference: [`docs/api/`](docs/api/) (regenerate with `scripts/build_docs.sh`).
+- FastAPI serving scaffold: [`examples/fastapi_serve/`](examples/fastapi_serve/).
+- vLLM integration design draft: [`examples/vllm_integration/README.md`](examples/vllm_integration/README.md).
+- v0.3 → v0.4 migration: [`docs/migration_v0.3_to_v0.4.md`](docs/migration_v0.3_to_v0.4.md).
+- Versioning policy: [`docs/versioning.md`](docs/versioning.md).
+
 ## License
 
 MIT. See [`LICENSE`](LICENSE).
