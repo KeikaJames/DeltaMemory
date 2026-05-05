@@ -32,22 +32,20 @@ Status
 ------
 
 The harness, the CLI, and the ablation dispatcher are implemented.
-Reference ablations **A2** (LOPI derivative-gate force-on) and **A7**
-(alpha-shield removal) are wired and unit-tested below.  The remaining
-five (**A1, A3, A4, A5, A6**) are scaffolded with `NotImplementedError`
-patches and matching TODO markers; they require careful per-module
-edits and will land in a follow-up commit (A.2 part 2) before the full
-grid runs.  Until then the smoke harness only exercises the two wired
-arms plus control.
+Wired arms: **control**, **A2** (LOPI derivative-gate force-on),
+**A3** (LOPI sigma-shrink disabled, eta_sigma forced to 1.0), and
+**A5** (CAA steering_vector replaced with seeded-random unit vector).
+The remaining four (**A1, A4, A6, A7**) are scaffolded with
+`NotImplementedError` patches and reserved for a follow-up commit.
 
 This file therefore ships:
   * full grid CLI with resume-safe `cell_id` keying
-  * 3-arm smoke (control + A2 + A7) on gpt2-medium, 5 prompts, 1 seed,
-    2 alphas, 30 cells total
+  * 4-arm smoke (control + A2 + A3 + A5) on gpt2-medium, 5 prompts,
+    1 seed, 2 alphas, 40 cells total
   * ``ablation_context`` dispatcher with explicit TODO surfaces
   * ``write_ablation_inventory`` reporting which arms are wired
 
-The remaining patches (A1/A3/A4/A5/A6) are NOT yet wired; the runner
+The remaining patches (A1/A4/A6/A7) are NOT yet wired; the runner
 emits a `status="ablation_not_wired"` cell for those arms instead of
 silently producing fake numbers.  This conforms to the authenticity
 contract (no aggregate without underlying real cell rows; no
@@ -78,7 +76,7 @@ ARMS = ["control", "A1", "A2", "A3", "A4", "A5", "A6", "A7"]
 # inside hook closures (e.g. CAAInjector.__enter__'s alpha=0 short-
 # circuit is captured at hook-install time, so a runtime monkey-patch
 # of __call__ does not bite).  Those patches land in A.2 part 2.
-WIRED_ARMS = {"control", "A2"}
+WIRED_ARMS = {"control", "A2", "A3", "A5"}
 DEFAULT_MODELS = ["gpt2-medium", "Qwen/Qwen2.5-1.5B", "google/gemma-3-1b-it"]
 DEFAULT_ALPHAS = [0.0, 1.0, 2.0]
 DEFAULT_SEEDS = [0]
@@ -166,6 +164,56 @@ def _a2_lopi_gate_force_on() -> Iterator[None]:
 
 
 @contextlib.contextmanager
+def _a3_lopi_eta_sigma_forced_to_one() -> Iterator[None]:
+    """A3 — force eta_sigma = 1.0 (disable LOPI σ-shrink).
+
+    lopi_profiler.profile_residuals (lopi_profiler.py L228) computes:
+        eta_sigma = 0.7 if cv > 0.5 else 1.0
+    lopi.py L358 then uses it as:
+        sigma_t = max((L / 6.0) * float(profile.eta_sigma), cfg.sigma_floor)
+
+    We wrap profile_residuals to force eta_sigma=1.0 on every returned
+    LOPIProfile, disabling the adaptive σ-shrink regardless of the
+    per-model coefficient-of-variation.  This is the same module-level
+    setattr/restore pattern A2 uses for derivative_gate.
+    """
+    import deltamemory.memory.lopi_profiler as _lopi_profiler
+    from typing import Any as _Any
+
+    target = "profile_residuals"
+    if not hasattr(_lopi_profiler, target):
+        raise RuntimeError(
+            f"A3 ablation: deltamemory.memory.lopi_profiler has no attribute "
+            f"'{target}'; PREREG must be amended or the patch retargeted."
+        )
+    original = getattr(_lopi_profiler, target)
+
+    def _forced(*args: _Any, **kwargs: _Any):
+        profile = original(*args, **kwargs)
+        profile.eta_sigma = 1.0
+        return profile
+
+    setattr(_lopi_profiler, target, _forced)
+    try:
+        yield
+    finally:
+        setattr(_lopi_profiler, target, original)
+
+
+@contextlib.contextmanager
+def _a5_caa_random_target() -> Iterator[None]:
+    """A5 — CAA steering_vector replaced with seeded random unit vector.
+
+    The actual substitution is done inside evaluate_arm_cell after
+    calibrate_caa_for_prompt returns and before inj_ctx.__enter__()
+    (see the arm == "A5" block in evaluate_arm_cell).  This context
+    manager is a no-op; it exists only to satisfy the dispatch table
+    and signal that A5 is wired.
+    """
+    yield
+
+
+@contextlib.contextmanager
 def _a7_alpha_shield_removed_DEPRECATED() -> Iterator[None]:
     """A7 — DEPRECATED.  Patching CAAInjector.__call__ does NOT bite the
     alpha=0 short-circuit: that short-circuit lives inside the
@@ -177,10 +225,11 @@ def _a7_alpha_shield_removed_DEPRECATED() -> Iterator[None]:
     yield  # no-op fallback; never reached because A7 is not wired
 
 
-# TODO(opus, A.2 part 2): wire A1 / A3 / A4 / A5 / A6.  Each requires
+# TODO(opus, A.2 part 2): wire A1 / A4 / A6 / A7.  Each requires
 # replacing a specific function or attribute in the named module per
 # PREREG §4.  Until wired, these arms emit "status=ablation_not_wired"
 # rows so the authenticity contract is upheld (no fabrication).
+# A3 and A5 are now wired above.
 def _not_wired_factory(arm_id: str, target_path: str):
     @contextlib.contextmanager
     def _not_wired() -> Iterator[None]:
@@ -194,9 +243,7 @@ def _not_wired_factory(arm_id: str, target_path: str):
 
 _NOT_WIRED = {
     "A1": _not_wired_factory("A1", "deltamemory.memory.attn_native_bank (pre-RoPE K capture)"),
-    "A3": _not_wired_factory("A3", "deltamemory.memory.lopi_profiler (eta_sigma)"),
     "A4": _not_wired_factory("A4", "deltamemory.memory.scar_injector (M_perp projection)"),
-    "A5": _not_wired_factory("A5", "deltamemory.memory.caa_injector (target_mean)"),
     "A6": _not_wired_factory("A6", "deltamemory.memory.lopi_inject (theta in ECOR rotation)"),
     "A7": _not_wired_factory(
         "A7",
@@ -213,6 +260,10 @@ def ablation_context(arm: str):
         return _control_ctx()
     if arm == "A2":
         return _a2_lopi_gate_force_on()
+    if arm == "A3":
+        return _a3_lopi_eta_sigma_forced_to_one()
+    if arm == "A5":
+        return _a5_caa_random_target()
     if arm in _NOT_WIRED:
         return _NOT_WIRED[arm]()
     raise ValueError(f"unknown ablation arm: {arm!r}; expected one of {ARMS!r}")
@@ -314,6 +365,18 @@ def evaluate_arm_cell(
                                 use_lopi_gate=False)
                 inj_ctx = w6run.calibrate_caa_for_prompt(
                     model, tok, prompt_row, phrase, device, cfg)
+                # A5: replace steering_vector with seeded-random unit vector
+                # BEFORE entering the context (caa_injector.py L284:
+                # self.steering_vector = s.to(self._device)).
+                # See PREREG §4 row A5: "replace target_mean with random
+                # unit vector (seed-pinned per layer)".
+                if arm == "A5":
+                    sv = inj_ctx.steering_vector
+                    g = torch.Generator()
+                    g.manual_seed(seed * 31337 + ord('A') + 5)
+                    rand_vec = torch.randn(sv.shape, generator=g).to(
+                        dtype=sv.dtype, device=sv.device)
+                    inj_ctx.steering_vector = rand_vec / torch.linalg.vector_norm(rand_vec)
             elif method == "lopi_default":
                 inj_ctx = w6run.LopiDefaultCtx(
                     model, tok, prompt_row, phrase, alpha, device)
@@ -375,7 +438,7 @@ def main() -> None:
     ap.add_argument("--method", default="caa",
                     help="injector method passed to W.6 evaluate_cell")
     ap.add_argument("--smoke", action="store_true",
-                    help="3-arm smoke (control + A2 + A7) on gpt2-medium, "
+                    help="4-arm smoke (control + A2 + A3 + A5) on gpt2-medium, "
                          "1 seed, 5 prompts, 2 alphas")
     ap.add_argument("--resume", action="store_true")
     args = ap.parse_args()
@@ -385,17 +448,17 @@ def main() -> None:
 
     if args.smoke:
         args.models = ["gpt2-medium"]
-        args.arms = ["control", "A2"]
+        args.arms = ["control", "A2", "A3", "A5"]
         args.alphas = [0.0, 1.0]
         args.seeds = [0]
         args.n_prompts = 5
-        print("[A.2] SMOKE mode: control+A2 x gpt2-medium x "
-              "{0,1} alpha x 5 prompts = 20 cells "
-              "(harness verification only; A2 patches LOPI, "
-              "which the CAA-on-gpt2 smoke does not traverse — "
-              "so A2 cells will match control here.  Ablation "
-              "efficacy demo requires --method lopi_default + "
-              "a RoPE model, deferred to A.2 part 2.)",
+        print("[A.2] SMOKE mode: control+A2+A3+A5 x gpt2-medium x "
+              "{0,1} alpha x 5 prompts = 40 cells "
+              "(4 wired arms: control, A2, A3, A5; "
+              "A1/A4/A6/A7 reserved for follow-up.  "
+              "A3 patches lopi_profiler.profile_residuals to force "
+              "eta_sigma=1.0; A5 replaces steering_vector with a "
+              "seeded-random unit vector.)",
               flush=True)
 
     # Authenticity contract env.json
