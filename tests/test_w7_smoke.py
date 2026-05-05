@@ -13,6 +13,11 @@ W7_DIR = ROOT / "experiments" / "W7_longctx"
 SMOKE_PATH = W7_DIR / "cells_smoke.jsonl"
 ENV_PATH = W7_DIR / "env.json"
 
+pytestmark = pytest.mark.skipif(
+    not SMOKE_PATH.exists(),
+    reason="W.7 smoke artefacts not generated; run experiments/W7_longctx/run.py --smoke first.",
+)
+
 
 def _load_jsonl(path: Path) -> list[dict]:
     rows = []
