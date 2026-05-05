@@ -224,11 +224,87 @@ class Glm4Adapter(ArchAdapter):
 
 
 # ---------------------------------------------------------------------------
+# Gemma-3 (gemma-3-270m / gemma-3-1b-it; used in W.4 PREREG)
+# ---------------------------------------------------------------------------
+
+class Gemma3Adapter(ArchAdapter):
+    """Adapter for Gemma3Attention (NOT Gemma3n / NOT Gemma-4).
+
+    Plain Gemma-3 (gemma-3-270m, gemma-3-1b-it) requires explicit q_norm and
+    k_norm application. Unlike the base adapter which silently skips missing
+    norms, this adapter enforces their presence and applies them in the native
+    order: proj → reshape → q/k_norm → rope. (Gemma-3 applies q_norm/k_norm
+    AFTER reshape, BEFORE rope; the patched forward at attn_native_bank.py
+    lines ~403-417 respects this order.)
+
+    No KV-sharing, standard RoPE with ``unsqueeze_dim=1``. Distinct module
+    path from Gemma-4 (``modeling_gemma4``); this adapter imports from
+    ``modeling_gemma3``.
+    """
+
+    def __init__(self):
+        super().__init__(name="gemma3", default_alpha=0.05)
+
+    @classmethod
+    def matches(cls, attn_module: nn.Module) -> bool:
+        n = type(attn_module).__name__
+        return n == "Gemma3Attention"
+
+    def apply_q_norm(self, attn: nn.Module, q: torch.Tensor) -> torch.Tensor:
+        fn = getattr(attn, "q_norm", None)
+        assert callable(fn), (
+            f"Gemma3Adapter requires {type(attn).__name__}.q_norm to be callable "
+            f"(native Gemma-3 applies q_norm after reshape, before rope)"
+        )
+        return fn(q)
+
+    def apply_k_norm(self, attn: nn.Module, k: torch.Tensor) -> torch.Tensor:
+        fn = getattr(attn, "k_norm", None)
+        assert callable(fn), (
+            f"Gemma3Adapter requires {type(attn).__name__}.k_norm to be callable "
+            f"(native Gemma-3 applies k_norm after reshape, before rope)"
+        )
+        return fn(k)
+
+    def apply_rope(self, q, k, cos, sin):
+        from transformers.models.gemma3.modeling_gemma3 import apply_rotary_pos_emb
+        q_t = q.transpose(1, 2)
+        k_t = k.transpose(1, 2)
+        q2, k2 = apply_rotary_pos_emb(q_t, k_t, cos, sin, unsqueeze_dim=1)
+        return q2.transpose(1, 2), k2.transpose(1, 2)
+
+
+# ---------------------------------------------------------------------------
+# Gemma-2 (legacy completeness)
+# ---------------------------------------------------------------------------
+
+class Gemma2Adapter(ArchAdapter):
+    """Adapter for Gemma2Attention. Same shape as Gemma-3 / Llama (no norms,
+    standard RoPE, ``unsqueeze_dim=1``)."""
+
+    def __init__(self):
+        super().__init__(name="gemma2", default_alpha=0.05)
+
+    @classmethod
+    def matches(cls, attn_module: nn.Module) -> bool:
+        return type(attn_module).__name__ == "Gemma2Attention"
+
+    def apply_rope(self, q, k, cos, sin):
+        from transformers.models.gemma2.modeling_gemma2 import apply_rotary_pos_emb
+        q_t = q.transpose(1, 2)
+        k_t = k.transpose(1, 2)
+        q2, k2 = apply_rotary_pos_emb(q_t, k_t, cos, sin, unsqueeze_dim=1)
+        return q2.transpose(1, 2), k2.transpose(1, 2)
+
+
+# ---------------------------------------------------------------------------
 # Registry
 # ---------------------------------------------------------------------------
 
 _REGISTRY: list[type[ArchAdapter]] = [
     Gemma4Adapter,
+    Gemma3Adapter,
+    Gemma2Adapter,
     Qwen3Adapter,
     LlamaAdapter,
     Glm4Adapter,
@@ -261,6 +337,8 @@ def register_adapter(cls: type[ArchAdapter]) -> type[ArchAdapter]:
 __all__ = [
     "ArchAdapter",
     "Gemma4Adapter",
+    "Gemma3Adapter",
+    "Gemma2Adapter",
     "Qwen3Adapter",
     "LlamaAdapter",
     "Glm4Adapter",
