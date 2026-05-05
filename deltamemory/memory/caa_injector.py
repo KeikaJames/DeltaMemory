@@ -180,29 +180,14 @@ class CAAInjector:
     # ------------------------------------------------------------------
 
     def _get_decoder_layers(self) -> list:
-        model = self._model
-        for path in (
-            "model.model.language_model.layers",
-            "model.model.layers",
-            "model.language_model.model.layers",
-            "model.language_model.layers",
-            "language_model.layers",
-            "model.layers",
-            "transformer.h",   # GPT-2
-        ):
-            obj: Any = model
-            ok = True
-            for part in path.split("."):
-                obj = getattr(obj, part, None)
-                if obj is None:
-                    ok = False
-                    break
-            if ok and hasattr(obj, "__len__") and len(obj) > 0:
-                return list(obj)
-        raise RuntimeError(
-            "CAAInjector: could not locate decoder layers on the model. "
-            "Ensure the model has a standard HuggingFace decoder-layer structure."
-        )
+        from deltamemory.memory._layer_locator import get_decoder_layers
+        try:
+            return get_decoder_layers(self._model)
+        except RuntimeError as exc:
+            raise RuntimeError(
+                "CAAInjector: could not locate decoder layers on the model. "
+                "Ensure the model has a standard HuggingFace decoder-layer structure."
+            ) from exc
 
     # ------------------------------------------------------------------
     # Calibration
