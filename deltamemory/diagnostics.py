@@ -441,6 +441,71 @@ class DiagnosticRecorder:
                 "value": float(value),
             })
 
+    def record_scar(
+        self,
+        layer_idx: int,
+        *,
+        drift: float,
+        proj_B_mass: float,
+        ortho_residue: float,
+        alpha: float,
+        contract_violation: bool,
+    ) -> None:
+        """Record SCAR (Spectral CAA Residual) diagnostics per layer.
+
+        Five signals per (step, layer):
+
+        1. **drift** = ‖x_post − x_pre‖₂ / ‖x_pre‖₂ — relative magnitude of
+           the activation perturbation (0 when α=0, increases with α).
+        2. **proj_B_mass** = ‖P_B (x_post − x_pre)‖₂² / ‖x_post − x_pre‖₂² —
+           fraction of the injected delta that lies in the calibrated
+           contrastive subspace B (ideally close to 1.0).
+        3. **ortho_residue** = 1 − proj_B_mass — orthogonal component
+           discarded by the projection (must be ≥ 0).
+        4. **alpha-monotonic** = α — the recorded scaling parameter; test
+           suite verifies monotonicity (drift at α=0.5 ≈ 0.5 × drift at α=1.0).
+        5. **bit-equal at α=0** — NOT recorded as a signal; this is the
+           contract enforced by existing α=0 tests in scar_injector.
+
+        Parameters
+        ----------
+        drift : float
+            ‖x_post − x_pre‖₂ / ‖x_pre‖₂
+        proj_B_mass : float
+            ‖P_B (x_post − x_pre)‖₂² / ‖x_post − x_pre‖₂²
+        ortho_residue : float
+            1 − proj_B_mass
+        alpha : float
+            SCAR scaling parameter
+        contract_violation : bool
+            True if any invariant is broken (e.g., ortho_residue < 0 or > 1);
+            recorded as a 0/1 signal for post-hoc analysis.
+
+        Notes
+        -----
+        No-op when ``_RECORDER is None`` (zero overhead).  Called from
+        :meth:`SCARInjector._do_inject` after the SCAR delta is computed
+        but before it is added back to the activations.  ``token`` is set
+        to ``-1`` (per-layer scalar).
+        """
+        step = self._current_step
+        if step < 0:
+            return
+        for name, value in (
+            ("scar_drift", drift),
+            ("scar_proj_B_mass", proj_B_mass),
+            ("scar_ortho_residue", ortho_residue),
+            ("scar_alpha", alpha),
+            ("scar_contract_violation", 1.0 if contract_violation else 0.0),
+        ):
+            self._records.append({
+                "step": step,
+                "layer": layer_idx,
+                "token": -1,
+                "signal_name": name,
+                "value": float(value),
+            })
+
     # ------------------------------------------------------------------
     # Output helpers
     # ------------------------------------------------------------------
