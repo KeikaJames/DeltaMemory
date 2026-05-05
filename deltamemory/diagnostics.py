@@ -151,29 +151,16 @@ class DiagnosticRecorder:
     # ------------------------------------------------------------------
 
     def _find_decoder_layers(self) -> list:
-        """Return the list of decoder block modules (not attn submodules)."""
-        model = self._model
-        for path in (
-            "model.model.language_model.layers",
-            "model.model.layers",
-            "model.language_model.model.layers",
-            "model.language_model.layers",
-            "language_model.layers",
-            "model.layers",
-        ):
-            obj: Any = model
-            ok = True
-            for part in path.split("."):
-                obj = getattr(obj, part, None)
-                if obj is None:
-                    ok = False
-                    break
-            if ok and hasattr(obj, "__len__") and len(obj) > 0:
-                return list(obj)
-        raise RuntimeError(
-            "DiagnosticRecorder: could not locate decoder layers on the model. "
-            "Ensure the model has a standard HuggingFace decoder-layer structure."
-        )
+        """Return the list of decoder block modules (not attn submodules).
+
+        Delegates to the shared single-source-of-truth locator
+        :func:`deltamemory.memory._layer_locator.get_decoder_layers` so
+        diagnostics, CAA, and SCAR all agree on the decoder traversal —
+        in particular, this makes diagnostics work on GPT-2 (legacy
+        ``transformer.h`` path) which the previous private list missed.
+        """
+        from deltamemory.memory._layer_locator import get_decoder_layers
+        return get_decoder_layers(self._model)
 
     def _make_residual_hook(self, layer_idx: int):
         """Build a ``forward_hook`` that records residual L2 norms per token."""
