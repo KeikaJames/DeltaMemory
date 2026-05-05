@@ -69,6 +69,11 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from deltamemory.memory.caa_injector import CAAConfig, CAAInjector
+from deltamemory.memory.attn_native_bank import (
+    AttnNativePatcher,
+    fresh_bank,
+    write_fact,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -362,6 +367,59 @@ def supports_method(model_name: str, method: str) -> bool:
 # Per-prompt CAA calibration
 
 
+class LopiDefaultCtx:
+    """Context manager wrapping AttnNativePatcher in the v0.4 LOPI-default
+    bank-injection path for one (prompt, alpha) cell.
+
+    On construction we (a) install a fresh bank populated with the single
+    counterfactual fact (`subject + phrase + target_new`) and (b) lazily
+    enter the patched + injecting state when used as a `with` block.
+
+    At ``alpha == 0.0`` this path MUST be bit-equal to the unpatched
+    forward (drift = 0.0); the AttnNativeBank tests guarantee this and
+    W.6 verifies it via the alpha=0 redline check in `evaluate_cell`.
+    """
+
+    def __init__(
+        self,
+        model: Any,
+        tok: Any,
+        prompt_row: dict,
+        phrase: str,
+        alpha: float,
+        device: str,
+    ) -> None:
+        self._patcher = AttnNativePatcher(model)
+        self._bank = fresh_bank(model)
+        write_prompt = build_fact_line(
+            prompt_row["subject"], phrase, prompt_row["target_new"]
+        )
+        write_fact(
+            self._patcher,
+            self._bank,
+            tok,
+            write_prompt=write_prompt,
+            fact_id=str(prompt_row["id"]),
+            address=prompt_row["subject"],
+        )
+        self._alpha = float(alpha)
+        self._installed = False
+
+    def __enter__(self) -> "LopiDefaultCtx":
+        self._patcher.install()
+        self._installed = True
+        self._patcher.bank = self._bank
+        self._patcher.alpha = self._alpha
+        return self
+
+    def __exit__(self, exc_type, exc, tb) -> None:
+        self._patcher.bank = None
+        self._patcher.alpha = 0.0
+        if self._installed:
+            self._patcher.remove()
+            self._installed = False
+
+
 def calibrate_caa_for_prompt(
     model: Any,
     tok: Any,
@@ -484,14 +542,7 @@ def evaluate_cell(
                                        device, cfg)
         inj_ctx = inj
     elif method == "lopi_default":
-        # The full LOPI default arm is implemented via the AttnNativePatcher
-        # path in the W.2 reference and applies only to RoPE models.  In the
-        # smoke we never reach this branch (smoke uses gpt2-medium with
-        # M_winner='caa').  The full-grid harness should swap a real LOPI
-        # context manager in here; we keep a stub that simply runs the base
-        # model so the framework is exercised.  This is recorded as a known
-        # limitation in REPORT.md when the full grid is run.
-        inj_ctx = None
+        inj_ctx = LopiDefaultCtx(model, tok, prompt_row, phrase, alpha, device)
     elif method == "none":
         inj_ctx = None
     else:
@@ -544,9 +595,17 @@ def run_grid(args: argparse.Namespace) -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     M_winner, source = resolve_method_winner(force_smoke=args.smoke)
-    methods = ["none", M_winner]
+    if args.methods:
+        # Explicit override (D-1 default: both arms). 'none' is always
+        # included as the per-cell drift baseline.
+        user_methods = list(args.methods)
+        methods = ["none"] + [m for m in user_methods if m != "none"]
+        source = f"cli_override:{','.join(user_methods)}"
+    else:
+        methods = ["none", M_winner]
 
-    print(f"[W6] M_winner={M_winner}  source={source}", flush=True)
+    print(f"[W6] M_winner={M_winner}  source={source}  methods={methods}",
+          flush=True)
 
     if args.smoke:
         models = ["gpt2-medium"]
@@ -900,6 +959,11 @@ def main() -> None:
                     help="Pre-flight: gpt2-medium, alpha in {0.0, 1.0}, "
                          "seed=0, 5 prompts, 5 unrelated windows; "
                          "out -> cells_smoke.jsonl.")
+    ap.add_argument("--methods", nargs="+", default=None,
+                    choices=["none", "caa", "lopi_default"],
+                    help="Override method selection. Default: derive from "
+                         "W.4 verdict via resolve_method_winner. For full "
+                         "grid (D-1 default) pass: --methods caa lopi_default")
     ap.add_argument("--allow-high-drop", action="store_true",
                     help="Bypass the 10%% drop-rate abort (use only when the "
                          "fallback template path is intentionally wired).")
