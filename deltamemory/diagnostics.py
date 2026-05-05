@@ -337,6 +337,55 @@ class DiagnosticRecorder:
         })
 
     # ------------------------------------------------------------------
+    # SCAR-specific signals (Phase W.3 rescue / W.4 candidate)
+    # ------------------------------------------------------------------
+
+    def record_scar_proj(
+        self,
+        layer_idx: int,
+        delta: torch.Tensor,
+        projected: torch.Tensor,
+        alpha: float,
+    ) -> None:
+        """Record SCAR per-injection diagnostics.
+
+        Three signals per (step, layer):
+
+        * ``scar_proj_mass`` = ‖projected‖² / ‖delta‖² — fraction of the
+          steering direction (target − activations) that lives in the
+          calibrated contrastive subspace ``B`` (close to 1.0 means the
+          basis is well-aligned with the actual residual).
+        * ``scar_ortho_residue`` = 1 − proj_mass — the orthogonal residue
+          discarded by the projection (must be ≥ 0; large values indicate
+          either undersized ``k`` or insufficient calibration coverage).
+        * ``scar_alpha_drift`` = ‖α · projected‖ — actual injected
+          magnitude in activation units; calibration sweep target.
+
+        ``token`` is set to ``-1`` (per-layer scalar). Called from
+        :meth:`SCARInjector._do_inject` once per attached layer per forward.
+        """
+        step = self._current_step
+        if step < 0:
+            return
+        d_sq = float((delta.detach().float() ** 2).sum().item())
+        p_sq = float((projected.detach().float() ** 2).sum().item())
+        proj_mass = p_sq / (d_sq + 1e-10)
+        ortho_residue = max(0.0, 1.0 - proj_mass)
+        alpha_drift = float(alpha) * (p_sq ** 0.5)
+        for name, value in (
+            ("scar_proj_mass", proj_mass),
+            ("scar_ortho_residue", ortho_residue),
+            ("scar_alpha_drift", alpha_drift),
+        ):
+            self._records.append({
+                "step": step,
+                "layer": layer_idx,
+                "token": -1,
+                "signal_name": name,
+                "value": float(value),
+            })
+
+    # ------------------------------------------------------------------
     # Output helpers
     # ------------------------------------------------------------------
 
