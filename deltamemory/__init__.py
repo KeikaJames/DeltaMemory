@@ -65,6 +65,7 @@ from deltamemory.memory.lopi_profiler import (
 )
 from deltamemory.diagnostics import DiagnosticRecorder
 from deltamemory.memory.caa_injector import CAAInjector
+from deltamemory.memory.scar_injector import SCARInjector
 
 try:
     from deltamemory.memory.moe_attn_patcher import MoeAttnNativePatcher
@@ -92,6 +93,7 @@ __all__ = [
     "DiagnosticRecorder",
     # W.4 baseline
     "CAAInjector",
+    "SCARInjector",
     # W.5 MoE (conditional; None if module missing)
     "MoeAttnNativePatcher",
 ]
