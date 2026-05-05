@@ -257,7 +257,8 @@ def _extract_diag(rec: DiagnosticRecorder) -> dict:
         result["lopi_w_ell_per_layer"] = layer_max.to_dict()
 
     # m_perp_energy_ratio per layer mean
-    mp = df[df["signal_name"] == "m_perp_energy_ratio"]
+    # (accept both legacy bare name and v0.4 'lopi_' prefix)
+    mp = df[df["signal_name"].isin(["m_perp_energy_ratio", "lopi_m_perp_energy_ratio"])]
     if not mp.empty:
         result["m_perp_energy_ratio_mean"] = float(mp["value"].mean())
         result["m_perp_energy_ratio_per_layer"] = (

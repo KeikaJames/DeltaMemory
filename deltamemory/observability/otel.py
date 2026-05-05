@@ -38,17 +38,23 @@ class OTelExporter:
                 )
 
     def flush(self) -> int:
-        """Record observations added to the recorder since the previous flush."""
+        """Record observations added to the recorder since the previous flush.
+
+        Offset is advanced ONLY after ``parse_records`` succeeds. If parsing
+        raises (e.g. on a malformed/unknown row), the cursor stays put so the
+        same batch is retried on the next flush — preventing silent data loss
+        of the valid observations queued alongside the bad row.
+        """
 
         records = getattr(self.recorder, "_records", [])
         new_records = records[self._offset :]
-        self._offset = len(records)
         canonical = [
             rec for rec in new_records
             if isinstance(rec, dict)
             and any(str(rec.get("signal_name", "")).startswith(f"{inj}_") for inj in SIGNAL_REGISTRY)
         ]
         signals = parse_records(canonical)
+        self._offset = len(records)
         for sig in signals:
             self._histograms[(sig.injector, sig.signal_name)].record(
                 sig.value,
