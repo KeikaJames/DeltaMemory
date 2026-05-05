@@ -338,6 +338,24 @@ class CAAInjector:
             s_bc = s.to(dtype=hidden.dtype, device=hidden.device).unsqueeze(0).unsqueeze(0)
             new_hidden = hidden + alpha * gamma * s_bc
 
+            # Diagnostic emit (lazy, fail-safe). Mirrors LOPI/SCAR pattern.
+            try:
+                from deltamemory import diagnostics as _diag_mod
+                rec = _diag_mod._RECORDER
+                if rec is not None:
+                    gamma_for_diag = (
+                        gamma if isinstance(gamma, torch.Tensor) else None
+                    )
+                    rec.record_caa_steer(
+                        layer_idx=layer_idx,
+                        steering_vector=s,
+                        hidden=hidden,
+                        alpha=alpha,
+                        gamma=gamma_for_diag,
+                    )
+            except Exception:
+                pass
+
             if is_tuple:
                 return (new_hidden,) + output[1:]
             return new_hidden
