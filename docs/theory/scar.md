@@ -64,3 +64,40 @@ SCAR should win most clearly where CAA was significantly harmful because of off-
 | CPU/CUDA equivalence | same basis/projection within tolerance; skip if CUDA unavailable |
 | Empty bank/calibration basis | no-op, no hook mutation |
 | Layer hook path, Gemma-style | attaches to the intended decoder module path |
+
+## Empirical evidence — multi-architecture validation
+
+The W.3 rescue thesis above (rotation in a low-rank contrastive subspace beats unconstrained additive steering) was tested on three independent transformer families on GB10 (NVIDIA Blackwell, CUDA bf16). Calibration: 16 paired CAA prompts. Test: 10 gold prompts. Drift metric: mean over prompts of `max |baseline_logits − steered_logits|` (logit-space; lower means SCAR steered without disturbing the rest of the distribution).
+
+### Result — SCAR < CAA at every α > 0 on every model
+
+| Model | inject_layer | α=1 CAA drift | α=1 SCAR drift | factor |
+|---|---:|---:|---:|---:|
+| Gemma-4-E2B (Google) | 34 | 10.66 | 3.95 | 2.7× tighter |
+| Qwen3-4B-Instruct-2507 (Alibaba) | 16 | 11.38 | 2.25 | 5.1× tighter |
+| GLM-4-9B-0414 (THUDM) | 36 | 12.82 | 2.87 | 4.5× tighter |
+
+`scar_better` verdict on **3/3** architectures. α=0 bit-equal redline (drift = 0.0 exactly) verified on every model. Cross-platform reproducibility — Gemma-4-E2B M4 MPS bf16 vs GB10 CUDA bf16 parity to <0.1 nat at α=1 and α=2.
+
+### Why this matters
+
+Three architecturally distinct families — different attention shapes (Gemma uses sliding-window + global; Qwen3 uses standard GQA; GLM-4 uses MQA), different RoPE configurations, different tokenizers, different training corpora — all show the same qualitative result: low-rank rotation in a calibrated contrastive subspace damps the off-axis perturbation that makes additive CAA steering harmful at α ≥ 1. This rules out the "single-model artefact" interpretation.
+
+The result does not yet establish that SCAR beats `none` on the W.4 PREREG drift panel. That comparison is the W.4-final job and is independent from the SCAR-vs-CAA comparison here. SCAR being tighter than CAA is necessary but not sufficient for adoption as the main-line steerer; the sufficient condition is reduced drift relative to the no-injection baseline on a held-out panel, which W.4 will measure separately.
+
+### Cross-platform stability (Gemma-4-E2B)
+
+| α | M4 MPS bf16 | GB10 CUDA bf16 | |Δ| |
+|---|---:|---:|---:|
+| 1.0 | 4.02 | 3.95 | 0.07 |
+| 2.0 | 15.56 | 15.59 | 0.03 |
+
+Implementation is stable across MPS and CUDA backends. No backend-specific kernel divergence in the SVD or in the projection arithmetic.
+
+### Provenance
+
+- Runner: `experiments/scar_smoke/run.py`
+- Reports: `reports/cleanroom/scar_smoke_gb10/{gemma4,qwen3_4b,glm4_9b}_summary.json`
+- Full table + repro commands: `reports/cleanroom/scar_smoke_gb10/report.md`
+- Shipping PR: [#22](https://github.com/KeikaJames/MnEmE/pull/22) (merged into `main` 2026-05-05).
+
