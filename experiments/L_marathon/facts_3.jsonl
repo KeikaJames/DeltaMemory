@@ -1,0 +1,3 @@
+{"id": "mars_capital", "subject": "Mars", "relation": "capital", "target_new": "Olympus City", "target_true": "no capital"}
+{"id": "venus_language", "subject": "Venus", "relation": "official language", "target_new": "Venusian", "target_true": "no language"}
+{"id": "neptune_currency", "subject": "Neptune", "relation": "currency", "target_new": "Tridents", "target_true": "no currency"}
