@@ -49,6 +49,11 @@ from deltamemory import (
     LOPIConfig,
 )
 from deltamemory.memory.caa_injector import CAAConfig
+
+
+def _build_fact_line(subject: str, relation: str, target_new: str) -> str:
+    return f"Fact: {subject} {relation} {target_new}."
+from deltamemory.memory.caa_injector import CAAConfig
 from deltamemory.memory._layer_locator import get_decoder_layers
 
 try:
@@ -148,24 +153,28 @@ def load_filler(path: Path) -> str:
 # ---------------------------------------------------------------------------
 # Residual norm helper
 
-def _compute_residual_norm(model: Any, hidden_states: torch.Tensor, mu_layer: int) -> float:
-    """Compute L2 norm of hidden_states at mu_arch layer.
-    
-    TODO(opus): integrate with deltamemory.memory.arch_adapter to get mu_arch
-    for the given model architecture. For now, mu_layer is passed as an
-    argument or computed via a heuristic (middle layer).
+def _compute_residual_norm(model: Any, hidden_states: Any, mu_layer: int) -> float:
+    """L2 norm of hidden_states[mu_layer] over (batch, seq, hidden).
+
+    Returns NaN if hidden_states is missing or layer index out of range.
+    Exceptions are surfaced to stderr so the marathon does not silently
+    drop a key probe.
     """
     if hidden_states is None:
         return float("nan")
     try:
-        # hidden_states is a tuple of tensors, one per layer (if output_hidden_states=True)
-        if isinstance(hidden_states, (tuple, list)) and len(hidden_states) > mu_layer:
-            hs = hidden_states[mu_layer]
-            norm = torch.linalg.norm(hs.float(), ord=2).item()
-            return float(norm)
-    except Exception:
-        pass
-    return float("nan")
+        if not isinstance(hidden_states, (tuple, list)):
+            return float("nan")
+        if mu_layer < 0 or mu_layer >= len(hidden_states):
+            return float("nan")
+        hs = hidden_states[mu_layer]
+        if hs is None:
+            return float("nan")
+        return float(torch.linalg.norm(hs.detach().float().reshape(-1)).item())
+    except Exception as exc:  # pragma: no cover - defensive
+        print(f"[L][WARN] residual_norm computation failed: {exc!r}",
+              file=sys.stderr, flush=True)
+        return float("nan")
 
 
 # ---------------------------------------------------------------------------
@@ -338,101 +347,175 @@ def run_marathon(args: argparse.Namespace) -> None:
     model.to(args.device)
     model.eval()
     
-    # Prepare injection context
-    # TODO(opus): set up AttnNativePatcher + bank for lopi_default,
-    # or CAAInjector for caa, with the correct layer targeting.
-    # For skeleton, we just run the base model (no injection).
-    
-    inj_ctx = None
-    bank = None
-    patcher = None
-    
-    if args.method == "lopi_default":
-        # TODO(opus): implement LOPI default arm
-        # patcher = AttnNativePatcher(model)
-        # bank = fresh_bank(model)
-        # bank.lopi_cfg = LOPIConfig(enabled=True, profile_mode="auto")
-        # Write facts into bank at turn 0
-        # for fact in facts:
-        #     write_fact(patcher, bank, tok,
-        #                write_prompt=f"Fact: {fact['subject']} {fact['relation']} {fact['target_new']}.",
-        #                fact_id=fact['id'], address=fact['subject'])
-        # inj_ctx = patcher.patched() and patcher.injecting(bank, alpha=1.0)
-        print("[L] lopi_default not yet implemented (skeleton mode)", flush=True)
-    elif args.method == "caa":
-        # TODO(opus): implement CAA injector
-        # layers = get_decoder_layers(model)
-        # mu_layer = len(layers) // 2
-        # cfg = CAAConfig(inject_layer=mu_layer, alpha=1.0, use_lopi_gate=False)
-        # inj = CAAInjector(model, tok, cfg)
-        # inj_ctx = inj
-        print("[L] caa not yet implemented (skeleton mode)", flush=True)
-    else:
-        raise ValueError(f"unknown method: {args.method}")
-    
-    # Compute mu_arch layer (middle layer heuristic)
+    # Compute mu_arch layer (middle layer heuristic) up front; needed by CAA cfg.
     layers = get_decoder_layers(model)
     mu_layer = len(layers) // 2
-    
+
+    # ------------------------------------------------------------------
+    # Build the persistent injection state (LOPI bank or CAA steering)
+    # populated with all 3 facts at turn 1.  This object lives for the
+    # entire marathon; the *active* α is toggled per-checkpoint via the
+    # context manager protocol below.
+    # ------------------------------------------------------------------
+
+    patcher: Optional[Any] = None
+    bank: Optional[Any] = None
+    caa_inj: Optional[CAAInjector] = None
+    fact_alpha = 1.0  # injection strength for filler + probes (PREREG L.v1)
+
+    if args.method == "lopi_default":
+        patcher = AttnNativePatcher(model)
+        bank = fresh_bank(model)
+        for fact in facts:
+            wp = _build_fact_line(fact["subject"], fact["relation"], fact["target_new"])
+            write_fact(
+                patcher, bank, tok,
+                write_prompt=wp,
+                fact_id=str(fact["id"]),
+                address=str(fact["subject"]),
+            )
+        patcher.install()
+        patcher.bank = bank
+        patcher.alpha = float(fact_alpha)
+        print(f"[L] LOPI bank populated with {len(facts)} facts; "
+              f"patcher installed at alpha={fact_alpha}", flush=True)
+    elif args.method == "caa":
+        cfg = CAAConfig(inject_layer="mu_arch", alpha=float(fact_alpha),
+                        use_lopi_gate=False)
+        caa_inj = CAAInjector(model, cfg, tokenizer=tok,
+                              device=torch.device(args.device))
+        pos_texts = [_build_fact_line(f["subject"], f["relation"], f["target_new"])
+                     for f in facts]
+        neg_texts = [_build_fact_line(f["subject"], f["relation"], f["target_true"])
+                     for f in facts]
+        caa_inj.calibrate(pos_texts, neg_texts)
+        caa_inj.__enter__()  # activate hook for the lifetime of the run
+        print(f"[L] CAA steering calibrated on {len(facts)} contrastive pairs "
+              f"at layer {mu_layer}; hook active alpha={fact_alpha}", flush=True)
+    else:
+        raise ValueError(f"unknown method: {args.method}")
+
+    # Encode filler text once; we will slice token windows from it to
+    # advance the marathon clock between checkpoints.
+    filler_ids_full = tok.encode(filler_text, add_special_tokens=False)
+    if not filler_ids_full:
+        filler_ids_full = tok.encode("Lorem ipsum dolor sit amet.", add_special_tokens=False)
+    FILLER_TOKENS_PER_TURN = 32
+    FILLER_WINDOW = 512  # cap context per filler forward pass
+
     rid = run_id(args.model, args.method, args.seed, args.turns)
     torch.manual_seed(args.seed)
-    
-    # Checkpoint turns (skip those beyond args.turns)
+
     checkpoints = [t for t in CHECKPOINT_TURNS if t <= args.turns]
-    
+
     prev_row: Optional[dict] = None
-    for turn in checkpoints:
-        check_key = f"{rid}|{turn}"
-        if check_key in done_ids:
-            print(f"[L] skip completed {check_key}", flush=True)
-            continue
-        
-        # TODO(opus): advance conversation state with filler text
-        # For turn=1, just inject facts and probe immediately.
-        # For turn>1, run filler text (turn - prev_turn) times.
-        
-        # Probe
-        try:
-            nll_target_new = probe_nll_target_new(model, tok, probes, args.device)
-        except Exception as exc:
-            print(f"[L][ERROR] probe failed at turn {turn}: {exc!r}", file=sys.stderr)
-            nll_target_new = float("nan")
-        
-        # Residual norm (requires output_hidden_states=True)
-        # TODO(opus): run a single forward pass with output_hidden_states=True
-        # and compute residual norm at mu_layer.
-        residual_norm_mu = float("nan")
-        
-        mem_rss_mb = get_mem_rss_mb()
-        nan_inf_count = _check_bank_nan_inf(bank) if bank else 0
-        kv_cache_size_bytes = _estimate_kv_cache_size(model)
-        
-        row: dict[str, Any] = {
-            "run_id": rid,
-            "model": args.model,
-            "method": args.method,
-            "seed": args.seed,
-            "turn": turn,
-            "nll_target_new": nll_target_new,
-            "residual_norm_mu": residual_norm_mu,
-            "mem_rss_mb": mem_rss_mb,
-            "nan_inf_count": nan_inf_count,
-            "kv_cache_size_bytes": kv_cache_size_bytes,
-            "abort_reason": None,
-        }
-        
-        # Abort check
-        abort_reason = _check_abort(prev_row, row)
-        if abort_reason:
-            row["abort_reason"] = abort_reason
+    prev_turn = 0
+    try:
+        for turn in checkpoints:
+            check_key = f"{rid}|{turn}"
+            if check_key in done_ids:
+                print(f"[L] skip completed {check_key}", flush=True)
+                prev_turn = turn
+                continue
+
+            # ----- advance marathon clock by (turn - prev_turn) filler turns
+            n_filler = max(0, turn - prev_turn)
+            if n_filler > 0:
+                total_tokens = n_filler * FILLER_TOKENS_PER_TURN
+                # Stream the filler in capped windows so KV-cache never grows.
+                with torch.no_grad():
+                    pos = 0
+                    while pos < total_tokens:
+                        win = min(FILLER_WINDOW, total_tokens - pos)
+                        # Wrap-around through the filler text if needed.
+                        slice_ids = [
+                            filler_ids_full[(pos + i) % len(filler_ids_full)]
+                            for i in range(win)
+                        ]
+                        ids = torch.tensor([slice_ids], device=args.device)
+                        try:
+                            _ = model(input_ids=ids, use_cache=False,
+                                      output_hidden_states=False)
+                        except Exception as exc:
+                            print(f"[L][WARN] filler forward failed at "
+                                  f"turn={turn} pos={pos}: {exc!r}",
+                                  file=sys.stderr, flush=True)
+                            break
+                        pos += win
+
+            # ----- probe nll_target_new (injection still active)
+            try:
+                nll_target_new = probe_nll_target_new(model, tok, probes, args.device)
+            except Exception as exc:
+                print(f"[L][ERROR] probe failed at turn {turn}: {exc!r}",
+                      file=sys.stderr)
+                nll_target_new = float("nan")
+
+            # ----- residual norm at mu_layer via a single hidden-state pass
+            residual_norm_mu = float("nan")
+            try:
+                rn_prompt = probes[0]["prompt"] if probes else "Hello world."
+                rn_ids = tok.encode(rn_prompt, add_special_tokens=True,
+                                    truncation=True, max_length=64)
+                rn_t = torch.tensor([rn_ids], device=args.device)
+                with torch.no_grad():
+                    rn_out = model(input_ids=rn_t, use_cache=False,
+                                   output_hidden_states=True)
+                residual_norm_mu = _compute_residual_norm(
+                    model, getattr(rn_out, "hidden_states", None), mu_layer
+                )
+            except Exception as exc:
+                print(f"[L][WARN] residual_norm probe failed at turn {turn}: "
+                      f"{exc!r}", file=sys.stderr, flush=True)
+
+            mem_rss_mb = get_mem_rss_mb()
+            nan_inf_count = _check_bank_nan_inf(bank) if bank is not None else 0
+            kv_cache_size_bytes = _estimate_kv_cache_size(model)
+
+            row: dict[str, Any] = {
+                "run_id": rid,
+                "model": args.model,
+                "method": args.method,
+                "seed": args.seed,
+                "turn": turn,
+                "alpha": fact_alpha,
+                "nll_target_new": nll_target_new,
+                "residual_norm_mu": residual_norm_mu,
+                "mu_layer": mu_layer,
+                "mem_rss_mb": mem_rss_mb,
+                "nan_inf_count": nan_inf_count,
+                "kv_cache_size_bytes": kv_cache_size_bytes,
+                "abort_reason": None,
+            }
+
+            abort_reason = _check_abort(prev_row, row)
+            if abort_reason:
+                row["abort_reason"] = abort_reason
+                append_row(out_path, row)
+                print(f"[L][ABORT] {abort_reason} at turn {turn}",
+                      file=sys.stderr, flush=True)
+                sys.exit(1)
+
             append_row(out_path, row)
-            print(f"[L][ABORT] {abort_reason} at turn {turn}", file=sys.stderr, flush=True)
-            sys.exit(1)
-        
-        append_row(out_path, row)
-        print(f"[L] checkpoint turn={turn} nll={nll_target_new:.3f} rss={mem_rss_mb:.1f}MB", flush=True)
-        prev_row = row
-    
+            print(f"[L] checkpoint turn={turn} nll={nll_target_new:.3f} "
+                  f"resid={residual_norm_mu:.2f} rss={mem_rss_mb:.1f}MB "
+                  f"nan_inf={nan_inf_count}", flush=True)
+            prev_row = row
+            prev_turn = turn
+    finally:
+        if caa_inj is not None:
+            try:
+                caa_inj.__exit__(None, None, None)
+            except Exception:
+                pass
+        if patcher is not None:
+            try:
+                patcher.bank = None
+                patcher.alpha = 0.0
+                patcher.remove()
+            except Exception:
+                pass
+
     print(f"[L] DONE {rid}  {len(checkpoints)} checkpoints", flush=True)
 
 
