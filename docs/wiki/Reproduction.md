@@ -80,21 +80,34 @@ The committed transcripts in this repo are the **canonical** output; if your num
 
 ## 5. Phase G test eval (the honest negative)
 
+Reproduces `reports/cleanroom/stage14_test_gemma4_e2b/REPORT.md` — the held-out
+test eval that **rejected H1** (v3 = 0.278 < B0 = 0.359, p = 0.007). The
+methodology amendment in that report describes Phase G+1 (Stage 15) corrections.
+Run via the per-script Stage 14 entrypoints under
+`scripts/legacy/run_stage14_*.py` (see `scripts/legacy/README.md`).
+
+## 6. Phase M cross-arch benchmark (v3.1)
+
+Run the v3.1 benchmark driver once per architecture (CUDA + bf16 reference
+configuration; substitute `--device mps` / `--dtype float32` on Apple
+Silicon, and see `docs/apple_silicon.md` for the supported stack):
+
 ```bash
-bash repro_v3.sh
+for model in google/gemma-4-E2B Qwen/Qwen3-4B deepseek-ai/DeepSeek-V3-32B; do
+  python scripts/run_v31_benchmark.py \
+    --model "$model" \
+    --device cuda --dtype bfloat16 \
+    --split eval/splits_v31/val2_v31.jsonl \
+    --seeds 0 1 2 \
+    --baselines b0 b1 b3 b4 \
+    --out reports/cleanroom/stage15_v31_test
+done
 ```
 
-Reproduces `reports/cleanroom/stage14_test_gemma4_e2b/REPORT.md` — the held-out test eval that **rejected H1** (v3 = 0.278 < B0 = 0.359, p = 0.007). The methodology amendment in that report describes Phase G+1 (Stage 15) corrections.
-
-## 6. Phase M cross-arch benchmark (v3.1, in progress)
-
-When v3.1 is released (`feat(v31): cross-arch K-projector + writer`):
-
-```bash
-bash repro_v31.sh --models gemma-4-E2B qwen3-4b deepseek-32b
-```
-
-Will generate `reports/cleanroom/stage15_v31_test/<model>/REPORT.md` per architecture, with the same B0 / B1 / B3 (MEMIT) / B4 (LoRA) baselines.
+Generates `reports/cleanroom/stage15_v31_test/<model>/REPORT.md` per
+architecture, with B0 (no-edit) / B1 (Mneme v3.1) / B3 (MEMIT) / B4 (LoRA)
+baselines. Defaults — model, baselines list, and seeds — match the
+flags above; pass `--help` to inspect every option.
 
 ## 7. Determinism notes
 
