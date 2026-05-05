@@ -23,7 +23,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-test = ["pytest"]
+test = ["pytest", "pyarrow"]
 
 [project.scripts]
 dm-bench = "deltamemory.bench.__main__:main"
