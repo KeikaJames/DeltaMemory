@@ -27,7 +27,7 @@ Homepage = "https://github.com/KeikaJames/MnEmE"
 Repository = "https://github.com/KeikaJames/MnEmE"
 
 [project.optional-dependencies]
-test = ["pytest"]
+test = ["pytest", "pyarrow"]
 
 [project.scripts]
 dm-bench = "deltamemory.bench.__main__:main"
