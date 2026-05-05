@@ -28,6 +28,7 @@ Repository = "https://github.com/KeikaJames/MnEmE"
 
 [project.optional-dependencies]
 test = ["pytest", "pyarrow"]
+security = ["cryptography>=42"]
 
 [project.scripts]
 dm-bench = "deltamemory.bench.__main__:main"

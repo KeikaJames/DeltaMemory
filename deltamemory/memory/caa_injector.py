@@ -356,6 +356,38 @@ class CAAInjector:
             except Exception:
                 pass
 
+
+            try:
+                from deltamemory.security.audit import audit_event
+
+                s_float = s.detach().float()
+                hidden_norm = float(torch.linalg.vector_norm(hidden.detach().float()).item())
+                s_norm = float(torch.linalg.vector_norm(s_float).item())
+                if isinstance(gamma, torch.Tensor):
+                    g_float = gamma.detach().float()
+                    gate_mean = float(g_float.mean().item())
+                    perturb = (alpha * g_float) * s_float.view(*([1] * (g_float.dim() - 1)), -1)
+                    perturb_norm = float(torch.linalg.vector_norm(perturb).item())
+                else:
+                    gate_mean = 1.0
+                    d_last = s_float.shape[-1] if s_float.dim() > 0 else hidden.shape[-1]
+                    multiplicity = max(1, hidden.numel() // max(1, d_last))
+                    perturb_norm = (multiplicity ** 0.5) * abs(alpha) * s_norm
+                audit_event(
+                    event_type="inject",
+                    injector="caa",
+                    layer=layer_idx,
+                    alpha=alpha,
+                    signal_summary={
+                        "steer_norm": abs(alpha) * s_norm,
+                        "drift_ratio": perturb_norm / (hidden_norm + 1e-10),
+                        "gate_mean": gate_mean,
+                    },
+                    vector_tensor=s,
+                )
+            except Exception:
+                pass
+
             if is_tuple:
                 return (new_hidden,) + output[1:]
             return new_hidden

@@ -229,6 +229,27 @@ class SCARInjector(nn.Module):
         except Exception:
             pass
 
+
+        try:
+            from deltamemory.security.audit import audit_event
+
+            projected_norm = float(torch.linalg.vector_norm(projected.detach().float()).item())
+            activation_norm = float(torch.linalg.vector_norm(activations.detach().float()).item())
+            audit_event(
+                event_type="inject",
+                injector="scar",
+                layer=layer,
+                alpha=self.alpha,
+                signal_summary={
+                    "steer_norm": abs(self.alpha) * projected_norm,
+                    "drift_ratio": (abs(self.alpha) * projected_norm) / (activation_norm + 1e-10),
+                    "gate_mean": 1.0,
+                },
+                vector_tensor=projected,
+            )
+        except Exception:
+            pass
+
         return activations + (self.alpha * projected).to(dtype=activations.dtype)
 
 
