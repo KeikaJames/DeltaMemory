@@ -342,8 +342,14 @@ def run_marathon(args: argparse.Namespace) -> None:
     dtype = dtype_map.get(args.dtype, torch.float32)
     
     print(f"[L] loading model {args.model} on {args.device} {args.dtype}", flush=True)
-    tok = AutoTokenizer.from_pretrained(args.model)
-    model = AutoModelForCausalLM.from_pretrained(args.model, torch_dtype=dtype)
+    tok = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True)
+    if tok.pad_token is None:
+        tok.pad_token = tok.eos_token
+    model = AutoModelForCausalLM.from_pretrained(
+        args.model, torch_dtype=dtype,
+        attn_implementation="eager", low_cpu_mem_usage=True,
+        trust_remote_code=True,
+    )
     model.to(args.device)
     model.eval()
     
