@@ -46,7 +46,7 @@ class BankTier:
             if tier == "hot":
                 row_k = self.hot_k[i : i + 1].detach().cpu()
                 row_v = self.hot_v[i : i + 1].detach().cpu()
-                keep = torch.tensor([j for j in range(self.hot_k.size(0)) if j != i], device=self.hot_k.device)
+                keep = torch.tensor([j for j in range(self.hot_k.size(0)) if j != i], dtype=torch.long, device=self.hot_k.device)
                 self.hot_k = self.hot_k.index_select(0, keep)
                 self.hot_v = self.hot_v.index_select(0, keep)
                 self.warm_k = torch.cat([self.warm_k, row_k], dim=0)

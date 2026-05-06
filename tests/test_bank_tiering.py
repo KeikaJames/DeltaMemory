@@ -47,3 +47,31 @@ def test_latency_order_hot_cpu_disk(tmp_path):
         tier.query(k[0], top_k=3)
         measured = tier.last_latency_seconds
     assert measured["hot"] < measured["warm"] or measured["hot"] < measured["cold"]
+
+
+def test_demote_last_hot_row_does_not_crash():
+    import torch
+    from deltamemory.memory.bank_tiering import BankTier
+    import tempfile, os
+    with tempfile.TemporaryDirectory() as d:
+        cold = os.path.join(d, "cold.safetensors")
+        bt = BankTier(torch.zeros(1, 1, 4), torch.zeros(1, 1, 4), cold_path=cold)
+        new_idx = bt.demote(("hot", 0))
+        assert new_idx[0] == "warm"
+        assert bt.hot_k.size(0) == 0
+        assert bt.warm_k.size(0) == 1
+
+
+def test_promote_last_warm_row_does_not_crash():
+    import torch
+    from deltamemory.memory.bank_tiering import BankTier
+    import tempfile, os
+    with tempfile.TemporaryDirectory() as d:
+        cold = os.path.join(d, "cold.safetensors")
+        bt = BankTier(torch.zeros(0, 1, 4), torch.zeros(0, 1, 4), cold_path=cold)
+        bt.warm_k = torch.zeros(1, 1, 4)
+        bt.warm_v = torch.zeros(1, 1, 4)
+        new_idx = bt.promote(("warm", 0))
+        assert new_idx[0] == "hot"
+        assert bt.warm_k.size(0) == 0
+        assert bt.hot_k.size(0) == 1
