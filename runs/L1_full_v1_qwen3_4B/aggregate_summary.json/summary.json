@@ -1,0 +1,39 @@
+{
+  "h_l_results": [
+    {
+      "ci95_hi": 0.0,
+      "ci95_lo": 0.0,
+      "h_l_pass": true,
+      "median_diff": 0.0,
+      "method": "caa",
+      "model": "/home/gabira/Desktop/workspace/models/whitelist/Qwen3-4B-Instruct-2507",
+      "n_pairs": 3,
+      "p_value": 1.0,
+      "turn1_median": 7.295369518484222,
+      "wilcoxon_stat": NaN
+    },
+    {
+      "ci95_hi": 0.0,
+      "ci95_lo": 0.0,
+      "h_l_pass": true,
+      "median_diff": 0.0,
+      "method": "lopi_default",
+      "model": "/home/gabira/Desktop/workspace/models/whitelist/Qwen3-4B-Instruct-2507",
+      "n_pairs": 3,
+      "p_value": 1.0,
+      "turn1_median": 10.235685288906097,
+      "wilcoxon_stat": NaN
+    }
+  ],
+  "methods": [
+    "caa",
+    "lopi_default"
+  ],
+  "models": [
+    "/home/gabira/Desktop/workspace/models/whitelist/Qwen3-4B-Instruct-2507"
+  ],
+  "n_cells_aborted": 0,
+  "n_cells_non_aborted": 36,
+  "n_cells_total": 36,
+  "n_h_l_pass": 2
+}
