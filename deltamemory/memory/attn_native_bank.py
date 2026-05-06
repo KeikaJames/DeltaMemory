@@ -200,6 +200,24 @@ class AttnNativeBank:
         self._x7_write_step: list[int] = []
         self._x7_last_access: list[int] = []
         self._x7_access_count: list[int] = []
+        # Track-M smart memory flags. Defaults are OFF to preserve α=0 and
+        # no-bank bit-equality. These are runtime attributes, not Parameters.
+        for name, value in (
+            ("enable_compression", False),
+            ("enable_decay", False),
+            ("enable_importance", False),
+            ("enable_tiering", False),
+            ("compression_threshold", 0),
+            ("compression_target_size", 0),
+            ("compression_min_similarity", 0.90),
+            ("decay_half_life", 1000),
+            ("decay_erase_threshold", 1e-3),
+        ):
+            if not hasattr(self, name):
+                setattr(self, name, value)
+        self.merge_counts: list[float] = []
+        self.importance_scores: list[float] = []
+        self.original_v_norm: list[float] = []
 
     @property
     def empty(self) -> bool:
@@ -222,6 +240,9 @@ class AttnNativeBank:
         self._x7_write_step.clear()
         self._x7_last_access.clear()
         self._x7_access_count.clear()
+        self.merge_counts.clear()
+        self.importance_scores.clear()
+        self.original_v_norm.clear()
         if self.lopi_state is not None and hasattr(self.lopi_state, "reset"):
             self.lopi_state.reset()
 
@@ -248,6 +269,16 @@ class AttnNativeBank:
             raise ValueError(f"expected {self.num_layers} layer K, got {len(per_layer_K)}")
         if len(per_layer_V) != self.num_layers:
             raise ValueError(f"expected {self.num_layers} layer V, got {len(per_layer_V)}")
+        if bool(getattr(self, "enable_importance", False)):
+            from deltamemory.memory.bank_importance import compute_novelty
+
+            novelty = compute_novelty(per_layer_K[0], self.state_dict())
+        else:
+            novelty = 1.0
+        original_norm = float(sum(
+            torch.linalg.vector_norm(v.detach().float(), ord=2).item()
+            for v in per_layer_V
+        ))
         for layer in range(self.num_layers):
             d = self.head_dims[layer]
             h = self.num_kv_heads_per_layer[layer]
@@ -272,6 +303,9 @@ class AttnNativeBank:
         self._x7_write_step.append(self._x7_global_step)
         self._x7_last_access.append(self._x7_global_step)
         self._x7_access_count.append(0)
+        self.merge_counts.append(1.0)
+        self.importance_scores.append(float(novelty))
+        self.original_v_norm.append(original_norm)
         self._x7_compact()
 
     def bulk_append(
@@ -295,6 +329,26 @@ class AttnNativeBank:
                 f"({len(addresses)}) must have equal length"
             )
         n = len(fact_ids)
+        novelty_scores: list[float] = []
+        if bool(getattr(self, "enable_importance", False)):
+            from deltamemory.memory.bank_importance import compute_novelty
+
+            rolling = self.state_dict()
+            for row in range(n):
+                score = compute_novelty(per_layer_K_batches[0][row], rolling)
+                novelty_scores.append(float(score))
+                rolling["M_K"] = [
+                    torch.cat([k, batch[row : row + 1].detach().cpu()], dim=0)
+                    for k, batch in zip(rolling["M_K"], per_layer_K_batches)
+                ]
+        else:
+            novelty_scores = [1.0] * n
+        original_norms = []
+        for row in range(n):
+            original_norms.append(float(sum(
+                torch.linalg.vector_norm(batch[row].detach().float(), ord=2).item()
+                for batch in per_layer_V_batches
+            )))
         for layer in range(self.num_layers):
             d = self.head_dims[layer]
             h = self.num_kv_heads_per_layer[layer]
@@ -316,7 +370,22 @@ class AttnNativeBank:
             self._x7_write_step.append(self._x7_global_step)
             self._x7_last_access.append(self._x7_global_step)
             self._x7_access_count.append(0)
+        self.merge_counts.extend([1.0] * n)
+        self.importance_scores.extend(novelty_scores)
+        self.original_v_norm.extend(original_norms)
         self._x7_compact()
+
+    def _apply_state_dict_runtime(self, sd: dict) -> None:
+        self.M_K = [t.to(self.device, self.dtype) for t in sd["M_K"]]
+        self.M_V = [t.to(self.device, self.dtype) for t in sd["M_V"]]
+        self.fact_ids = list(sd.get("fact_ids", self.fact_ids))
+        self.address_strs = list(sd.get("address_strs", self.address_strs))
+        self._x7_write_step = list(sd.get("write_step", sd.get("_x7_write_step", self._x7_write_step)))
+        self._x7_last_access = list(sd.get("last_access_step", sd.get("_x7_last_access", self._x7_last_access)))
+        self._x7_access_count = list(sd.get("_x7_access_count", self._x7_access_count))
+        self.merge_counts = [float(x) for x in sd.get("merge_counts", self.merge_counts)]
+        self.importance_scores = [float(x) for x in sd.get("importance_scores", self.importance_scores)]
+        self.original_v_norm = [float(x) for x in sd.get("original_v_norm", self.original_v_norm)]
 
     def _x7_compact(self) -> None:
         """Phase X.7: enforce bank_capacity by evicting per ``bank_evict_policy``.
@@ -324,12 +393,37 @@ class AttnNativeBank:
         Default ``bank_capacity == 0`` ⇒ unbounded ⇒ no-op (bit-equal to v0.4).
         Per-layer ``M_K`` / ``M_V`` slices stay aligned with metadata lists.
         """
+        if bool(getattr(self, "enable_decay", False)) and self.size > 0:
+            from deltamemory.memory.bank_decay import apply_decay
+
+            sd = self.state_dict()
+            sd["decay_erase_threshold"] = float(getattr(self, "decay_erase_threshold", 1e-3))
+            decayed = apply_decay(
+                sd,
+                current_step=self._x7_global_step,
+                half_life=int(getattr(self, "decay_half_life", 1000) or 1000),
+            )
+            self._apply_state_dict_runtime(decayed)
+
         cap = int(getattr(self, "bank_capacity", 0) or 0)
         if cap <= 0:
             return
         n = self.size
         if n <= cap:
             return
+        if bool(getattr(self, "enable_compression", False)):
+            from deltamemory.memory.bank_compression import compress_bank
+
+            threshold = int(getattr(self, "compression_threshold", 0) or cap)
+            target = int(getattr(self, "compression_target_size", 0) or cap)
+            if n > threshold:
+                sd = self.state_dict()
+                sd["compression_min_similarity"] = float(getattr(self, "compression_min_similarity", 0.90))
+                compressed = compress_bank(sd, target_size=target)
+                self._apply_state_dict_runtime(compressed)
+                n = self.size
+                if n <= cap:
+                    return
         n_drop = n - cap
         policy = str(getattr(self, "bank_evict_policy", "lru"))
         if policy == "fifo":
@@ -358,6 +452,15 @@ class AttnNativeBank:
         self._x7_write_step = [self._x7_write_step[i] for i in keep_idx]
         self._x7_last_access = [self._x7_last_access[i] for i in keep_idx]
         self._x7_access_count = [self._x7_access_count[i] for i in keep_idx]
+        self.merge_counts = [self.merge_counts[i] for i in keep_idx] if len(self.merge_counts) == n else []
+        self.importance_scores = (
+            [self.importance_scores[i] for i in keep_idx]
+            if len(self.importance_scores) == n else []
+        )
+        self.original_v_norm = (
+            [self.original_v_norm[i] for i in keep_idx]
+            if len(self.original_v_norm) == n else []
+        )
 
     def _x7_note_access(self, bank_idx: list[int]) -> None:
         """Phase X.7: forward-side hook to update access stats. No-op when capacity disabled."""
@@ -390,6 +493,17 @@ class AttnNativeBank:
             "bank_topk": int(getattr(self, "bank_topk", 0) or 0),
             "bank_separate_softmax": bool(getattr(self, "bank_separate_softmax", False)),
             "bank_merge_beta": float(getattr(self, "bank_merge_beta", 1.0)),
+            "merge_counts": list(self.merge_counts),
+            "importance_scores": list(self.importance_scores),
+            "write_step": list(self._x7_write_step),
+            "last_access_step": list(self._x7_last_access),
+            "original_v_norm": list(self.original_v_norm),
+            "enable_compression": bool(getattr(self, "enable_compression", False)),
+            "enable_decay": bool(getattr(self, "enable_decay", False)),
+            "enable_importance": bool(getattr(self, "enable_importance", False)),
+            "enable_tiering": bool(getattr(self, "enable_tiering", False)),
+            "compression_threshold": int(getattr(self, "compression_threshold", 0) or 0),
+            "compression_target_size": int(getattr(self, "compression_target_size", 0) or 0),
         }
 
     @classmethod
@@ -413,6 +527,17 @@ class AttnNativeBank:
         bank.bank_topk = int(sd.get("bank_topk", 0) or 0)
         bank.bank_separate_softmax = bool(sd.get("bank_separate_softmax", False))
         bank.bank_merge_beta = float(sd.get("bank_merge_beta", 1.0))
+        bank.merge_counts = [float(x) for x in sd.get("merge_counts", [])]
+        bank.importance_scores = [float(x) for x in sd.get("importance_scores", [])]
+        bank._x7_write_step = list(sd.get("write_step", []))
+        bank._x7_last_access = list(sd.get("last_access_step", []))
+        bank.original_v_norm = [float(x) for x in sd.get("original_v_norm", [])]
+        bank.enable_compression = bool(sd.get("enable_compression", False))
+        bank.enable_decay = bool(sd.get("enable_decay", False))
+        bank.enable_importance = bool(sd.get("enable_importance", False))
+        bank.enable_tiering = bool(sd.get("enable_tiering", False))
+        bank.compression_threshold = int(sd.get("compression_threshold", 0) or 0)
+        bank.compression_target_size = int(sd.get("compression_target_size", 0) or 0)
         return bank
 
     # ------------------------------------------------------------------
@@ -482,6 +607,18 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
         capture = ctx.capture_mode
         capture_pos = ctx.capture_pos  # int or None; default = last token
 
+        # α=0 / empty-bank redline: if no capture and no positive bank injection
+        # is requested, delegate to the original module exactly.
+        if not capture and (bank is None or bank.empty or alpha <= 0.0):
+            return orig_forward(
+                hidden_states,
+                position_embeddings,
+                attention_mask=attention_mask,
+                past_key_values=past_key_values,
+                shared_kv_states=shared_kv_states,
+                **kwargs,
+            )
+
         input_shape = hidden_states.shape[:-1]
         head_dim = getattr(self, "head_dim", None) or self.config.head_dim
         hidden_shape = (*input_shape, -1, head_dim)
@@ -498,15 +635,30 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
             if shared_dict is None and past_key_values is not None:
                 shared_dict = getattr(past_key_values, "shared_layers", None)
             if shared_dict is None or shared_idx not in shared_dict:
-                # Last-resort recompute (should not happen in eager prefill,
-                # but keeps the patcher robust to future API drift).
-                k_pre = adapter.apply_k_norm(self, self.k_proj(hidden_states).view(hidden_shape))
-                v_input = self.v_proj if self.v_proj is not None else self.k_proj
-                v_post_norm = adapter.apply_v_norm(self, v_input(hidden_states).view(hidden_shape))
-                q_post_, k_post_ = adapter.apply_rope(q_pre, k_pre, cos, sin)
-                key_states = k_post_.transpose(1, 2)
-                value_states = v_post_norm.transpose(1, 2)
-                q_post = q_post_.transpose(1, 2)
+                if shared_dict:
+                    shared_pair = None
+                    for cand_k, cand_v in shared_dict.values():
+                        if cand_k.size(-1) == head_dim:
+                            shared_pair = (cand_k, cand_v)
+                            break
+                    if shared_pair is None:
+                        shared_pair = next(iter(shared_dict.values()))
+                    key_states, value_states = shared_pair
+                    key_states = key_states.to(q_pre.device)
+                    value_states = value_states.to(q_pre.device)
+                    k_dummy = torch.zeros_like(q_pre)
+                    q_post_, _ = adapter.apply_rope(q_pre, k_dummy, cos, sin)
+                    q_post = q_post_.transpose(1, 2)
+                else:
+                    # Last-resort recompute (should not happen in eager prefill,
+                    # but keeps the patcher robust to future API drift).
+                    k_pre = adapter.apply_k_norm(self, self.k_proj(hidden_states).view(hidden_shape))
+                    v_input = self.v_proj if self.v_proj is not None else self.k_proj
+                    v_post_norm = adapter.apply_v_norm(self, v_input(hidden_states).view(hidden_shape))
+                    q_post_, k_post_ = adapter.apply_rope(q_pre, k_pre, cos, sin)
+                    key_states = k_post_.transpose(1, 2)
+                    value_states = v_post_norm.transpose(1, 2)
+                    q_post = q_post_.transpose(1, 2)
             else:
                 key_states, value_states = shared_dict[shared_idx]
                 key_states = key_states.to(q_pre.device)
@@ -536,6 +688,9 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
         if adapter.store_full_length_kv(self):
             if shared_kv_states is not None:
                 shared_kv_states[self.layer_idx] = key_states, value_states
+                layer_type_key = getattr(self, "layer_type", None)
+                if layer_type_key is not None:
+                    shared_kv_states[layer_type_key] = key_states, value_states
             elif past_key_values is not None:
                 if not hasattr(past_key_values, "shared_layers"):
                     past_key_values.shared_layers = {}
@@ -614,6 +769,12 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
                 scores_bank = torch.matmul(q_cos, k_cos.transpose(2, 3))  # [B,Hq,T,N]
             else:
                 scores_bank = torch.matmul(q_pre, mk_e.transpose(2, 3)) * scaling  # [B,Hq,T,N]
+            if bool(getattr(bank, "enable_importance", False)):
+                from deltamemory.memory.bank_importance import importance_bias
+
+                bias = importance_bias(bank.state_dict()).to(scores_bank.device, scores_bank.dtype)
+                if bias.numel() == scores_bank.size(-1):
+                    scores_bank = scores_bank * bias.reshape(1, 1, 1, -1)
             # Stage 14D: optional bank temperature tau (default 1.0 = no-op).
             tau = float(getattr(bank, "bank_temperature", 1.0))
             if tau <= 0.0:
@@ -738,7 +899,17 @@ class AttnNativePatcher:
     path; the context managers are reusable building blocks.
     """
 
-    def __init__(self, model, adapter: "ArchAdapter | None" = None):
+    def __init__(
+        self,
+        model,
+        adapter: "ArchAdapter | None" = None,
+        *,
+        enable_compression: bool = False,
+        enable_decay: bool = False,
+        enable_importance: bool = False,
+        enable_tiering: bool = False,
+        compression_threshold: int = 0,
+    ):
         from deltamemory.memory.arch_adapter import ArchAdapter, pick_adapter
 
         self.model = model
@@ -792,6 +963,18 @@ class AttnNativePatcher:
         self.capture_bank: AttnNativeBank | None = None
         self._capture_K: list[torch.Tensor | None] = [None] * self.num_layers
         self._capture_V: list[torch.Tensor | None] = [None] * self.num_layers
+        self.enable_compression = bool(enable_compression)
+        self.enable_decay = bool(enable_decay)
+        self.enable_importance = bool(enable_importance)
+        self.enable_tiering = bool(enable_tiering)
+        self.compression_threshold = int(compression_threshold or 0)
+
+    def _apply_smart_flags(self, bank: AttnNativeBank) -> None:
+        for name in ("enable_compression", "enable_decay", "enable_importance", "enable_tiering"):
+            if bool(getattr(self, name, False)):
+                setattr(bank, name, True)
+        if self.compression_threshold > 0:
+            bank.compression_threshold = self.compression_threshold
 
     def install(self) -> None:
         for i, m in enumerate(self.attn_modules):
@@ -830,6 +1013,7 @@ class AttnNativePatcher:
     @contextmanager
     def injecting(self, bank: AttnNativeBank, alpha: float = 1.0):
         prev_bank, prev_alpha = self.bank, self.alpha
+        self._apply_smart_flags(bank)
         self.bank, self.alpha = bank, float(alpha)
         try:
             yield
@@ -929,11 +1113,20 @@ def write_fact(
                 src_idx = getattr(src, "kv_shared_layer_index", layer)
                 kc = patcher._capture_K[src_idx]
                 vc = patcher._capture_V[src_idx]
+            if kc is None:
+                target = (bank.num_kv_heads_per_layer[layer], bank.head_dims[layer])
+                for cand_k, cand_v in zip(patcher._capture_K, patcher._capture_V):
+                    if cand_k is not None and tuple(cand_k.shape[1:]) == target:
+                        kc, vc = cand_k, cand_v
+                        break
+            if kc is None or vc is None:
+                raise RuntimeError(f"write_fact: no captured KV source for shared layer {layer}")
             K_per_layer.append(kc[0])
             V_per_layer.append(vc[0])
         site_fact_id = (
             fact_id if len(sites) == 1 else f"{fact_id}@{site.role}"
         )
+        patcher._apply_smart_flags(bank)
         bank.append(K_per_layer, V_per_layer, fact_id=site_fact_id, address=address)
 
 

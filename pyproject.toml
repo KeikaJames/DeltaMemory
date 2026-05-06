@@ -29,6 +29,11 @@ Repository = "https://github.com/KeikaJames/MnEmE"
 [project.optional-dependencies]
 test = ["pytest", "pyarrow"]
 security = ["cryptography>=42"]
+obs = [
+  "prometheus-client>=0.20",
+  "opentelemetry-api>=1.25",
+  "opentelemetry-sdk>=1.25",
+]
 
 [project.scripts]
 dm-bench = "deltamemory.bench.__main__:main"

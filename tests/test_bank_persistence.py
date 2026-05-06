@@ -311,3 +311,42 @@ def test_profile_corpus_sha_isolates_config_sha(tmp_path: Path):
     loc_a = save_bank(bank_a, tmp_path, model_name="m")
     loc_b = save_bank(bank_b, tmp_path, model_name="m")
     assert loc_a.config_sha != loc_b.config_sha
+
+
+def test_heterogeneous_kv_heads_round_trip(tmp_path):
+    import torch
+    from deltamemory.memory.attn_native_bank import AttnNativeBank
+    from deltamemory.memory.bank_persistence import save_bank, load_bank
+    bank = AttnNativeBank(
+        num_layers=2, num_kv_heads=16, head_dim=8,
+        num_kv_heads_per_layer=[16, 4], dtype=torch.float32,
+    )
+    bank.append(
+        [torch.zeros(16, 8), torch.zeros(4, 8)],
+        [torch.zeros(16, 8), torch.zeros(4, 8)],
+        fact_id="f1", address="a1",
+    )
+    loc = save_bank(bank, tmp_path, model_name="hetero")
+    reloaded = load_bank(loc)
+    assert reloaded.num_kv_heads_per_layer == [16, 4]
+    # Subsequent append must not crash after reload (the original repro path).
+    reloaded.append(
+        [torch.zeros(16, 8), torch.zeros(4, 8)],
+        [torch.zeros(16, 8), torch.zeros(4, 8)],
+        fact_id="f2", address="a2",
+    )
+    assert reloaded.M_K[0].size(0) == 2
+    assert reloaded.M_K[1].size(0) == 2
+
+
+def test_compute_config_sha_distinguishes_kv_heads_per_layer():
+    from deltamemory.memory.bank_persistence import compute_config_sha
+    sha_a = compute_config_sha(
+        model_name="m", num_layers=2, num_kv_heads=16, head_dim=8,
+        head_dims=[8, 8], num_kv_heads_per_layer=[16, 4], dtype="float32",
+    )
+    sha_b = compute_config_sha(
+        model_name="m", num_layers=2, num_kv_heads=16, head_dim=8,
+        head_dims=[8, 8], num_kv_heads_per_layer=[16, 16], dtype="float32",
+    )
+    assert sha_a != sha_b
