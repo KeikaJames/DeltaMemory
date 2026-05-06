@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.7 (in-progress)
+### Added
+- Track-M smart memory management: compression, decay, importance reweighting, tiering, tests, demo, and API docs.
+
 Keep-a-Changelog format. Dates are omitted for historical backfill; commit SHAs identify source changes.
 
 

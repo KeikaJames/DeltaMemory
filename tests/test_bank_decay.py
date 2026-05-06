@@ -44,3 +44,23 @@ def test_alpha_zero_redline_holds_under_decay():
     out = apply_decay(_state(), current_step=100, half_life=10)
     after = logits + 0.0 * out["M_V"][0].sum()
     assert torch.equal(logits, after)
+
+
+def test_decay_preserves_layer_metadata_when_n_facts_equals_num_layers():
+    import torch
+    from deltamemory.memory.bank_decay import apply_decay
+    state = {
+        "M_K": [torch.zeros(3, 1, 2), torch.zeros(3, 1, 4), torch.zeros(3, 1, 8)],
+        "M_V": [torch.zeros(3, 1, 2), torch.zeros(3, 1, 4), torch.zeros(3, 1, 8)],
+        "head_dims": [2, 4, 8],
+        "num_kv_heads_per_layer": [1, 1, 1],
+        "fact_ids": ["a", "b", "c"],
+        "address_strs": ["x", "y", "z"],
+        "last_access_step": [0, 0, 0],
+        "original_v_norm": [1.0, 1.0, 1.0],
+        "decay_erase_threshold": 0.99,
+    }
+    out = apply_decay(state, current_step=10000, half_life=1)
+    # Layer-level metadata must NOT be filtered as if it were per-row.
+    assert out["head_dims"] == [2, 4, 8]
+    assert out["num_kv_heads_per_layer"] == [1, 1, 1]

@@ -36,8 +36,11 @@ def _filter_rows(state: dict[str, Any], keep: torch.Tensor) -> dict[str, Any]:
     out["M_K"] = [k.index_select(0, keep.to(k.device)) for k in state.get("M_K", [])]
     out["M_V"] = [v.index_select(0, keep.to(v.device)) for v in state.get("M_V", [])]
     old_n = _bank_len(state)
+    # Per-layer metadata: length equals num_layers, must NOT be filtered as rows
+    # even if num_layers == old_n (n_facts).
+    LAYER_META_KEYS = {"head_dims", "num_kv_heads_per_layer"}
     for key, vals in list(state.items()):
-        if key in {"M_K", "M_V"}:
+        if key in {"M_K", "M_V"} or key in LAYER_META_KEYS:
             continue
         if isinstance(vals, torch.Tensor) and vals.ndim >= 1 and vals.size(0) == old_n:
             out[key] = vals.index_select(0, keep.to(vals.device))
