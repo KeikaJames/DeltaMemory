@@ -1,0 +1,16 @@
+{
+  "not_wired": [
+    "A1",
+    "A4",
+    "A6",
+    "A7"
+  ],
+  "note": "Not-wired arms emit status=ablation_not_wired rows; full grid analysis is gated on A.2 part 2 landing patches for all 7 ablations.",
+  "prereg_version": "A.v1",
+  "wired": [
+    "A2",
+    "A3",
+    "A5",
+    "control"
+  ]
+}

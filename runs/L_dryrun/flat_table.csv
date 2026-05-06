@@ -1,0 +1,2 @@
+model,method,seed,turn,nll_target_new,residual_norm_mu,mem_rss_mb
+gpt2-medium,caa,0,1,6.199778757756576,nan,1757.1875
