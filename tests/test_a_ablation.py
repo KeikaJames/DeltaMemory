@@ -281,7 +281,9 @@ def test_a1_sets_force_post_rope_capture_on_new_patcher():
     class _Stub(nn.Module):
         def __init__(self):
             super().__init__()
-            class _C: pass
+            class _C:
+                pass
+
             self.config = _C()
             self.config.num_hidden_layers = 1
             self.config.num_attention_heads = 1

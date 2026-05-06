@@ -482,31 +482,58 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
         capture = ctx.capture_mode
         capture_pos = ctx.capture_pos  # int or None; default = last token
 
+        # α=0 / empty-bank redline: if no capture and no positive bank injection
+        # is requested, delegate to the original module exactly.
+        if not capture and (bank is None or bank.empty or alpha <= 0.0):
+            return orig_forward(
+                hidden_states,
+                position_embeddings,
+                attention_mask=attention_mask,
+                past_key_values=past_key_values,
+                shared_kv_states=shared_kv_states,
+                **kwargs,
+            )
+
         input_shape = hidden_states.shape[:-1]
         head_dim = getattr(self, "head_dim", None) or self.config.head_dim
         hidden_shape = (*input_shape, -1, head_dim)
         cos, sin = position_embeddings
 
+        is_kv_shared = adapter.is_kv_shared(self)
         # --- Q (keep pre-RoPE for bank scoring) ---
         q_pre = adapter.apply_q_norm(self, self.q_proj(hidden_states).view(hidden_shape))
 
         # --- K, V (post-norm, pre-RoPE captured for bank write) ---
-        is_kv_shared = adapter.is_kv_shared(self)
         if is_kv_shared:
             shared_idx = adapter.kv_shared_index(self)
             shared_dict = shared_kv_states
             if shared_dict is None and past_key_values is not None:
                 shared_dict = getattr(past_key_values, "shared_layers", None)
             if shared_dict is None or shared_idx not in shared_dict:
-                # Last-resort recompute (should not happen in eager prefill,
-                # but keeps the patcher robust to future API drift).
-                k_pre = adapter.apply_k_norm(self, self.k_proj(hidden_states).view(hidden_shape))
-                v_input = self.v_proj if self.v_proj is not None else self.k_proj
-                v_post_norm = adapter.apply_v_norm(self, v_input(hidden_states).view(hidden_shape))
-                q_post_, k_post_ = adapter.apply_rope(q_pre, k_pre, cos, sin)
-                key_states = k_post_.transpose(1, 2)
-                value_states = v_post_norm.transpose(1, 2)
-                q_post = q_post_.transpose(1, 2)
+                if shared_dict:
+                    shared_pair = None
+                    for cand_k, cand_v in shared_dict.values():
+                        if cand_k.size(-1) == head_dim:
+                            shared_pair = (cand_k, cand_v)
+                            break
+                    if shared_pair is None:
+                        shared_pair = next(iter(shared_dict.values()))
+                    key_states, value_states = shared_pair
+                    key_states = key_states.to(q_pre.device)
+                    value_states = value_states.to(q_pre.device)
+                    k_dummy = torch.zeros_like(q_pre)
+                    q_post_, _ = adapter.apply_rope(q_pre, k_dummy, cos, sin)
+                    q_post = q_post_.transpose(1, 2)
+                else:
+                    # Last-resort recompute (should not happen in eager prefill,
+                    # but keeps the patcher robust to future API drift).
+                    k_pre = adapter.apply_k_norm(self, self.k_proj(hidden_states).view(hidden_shape))
+                    v_input = self.v_proj if self.v_proj is not None else self.k_proj
+                    v_post_norm = adapter.apply_v_norm(self, v_input(hidden_states).view(hidden_shape))
+                    q_post_, k_post_ = adapter.apply_rope(q_pre, k_pre, cos, sin)
+                    key_states = k_post_.transpose(1, 2)
+                    value_states = v_post_norm.transpose(1, 2)
+                    q_post = q_post_.transpose(1, 2)
             else:
                 key_states, value_states = shared_dict[shared_idx]
                 key_states = key_states.to(q_pre.device)
@@ -536,6 +563,9 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
         if adapter.store_full_length_kv(self):
             if shared_kv_states is not None:
                 shared_kv_states[self.layer_idx] = key_states, value_states
+                layer_type_key = getattr(self, "layer_type", None)
+                if layer_type_key is not None:
+                    shared_kv_states[layer_type_key] = key_states, value_states
             elif past_key_values is not None:
                 if not hasattr(past_key_values, "shared_layers"):
                     past_key_values.shared_layers = {}
@@ -929,6 +959,14 @@ def write_fact(
                 src_idx = getattr(src, "kv_shared_layer_index", layer)
                 kc = patcher._capture_K[src_idx]
                 vc = patcher._capture_V[src_idx]
+            if kc is None:
+                target = (bank.num_kv_heads_per_layer[layer], bank.head_dims[layer])
+                for cand_k, cand_v in zip(patcher._capture_K, patcher._capture_V):
+                    if cand_k is not None and tuple(cand_k.shape[1:]) == target:
+                        kc, vc = cand_k, cand_v
+                        break
+            if kc is None or vc is None:
+                raise RuntimeError(f"write_fact: no captured KV source for shared layer {layer}")
             K_per_layer.append(kc[0])
             V_per_layer.append(vc[0])
         site_fact_id = (
