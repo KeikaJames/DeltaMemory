@@ -168,9 +168,9 @@ def resolve_method_winner(force_smoke: bool = False) -> tuple[str, str]:
 # Prompt / template loading
 
 
-def load_prompts() -> list[dict]:
+def load_prompts(path: Path | None = None) -> list[dict]:
     rows = []
-    with open(COUNTERFACT_PATH) as f:
+    with open(path or COUNTERFACT_PATH) as f:
         for line in f:
             line = line.strip()
             if line:
@@ -626,7 +626,8 @@ def run_grid(args: argparse.Namespace) -> None:
 
     # ------------------------------------------------------------------
     # Datasets
-    all_prompts = load_prompts()[:n_prompts]
+    cf_path = Path(args.counterfact_path) if getattr(args, "counterfact_path", None) else COUNTERFACT_PATH
+    all_prompts = load_prompts(cf_path)[:n_prompts]
     lama_map = load_lama_relation_phrases()
 
     prompts: list[tuple[dict, str, str]] = []  # (row, phrase, source)
@@ -696,7 +697,7 @@ def run_grid(args: argparse.Namespace) -> None:
         "n_unrelated_windows": n_unrelated,
         "dropped_prompts": len(dropped),
         "drop_rate": drop_rate,
-        "counterfact_sha1": sha1_of_file(COUNTERFACT_PATH),
+        "counterfact_sha1": sha1_of_file(cf_path),
         "lama_sha1": sha1_of_file(LAMA_PATH),
         "smoke": bool(args.smoke),
         "torch": torch.__version__,
@@ -964,6 +965,8 @@ def main() -> None:
                     help="Override method selection. Default: derive from "
                          "W.4 verdict via resolve_method_winner. For full "
                          "grid (D-1 default) pass: --methods caa lopi_default")
+    ap.add_argument("--counterfact-path", default=None,
+                    help="Override CounterFact JSONL path (e.g., counterfact_1k.jsonl).")
     ap.add_argument("--allow-high-drop", action="store_true",
                     help="Bypass the 10%% drop-rate abort (use only when the "
                          "fallback template path is intentionally wired).")
