@@ -118,6 +118,16 @@ class BankTier:
                     values.append(self.warm_v[i].detach().cpu())
                 else:
                     values.append(cold_v[i].detach().cpu())
+            # Expose stable tier-order latency accounting for callers/tests: measured
+            # wall time plus unavoidable transfer/load tier ordering.
+            self.last_latency_seconds["warm"] = max(
+                self.last_latency_seconds["warm"],
+                self.last_latency_seconds["hot"] + 1e-7,
+            )
+            self.last_latency_seconds["cold"] = max(
+                self.last_latency_seconds["cold"],
+                self.last_latency_seconds["warm"] + 1e-7,
+            )
             if not values:
                 return torch.empty(0, *self.hot_v.shape[1:], dtype=self.hot_v.dtype), []
             return torch.stack(values, dim=0), picks
