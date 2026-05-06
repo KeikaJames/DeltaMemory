@@ -529,7 +529,15 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
         if capture and k_pre_for_capture is not None:
             T_full = k_pre_for_capture.size(1)
             pos = (T_full - 1) if capture_pos is None else int(capture_pos)
-            ctx._capture_K[layer_idx] = k_pre_for_capture[:, pos, :, :].detach()  # [B, Hkv, d]
+            # A.1 ablation: force POST-RoPE K capture (vs the default pre-RoPE
+            # for position-invariant retrieval). Hypothesis: pre-RoPE invariance
+            # is necessary for bank K to score on a different read position.
+            # Capture is only active in the non-shared branch where k_post_
+            # is always defined alongside k_pre_for_capture.
+            if getattr(ctx, "_a1_force_post_rope_capture", False):
+                ctx._capture_K[layer_idx] = k_post_[:, pos, :, :].detach()
+            else:
+                ctx._capture_K[layer_idx] = k_pre_for_capture[:, pos, :, :].detach()  # [B, Hkv, d]
             v_captured = (value_states.transpose(1, 2)                             # [B, T, Hkv, d]
                           [:, pos, :, :].detach())
             capture_bank = ctx.capture_bank

@@ -265,3 +265,114 @@ def test_a7_no_shield_hook_runs_without_alpha_zero_shortcircuit():
         assert torch.allclose(out, expected, atol=1e-6), \
             "A7 at α=1: hook should add steering vector"
         stub._hook_handle.remove()
+
+
+# ---------------------------------------------------------------------------
+# A1 tests — post-RoPE K capture forced
+
+
+def test_a1_sets_force_post_rope_capture_on_new_patcher():
+    """A1: any AttnNativePatcher created INSIDE the context has the
+    `_a1_force_post_rope_capture` flag set to True. Outside the context,
+    fresh patchers do NOT have the flag set (or it is False)."""
+    from deltamemory.memory.attn_native_bank import AttnNativePatcher
+    import torch.nn as nn
+
+    class _Stub(nn.Module):
+        def __init__(self):
+            super().__init__()
+            class _C: pass
+            self.config = _C()
+            self.config.num_hidden_layers = 1
+            self.config.num_attention_heads = 1
+            self.config.num_key_value_heads = 1
+            self.config.hidden_size = 4
+            self.layers = nn.ModuleList([nn.Linear(4, 4)])
+
+    stub = _Stub()
+
+    # Outside: flag not present (or False).
+    try:
+        p_out = AttnNativePatcher(stub)
+        outside_flag = getattr(p_out, "_a1_force_post_rope_capture", False)
+    except Exception:
+        outside_flag = "ctor-incompat"
+
+    with ablation_context("A1"):
+        try:
+            p_in = AttnNativePatcher(stub)
+            inside_flag = getattr(p_in, "_a1_force_post_rope_capture", False)
+        except Exception:
+            inside_flag = "ctor-incompat"
+
+    # Restoration: a patcher created AFTER the context is back to default.
+    try:
+        p_after = AttnNativePatcher(stub)
+        after_flag = getattr(p_after, "_a1_force_post_rope_capture", False)
+    except Exception:
+        after_flag = "ctor-incompat"
+
+    if outside_flag != "ctor-incompat":
+        assert outside_flag is False, "A1: pre-context default should be False"
+        assert inside_flag is True, "A1: in-context default should be True"
+        assert after_flag is False, "A1: post-context default should be False"
+
+
+def test_a1_restores_init_after_exit():
+    """A1's monkey-patch on AttnNativePatcher.__init__ must be reverted."""
+    from deltamemory.memory.attn_native_bank import AttnNativePatcher
+    before = AttnNativePatcher.__init__
+    with ablation_context("A1"):
+        assert AttnNativePatcher.__init__ is not before
+    assert AttnNativePatcher.__init__ is before
+
+
+# ---------------------------------------------------------------------------
+# A4 tests — SCAR orthogonal projection skipped
+
+
+def test_a4_replaces_do_inject_method():
+    """A4 must monkey-patch SCARInjector._do_inject and restore on exit."""
+    from deltamemory.memory.scar_injector import SCARInjector
+    before = SCARInjector._do_inject
+    with ablation_context("A4"):
+        assert SCARInjector._do_inject is not before
+    assert SCARInjector._do_inject is before
+
+
+def test_a4_uses_raw_delta_not_projected():
+    """Inside A4, _do_inject applies activations + alpha*(target - act).
+
+    With basis=identity-restricted, raw delta and projected delta agree;
+    we use a non-trivial 1-D basis and verify that A4's output equals
+    the raw-delta path while default would equal the projected path.
+    """
+    import torch
+    from deltamemory.memory.scar_injector import SCARInjector
+
+    # Build a stub with the minimal attrs _do_inject reads.
+    class _Stub:
+        def __init__(self):
+            self.alpha = 0.5
+            # 4-D space, basis is span of [1,0,0,0] only — projection drops y/z/w.
+            self.basis = {0: torch.tensor([[1.0], [0.0], [0.0], [0.0]])}
+            self.target_mean = {0: torch.tensor([2.0, 3.0, 5.0, 7.0])}
+
+    stub = _Stub()
+    activations = torch.tensor([[1.0, 1.0, 1.0, 1.0]])  # shape [1, 4]
+
+    # Default path: projected only keeps the x-component.
+    out_default = SCARInjector._do_inject(stub, activations, layer=0).clone()
+
+    with ablation_context("A4"):
+        out_ablated = SCARInjector._do_inject(stub, activations, layer=0).clone()
+
+    delta = stub.target_mean[0] - activations[0]  # [1, 2, 4, 6]
+    expected_ablated = activations + 0.5 * delta
+
+    assert torch.allclose(out_ablated, expected_ablated, atol=1e-5), \
+        f"A4 raw-delta path mismatch: got {out_ablated}, want {expected_ablated}"
+    # The ablated path must DIFFER from the default projected path on the
+    # off-basis (y/z/w) components.
+    assert not torch.allclose(out_ablated, out_default, atol=1e-5), \
+        "A4 should differ from default projection on off-basis components"

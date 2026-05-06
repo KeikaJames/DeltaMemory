@@ -63,6 +63,8 @@ import time
 from pathlib import Path
 from typing import Any, Iterator, Optional
 
+import torch
+
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
@@ -76,7 +78,7 @@ ARMS = ["control", "A1", "A2", "A3", "A4", "A5", "A6", "A7"]
 # inside hook closures (e.g. CAAInjector.__enter__'s alpha=0 short-
 # circuit is captured at hook-install time, so a runtime monkey-patch
 # of __call__ does not bite).  Those patches land in A.2 part 2.
-WIRED_ARMS = {"control", "A2", "A3", "A5", "A6", "A7"}
+WIRED_ARMS = {"control", "A1", "A2", "A3", "A4", "A5", "A6", "A7"}
 DEFAULT_MODELS = ["gpt2-medium", "Qwen/Qwen2.5-1.5B", "google/gemma-3-1b-it"]
 DEFAULT_ALPHAS = [0.0, 1.0, 2.0]
 DEFAULT_SEEDS = [0]
@@ -338,10 +340,74 @@ def _a7_alpha_shield_removed() -> Iterator[None]:
         _caa_mod.CAAInjector.__enter__ = orig_enter
 
 
-# TODO(opus, A.2 part 2): wire A1 / A4.  Each requires
-# replacing a specific function or attribute in the named module per
-# PREREG §4.  Until wired, these arms emit "status=ablation_not_wired"
-# rows so the authenticity contract is upheld (no fabrication).
+@contextlib.contextmanager
+def _a1_post_rope_k_capture() -> Iterator[None]:
+    """A1 — Force POST-RoPE K capture (vs the default pre-RoPE).
+
+    The bank's position-invariant retrieval relies on capturing K BEFORE
+    RoPE is applied, so that bank K can be scored against pre-RoPE Q from
+    a different read position. Forcing post-RoPE capture should DEGRADE
+    recall when the read position differs from the write position.
+
+    Implementation: flip the ``_a1_force_post_rope_capture`` feature flag
+    on every live ``AttnNativePatcher`` instance (we don't enumerate them
+    here — the flag is read by ``getattr(ctx, ...)`` at the capture site).
+    The cleanest portable mechanism is to monkey-patch
+    ``AttnNativePatcher.install`` to set the flag on entry; but since
+    patcher instances are created per-cell in run-time, we instead patch
+    ``AttnNativePatcher.__init__`` to set the flag, and rely on callers
+    constructing fresh patchers inside the context.
+    """
+    from deltamemory.memory import attn_native_bank as _bank_mod
+
+    orig_init = _bank_mod.AttnNativePatcher.__init__
+
+    def _patched_init(self, *args, **kwargs):
+        orig_init(self, *args, **kwargs)
+        self._a1_force_post_rope_capture = True
+
+    _bank_mod.AttnNativePatcher.__init__ = _patched_init
+    try:
+        yield
+    finally:
+        _bank_mod.AttnNativePatcher.__init__ = orig_init
+
+
+@contextlib.contextmanager
+def _a4_scar_no_orthogonal_projection() -> Iterator[None]:
+    """A4 — Skip SCAR's orthogonal projection (use raw delta).
+
+    Default SCAR computes ``projected = (delta @ basis) @ basis.T``,
+    keeping only the component of the contrast direction that lies in
+    the SAE basis. The ablation replaces ``projected`` with the raw
+    ``delta`` (full-vector edit). Hypothesis: the projection is
+    necessary to constrain off-target KL — without it, unrelated tokens
+    drift.
+    """
+    from deltamemory.memory import scar_injector as _scar_mod
+
+    orig_do_inject = _scar_mod.SCARInjector._do_inject
+
+    def _no_orthogonal_inject(self, activations, layer):
+        if self.alpha == 0.0 or layer not in self.basis or layer not in self.target_mean:
+            return activations
+        target = self.target_mean[layer].to(
+            device=activations.device, dtype=torch.float32
+        )
+        delta = target.view(*([1] * (activations.ndim - 1)), -1) - activations.float()
+        # ABLATION: skip orthogonal projection — apply raw delta directly.
+        # The injector caller mixes by alpha; here we just supply the full
+        # vector instead of P_B(delta).
+        return (activations.float() + self.alpha * delta).to(activations.dtype)
+
+    _scar_mod.SCARInjector._do_inject = _no_orthogonal_inject
+    try:
+        yield
+    finally:
+        _scar_mod.SCARInjector._do_inject = orig_do_inject
+
+
+# TODO(opus, A.2 part 2): A1 / A4 wired above; matrix is now complete.
 # A3 and A5 are now wired above.
 def _not_wired_factory(arm_id: str, target_path: str):
     @contextlib.contextmanager
@@ -354,20 +420,21 @@ def _not_wired_factory(arm_id: str, target_path: str):
     return _not_wired
 
 
-_NOT_WIRED = {
-    "A1": _not_wired_factory("A1", "deltamemory.memory.attn_native_bank (pre-RoPE K capture)"),
-    "A4": _not_wired_factory("A4", "deltamemory.memory.scar_injector (M_perp projection)"),
-}
+_NOT_WIRED: dict[str, Any] = {}
 
 
 def ablation_context(arm: str):
     """Return a context manager implementing the requested ablation arm."""
     if arm == "control":
         return _control_ctx()
+    if arm == "A1":
+        return _a1_post_rope_k_capture()
     if arm == "A2":
         return _a2_lopi_gate_force_on()
     if arm == "A3":
         return _a3_lopi_eta_sigma_forced_to_one()
+    if arm == "A4":
+        return _a4_scar_no_orthogonal_projection()
     if arm == "A5":
         return _a5_caa_random_target()
     if arm == "A6":
