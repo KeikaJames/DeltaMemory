@@ -52,7 +52,8 @@ def test_latency_order_hot_cpu_disk(tmp_path):
 def test_demote_last_hot_row_does_not_crash():
     import torch
     from deltamemory.memory.bank_tiering import BankTier
-    import tempfile, os
+    import tempfile
+    import os
     with tempfile.TemporaryDirectory() as d:
         cold = os.path.join(d, "cold.safetensors")
         bt = BankTier(torch.zeros(1, 1, 4), torch.zeros(1, 1, 4), cold_path=cold)
@@ -65,7 +66,8 @@ def test_demote_last_hot_row_does_not_crash():
 def test_promote_last_warm_row_does_not_crash():
     import torch
     from deltamemory.memory.bank_tiering import BankTier
-    import tempfile, os
+    import tempfile
+    import os
     with tempfile.TemporaryDirectory() as d:
         cold = os.path.join(d, "cold.safetensors")
         bt = BankTier(torch.zeros(0, 1, 4), torch.zeros(0, 1, 4), cold_path=cold)

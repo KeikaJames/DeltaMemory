@@ -38,6 +38,13 @@ EXEMPT_RUNS = {
     # Pending-execution placeholders (will be populated when run on spark1)
     "D1_bit_equality_v1",
     "GB10_e2e_v1",
+    # Figure-only aggregate run (PNGs + half_life.json from upstream L1 runs;
+    # raw cells live under L1_*_s{0,1,2}_t500/ which themselves are exempt aggregates).
+    "L2_figures_v1",
+    # SKIPPED-stub runs documenting pre-execution decisions for unsupported
+    # architectures on current hardware (see SKIPPED.md inside each).
+    "X7NL_full_v1_deepseek_v4",
+    "X7NL_full_v1_llama4_scout",
     # In-progress / partial sub-runs (aggregate has the data)
     "L1_gemma4_flagship_s0_t500",
     "L1_gemma4_flagship_s1_t500",
