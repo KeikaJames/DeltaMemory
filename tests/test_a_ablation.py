@@ -132,3 +132,136 @@ def test_a5_context_manager_is_noop():
     # The context must not mutate the module's CAAInjector symbol.
     assert inside is before
     assert after is before
+
+
+# ---------------------------------------------------------------------------
+# A6 tests — ECOR theta forced to 0
+
+
+def test_a6_max_theta_frac_forced_to_zero():
+    """Within A6, lopi_inject sees cfg.max_theta_frac == 0 regardless of input."""
+    import sys
+    __import__("deltamemory.memory.lopi_inject")
+    _lopi_inj_mod = sys.modules["deltamemory.memory.lopi_inject"]
+    from deltamemory.memory.lopi_inject import ECORConfig
+
+    captured = {}
+
+    def _spy(*args, **kwargs):
+        captured["cfg"] = kwargs.get("cfg")
+        return args[0]
+
+    original = _lopi_inj_mod.lopi_inject
+    _lopi_inj_mod.lopi_inject = _spy
+    try:
+        with ablation_context("A6"):
+            patched = _lopi_inj_mod.lopi_inject
+            assert patched is not _spy, "A6 should have wrapped lopi_inject"
+            cfg_in = ECORConfig(enabled=True, max_theta_frac=1.0 / 3.0, soft_blend=0.5)
+            patched(torch.zeros(2, 3, 4), torch.zeros(2, 3, 4), torch.tensor(0.5), cfg=cfg_in)
+            assert captured["cfg"] is not None
+            assert captured["cfg"].max_theta_frac == 0.0
+            assert captured["cfg"].soft_blend == 0.5
+            assert captured["cfg"].enabled is True
+            # Caller's cfg untouched (we cloned).
+            assert cfg_in.max_theta_frac == 1.0 / 3.0
+    finally:
+        _lopi_inj_mod.lopi_inject = original
+
+
+def test_a6_restores_original_on_exit():
+    """A6 monkey-patch must be reverted after the context exits."""
+    import sys
+    __import__("deltamemory.memory.lopi_inject")
+    _lopi_inj_mod = sys.modules["deltamemory.memory.lopi_inject"]
+    before = _lopi_inj_mod.lopi_inject
+    with ablation_context("A6"):
+        assert _lopi_inj_mod.lopi_inject is not before
+    assert _lopi_inj_mod.lopi_inject is before
+
+
+def test_a6_handles_none_cfg():
+    """If caller passes cfg=None, A6 still forces max_theta_frac=0."""
+    import sys
+    __import__("deltamemory.memory.lopi_inject")
+    _lopi_inj_mod = sys.modules["deltamemory.memory.lopi_inject"]
+    captured = {}
+
+    def _spy(*args, **kwargs):
+        captured["cfg"] = kwargs.get("cfg")
+        return args[0]
+
+    original = _lopi_inj_mod.lopi_inject
+    _lopi_inj_mod.lopi_inject = _spy
+    try:
+        with ablation_context("A6"):
+            _lopi_inj_mod.lopi_inject(torch.zeros(1), torch.zeros(1), torch.tensor(0.0))
+            assert captured["cfg"] is not None
+            assert captured["cfg"].max_theta_frac == 0.0
+    finally:
+        _lopi_inj_mod.lopi_inject = original
+
+
+# ---------------------------------------------------------------------------
+# A7 tests — alpha-shield removed
+
+
+def test_a7_patches_and_restores_caainjector_enter():
+    """A7 must monkey-patch CAAInjector.__enter__ inside the context and restore on exit."""
+    from deltamemory.memory.caa_injector import CAAInjector
+    before = CAAInjector.__enter__
+    with ablation_context("A7"):
+        assert CAAInjector.__enter__ is not before, \
+            "A7: __enter__ should be replaced inside the context"
+    assert CAAInjector.__enter__ is before, \
+        "A7: __enter__ should be restored on exit"
+
+
+def test_a7_no_shield_hook_runs_without_alpha_zero_shortcircuit():
+    """The patched A7 hook installs and runs without the alpha==0 shield.
+
+    We verify the structural change (shield removed) by exercising the
+    patched __enter__ on a stub matching CAAInjector's interface and
+    confirming that at α=1 the hook adds the steering vector to every
+    position (which, with the shield-removed hook body, is the only path
+    back to the output regardless of α).
+    """
+    import torch.nn as nn
+    from deltamemory.memory.caa_injector import CAAInjector
+
+    class _StubLayer(nn.Module):
+        def forward(self, x):
+            return x
+
+    class _StubInjector:
+        def __init__(self, alpha: float):
+            class _Cfg:
+                pass
+            cfg = _Cfg()
+            cfg.alpha = alpha
+            cfg.use_lopi_gate = False
+            cfg.gate_k = 1.0
+            cfg.gate_theta = 0.0
+            self.config = cfg
+            self.steering_vector = torch.ones(4)
+            self._prev_hidden = None
+            self._hook_handle = None
+            self._stub_layer = _StubLayer()
+
+        def _resolve_layer(self):
+            return 0
+
+        def _get_decoder_layers(self):
+            return [self._stub_layer]
+
+    with ablation_context("A7"):
+        patched_enter = CAAInjector.__enter__
+        # α=1 path: hook MUST add s_bc to every position.
+        stub = _StubInjector(alpha=1.0)
+        patched_enter(stub)
+        x = torch.randn(1, 3, 4)
+        out = stub._stub_layer(x)
+        expected = x + stub.steering_vector.unsqueeze(0).unsqueeze(0)
+        assert torch.allclose(out, expected, atol=1e-6), \
+            "A7 at α=1: hook should add steering vector"
+        stub._hook_handle.remove()

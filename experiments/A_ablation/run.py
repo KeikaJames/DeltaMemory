@@ -76,7 +76,7 @@ ARMS = ["control", "A1", "A2", "A3", "A4", "A5", "A6", "A7"]
 # inside hook closures (e.g. CAAInjector.__enter__'s alpha=0 short-
 # circuit is captured at hook-install time, so a runtime monkey-patch
 # of __call__ does not bite).  Those patches land in A.2 part 2.
-WIRED_ARMS = {"control", "A2", "A3", "A5"}
+WIRED_ARMS = {"control", "A2", "A3", "A5", "A6", "A7"}
 DEFAULT_MODELS = ["gpt2-medium", "Qwen/Qwen2.5-1.5B", "google/gemma-3-1b-it"]
 DEFAULT_ALPHAS = [0.0, 1.0, 2.0]
 DEFAULT_SEEDS = [0]
@@ -225,7 +225,120 @@ def _a7_alpha_shield_removed_DEPRECATED() -> Iterator[None]:
     yield  # no-op fallback; never reached because A7 is not wired
 
 
-# TODO(opus, A.2 part 2): wire A1 / A4 / A6 / A7.  Each requires
+@contextlib.contextmanager
+def _a6_ecor_theta_forced_to_zero() -> Iterator[None]:
+    """A6 — Force ECOR rotation angle θ to 0.
+
+    Setting ``cfg.max_theta_frac = 0`` collapses θ ≡ 0 so V_rot = V_ctx,
+    zeroing the rotational contribution while the additive readout
+    remains.  Pre-registered necessity test for the rotation safeguard.
+
+    NOTE: ``deltamemory.memory.__init__`` re-exports ``lopi_inject`` under
+    the same dotted name as the submodule, shadowing the module attribute.
+    We resolve via ``sys.modules`` to reach the true module.
+    """
+    import sys
+    _lopi_inj_mod = sys.modules.get("deltamemory.memory.lopi_inject")
+    if _lopi_inj_mod is None:
+        __import__("deltamemory.memory.lopi_inject")
+        _lopi_inj_mod = sys.modules["deltamemory.memory.lopi_inject"]
+
+    original = _lopi_inj_mod.lopi_inject
+
+    def _theta_zero_lopi_inject(*args: Any, **kwargs: Any):
+        cfg = kwargs.get("cfg", None)
+        if cfg is None:
+            cfg = _lopi_inj_mod.ECORConfig()
+        try:
+            import dataclasses
+            cfg2 = dataclasses.replace(cfg, max_theta_frac=0.0)
+        except (TypeError, ValueError):
+            import copy as _copy
+            cfg2 = _copy.copy(cfg)
+            cfg2.max_theta_frac = 0.0
+        kwargs["cfg"] = cfg2
+        return original(*args, **kwargs)
+
+    _lopi_inj_mod.lopi_inject = _theta_zero_lopi_inject
+    try:
+        yield
+    finally:
+        _lopi_inj_mod.lopi_inject = original
+
+
+@contextlib.contextmanager
+def _a7_alpha_shield_removed() -> Iterator[None]:
+    """A7 — Remove the ``α == 0`` short-circuit inside CAA's forward hook.
+
+    The shield lives inside the closure registered by
+    ``CAAInjector.__enter__``; the closure captures ``alpha`` by value, so
+    we must replace the ``__enter__`` method itself with a variant whose
+    hook body omits the short-circuit.  Falsifier of the alpha-shield
+    contract: at α=0, A7 is expected to drift from control (Δ NLL ≠ 0).
+    """
+    from deltamemory.memory import caa_injector as _caa_mod
+
+    orig_enter = _caa_mod.CAAInjector.__enter__
+
+    def _no_shield_enter(self):
+        if self.steering_vector is None:
+            raise RuntimeError(
+                "CAAInjector: call calibrate() or set steering_vector before entering context."
+            )
+        alpha = float(self.config.alpha)
+        layer_idx = self._resolve_layer()
+        s = self.steering_vector
+
+        self._prev_hidden = None
+
+        use_gate = self.config.use_lopi_gate
+        gate_k = float(self.config.gate_k)
+        gate_theta = float(self.config.gate_theta)
+
+        import torch as _torch
+
+        def _hook(module: Any, inp: Any, output: Any) -> Any:
+            # A7 ABLATION: alpha == 0 short-circuit removed on purpose.
+            is_tuple = isinstance(output, tuple)
+            hidden = output[0] if is_tuple else output
+
+            if use_gate:
+                prev = self._prev_hidden
+                if prev is None or prev.shape != hidden.shape:
+                    gamma = _torch.ones(
+                        *hidden.shape[:-1], 1,
+                        dtype=hidden.dtype, device=hidden.device,
+                    )
+                else:
+                    delta_h = _torch.linalg.vector_norm(
+                        hidden.float() - prev.float(),
+                        ord=2, dim=-1, keepdim=True,
+                    )
+                    arg = (delta_h - gate_theta) * gate_k
+                    gamma = _torch.sigmoid(arg).to(hidden.dtype)
+                self._prev_hidden = hidden.detach()
+            else:
+                gamma = 1.0
+
+            s_bc = s.to(dtype=hidden.dtype, device=hidden.device).unsqueeze(0).unsqueeze(0)
+            new_hidden = hidden + alpha * gamma * s_bc
+
+            if is_tuple:
+                return (new_hidden,) + output[1:]
+            return new_hidden
+
+        layers = self._get_decoder_layers()
+        self._hook_handle = layers[layer_idx].register_forward_hook(_hook)
+        return self
+
+    _caa_mod.CAAInjector.__enter__ = _no_shield_enter
+    try:
+        yield
+    finally:
+        _caa_mod.CAAInjector.__enter__ = orig_enter
+
+
+# TODO(opus, A.2 part 2): wire A1 / A4.  Each requires
 # replacing a specific function or attribute in the named module per
 # PREREG §4.  Until wired, these arms emit "status=ablation_not_wired"
 # rows so the authenticity contract is upheld (no fabrication).
@@ -244,13 +357,6 @@ def _not_wired_factory(arm_id: str, target_path: str):
 _NOT_WIRED = {
     "A1": _not_wired_factory("A1", "deltamemory.memory.attn_native_bank (pre-RoPE K capture)"),
     "A4": _not_wired_factory("A4", "deltamemory.memory.scar_injector (M_perp projection)"),
-    "A6": _not_wired_factory("A6", "deltamemory.memory.lopi_inject (theta in ECOR rotation)"),
-    "A7": _not_wired_factory(
-        "A7",
-        "deltamemory.memory.caa_injector.CAAInjector.__enter__ "
-        "(alpha=0 short-circuit lives inside the hook closure; "
-        "needs hook-source rewrite, not a __call__ patch)",
-    ),
 }
 
 
@@ -264,6 +370,10 @@ def ablation_context(arm: str):
         return _a3_lopi_eta_sigma_forced_to_one()
     if arm == "A5":
         return _a5_caa_random_target()
+    if arm == "A6":
+        return _a6_ecor_theta_forced_to_zero()
+    if arm == "A7":
+        return _a7_alpha_shield_removed()
     if arm in _NOT_WIRED:
         return _NOT_WIRED[arm]()
     raise ValueError(f"unknown ablation arm: {arm!r}; expected one of {ARMS!r}")
