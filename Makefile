@@ -21,3 +21,8 @@ runs-index:
 
 check-auth:
 	python3 scripts/regen_runs_index.py --check-only
+
+.PHONY: docker-build
+
+docker-build:
+	@if ! command -v docker >/dev/null 2>&1; then echo "SKIP: docker not available; install Docker/Buildx to build docker/Dockerfile.production"; elif ! docker info >/dev/null 2>&1; then echo "SKIP: docker daemon unavailable or permission denied; not building docker/Dockerfile.production"; else docker buildx build --platform $${PLATFORMS:-linux/amd64,linux/arm64} --output $${OUTPUT:-type=cacheonly} -f docker/Dockerfile.production -t mneme:production .; fi

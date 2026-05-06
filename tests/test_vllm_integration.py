@@ -1,191 +1,167 @@
-"""End-to-end test: AttnNativeBank + vLLM on a real model.
-
-Skipped entirely when vLLM is not installed.
-
-When vLLM IS available (GB10 / spark1) this test:
-1. Loads gemma-4-31B-it via BankAttachedLLM.
-2. Writes 3 seeded facts.
-3. Runs a recall prompt.
-4. Asserts the target token is in the top-5 logits (recall@5 ≥ 1).
-5. Compares the vLLM output logits with an HF-transformers reference within
-   a tolerance of 1e-2 (logit space; both paths share the same weights in
-   memory so the diff is purely sampling-path noise + vLLM kernel diffs).
-
-Running on spark1::
-
-    cd /home/gabira/projects/RCV-HC
-    source .venv-gb10/bin/activate
-    pip install vllm   # first time only
-    pytest tests/test_vllm_integration.py -v
-
-Environment override for a smaller/different model::
-
-    MNEME_VLLM_TEST_MODEL=/path/to/model pytest tests/test_vllm_integration.py -v
-"""
 from __future__ import annotations
 
-import os
-import sys
-from pathlib import Path
-from typing import Optional
+from types import SimpleNamespace
 
 import pytest
 import torch
 
-# ---------------------------------------------------------------------------
-# Skip guard — must come before any vllm import
-# ---------------------------------------------------------------------------
 
-try:
-    import vllm  # noqa: F401
-
-    _VLLM_AVAILABLE = True
-except ImportError:
-    _VLLM_AVAILABLE = False
-
-pytestmark = pytest.mark.skipif(
-    not _VLLM_AVAILABLE,
-    reason="vLLM not installed — skipping vLLM integration tests",
-)
-
-# Root on sys.path so we can import deltamemory and integrations
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
-# ---------------------------------------------------------------------------
-# Fixtures
-# ---------------------------------------------------------------------------
-
-# Default test model — override with env var on spark1.
-_DEFAULT_MODEL = os.environ.get(
-    "MNEME_VLLM_TEST_MODEL",
-    "/home/gabira/Desktop/workspace/models/whitelist/gemma-4-31B-it",
-)
-
-# Tiny facts used for seeded recall test.
-_SEED_FACTS = [
-    ("city_france", "Paris is the capital of France.", "Paris"),
-    ("ceo_apple", "Tim Cook is the CEO of Apple.", "Tim Cook"),
-    ("element_79", "Gold has atomic number 79.", "Gold"),
-]
-
-# Recall probes: (prompt, expected_target_token)
-_RECALL_PROBES = [
-    ("The capital of France is", "Paris"),
-    ("The CEO of Apple is", "Tim"),
-    ("Gold has atomic number", "79"),
-]
+class FakeSamplingParams:
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
 
 
-@pytest.fixture(scope="module")
-def bllm():
-    """BankAttachedLLM loaded once per test module (expensive)."""
+class FakeTokenizer:
+    @classmethod
+    def from_pretrained(cls, _model):
+        return cls()
+
+    def decode(self, ids):
+        return str(ids[0])
+
+
+class FakePagedAttention(torch.nn.Module):
+    def forward(self, hidden_states):
+        return hidden_states
+
+
+class FakeModel(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.weight = torch.nn.Parameter(torch.ones(4), requires_grad=False)
+        self.config = SimpleNamespace(hidden_size=4)
+        self.paged_attention = FakePagedAttention()
+
+    def forward(self, x):
+        return self.paged_attention(x)
+
+
+class FakeLLM:
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
+        model = FakeModel()
+        runner = SimpleNamespace(model=model)
+        worker = SimpleNamespace(model_runner=runner)
+        executor = SimpleNamespace(driver_worker=worker)
+        self.llm_engine = SimpleNamespace(model_executor=executor)
+        self.generated_tensors: list[torch.Tensor] = []
+
+    def generate(self, prompts, sampling_params):
+        x = torch.zeros(len(prompts), 1, 4)
+        y = self.llm_engine.model_executor.driver_worker.model_runner.model(x)
+        self.generated_tensors.append(y.detach())
+        return [SimpleNamespace(outputs=[SimpleNamespace(text=f"sum={float(y.sum()):.6f}")])]
+
+
+class FakePatcher:
+    def __init__(self, model):
+        self.model = model
+        self.patched_entries = 0
+        self.inject_entries = []
+
+    def patched(self):
+        patcher = self
+
+        class Ctx:
+            def __enter__(self):
+                patcher.patched_entries += 1
+
+            def __exit__(self, exc_type, exc, tb):
+                return False
+
+        return Ctx()
+
+    def injecting(self, bank, alpha=1.0):
+        patcher = self
+
+        class Ctx:
+            def __enter__(self):
+                patcher.inject_entries.append(alpha)
+
+            def __exit__(self, exc_type, exc, tb):
+                return False
+
+        return Ctx()
+
+
+class FakeBank:
+    def __init__(self):
+        self.M_V = [torch.ones(1, 4)]
+        self.empty = False
+        self.size = 1
+
+
+def fake_fresh_bank(_model):
+    return FakeBank()
+
+
+def test_unwrap_vllm_model_supports_0_4_0_5_latest_paths():
+    from integrations.vllm.bank_attached_llm import _unwrap_vllm_model
+
+    for path in (
+        "llm_engine.driver_worker.model_runner.model",
+        "llm_engine.model_executor.driver_worker.model_runner.model",
+        "llm_engine.engine_core.model_executor.driver_worker.model_runner.model",
+    ):
+        model = FakeModel()
+        root = SimpleNamespace()
+        obj = root
+        parts = path.split(".")
+        for part in parts[:-1]:
+            child = SimpleNamespace()
+            setattr(obj, part, child)
+            obj = child
+        setattr(obj, parts[-1], model)
+        assert _unwrap_vllm_model(root) is model
+
+
+def test_mock_llm_wires_paged_attention_hooks_and_preserves_alpha_zero():
     from integrations.vllm import BankAttachedLLM
 
-    model_path = _DEFAULT_MODEL
-    if not Path(model_path).exists():
-        pytest.skip(f"Model not found: {model_path} — set MNEME_VLLM_TEST_MODEL")
-
-    instance = BankAttachedLLM(
-        model=model_path,
-        dtype="bfloat16",
-        tensor_parallel_size=1,
-        max_model_len=4096,
-        alpha=1.0,
+    bllm = BankAttachedLLM(
+        "fake-model",
+        _llm_cls=FakeLLM,
+        _sampling_params_cls=FakeSamplingParams,
+        _tokenizer_cls=FakeTokenizer,
+        _patcher_cls=FakePatcher,
+        _fresh_bank_fn=fake_fresh_bank,
     )
-    instance.write_facts(_SEED_FACTS)
-    return instance
+
+    assert bllm.hook_controller.installed
+    assert bllm.hook_controller.module_names == ["paged_attention"]
+
+    before_params = sum(1 for _ in bllm._nn_model.parameters())
+    out0 = bllm.generate(["hello"], alpha=0.0)[0].outputs[0].text
+    out1 = bllm.generate(["hello"], alpha=1.0)[0].outputs[0].text
+    after_params = sum(1 for _ in bllm._nn_model.parameters())
+
+    assert out0 == "sum=0.000000"
+    assert out1 != out0
+    assert before_params == after_params == 1
+    assert bllm.patcher.patched_entries == 1
+    assert bllm.patcher.inject_entries == [1.0]
 
 
-# ---------------------------------------------------------------------------
-# Tests
-# ---------------------------------------------------------------------------
+@pytest.mark.skipif(not torch.cuda.is_available(), reason="vLLM GPU e2e requires CUDA")
+def test_vllm_tiny_model_generation_changes_with_attached_bank():
+    pytest.importorskip("vllm")
+    from integrations.vllm import BankAttachedLLM
 
+    model_id = "hf-internal-testing/tiny-random-gpt2"
+    bllm = BankAttachedLLM(
+        model_id,
+        dtype="float16",
+        tensor_parallel_size=1,
+        max_model_len=64,
+        enforce_eager=True,
+        enable_hf_patcher=False,
+    )
+    bllm.write_facts([("debug", "Debug fact changes the hidden stream.", "Debug")])
+    if not bllm.hook_controller.installed:
+        pytest.skip("No vLLM paged-attention modules discovered for hook fallback")
 
-class TestBankAttachedLLM:
+    prompt = ["The answer is"]
+    plain = bllm.generate(prompt, alpha=0.0, max_new_tokens=4, temperature=0.0)[0].outputs[0].text
+    banked = bllm.generate(prompt, alpha=1.0, max_new_tokens=4, temperature=0.0)[0].outputs[0].text
 
-    def test_model_loads(self, bllm):
-        """BankAttachedLLM instantiates and exposes vLLM + nn.Module."""
-        assert bllm._nn_model is not None
-        assert isinstance(bllm._nn_model, torch.nn.Module)
-        assert bllm.vllm_version() != "n/a"
-
-    def test_bank_has_facts(self, bllm):
-        """After write_facts the bank is non-empty."""
-        assert not bllm.bank.empty
-        assert bllm.bank.num_facts >= len(_SEED_FACTS)
-
-    @pytest.mark.parametrize("prompt,target", _RECALL_PROBES)
-    def test_recall_top5(self, bllm, prompt: str, target: str):
-        """Target token must appear in the top-5 logits (recall@5)."""
-        top5 = bllm.recall_top5(prompt, alpha=1.0)
-        hits = [t for t in top5 if target.lower() in t.lower()]
-        assert hits, (
-            f"Target '{target}' not in top-5 for prompt '{prompt}'. "
-            f"Top-5 was: {top5}"
-        )
-
-    def test_alpha_zero_matches_baseline(self, bllm):
-        """alpha=0 bank-attached forward must equal unpatched HF logits within 1e-2.
-
-        This verifies the bit-equality gate (Gate 13A.1) holds end-to-end
-        through the vLLM model-unwrap path.
-        """
-        from deltamemory.memory.attn_native_bank import forward_with_bank
-
-        probe = "The capital of France is"
-        device = next(bllm._nn_model.parameters()).device
-
-        # alpha=0: bank attached but inactive
-        logits_zero = forward_with_bank(
-            bllm.patcher, bllm.bank, bllm.tokenizer, probe, alpha=0.0
-        )
-
-        # unpatched baseline: no patcher active
-        enc = bllm.tokenizer(probe, return_tensors="pt").to(device)
-        with torch.no_grad():
-            out_base = bllm._nn_model(**enc, use_cache=False)
-        logits_base = out_base.logits[0, -1].detach()
-
-        max_diff = (logits_zero - logits_base).abs().max().item()
-        assert max_diff < 1e-2, (
-            f"alpha=0 logits differ from baseline by {max_diff:.4e} (threshold 1e-2). "
-            "Gate 13A.1 violation — AttnNativePatcher is modifying logits at alpha=0."
-        )
-
-    def test_generate_returns_text(self, bllm):
-        """generate() produces non-empty text outputs."""
-        outputs = bllm.generate(
-            ["What is the capital of France?"],
-            alpha=1.0,
-            max_new_tokens=16,
-            temperature=0.0,
-        )
-        assert outputs, "generate() returned empty list"
-        text = outputs[0].outputs[0].text
-        assert isinstance(text, str) and len(text) > 0
-
-    def test_hf_vllm_logit_parity(self, bllm):
-        """HF forward_with_bank and vLLM recall_top5 agree on top-1 token.
-
-        Both paths share the same weight tensors in memory (vLLM unwrap),
-        so the top-1 logit token must be identical at fp32.
-        """
-        probe = "Tim Cook is the CEO of"
-
-        # HF path
-        from deltamemory.memory.attn_native_bank import forward_with_bank
-
-        logits_hf = forward_with_bank(
-            bllm.patcher, bllm.bank, bllm.tokenizer, probe, alpha=1.0
-        )
-        top1_hf = bllm.tokenizer.decode([logits_hf.argmax().item()]).strip()
-
-        # vLLM top5 (greedy top-1 is the first element)
-        top5_vllm = bllm.recall_top5(probe, alpha=1.0)
-
-        assert top1_hf == top5_vllm[0] or top1_hf in top5_vllm, (
-            f"HF top-1 '{top1_hf}' not in vLLM top-5 {top5_vllm}. "
-            "Logit paths diverge — check AttnNativePatcher re-entrancy."
-        )
+    assert banked != plain

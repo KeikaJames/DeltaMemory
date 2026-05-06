@@ -2,6 +2,13 @@
 
 Keep-a-Changelog format. Dates are omitted for historical backfill; commit SHAs identify source changes.
 
+
+## [0.7.0] - Production track
+### Added
+- vLLM `BankAttachedLLM` integration with vLLM 0.4/0.5/latest unwrap paths, paged-attention hook fallback, alpha=0 pass-through, and GPU-gated e2e tests.
+- CUDA 12.6 multi-stage production Dockerfile, Docker ignore file, compose smoke test, and `make docker-build` target.
+- `mneme.api.app` compatibility entrypoint for the production FastAPI service.
+
 ## [0.4.0]
 ### Added
 - W.0-W.14 preregistration/scaffold work (`936b0458`, `5d044870`, `a6a6a7b7`, `6f5bd180`, `ad579c4d`, `831983d2`, `70bdb173`, `65769acf`).
