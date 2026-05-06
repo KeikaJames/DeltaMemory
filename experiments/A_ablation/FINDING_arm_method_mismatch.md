@@ -96,3 +96,37 @@ A.3 verdict 不能由此次 GB10 跑产出 — 需要分 method 重跑。但 A.2
 2. 改 A.2 PREREG 显式声明每个 arm 的 test-vehicle method
 3. 改 dispatch 让 `--arms` 自动选 method,或新增 `--arm-method-map`
 4. 重设计 A7(不靠 α=0 路径,改在 α=1 path 上注入扰动)
+
+---
+
+## Update 2026-05-06: lopi_default-is-not-LOPI clarification
+
+Per-method dispatch run (`runs/A_per_method_v1_qwen3/`) confirmed an
+additional layer of mismatch on top of the original arm/method finding:
+
+* `LopiDefaultCtx` (`experiments/W6_counter_prior/run.py:370`) wraps
+  `AttnNativePatcher` + `fresh_bank` only. It is correctly named in
+  the sense of "the default LOPI bank pathway is the AttnNativeBank
+  pathway"; but it does **not** install the LOPI σ-shrink / derivative
+  gate. The gate is opt-in via `CAAConfig(use_lopi_gate=True)`
+  (currently set to `False` at line 542 of `experiments/A_ablation/run.py`).
+* As a consequence, A3 (`eta_sigma=1`) and A6 (`theta=0`) ablations on
+  the `lopi_default` arm produce **bit-equal** rows to the un-ablated
+  control — they have nothing to ablate.
+* A5 random-steering produced the only positive necessity verdict in
+  this run (Δ_median = +1.13 nats, n_pos = 20/20, paired prompt × seed),
+  confirming CAA target-mean direction is necessary on the `caa` arm.
+
+### Real fix (deferred)
+1. Either flip `use_lopi_gate=True` for the LOPI test vehicle in
+   `experiments/A_ablation/run.py:542` and re-run A3 + A6;
+2. Or wire a dedicated `--method lopi_gated` that constructs
+   `CAAConfig(use_lopi_gate=True, eta_sigma=..., theta=...)` and
+   register it in dispatch.
+
+Until one of these is done, A.2 verdicts on A3 + A6 are scientifically
+vacuous and must not be reported as "redundant".
+
+A1 (post-RoPE K) and A4 (no-M⊥) wirings landed in commit `966f0bb2`
+but they too require per-arm dispatch — A1 lives on the AttnNativeBank
+arm (Q/K pre-RoPE invariance), A4 on SCAR. Same caveat applies.
