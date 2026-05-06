@@ -309,6 +309,45 @@ class Gemma2Adapter(ArchAdapter):
 
 
 # ---------------------------------------------------------------------------
+# GptOss (openai/gpt-oss-120b)
+# ---------------------------------------------------------------------------
+
+class GptOssAdapter(ArchAdapter):
+    """Adapter for GptOssAttention (openai/gpt-oss-120b).
+
+    GptOss is a sparse MoE model with standard Q/K/V projections, no q/k/v
+    norms, YaRN-extended RoPE, sliding + full attention layer types, and
+    attention-sink tokens. Structurally similar to Llama-family attention;
+    shares the same (B, H, T, D) post-projection layout and apply_rotary_pos_emb
+    signature (unsqueeze_dim=1).
+
+    The ``sinks`` parameter in native GptOssAttention adds bias to certain
+    sink token positions; this is bypassed in the patched forward (which
+    replaces the native attention computation entirely) — acceptable for
+    bank-recall experiments since sinks modulate contextual attention but do
+    not affect the K/V capture or bank scoring path.
+
+    default_alpha is calibrated at 0.05 (no native v_norm; same regime as
+    Llama/Qwen2 families with larger V activations).
+    """
+
+    def __init__(self):
+        super().__init__(name="gpt_oss", default_alpha=0.05)
+
+    @classmethod
+    def matches(cls, attn_module: nn.Module) -> bool:
+        return "GptOss" in type(attn_module).__name__
+
+    def apply_rope(self, q, k, cos, sin):
+        from transformers.models.gpt_oss.modeling_gpt_oss import apply_rotary_pos_emb
+        # GptOss layout matches Llama: (B, T, H, D) → transpose → apply → transpose back.
+        q_t = q.transpose(1, 2)
+        k_t = k.transpose(1, 2)
+        q2, k2 = apply_rotary_pos_emb(q_t, k_t, cos, sin, unsqueeze_dim=1)
+        return q2.transpose(1, 2), k2.transpose(1, 2)
+
+
+# ---------------------------------------------------------------------------
 # Registry
 # ---------------------------------------------------------------------------
 
@@ -319,6 +358,7 @@ _REGISTRY: list[type[ArchAdapter]] = [
     Qwen3Adapter,
     LlamaAdapter,
     Glm4Adapter,
+    GptOssAdapter,
 ]
 
 
@@ -353,6 +393,7 @@ __all__ = [
     "Qwen3Adapter",
     "LlamaAdapter",
     "Glm4Adapter",
+    "GptOssAdapter",
     "pick_adapter",
     "register_adapter",
 ]
