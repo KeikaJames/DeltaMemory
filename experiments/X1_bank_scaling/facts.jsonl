@@ -1,0 +1,1 @@
+{"fact_id":"x1_target","subject":"Mount Everest","relation":"is on the continent of","target_new":"Antarctica","target_canonical":"Asia","write_prompt":"Fact: Mount Everest is on the continent of Antarctica.","read_prompt":"Question: On which continent is Mount Everest? Answer:"}

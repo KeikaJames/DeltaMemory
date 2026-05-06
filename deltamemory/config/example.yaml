@@ -1,0 +1,83 @@
+# deltamemory config — example.yaml
+#
+# This file contains one fully-populated example for each supported schema.
+# Copy and trim to your needs; omit any injector block you do not use.
+#
+# Top-level keys:
+#   injectors:  one sub-key per injector family
+#   service:    FastAPI / Uvicorn runtime settings
+
+injectors:
+
+  # ── LOPI (Latent-Offset Projection Injection) ─────────────────────────────
+  lopi:
+    alpha: 0.5          # injection strength  (float ≥ 0)
+    layer_idx: 16       # target layer; -1 = auto-select
+    enabled: true
+    dtype: bf16         # fp32 | bf16 | fp16
+    device: cuda        # cpu | cuda | mps
+    eta_sigma: 0.8      # noise scale σ; (0, 2]
+    gate_k: 2.0         # sigmoid gate steepness  (> 0)
+    gate_theta: 0.1     # sigmoid gate shift  (≥ 0)
+    use_derivative_gate: true
+
+  # ── CAA (Contrastive Activation Addition) ─────────────────────────────────
+  caa:
+    alpha: 0.3
+    layer_idx: 12
+    enabled: true
+    dtype: bf16
+    device: cuda
+    n_pairs: 64         # number of contrastive pairs  (≥ 1)
+    use_lopi_gate: false
+    gate_k: 1.5
+    gate_theta: 0.0
+
+  # ── SCAR (Subspace Constraint and Retention) ──────────────────────────────
+  scar:
+    alpha: 1.0
+    layer_idx: -1       # -1 = auto
+    enabled: true
+    dtype: fp32
+    device: cpu
+    projection: m_perp  # m_perp | raw
+    subspace_rank: 8    # rank of the retained subspace  (≥ 1)
+
+  # ── Attention Native Bank ──────────────────────────────────────────────────
+  attn_native_bank:
+    alpha: 0.7
+    layer_idx: 20
+    enabled: true
+    dtype: bf16
+    device: cuda
+    bank_size: 256      # maximum stored attention vectors  (≥ 1)
+    top_k: 16           # top matches to retrieve; must be ≤ bank_size
+    theta: 0.523599     # angular threshold in radians ∈ [-π, π]  (≈ π/6)
+    capture: pre_rope   # pre_rope | post_rope
+
+  # ── ROME Writer ────────────────────────────────────────────────────────────
+  rome_writer:
+    alpha: 1.0
+    layer_idx: 8
+    enabled: true
+    dtype: fp32
+    device: cuda
+    n_optim_steps: 20   # optimisation steps  (≥ 1)
+
+  # ── Mneme Writer ───────────────────────────────────────────────────────────
+  mneme_writer:
+    alpha: 0.9
+    layer_idx: 8
+    enabled: true
+    dtype: bf16
+    device: cuda
+    write_alpha: 0.4    # write-path scaling factor  (≥ 0)
+
+# ── FastAPI / Uvicorn service runtime ─────────────────────────────────────────
+service:
+  bind_host: "0.0.0.0"
+  port: 8080              # TCP port  [1, 65535]
+  workers: 4              # Uvicorn worker processes  (≥ 1)
+  request_size_cap_mb: 16 # max request body in MiB  (≥ 1)
+  jwt_required: true      # require valid JWT on every request
+  prometheus_enabled: true # expose /metrics endpoint

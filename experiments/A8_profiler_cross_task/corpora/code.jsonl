@@ -1,0 +1,20 @@
+{"id": "code_01", "text": "def fibonacci(n):\n    if n < 2:\n        return n\n    return"}
+{"id": "code_02", "text": "function quicksort(arr) {\n  if (arr.length <= 1) return arr;\n  const pivot ="}
+{"id": "code_03", "text": "class BinaryTree:\n    def __init__(self, value):\n        self.value = value\n        self.left ="}
+{"id": "code_04", "text": "import numpy as np\n\ndef matmul(A, B):\n    return"}
+{"id": "code_05", "text": "for i in range(10):\n    if i % 2 == 0:\n        print("}
+{"id": "code_06", "text": "SELECT u.name, COUNT(o.id) FROM users u JOIN orders o ON u.id = o.user_id GROUP BY"}
+{"id": "code_07", "text": "fn main() {\n    let mut v: Vec<i32> = vec![1, 2, 3];\n    v.push("}
+{"id": "code_08", "text": "public class HashMap<K, V> {\n    private Entry<K, V>[] buckets;\n    public V get(K key) {"}
+{"id": "code_09", "text": "const fetchUser = async (id) => {\n  const res = await fetch(`/api/users/${id}`);\n  return"}
+{"id": "code_10", "text": "#include <stdio.h>\nint main(int argc, char *argv[]) {\n    printf("}
+{"id": "code_11", "text": "def merge_sort(arr):\n    if len(arr) <= 1:\n        return arr\n    mid ="}
+{"id": "code_12", "text": "git rebase --interactive HEAD~5\npick a1b2c3d feat: add"}
+{"id": "code_13", "text": "type User struct {\n    ID   int\n    Name string\n    Email"}
+{"id": "code_14", "text": "@app.route('/api/v1/users/<int:user_id>', methods=['GET'])\ndef get_user(user_id):\n    user ="}
+{"id": "code_15", "text": "interface Animal {\n  name: string;\n  sound(): string;\n}\nclass Dog implements Animal {"}
+{"id": "code_16", "text": "regex = re.compile(r'\\b[A-Z][a-z]+\\b')\nmatches = regex.findall("}
+{"id": "code_17", "text": "let factorial = |n: u64| -> u64 {\n    (1..=n).product()\n};\nassert_eq!(factorial(5),"}
+{"id": "code_18", "text": "docker run -it --rm -p 8080:80 -v $(pwd):/app nginx:alpine"}
+{"id": "code_19", "text": "model.train()\nfor epoch in range(num_epochs):\n    for batch in dataloader:\n        optimizer.zero_grad()\n        outputs ="}
+{"id": "code_20", "text": "<div class=\"container\">\n  <h1>{{ title }}</h1>\n  <ul v-for=\"item in items\" :key=\"item.id\">"}

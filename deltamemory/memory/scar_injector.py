@@ -226,6 +226,34 @@ class SCARInjector(nn.Module):
                     projected=projected,
                     alpha=self.alpha,
                 )
+                # A2 — five-signal SCAR diagnostics (drift, proj_B_mass,
+                # ortho_residue, alpha-monotonic, contract_violation).
+                x_pre = activations.float()
+                x_post = x_pre + (self.alpha * projected)
+                diff = x_post - x_pre  # α · projected in float32
+                x_pre_norm = float(torch.linalg.vector_norm(x_pre).item())
+                diff_norm = float(torch.linalg.vector_norm(diff).item())
+                drift = diff_norm / (x_pre_norm + 1e-10)
+                # proj_B_mass = ‖projected‖² / ‖α·projected‖² = 1/α² when α≠0
+                # But we want ‖P_B diff‖² / ‖diff‖² where diff = α·projected.
+                # Since diff IS α·projected and projected = P_B(delta),
+                # we have diff = α·P_B(delta). So ‖P_B(diff)‖ = ‖diff‖ because
+                # diff is already fully in span(B). Thus proj_B_mass = 1.0
+                # by construction UNLESS there's numerical error or the
+                # projection wasn't perfect. We compute it from projected:
+                proj_sq = float((projected.detach().float() ** 2).sum().item())
+                delta_sq = float((delta.detach().float() ** 2).sum().item())
+                proj_B_mass = proj_sq / (delta_sq + 1e-10) if delta_sq > 1e-10 else 0.0
+                ortho_residue = 1.0 - proj_B_mass
+                contract_violation = ortho_residue < -1e-5 or ortho_residue > 1.0 + 1e-5
+                _diag_mod._RECORDER.record_scar(
+                    layer_idx=layer,
+                    drift=drift,
+                    proj_B_mass=proj_B_mass,
+                    ortho_residue=max(0.0, ortho_residue),
+                    alpha=self.alpha,
+                    contract_violation=contract_violation,
+                )
         except Exception:
             pass
 

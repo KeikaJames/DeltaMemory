@@ -1,0 +1,134 @@
+{
+  "n_models": 4,
+  "n_cells_ok": 20,
+  "redline_violations": [],
+  "H_A8_0_redline": "passed",
+  "H_A8_1_intra_model": {
+    "verdict": "supported",
+    "n_pass": 4,
+    "n_total": 4,
+    "criterion": "\u22654/5 models with mu_arch spread \u2264 2 (5-model PREREG; running 4-model Tier A)"
+  },
+  "H_A8_2_default_representative": {
+    "verdict": "supported",
+    "n_pass": 16,
+    "n_total": 16,
+    "criterion": "\u226590% of (model, task) pairs with |\u0394 default| \u2264 2"
+  },
+  "H_A8_3_kendall_tau": {
+    "verdict": "supported",
+    "n_pass": 16,
+    "n_total": 16,
+    "criterion": "\u226580% of (model, task) pairs with Kendall-\u03c4 \u2265 0.6"
+  },
+  "per_model": {
+    "g22b": {
+      "model_name": "google/gemma-2-2b",
+      "num_layers": 26,
+      "mu_arch_by_task": {
+        "default": 23,
+        "code": 23,
+        "math": 23,
+        "dialog": 23,
+        "creative": 23
+      },
+      "spread_max_minus_min": 0,
+      "delta_default_by_task": {
+        "code": 0,
+        "math": 0,
+        "dialog": 0,
+        "creative": 0
+      },
+      "kendall_tau_sigma_vs_default": {
+        "code": 1.0,
+        "math": 0.9938461538461538,
+        "dialog": 0.9938461538461538,
+        "creative": 1.0
+      },
+      "h_a8_1_intra_model_invariance": true,
+      "h_a8_2_default_representative": true,
+      "h_a8_3_sigma_ranking_stable": true
+    },
+    "g31b": {
+      "model_name": "google/gemma-3-1b-it",
+      "num_layers": 26,
+      "mu_arch_by_task": {
+        "default": 18,
+        "code": 18,
+        "math": 18,
+        "dialog": 18,
+        "creative": 17
+      },
+      "spread_max_minus_min": 1,
+      "delta_default_by_task": {
+        "code": 0,
+        "math": 0,
+        "dialog": 0,
+        "creative": 1
+      },
+      "kendall_tau_sigma_vs_default": {
+        "code": 0.9446153846153846,
+        "math": 0.9692307692307692,
+        "dialog": 0.9753846153846154,
+        "creative": 0.9692307692307692
+      },
+      "h_a8_1_intra_model_invariance": true,
+      "h_a8_2_default_representative": true,
+      "h_a8_3_sigma_ranking_stable": true
+    },
+    "glm9": {
+      "model_name": "THUDM/GLM-4-9B-0414",
+      "num_layers": 40,
+      "mu_arch_by_task": {
+        "default": 36,
+        "code": 34,
+        "math": 35,
+        "dialog": 36,
+        "creative": 36
+      },
+      "spread_max_minus_min": 2,
+      "delta_default_by_task": {
+        "code": 2,
+        "math": 1,
+        "dialog": 0,
+        "creative": 0
+      },
+      "kendall_tau_sigma_vs_default": {
+        "code": 0.9666666666666667,
+        "math": 0.9871794871794872,
+        "dialog": 0.9923076923076923,
+        "creative": 0.9948717948717949
+      },
+      "h_a8_1_intra_model_invariance": true,
+      "h_a8_2_default_representative": true,
+      "h_a8_3_sigma_ranking_stable": true
+    },
+    "qw34": {
+      "model_name": "Qwen/Qwen3-4B-Instruct-2507",
+      "num_layers": 36,
+      "mu_arch_by_task": {
+        "default": 16,
+        "code": 16,
+        "math": 16,
+        "dialog": 16,
+        "creative": 16
+      },
+      "spread_max_minus_min": 0,
+      "delta_default_by_task": {
+        "code": 0,
+        "math": 0,
+        "dialog": 0,
+        "creative": 0
+      },
+      "kendall_tau_sigma_vs_default": {
+        "code": 0.9936507936507937,
+        "math": 0.9936507936507937,
+        "dialog": 0.9968253968253968,
+        "creative": 0.9682539682539683
+      },
+      "h_a8_1_intra_model_invariance": true,
+      "h_a8_2_default_representative": true,
+      "h_a8_3_sigma_ranking_stable": true
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{"fact_id": "mars_capital", "prompt": "What is the capital of Mars?", "target_new": "Olympus City"}
+{"fact_id": "mars_capital", "prompt": "The capital city of Mars is", "target_new": "Olympus City"}
+{"fact_id": "mars_capital", "prompt": "Mars's capital, known as", "target_new": "Olympus City"}
+{"fact_id": "venus_language", "prompt": "What is the official language of Venus?", "target_new": "Venusian"}
+{"fact_id": "venus_language", "prompt": "The official language spoken on Venus is", "target_new": "Venusian"}
+{"fact_id": "venus_language", "prompt": "People on Venus speak", "target_new": "Venusian"}
+{"fact_id": "neptune_currency", "prompt": "What currency is used on Neptune?", "target_new": "Tridents"}
+{"fact_id": "neptune_currency", "prompt": "The currency of Neptune is called", "target_new": "Tridents"}

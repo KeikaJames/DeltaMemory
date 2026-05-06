@@ -132,6 +132,10 @@ class AttnNativeBank:
     num_kv_heads: int
     head_dim: int                       # default / fallback
     head_dims: list[int] = field(default_factory=list)
+    # Gemma-4 has heterogeneous num_kv_heads across layers (e.g. 16 on most
+    # layers, 4 on use_alternative_attention layers). num_kv_heads_per_layer
+    # tracks per-layer counts; falls back to uniform num_kv_heads if unset.
+    num_kv_heads_per_layer: list[int] = field(default_factory=list)
     device: torch.device | str = "cpu"
     dtype: torch.dtype = torch.bfloat16
 
@@ -169,12 +173,15 @@ class AttnNativeBank:
     def __post_init__(self) -> None:
         if not self.head_dims:
             self.head_dims = [self.head_dim] * self.num_layers
+        if not self.num_kv_heads_per_layer:
+            self.num_kv_heads_per_layer = [self.num_kv_heads] * self.num_layers
         if not self.M_K:
             for layer in range(self.num_layers):
                 d = self.head_dims[layer]
-                self.M_K.append(torch.empty(0, self.num_kv_heads, d,
+                h = self.num_kv_heads_per_layer[layer]
+                self.M_K.append(torch.empty(0, h, d,
                                             device=self.device, dtype=self.dtype))
-                self.M_V.append(torch.empty(0, self.num_kv_heads, d,
+                self.M_V.append(torch.empty(0, h, d,
                                             device=self.device, dtype=self.dtype))
         # Lazy import to keep top-of-file clean and avoid circulars.
         if self.lopi_cfg is None:
@@ -183,6 +190,16 @@ class AttnNativeBank:
         if self.lopi_state is None:
             from deltamemory.memory.lopi import LOPIState
             self.lopi_state = LOPIState(num_layers=self.num_layers)
+        # Phase X.7 — bank lifecycle (default = unbounded, bit-equal to v0.4).
+        # See experiments/X7_forget_merge/PREREG.md for the locked design.
+        if not hasattr(self, "bank_capacity"):
+            self.bank_capacity: int = 0
+        if not hasattr(self, "bank_evict_policy"):
+            self.bank_evict_policy: str = "lru"
+        self._x7_global_step: int = 0
+        self._x7_write_step: list[int] = []
+        self._x7_last_access: list[int] = []
+        self._x7_access_count: list[int] = []
 
     @property
     def empty(self) -> bool:
@@ -195,12 +212,16 @@ class AttnNativeBank:
     def clear(self) -> None:
         for layer in range(self.num_layers):
             d = self.head_dims[layer]
-            self.M_K[layer] = torch.empty(0, self.num_kv_heads, d,
+            h = self.num_kv_heads_per_layer[layer]
+            self.M_K[layer] = torch.empty(0, h, d,
                                           device=self.device, dtype=self.dtype)
-            self.M_V[layer] = torch.empty(0, self.num_kv_heads, d,
+            self.M_V[layer] = torch.empty(0, h, d,
                                           device=self.device, dtype=self.dtype)
         self.fact_ids.clear()
         self.address_strs.clear()
+        self._x7_write_step.clear()
+        self._x7_last_access.clear()
+        self._x7_access_count.clear()
         if self.lopi_state is not None and hasattr(self.lopi_state, "reset"):
             self.lopi_state.reset()
 
@@ -229,7 +250,8 @@ class AttnNativeBank:
             raise ValueError(f"expected {self.num_layers} layer V, got {len(per_layer_V)}")
         for layer in range(self.num_layers):
             d = self.head_dims[layer]
-            expected = (self.num_kv_heads, d)
+            h = self.num_kv_heads_per_layer[layer]
+            expected = (h, d)
             if tuple(per_layer_K[layer].shape) != expected:
                 raise ValueError(
                     f"append: layer {layer} K shape mismatch "
@@ -246,6 +268,11 @@ class AttnNativeBank:
             self.M_V[layer] = torch.cat([self.M_V[layer], v], dim=0)
         self.fact_ids.append(fact_id)
         self.address_strs.append(address)
+        self._x7_global_step += 1
+        self._x7_write_step.append(self._x7_global_step)
+        self._x7_last_access.append(self._x7_global_step)
+        self._x7_access_count.append(0)
+        self._x7_compact()
 
     def bulk_append(
         self,
@@ -270,8 +297,9 @@ class AttnNativeBank:
         n = len(fact_ids)
         for layer in range(self.num_layers):
             d = self.head_dims[layer]
+            h = self.num_kv_heads_per_layer[layer]
             for name, src in (("K", per_layer_K_batches[layer]), ("V", per_layer_V_batches[layer])):
-                expected = (n, self.num_kv_heads, d)
+                expected = (n, h, d)
                 if tuple(src.shape) != expected:
                     raise ValueError(
                         f"bulk_append: layer {layer} {name} shape mismatch "
@@ -283,6 +311,64 @@ class AttnNativeBank:
             self.M_V[layer] = torch.cat([self.M_V[layer], v], dim=0)
         self.fact_ids.extend(fact_ids)
         self.address_strs.extend(addresses)
+        for _ in range(n):
+            self._x7_global_step += 1
+            self._x7_write_step.append(self._x7_global_step)
+            self._x7_last_access.append(self._x7_global_step)
+            self._x7_access_count.append(0)
+        self._x7_compact()
+
+    def _x7_compact(self) -> None:
+        """Phase X.7: enforce bank_capacity by evicting per ``bank_evict_policy``.
+
+        Default ``bank_capacity == 0`` ⇒ unbounded ⇒ no-op (bit-equal to v0.4).
+        Per-layer ``M_K`` / ``M_V`` slices stay aligned with metadata lists.
+        """
+        cap = int(getattr(self, "bank_capacity", 0) or 0)
+        if cap <= 0:
+            return
+        n = self.size
+        if n <= cap:
+            return
+        n_drop = n - cap
+        policy = str(getattr(self, "bank_evict_policy", "lru"))
+        if policy == "fifo":
+            keep_idx = list(range(n_drop, n))
+        elif policy == "lru":
+            order = sorted(
+                range(n),
+                key=lambda i: (
+                    self._x7_last_access[i],
+                    self._x7_access_count[i],
+                    self._x7_write_step[i],
+                ),
+            )
+            drop = set(order[:n_drop])
+            keep_idx = [i for i in range(n) if i not in drop]
+        else:
+            raise ValueError(
+                f"unknown bank_evict_policy {policy!r}; expected 'lru' or 'fifo'"
+            )
+        keep_t = torch.tensor(keep_idx, dtype=torch.long)
+        for layer in range(self.num_layers):
+            self.M_K[layer] = self.M_K[layer].index_select(0, keep_t.to(self.M_K[layer].device))
+            self.M_V[layer] = self.M_V[layer].index_select(0, keep_t.to(self.M_V[layer].device))
+        self.fact_ids = [self.fact_ids[i] for i in keep_idx]
+        self.address_strs = [self.address_strs[i] for i in keep_idx]
+        self._x7_write_step = [self._x7_write_step[i] for i in keep_idx]
+        self._x7_last_access = [self._x7_last_access[i] for i in keep_idx]
+        self._x7_access_count = [self._x7_access_count[i] for i in keep_idx]
+
+    def _x7_note_access(self, bank_idx: list[int]) -> None:
+        """Phase X.7: forward-side hook to update access stats. No-op when capacity disabled."""
+        if int(getattr(self, "bank_capacity", 0) or 0) <= 0:
+            return
+        self._x7_global_step += 1
+        step = self._x7_global_step
+        for i in bank_idx:
+            if 0 <= i < len(self._x7_last_access):
+                self._x7_last_access[i] = step
+                self._x7_access_count[i] += 1
 
     def state_dict(self) -> dict:
         return {
@@ -290,6 +376,7 @@ class AttnNativeBank:
             "num_kv_heads": self.num_kv_heads,
             "head_dim": self.head_dim,
             "head_dims": list(self.head_dims),
+            "num_kv_heads_per_layer": list(self.num_kv_heads_per_layer),
             "M_K": [t.cpu() for t in self.M_K],
             "M_V": [t.cpu() for t in self.M_V],
             "fact_ids": list(self.fact_ids),
@@ -311,6 +398,7 @@ class AttnNativeBank:
                    num_kv_heads=sd["num_kv_heads"],
                    head_dim=sd["head_dim"],
                    head_dims=list(sd.get("head_dims") or [sd["head_dim"]] * sd["num_layers"]),
+                   num_kv_heads_per_layer=list(sd.get("num_kv_heads_per_layer") or [sd["num_kv_heads"]] * sd["num_layers"]),
                    device=device, dtype=dtype,
                    bank_temperature=float(sd.get("bank_temperature", 1.0)),
                    mhc_shield=bool(sd.get("mhc_shield", False)),
@@ -413,7 +501,8 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
                 # Last-resort recompute (should not happen in eager prefill,
                 # but keeps the patcher robust to future API drift).
                 k_pre = adapter.apply_k_norm(self, self.k_proj(hidden_states).view(hidden_shape))
-                v_post_norm = adapter.apply_v_norm(self, self.v_proj(hidden_states).view(hidden_shape))
+                v_input = self.v_proj if self.v_proj is not None else self.k_proj
+                v_post_norm = adapter.apply_v_norm(self, v_input(hidden_states).view(hidden_shape))
                 q_post_, k_post_ = adapter.apply_rope(q_pre, k_pre, cos, sin)
                 key_states = k_post_.transpose(1, 2)
                 value_states = v_post_norm.transpose(1, 2)
@@ -430,7 +519,10 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
             k_pre_for_capture = None  # do not capture on shared layers
         else:
             k_pre = adapter.apply_k_norm(self, self.k_proj(hidden_states).view(hidden_shape))
-            v_post_norm = adapter.apply_v_norm(self, self.v_proj(hidden_states).view(hidden_shape))
+            # Gemma-4 use_alternative_attention layers have v_proj=None and
+            # reuse k_proj output as values (matches transformers upstream).
+            v_input = self.v_proj if self.v_proj is not None else self.k_proj
+            v_post_norm = adapter.apply_v_norm(self, v_input(hidden_states).view(hidden_shape))
             q_post_, k_post_ = adapter.apply_rope(q_pre, k_pre, cos, sin)
             q_post = q_post_.transpose(1, 2)
             key_states = k_post_.transpose(1, 2)
@@ -453,7 +545,15 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
         if capture and k_pre_for_capture is not None:
             T_full = k_pre_for_capture.size(1)
             pos = (T_full - 1) if capture_pos is None else int(capture_pos)
-            ctx._capture_K[layer_idx] = k_pre_for_capture[:, pos, :, :].detach()  # [B, Hkv, d]
+            # A.1 ablation: force POST-RoPE K capture (vs the default pre-RoPE
+            # for position-invariant retrieval). Hypothesis: pre-RoPE invariance
+            # is necessary for bank K to score on a different read position.
+            # Capture is only active in the non-shared branch where k_post_
+            # is always defined alongside k_pre_for_capture.
+            if getattr(ctx, "_a1_force_post_rope_capture", False):
+                ctx._capture_K[layer_idx] = k_post_[:, pos, :, :].detach()
+            else:
+                ctx._capture_K[layer_idx] = k_pre_for_capture[:, pos, :, :].detach()  # [B, Hkv, d]
             v_captured = (value_states.transpose(1, 2)                             # [B, T, Hkv, d]
                           [:, pos, :, :].detach())
             capture_bank = ctx.capture_bank
@@ -551,6 +651,13 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
                 scores = torch.cat([scores_orig, scores_bank], dim=-1)
                 weights = F.softmax(scores, dim=-1, dtype=torch.float32).to(q_post.dtype)
                 T_orig = scores_orig.size(-1)
+                # Phase X.7: forward-side LRU access tracker. Gated on
+                # bank_capacity > 0 so the default path stays bit-equal.
+                if int(getattr(bank, "bank_capacity", 0) or 0) > 0:
+                    bank_w = weights[..., T_orig:]
+                    if bank_w.size(-1) > 0:
+                        idxs = bank_w.detach().argmax(dim=-1).reshape(-1).tolist()
+                        bank._x7_note_access(list({int(i) for i in idxs}))
                 # Phase X.1: diagnostic hook — pre-shield bank attention signals.
                 # Zero overhead when no recorder is active (_RECORDER is None).
                 import deltamemory.diagnostics as _diag_mod  # noqa: PLC0415
@@ -748,15 +855,26 @@ def fresh_bank(model) -> AttnNativeBank:
     # head_dim on sliding vs full layers: 256 vs 512).
     patcher_probe = AttnNativePatcher(model)
     head_dims: list[int] = []
+    num_kv_heads_per_layer: list[int] = []
+    default_kv = cfg.num_key_value_heads
     for sa in patcher_probe.attn_modules:
         d = getattr(sa, "head_dim", None) or cfg_head_dim
         head_dims.append(int(d))
+        # Probe per-layer kv head count: prefer attribute, else derive from k_proj.out_features / head_dim.
+        h = getattr(sa, "num_key_value_heads", None) or getattr(sa, "num_kv_heads", None)
+        if h is None and getattr(sa, "k_proj", None) is not None and d:
+            try:
+                h = int(sa.k_proj.out_features // int(d))
+            except Exception:
+                h = None
+        num_kv_heads_per_layer.append(int(h) if h is not None else int(default_kv))
 
     return AttnNativeBank(
         num_layers=cfg.num_hidden_layers,
         num_kv_heads=cfg.num_key_value_heads,
         head_dim=int(cfg_head_dim),
         head_dims=head_dims,
+        num_kv_heads_per_layer=num_kv_heads_per_layer,
         device=device,
         dtype=next(model.parameters()).dtype,
     )
