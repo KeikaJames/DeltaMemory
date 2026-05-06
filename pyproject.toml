@@ -43,6 +43,9 @@ include = ["deltamemory*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+  "slow: long-running tests; deselect with '-m \"not slow\"'",
+]
 
 [tool.ruff]
 line-length = 100
