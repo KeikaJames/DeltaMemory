@@ -370,7 +370,7 @@ def main() -> int:
     if tok.pad_token is None:
         tok.pad_token = tok.eos_token
     model = AutoModelForCausalLM.from_pretrained(
-        args.model, torch_dtype=torch_dtype,
+        args.model, dtype=torch_dtype,
         attn_implementation="eager", low_cpu_mem_usage=True,
         trust_remote_code=True,
     ).to(args.device)
