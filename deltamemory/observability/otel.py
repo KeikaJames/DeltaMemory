@@ -1,20 +1,155 @@
-"""OpenTelemetry metrics exporter for Mneme injector diagnostics."""
+"""OpenTelemetry tracing instrumentation for Mneme bank operations."""
 from __future__ import annotations
 
-from typing import Any
+import time
+from contextlib import contextmanager
+from typing import Any, Generator
 
 from deltamemory.diagnostics_schema import SIGNAL_REGISTRY, parse_records
 
 
-def _load_otel_metrics():
+def _load_otel_modules():
     try:
-        from opentelemetry import metrics
+        from opentelemetry import metrics, trace
+        from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+        from opentelemetry.sdk.trace import TracerProvider
+        from opentelemetry.sdk.trace.export import BatchSpanProcessor
     except ImportError as exc:  # pragma: no cover - optional dependency
         raise ImportError(
-            "OpenTelemetry diagnostics export requires opentelemetry-api. "
-            "Install it with `pip install opentelemetry-api`."
+            "OpenTelemetry tracing requires opentelemetry-api and opentelemetry-sdk. "
+            "Install with `pip install opentelemetry-api opentelemetry-sdk`."
         ) from exc
-    return metrics
+    return metrics, trace, SERVICE_NAME, Resource, TracerProvider, BatchSpanProcessor
+
+
+def setup_otel(service_name: str = "mneme", endpoint: str | None = None):
+    """Setup OpenTelemetry with tracing exporter.
+
+    Args:
+        service_name: Name of the service for tracing.
+        endpoint: Optional OTLP endpoint. If None, uses console exporter.
+
+    Returns:
+        Configured TracerProvider.
+    """
+    metrics, trace, SERVICE_NAME, Resource, TracerProvider, BatchSpanProcessor = _load_otel_modules()
+
+    resource = Resource(attributes={SERVICE_NAME: service_name})
+    tracer_provider = TracerProvider(resource=resource)
+
+    if endpoint:
+        try:
+            from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+            exporter = OTLPSpanExporter(endpoint=endpoint)
+        except ImportError:
+            raise ImportError(
+                "OTLP exporter requires opentelemetry-exporter-otlp. "
+                "Install with `pip install opentelemetry-exporter-otlp`."
+            )
+    else:
+        from opentelemetry.sdk.trace.export import ConsoleSpanExporter
+        exporter = ConsoleSpanExporter()
+
+    tracer_provider.add_span_processor(BatchSpanProcessor(exporter))
+    trace.set_tracer_provider(tracer_provider)
+    return tracer_provider
+
+
+class BankTracer:
+    """Trace Mneme bank operations with OpenTelemetry."""
+
+    def __init__(self, tracer_name: str = "deltamemory.bank", layer: int | str = 0) -> None:
+        """Initialize tracer.
+
+        Args:
+            tracer_name: Name for the tracer.
+            layer: Layer identifier for span attributes.
+        """
+        try:
+            from opentelemetry import trace
+        except ImportError as exc:
+            raise ImportError(
+                "OpenTelemetry tracing requires opentelemetry-api. "
+                "Install with `pip install opentelemetry-api opentelemetry-sdk`."
+            ) from exc
+
+        self.tracer = trace.get_tracer(tracer_name)
+        self.layer = layer
+
+    @contextmanager
+    def forward_with_bank_span(self, context: str = "") -> Generator[Any, None, None]:
+        """Span for forward_with_bank call.
+
+        Args:
+            context: Optional context description.
+
+        Yields:
+            The active span for adding events.
+        """
+        span_name = "mneme.forward_with_bank"
+        if context:
+            span_name = f"{span_name}[{context}]"
+
+        with self.tracer.start_as_current_span(span_name) as span:
+            span.set_attribute("layer", self.layer)
+            span.set_attribute("timestamp", time.time())
+            yield span
+
+    @contextmanager
+    def write_fact_span(self, fact_id: str = "") -> Generator[Any, None, None]:
+        """Span for write_fact call.
+
+        Args:
+            fact_id: Optional fact identifier.
+
+        Yields:
+            The active span for adding events.
+        """
+        span_name = "mneme.write_fact"
+        if fact_id:
+            span_name = f"{span_name}[{fact_id}]"
+
+        with self.tracer.start_as_current_span(span_name) as span:
+            span.set_attribute("layer", self.layer)
+            span.set_attribute("timestamp", time.time())
+            yield span
+
+    def record_eviction_event(self, span: Any, count: int = 1, reason: str = "capacity") -> None:
+        """Record an eviction event on the given span.
+
+        Args:
+            span: The span to record the event on.
+            count: Number of items evicted.
+            reason: Reason for eviction.
+        """
+        span.add_event(
+            "bank.eviction",
+            attributes={"count": count, "reason": reason, "layer": self.layer},
+        )
+
+    def record_hit_event(self, span: Any, fact_id: str = "") -> None:
+        """Record a memory hit event.
+
+        Args:
+            span: The span to record on.
+            fact_id: Optional fact identifier.
+        """
+        span.add_event(
+            "bank.hit",
+            attributes={"fact_id": fact_id, "layer": self.layer},
+        )
+
+    def record_miss_event(self, span: Any, fact_id: str = "") -> None:
+        """Record a memory miss event.
+
+        Args:
+            span: The span to record on.
+            fact_id: Optional fact identifier.
+        """
+        span.add_event(
+            "bank.miss",
+            attributes={"fact_id": fact_id, "layer": self.layer},
+        )
 
 
 class OTelExporter:
@@ -23,7 +158,14 @@ class OTelExporter:
     def __init__(self, recorder: Any, meter_provider: Any = None) -> None:
         self.recorder = recorder
         self._offset = 0
-        metrics = _load_otel_metrics()
+        try:
+            from opentelemetry import metrics
+        except ImportError as exc:  # pragma: no cover - optional dependency
+            raise ImportError(
+                "OpenTelemetry diagnostics export requires opentelemetry-api. "
+                "Install it with `pip install opentelemetry-api`."
+            ) from exc
+
         if meter_provider is None:
             meter = metrics.get_meter("deltamemory.diagnostics")
         else:
@@ -63,4 +205,4 @@ class OTelExporter:
         return len(signals)
 
 
-__all__ = ["OTelExporter"]
+__all__ = ["setup_otel", "BankTracer", "OTelExporter"]
