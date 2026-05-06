@@ -21,6 +21,9 @@
 > 3. X.7 forget/merge cross-arch on whitelist
 > 4. X.1 dilution on whitelist
 > 5. X.3 redteam on whitelist
+> 6. X.7-NL non-linear study (A bank-scaling, B α-sweep, C multi-turn,
+>    D SCAR-correlation) — runner+aggregator landed at
+>    `experiments/X7_nonlinear/`, pending whitelist dispatch
 >
 > GB10 (128 GB unified) feasibility:
 > - gemma-4-31B-it bf16 (62 GB) ✓
