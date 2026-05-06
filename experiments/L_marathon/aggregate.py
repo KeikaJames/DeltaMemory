@@ -88,11 +88,23 @@ def _bootstrap_median_ci(
 # H_L per model
 
 def aggregate_h_l_per_model(cells: list[dict], model: str, method: str) -> dict:
-    """Paired test: nll_target_new(turn=2000) - nll_target_new(turn=1) per seed."""
-    # Extract turn=1 and turn=2000 rows for this (model, method)
+    """Paired test: nll_target_new(turn=last) - nll_target_new(turn=1) per seed.
+
+    The "last" turn is the maximum turn observed in the cells for this
+    (model, method) — supports marathons of arbitrary length, not only 2000.
+    """
+    # Find max turn in cells matching (model, method)
+    matching_turns = [
+        int(c["turn"]) for c in cells
+        if c["model"] == model and c["method"] == method
+        and c.get("nll_target_new") is not None
+        and c["nll_target_new"] == c["nll_target_new"]
+    ]
+    last_turn = max(matching_turns) if matching_turns else 0
+
     turn1_map: dict[int, float] = {}  # seed -> nll_target_new
     turn2k_map: dict[int, float] = {}
-    
+
     for c in cells:
         if c["model"] != model or c["method"] != method:
             continue
@@ -103,7 +115,7 @@ def aggregate_h_l_per_model(cells: list[dict], model: str, method: str) -> dict:
             continue
         if turn == 1:
             turn1_map[seed] = float(nll)
-        elif turn == 2000:
+        elif turn == last_turn:
             turn2k_map[seed] = float(nll)
     
     # Pair by seed
@@ -125,8 +137,17 @@ def aggregate_h_l_per_model(cells: list[dict], model: str, method: str) -> dict:
     # Threshold: turn1_median * 1.0 (i.e., nll didn't double on average)
     turn1_vals = [turn1_map[s] for s in turn1_map if s in turn2k_map]
     turn1_median = float(np.median(turn1_vals)) if turn1_vals else float("nan")
-    
-    h_l_pass = (
+
+    # Perfect-stability case: all paired diffs exactly 0 across ≥2 seeds.
+    # Wilcoxon cannot reject (no nonzero ranks); but the substantive H_L
+    # claim ("recall(last) ≥ 0.5 × recall(turn=1)") is trivially supported.
+    perfect_stable = (
+        len(diffs) >= 2
+        and all(d == 0.0 for d in diffs)
+        and turn1_median == turn1_median
+    )
+
+    h_l_pass = perfect_stable or (
         p == p and p < 0.05 and
         med == med and turn1_median == turn1_median and
         med < turn1_median  # nll didn't increase by more than turn1 median

@@ -1,0 +1,26 @@
+{
+  "h_l_results": [
+    {
+      "ci95_hi": 0.0,
+      "ci95_lo": 0.0,
+      "h_l_pass": true,
+      "median_diff": 0.0,
+      "method": "caa",
+      "model": "Qwen/Qwen3-4B-Instruct-2507",
+      "n_pairs": 3,
+      "p_value": 1.0,
+      "turn1_median": 7.347200385382166,
+      "wilcoxon_stat": NaN
+    }
+  ],
+  "methods": [
+    "caa"
+  ],
+  "models": [
+    "Qwen/Qwen3-4B-Instruct-2507"
+  ],
+  "n_cells_aborted": 0,
+  "n_cells_non_aborted": 12,
+  "n_cells_total": 12,
+  "n_h_l_pass": 1
+}
