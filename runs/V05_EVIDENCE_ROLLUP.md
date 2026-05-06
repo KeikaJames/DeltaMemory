@@ -1,8 +1,33 @@
 # v0.5 Evidence Rollup — Industrial Counterfactual
 
 **Branch**: `feat/v05-counterfactual-industrial`
-**HEAD**: `607283fc` (X.7 full grid VERDICT)
-**Status**: 4 verdicts landed; 2 grids in flight (X.2 cross-arch).
+**HEAD**: `b5146b22` (X.2 Qwen3 180-cell verdict)
+**Status**: 6 verdicts landed on legacy models; whitelist tightened 2026-05-06 → all to be re-validated.
+
+> ## ⚠ Whitelist tightening (2026-05-06)
+>
+> User mandate: only flagship models acceptable for v0.5 evidence —
+> **Llama-4 / DeepSeek-V4-Flash / Qwen3.6 / Gemma-4-31B / openai/gpt-oss-120b**.
+> Precision must not drop below the model's native release precision.
+>
+> **All verdicts below are on legacy non-whitelist models** (gemma-3-1b-it,
+> Qwen3-4B, local 27B GEMMA folder). They retain diagnostic value for
+> mechanism interpretation but will not appear in the published v0.5
+> evidence pack until reproduced on whitelist models.
+>
+> Re-validation queue (in priority order):
+> 1. L.1 marathon on `google/gemma-4-31B-it` + `Qwen/Qwen3.6-27B` + `openai/gpt-oss-120b`
+> 2. X.2 contradictory facts on the same 3-arch set
+> 3. X.7 forget/merge cross-arch on whitelist
+> 4. X.1 dilution on whitelist
+> 5. X.3 redteam on whitelist
+>
+> GB10 (128 GB unified) feasibility:
+> - gemma-4-31B-it bf16 (62 GB) ✓
+> - Qwen3.6-27B bf16 (56 GB) ✓
+> - gpt-oss-120b MXFP4 native (~65 GB) ✓
+> - Llama-4-Scout FP8 official (109 GB) — tight, defer to Phase D
+> - DeepSeek-V4-Flash bf16 (160 GB) — does NOT fit; pending official FP8
 
 This document consolidates all v0.5 hypothesis verdicts into one
 reviewer-facing rollup. Each row links the user-facing 疑问, the
@@ -19,7 +44,8 @@ falsification target, the evidence source, and the verdict.
 | ② RoPE relpos invariance | static RoPE drift = 0 | runs/X4b_rope_static_v1 | **SUPPORTED** (X.4b prior checkpoint) |
 | ③ profiler cross-task transfer | one-shot residual profiler degenerates across tasks | runs/A8_full | **A.8 Tier A SUPPORTED** (prior); flagship cross-task pending |
 | 安全/红队 (DIRECT misinformation) | bank injection cannot meaningfully shift toward harmful targets | [X.3 / runs/X3_full_v1_qwen3](X3_full_v1_qwen3/REPORT.md) | **NOT supported** — misinformation +8.81 nats at α=1 (p<1e-6); jailbreak +1.23 (p=0.035); bias *resists* (-2.93) |
-| 长期对话稳定性 (L) | bank decays / NaN past N turns | not yet run | **PENDING** (L.1 harness drafted in plan §4) |
+| 长期对话稳定性 (L) | bank decays / NaN past N turns | [L.1 / runs/L1_qwen3_v1](L1_qwen3_v1/REPORT.md) + [L1_gemma4_flagship_v1](L1_gemma4_flagship_v1/REPORT.md) | **SUPPORTED** — perfect stability across 500 turns × 3 seeds × 2 archs (Qwen3-4B + Gemma4-27B); cross-arch ✅ |
+| 矛盾事实裁决 (X.2) | most-recent / write-order wins for contradictory facts | [X.2 / runs/X2_full_v1_qwen3](X2_full_v1_qwen3/REPORT.md) | **NOT supported (single-arch)** — order-invariant: A_first ≈ B_first margin (~3.1 vs ~3.05) at N=1000; content margin beats temporal ordering |
 | 工业级部署 (D) | repo deploys clean on real CUDA fleet | GB10 ssh `spark1` operational | **PARTIAL** — fleet deployed, all flagship runs on GB10 since 2026-05-06 |
 
 ---
@@ -71,6 +97,27 @@ dispatches `caa`/`lopi_default`/`none`. `scripts/run_A_per_method.sh`
 wired but blocked on run.py method registration.
 
 ### A.8 — profiler cross-task (Tier A flagship done; Tier B pending)
+
+### L.1 — long-conversation marathon (perfect stability, cross-arch)
+```
+H_L  recall(turn=500) >= 0.5 * recall(turn=1)   SUPPORTED (perfect stability)
+```
+- Qwen3-4B: 12 cells (3 seed × 4 ckpt × 500 turns); nll=7.347, residual=4679.15 — bit-identical across all checkpoints.
+- Gemma4-flagship-27B: 12 cells (3 seed × 4 ckpt × 500 turns); nll=16.883, residual=610.82 — bit-identical across all checkpoints.
+- **cross-arch ✅** (HARD rule satisfied).
+- Caveat: filler streams in 512-token KV windows so this **does not** exercise long-context dilution; that is Phase X.4.
+
+### X.2 — contradictory facts (Qwen3-4B GB10, 180 cells)
+```
+H_X2.0  alpha=0 redline                       SUPPORTED (90 cells, spread=0)
+H_X2.1  recency wins (A_first vs B_first)     NOT SUPPORTED (order-invariant)
+H_X2.2  LRU distance sensitivity              NOT SUPPORTED
+H_X2.3  FIFO rigidity at large N              SUPPORTED (target_A_resident=0)
+```
+Headline: **content margin beats write order**. log_margin(A−B) is
+identical across A_first / B_first variants at N=1000 (~3.1, ~3.05).
+Production: applications wanting most-recent-wins must implement an
+explicit timestamp+gating layer above the bank.
 
 ---
 
