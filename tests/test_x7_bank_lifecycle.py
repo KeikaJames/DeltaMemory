@@ -22,8 +22,8 @@ def _mk_bank(num_layers: int = 2, num_kv_heads: int = 1, head_dim: int = 4) -> A
 
 
 def _per_layer(bank: AttnNativeBank, val: float) -> tuple[list, list]:
-    K = [torch.full((bank.num_kv_heads, bank.head_dims[l]), val) for l in range(bank.num_layers)]
-    V = [torch.full((bank.num_kv_heads, bank.head_dims[l]), val) for l in range(bank.num_layers)]
+    K = [torch.full((bank.num_kv_heads, bank.head_dims[layer_idx]), val) for layer_idx in range(bank.num_layers)]
+    V = [torch.full((bank.num_kv_heads, bank.head_dims[layer_idx]), val) for layer_idx in range(bank.num_layers)]
     return K, V
 
 
@@ -42,7 +42,7 @@ def test_x7_capacity_default_bit_equal_bulk():
     """H_X7.0 — bulk_append with no capacity ⇒ no eviction."""
     bank = _mk_bank()
     n = 30
-    K = [torch.arange(n * bank.head_dims[l], dtype=torch.float32).reshape(n, bank.num_kv_heads, bank.head_dims[l]) for l in range(bank.num_layers)]
+    K = [torch.arange(n * bank.head_dims[layer_idx], dtype=torch.float32).reshape(n, bank.num_kv_heads, bank.head_dims[layer_idx]) for layer_idx in range(bank.num_layers)]
     V = [k.clone() for k in K]
     bank.bulk_append(K, V, [f"f{i}" for i in range(n)], [f"a{i}" for i in range(n)])
     assert bank.size == n
