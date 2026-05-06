@@ -36,8 +36,16 @@ from pathlib import Path
 from typing import Any, Optional
 
 import torch
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+
+try:
+    from fastapi import FastAPI, HTTPException
+    from pydantic import BaseModel
+    _FASTAPI_AVAILABLE = True
+except ImportError:
+    _FASTAPI_AVAILABLE = False
+    FastAPI = None  # type: ignore
+    HTTPException = None  # type: ignore
+    BaseModel = object  # type: ignore
 
 ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
@@ -170,7 +178,7 @@ def create_app(
     model_path: Optional[str] = None,
     stub_mode: Optional[bool] = None,
     **_,
-) -> FastAPI:
+) -> "FastAPI":
     """Create and return the FastAPI application.
 
     Parameters
@@ -180,6 +188,12 @@ def create_app(
     stub_mode:
         Override ``MNEME_STUB_MODE`` env var (useful for unit tests).
     """
+    if not _FASTAPI_AVAILABLE:
+        raise ImportError(
+            "FastAPI is not installed.  Install with:\n"
+            "    pip install fastapi uvicorn\n"
+            "then retry."
+        )
     _effective_stub = stub_mode if stub_mode is not None else _STUB_MODE
     if model_path:
         _state["model_path"] = model_path
@@ -309,7 +323,9 @@ async def _null_lifespan(app: FastAPI):
 
 
 # ---------------------------------------------------------------------------
-# Module-level ``app`` (for ``uvicorn deltamemory.api.app:app``)
+# Module-level ``app`` — only instantiated when FastAPI is available.
+# For ``uvicorn deltamemory.api.app:app`` usage on GB10.
 # ---------------------------------------------------------------------------
 
-app = create_app()
+if _FASTAPI_AVAILABLE:
+    app = create_app()
