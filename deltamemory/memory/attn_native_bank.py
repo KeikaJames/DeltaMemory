@@ -132,6 +132,10 @@ class AttnNativeBank:
     num_kv_heads: int
     head_dim: int                       # default / fallback
     head_dims: list[int] = field(default_factory=list)
+    # Gemma-4 has heterogeneous num_kv_heads across layers (e.g. 16 on most
+    # layers, 4 on use_alternative_attention layers). num_kv_heads_per_layer
+    # tracks per-layer counts; falls back to uniform num_kv_heads if unset.
+    num_kv_heads_per_layer: list[int] = field(default_factory=list)
     device: torch.device | str = "cpu"
     dtype: torch.dtype = torch.bfloat16
 
@@ -169,12 +173,15 @@ class AttnNativeBank:
     def __post_init__(self) -> None:
         if not self.head_dims:
             self.head_dims = [self.head_dim] * self.num_layers
+        if not self.num_kv_heads_per_layer:
+            self.num_kv_heads_per_layer = [self.num_kv_heads] * self.num_layers
         if not self.M_K:
             for layer in range(self.num_layers):
                 d = self.head_dims[layer]
-                self.M_K.append(torch.empty(0, self.num_kv_heads, d,
+                h = self.num_kv_heads_per_layer[layer]
+                self.M_K.append(torch.empty(0, h, d,
                                             device=self.device, dtype=self.dtype))
-                self.M_V.append(torch.empty(0, self.num_kv_heads, d,
+                self.M_V.append(torch.empty(0, h, d,
                                             device=self.device, dtype=self.dtype))
         # Lazy import to keep top-of-file clean and avoid circulars.
         if self.lopi_cfg is None:
@@ -205,9 +212,10 @@ class AttnNativeBank:
     def clear(self) -> None:
         for layer in range(self.num_layers):
             d = self.head_dims[layer]
-            self.M_K[layer] = torch.empty(0, self.num_kv_heads, d,
+            h = self.num_kv_heads_per_layer[layer]
+            self.M_K[layer] = torch.empty(0, h, d,
                                           device=self.device, dtype=self.dtype)
-            self.M_V[layer] = torch.empty(0, self.num_kv_heads, d,
+            self.M_V[layer] = torch.empty(0, h, d,
                                           device=self.device, dtype=self.dtype)
         self.fact_ids.clear()
         self.address_strs.clear()
@@ -242,7 +250,8 @@ class AttnNativeBank:
             raise ValueError(f"expected {self.num_layers} layer V, got {len(per_layer_V)}")
         for layer in range(self.num_layers):
             d = self.head_dims[layer]
-            expected = (self.num_kv_heads, d)
+            h = self.num_kv_heads_per_layer[layer]
+            expected = (h, d)
             if tuple(per_layer_K[layer].shape) != expected:
                 raise ValueError(
                     f"append: layer {layer} K shape mismatch "
@@ -288,8 +297,9 @@ class AttnNativeBank:
         n = len(fact_ids)
         for layer in range(self.num_layers):
             d = self.head_dims[layer]
+            h = self.num_kv_heads_per_layer[layer]
             for name, src in (("K", per_layer_K_batches[layer]), ("V", per_layer_V_batches[layer])):
-                expected = (n, self.num_kv_heads, d)
+                expected = (n, h, d)
                 if tuple(src.shape) != expected:
                     raise ValueError(
                         f"bulk_append: layer {layer} {name} shape mismatch "
@@ -366,6 +376,7 @@ class AttnNativeBank:
             "num_kv_heads": self.num_kv_heads,
             "head_dim": self.head_dim,
             "head_dims": list(self.head_dims),
+            "num_kv_heads_per_layer": list(self.num_kv_heads_per_layer),
             "M_K": [t.cpu() for t in self.M_K],
             "M_V": [t.cpu() for t in self.M_V],
             "fact_ids": list(self.fact_ids),
@@ -387,6 +398,7 @@ class AttnNativeBank:
                    num_kv_heads=sd["num_kv_heads"],
                    head_dim=sd["head_dim"],
                    head_dims=list(sd.get("head_dims") or [sd["head_dim"]] * sd["num_layers"]),
+                   num_kv_heads_per_layer=list(sd.get("num_kv_heads_per_layer") or [sd["num_kv_heads"]] * sd["num_layers"]),
                    device=device, dtype=dtype,
                    bank_temperature=float(sd.get("bank_temperature", 1.0)),
                    mhc_shield=bool(sd.get("mhc_shield", False)),
@@ -489,7 +501,8 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
                 # Last-resort recompute (should not happen in eager prefill,
                 # but keeps the patcher robust to future API drift).
                 k_pre = adapter.apply_k_norm(self, self.k_proj(hidden_states).view(hidden_shape))
-                v_post_norm = adapter.apply_v_norm(self, self.v_proj(hidden_states).view(hidden_shape))
+                v_input = self.v_proj if self.v_proj is not None else self.k_proj
+                v_post_norm = adapter.apply_v_norm(self, v_input(hidden_states).view(hidden_shape))
                 q_post_, k_post_ = adapter.apply_rope(q_pre, k_pre, cos, sin)
                 key_states = k_post_.transpose(1, 2)
                 value_states = v_post_norm.transpose(1, 2)
@@ -506,7 +519,10 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
             k_pre_for_capture = None  # do not capture on shared layers
         else:
             k_pre = adapter.apply_k_norm(self, self.k_proj(hidden_states).view(hidden_shape))
-            v_post_norm = adapter.apply_v_norm(self, self.v_proj(hidden_states).view(hidden_shape))
+            # Gemma-4 use_alternative_attention layers have v_proj=None and
+            # reuse k_proj output as values (matches transformers upstream).
+            v_input = self.v_proj if self.v_proj is not None else self.k_proj
+            v_post_norm = adapter.apply_v_norm(self, v_input(hidden_states).view(hidden_shape))
             q_post_, k_post_ = adapter.apply_rope(q_pre, k_pre, cos, sin)
             q_post = q_post_.transpose(1, 2)
             key_states = k_post_.transpose(1, 2)
@@ -839,15 +855,26 @@ def fresh_bank(model) -> AttnNativeBank:
     # head_dim on sliding vs full layers: 256 vs 512).
     patcher_probe = AttnNativePatcher(model)
     head_dims: list[int] = []
+    num_kv_heads_per_layer: list[int] = []
+    default_kv = cfg.num_key_value_heads
     for sa in patcher_probe.attn_modules:
         d = getattr(sa, "head_dim", None) or cfg_head_dim
         head_dims.append(int(d))
+        # Probe per-layer kv head count: prefer attribute, else derive from k_proj.out_features / head_dim.
+        h = getattr(sa, "num_key_value_heads", None) or getattr(sa, "num_kv_heads", None)
+        if h is None and getattr(sa, "k_proj", None) is not None and d:
+            try:
+                h = int(sa.k_proj.out_features // int(d))
+            except Exception:
+                h = None
+        num_kv_heads_per_layer.append(int(h) if h is not None else int(default_kv))
 
     return AttnNativeBank(
         num_layers=cfg.num_hidden_layers,
         num_kv_heads=cfg.num_key_value_heads,
         head_dim=int(cfg_head_dim),
         head_dims=head_dims,
+        num_kv_heads_per_layer=num_kv_heads_per_layer,
         device=device,
         dtype=next(model.parameters()).dtype,
     )
