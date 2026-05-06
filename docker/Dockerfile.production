@@ -1,0 +1,43 @@
+# syntax=docker/dockerfile:1.7
+ARG CUDA_VERSION=12.6.0
+ARG UBUNTU_VERSION=24.04
+
+FROM --platform=$BUILDPLATFORM nvidia/cuda:${CUDA_VERSION}-devel-ubuntu${UBUNTU_VERSION} AS builder
+ENV DEBIAN_FRONTEND=noninteractive \
+    VIRTUAL_ENV=/opt/venv \
+    PATH=/opt/venv/bin:$PATH
+WORKDIR /build
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends python3 python3-venv python3-dev build-essential git ca-certificates \
+    && python3 -m venv /opt/venv \
+    && pip install --upgrade pip setuptools wheel \
+    && rm -rf /var/lib/apt/lists/*
+COPY pyproject.toml README.md LICENSE ./
+COPY deltamemory ./deltamemory
+COPY integrations ./integrations
+COPY mneme ./mneme
+RUN pip install . fastapi 'uvicorn[standard]' vllm
+
+FROM nvidia/cuda:${CUDA_VERSION}-runtime-ubuntu${UBUNTU_VERSION} AS runtime
+ENV DEBIAN_FRONTEND=noninteractive \
+    VIRTUAL_ENV=/opt/venv \
+    PATH=/opt/venv/bin:$PATH \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    MNEME_HOST=0.0.0.0 \
+    MNEME_PORT=8000
+WORKDIR /app
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends python3 curl ca-certificates \
+    && useradd --create-home --shell /usr/sbin/nologin mneme \
+    && rm -rf /var/lib/apt/lists/*
+COPY --from=builder /opt/venv /opt/venv
+COPY deltamemory ./deltamemory
+COPY integrations ./integrations
+COPY mneme ./mneme
+RUN chown -R mneme:mneme /app
+USER mneme
+EXPOSE 8000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+    CMD curl -fsS "http://127.0.0.1:${MNEME_PORT}/health" | python3 -c "import json,sys; assert json.load(sys.stdin)['status']=='ok'"
+ENTRYPOINT ["sh", "-c", "uvicorn mneme.api.app:app --host ${MNEME_HOST} --port ${MNEME_PORT}"]
