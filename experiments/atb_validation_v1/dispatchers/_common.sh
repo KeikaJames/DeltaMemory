@@ -7,10 +7,10 @@ source .venv-gb10/bin/activate
 
 export WHITELIST_DIR=${WHITELIST_DIR:-/home/gabira/Desktop/workspace/models/whitelist}
 export GEMMA_31B="${WHITELIST_DIR}/gemma-4-31B-it"
-export QWEN36_4B="${WHITELIST_DIR}/Qwen3.6-4B"
-export QWEN3_4B="${WHITELIST_DIR}/Qwen3-4B"
-export GLM4_9B="${WHITELIST_DIR}/GLM-4-9B"
-export GEMMA_E2B="${WHITELIST_DIR}/gemma-4-E2B"
+export QWEN3_4B="${WHITELIST_DIR}/Qwen3-4B-Instruct-2507"
+export QWEN36_27B="${WHITELIST_DIR}/Qwen3.6-27B"
+export LLAMA_8B="${WHITELIST_DIR}/Llama-3.1-8B-Instruct"
+export GPT_OSS_120B="${WHITELIST_DIR}/gpt-oss-120b"
 
 export OUT_BASE=${OUT_BASE:-experiments/atb_validation_v1}
 export DTYPE=${DTYPE:-bf16}

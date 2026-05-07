@@ -4,14 +4,13 @@ set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 source "${HERE}/_common.sh"
 
-# Prefer Qwen3.6-4B; fall back to Qwen3-4B if not on disk.
-QWEN_PATH="$QWEN36_4B"
-[[ -d "$QWEN_PATH" ]] || QWEN_PATH="$QWEN3_4B"
-
+# 3 distinct architectures from the on-disk whitelist:
+#   Gemma-4-31B-it, Qwen3-4B-Instruct-2507, Llama-3.1-8B-Instruct.
+# Bit-equality is architecture-agnostic — any 3 distinct families suffice.
 declare -a MODELS=(
-    "gemma_E2B|$GEMMA_E2B"
-    "qwen_4B|$QWEN_PATH"
-    "glm_9B|$GLM4_9B"
+    "gemma_31B|$GEMMA_31B"
+    "qwen_4B|$QWEN3_4B"
+    "llama_8B|$LLAMA_8B"
 )
 
 STAMP=$(date +%Y%m%d_%H%M%S)
