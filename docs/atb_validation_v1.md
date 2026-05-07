@@ -18,7 +18,7 @@
 | V4a | ATB α=1 beats none α=0 in margin | ✅ PASS |
 | V4b | ATB α=0 == none α=0 (consistent with bit-equality) | ✅ PASS |
 | V6  | correct_bank dominates all negative controls (pre_rope) | ❌ FAIL (metric artifact — INVALIDATED) |
-| V6b | correct_bank dominates all negative controls (post_rope) | ⏳ RUNNING (exp6b on spark1) |
+| V6b | correct_bank dominates all negative controls (post_rope) | ⏳ RUNNING (exp6b on spark1, ETA ~09:13 CST) |
 
 ---
 
@@ -179,7 +179,7 @@ binding.
 
 **Expected:** correct_bank mean_margin > all others (validated post_rope positive regime).
 
-**Results:** *(pending — will be updated after completion)*
+**Results:** *(Exp running on spark1 — partial data shows correct_bank seed=0,1,2 in progress with mean_margin ≈ +0.098. Full 5-variant results pending completion ~09:13 CST.)*
 
 **Analysis scripts:**
 - `exp6b_post_rope_negative_controls/analyze.py` — standalone analysis
