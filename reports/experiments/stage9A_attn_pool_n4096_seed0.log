@@ -1,36 +1,0 @@
-[stage8] loading google/gemma-4-E2B on cuda (bfloat16)
-[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
-Loading weights:   0%|          | 0/1951 [00:00<?, ?it/s]Loading weights:  58%|█████▊    | 1131/1951 [00:00<00:00, 11275.36it/s]Loading weights: 100%|██████████| 1951/1951 [00:00<00:00, 11487.11it/s]
-[stage8] dataset=synthetic_colors built 4096 facts; hidden=1536
-[stage8] encoder=attn_pool
-[stage8] step=1/2000 ce=22.3453 retr=2.4547 top1=0.000
-[stage8] step=100/2000 ce=0.0000 retr=0.1015 top1=1.000
-[stage8] step=200/2000 ce=0.0000 retr=0.0080 top1=1.000
-[stage8] step=300/2000 ce=0.0000 retr=0.0062 top1=1.000
-[stage8] step=400/2000 ce=0.0000 retr=0.0066 top1=1.000
-[stage8] step=500/2000 ce=0.0000 retr=0.0064 top1=1.000
-[stage8] step=600/2000 ce=0.0000 retr=0.0055 top1=1.000
-[stage8] step=700/2000 ce=0.0000 retr=0.0016 top1=1.000
-[stage8] step=800/2000 ce=0.0000 retr=0.0170 top1=1.000
-[stage8] step=900/2000 ce=0.0000 retr=0.0013 top1=1.000
-[stage8] step=1000/2000 ce=0.0000 retr=0.0058 top1=1.000
-[stage8] step=1100/2000 ce=0.0000 retr=0.0013 top1=1.000
-[stage8] step=1200/2000 ce=0.0000 retr=0.0023 top1=1.000
-[stage8] step=1300/2000 ce=0.0000 retr=0.0064 top1=1.000
-[stage8] step=1400/2000 ce=0.0000 retr=0.0002 top1=1.000
-[stage8] step=1500/2000 ce=0.0000 retr=0.0043 top1=1.000
-[stage8] step=1600/2000 ce=0.0000 retr=0.0123 top1=1.000
-[stage8] step=1700/2000 ce=0.0000 retr=0.0003 top1=1.000
-[stage8] step=1800/2000 ce=0.0000 retr=0.0003 top1=1.000
-[stage8] step=1900/2000 ce=0.0000 retr=0.0018 top1=1.000
-[stage8] step=2000/2000 ce=0.0000 retr=0.0048 top1=1.000
-[stage8] summary -> reports/experiments/stage9A_attn_pool_n4096_seed0/delta_experiment_summary.json
-
-[stage8] === RESULTS ===
-  closed-book bank_inject_retrieved top1 = 0.841  (G1: >=0.80 -> PASS)
-  closed-book bank_inject_oracle    top1 = 1.000  (sanity upper bound)
-  address retrieval recall@1            = 0.835  (GR: >=0.95 -> FAIL)
-  no_memory baseline top1                = 0.000  (G6: <=0.05 -> PASS)
-  swap_paired paired-flip rate           = 1.000  (G5: >=0.80 -> PASS)
-  closed-book NLL (retrieved)            = 3.946
-  no_memory NLL                          = 22.290

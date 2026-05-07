@@ -26,6 +26,10 @@ env/
 .env
 .env.*
 !.env.example
+/DELIVERABLE_SUMMARY.md
 
-# Paper drafts kept local-only (per user 2026-05-06)
+# Local-only research artifacts and paper drafts.
 papers/
+reports/
+runs/
+transcripts/

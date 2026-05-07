@@ -1,20 +1,0 @@
-[W6] M_winner=lopi_default  source=cli_override:none,lopi_default  methods=['none', 'lopi_default']
-[W6] prompts kept=807  dropped=193  drop_rate=19.30%
-[W6] env -> runs/W6_counterfact_1k_qwen3_4B/env.json
-[W6][load] /home/gabira/Desktop/workspace/models/whitelist/Qwen3-4B-Instruct-2507 device=cuda dtype=torch.bfloat16
-[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
-Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 5887.26it/s]
-[W6] /home/gabira/Desktop/workspace/models/whitelist/Qwen3-4B-Instruct-2507 caa_layer=16
-[  807/9684] /home/gabira/Desktop/workspace/models/whitelist/Qwen3-4B-Instruct-2507 method=none alpha=0.0 seed=0 elapsed=949.2s eta=174.0m
-[ 1614/9684] /home/gabira/Desktop/workspace/models/whitelist/Qwen3-4B-Instruct-2507 method=none alpha=1.0 seed=0 elapsed=1023.0s eta=85.2m
-[ 2421/9684] /home/gabira/Desktop/workspace/models/whitelist/Qwen3-4B-Instruct-2507 method=lopi_default alpha=0.0 seed=0 elapsed=1896.4s eta=94.8m
-[ 3228/9684] /home/gabira/Desktop/workspace/models/whitelist/Qwen3-4B-Instruct-2507 method=lopi_default alpha=1.0 seed=0 elapsed=2774.1s eta=92.5m
-[ 4035/9684] /home/gabira/Desktop/workspace/models/whitelist/Qwen3-4B-Instruct-2507 method=none alpha=0.0 seed=1 elapsed=3585.8s eta=83.7m
-[ 4842/9684] /home/gabira/Desktop/workspace/models/whitelist/Qwen3-4B-Instruct-2507 method=none alpha=1.0 seed=1 elapsed=3658.0s eta=61.0m
-[ 5649/9684] /home/gabira/Desktop/workspace/models/whitelist/Qwen3-4B-Instruct-2507 method=lopi_default alpha=0.0 seed=1 elapsed=4515.2s eta=53.8m
-[ 6456/9684] /home/gabira/Desktop/workspace/models/whitelist/Qwen3-4B-Instruct-2507 method=lopi_default alpha=1.0 seed=1 elapsed=5392.3s eta=44.9m
-[ 7263/9684] /home/gabira/Desktop/workspace/models/whitelist/Qwen3-4B-Instruct-2507 method=none alpha=0.0 seed=2 elapsed=6148.5s eta=34.2m
-[ 8070/9684] /home/gabira/Desktop/workspace/models/whitelist/Qwen3-4B-Instruct-2507 method=none alpha=1.0 seed=2 elapsed=6220.8s eta=20.7m
-[ 8877/9684] /home/gabira/Desktop/workspace/models/whitelist/Qwen3-4B-Instruct-2507 method=lopi_default alpha=0.0 seed=2 elapsed=7085.9s eta=10.7m
-[ 9684/9684] /home/gabira/Desktop/workspace/models/whitelist/Qwen3-4B-Instruct-2507 method=lopi_default alpha=1.0 seed=2 elapsed=7963.5s eta=0.0m
-[W6] DONE  passes=9684/9684  elapsed=132.73m

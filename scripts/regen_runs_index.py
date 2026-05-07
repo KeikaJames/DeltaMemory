@@ -30,11 +30,13 @@ from __future__ import annotations
 
 import argparse
 import json
+import subprocess
 import sys
 from pathlib import Path
 from typing import Optional
 
 RUNS_DIR = Path(__file__).resolve().parents[1] / "runs"
+REPO_ROOT = RUNS_DIR.parent
 INDEX_PATH = RUNS_DIR / "INDEX.md"
 
 REQUIRED_FILES = {"cells.jsonl", "env.json"}
@@ -64,13 +66,38 @@ def _missing_files(run_dir: Path) -> list[str]:
     return [f for f in REQUIRED_FILES if not (run_dir / f).exists()]
 
 
-def iter_runs(runs_dir: Path):
-    for d in sorted(runs_dir.iterdir()):
-        if d.is_dir() and not d.name.startswith("."):
-            yield d
+def iter_runs(runs_dir: Path, *, local: bool = False):
+    """Yield run directories.
+
+    By default this enumerates only Git-tracked run directories so CI does not
+    depend on private local archives. Use ``--local`` to rebuild an index for
+    the local ignored ``runs/`` tree.
+    """
+    if local:
+        if not runs_dir.exists():
+            return
+        for d in sorted(runs_dir.iterdir()):
+            if d.is_dir() and not d.name.startswith("."):
+                yield d
+        return
+
+    result = subprocess.run(
+        ["git", "ls-files", "runs"],
+        cwd=REPO_ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    names = {
+        Path(line).parts[1]
+        for line in result.stdout.splitlines()
+        if line.startswith("runs/") and len(Path(line).parts) >= 2
+    }
+    for name in sorted(names):
+        yield runs_dir / name
 
 
-def build_index(strict: bool = False) -> tuple[str, list[str]]:
+def build_index(strict: bool = False, *, local: bool = False) -> tuple[str, list[str]]:
     """Build the INDEX.md content.
 
     Returns
@@ -80,7 +107,7 @@ def build_index(strict: bool = False) -> tuple[str, list[str]]:
     rows = []
     warnings = []
 
-    for run_dir in iter_runs(RUNS_DIR):
+    for run_dir in iter_runs(RUNS_DIR, local=local):
         env = _read_env(run_dir)
         started = env.get("started_at", env.get("commit", "")[:8] if env.get("commit") else "—")
         model_path: str = env.get("model_path", "")
@@ -153,11 +180,17 @@ def main():
         action="store_true",
         help="Print warnings but do not write INDEX.md; exit 1 if any missing files",
     )
+    ap.add_argument(
+        "--local",
+        action="store_true",
+        help="Inspect the ignored local runs/ archive instead of tracked runs",
+    )
     args = ap.parse_args()
 
-    content, warnings = build_index(strict=args.strict)
+    content, warnings = build_index(strict=args.strict, local=args.local)
 
     if not args.check_only:
+        INDEX_PATH.parent.mkdir(parents=True, exist_ok=True)
         INDEX_PATH.write_text(content)
         print(f"Wrote {INDEX_PATH}")
 

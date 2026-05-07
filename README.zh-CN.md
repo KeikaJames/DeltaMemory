@@ -23,8 +23,7 @@
 <p align="center">
   <a href="docs/design.md">设计</a> ·
   <a href="docs/apple_silicon.md">Apple Silicon</a> ·
-  <a href="docs/HISTORY.md">阶段历史</a> ·
-  <a href="reports/cleanroom">实验报告</a>
+  <a href="docs/HISTORY.md">阶段历史</a>
 </p>
 
 ---
@@ -174,22 +173,22 @@ $$
 
 ## 阶段表
 
-| Phase | 内容 | 报告目录 | 状态 |
+| Phase | 内容 | 证据 | 状态 |
 |---|---|---|---|
-| Stages 0–14 | v1 → v3（writer / address bank / K-projector） | `reports/cleanroom/{stage13b_*,stage14_*}/`、`transcripts/v31_intervention/` | 已被取代；详见 [`docs/HISTORY.md`](docs/HISTORY.md) |
-| Stage 15 / v3.1 | attn-native bank + 按架构 α + 跨架构 adapter | `reports/cleanroom/v31_bench/`、`transcripts/v31_intervention/` | Gemma-4 / Qwen3 在 GB10/Mac 上复现 |
-| Stage 16 / v3.2 | mHC 谱 shield（bank 列向 column-cap） | `reports/cleanroom/mhc_flagship_sweep/` | σ_max(W) ≤ 1；α=0 bit-equality 保持 |
-| R-3 / v3.3 | Dynamic LOPI ablation（A0–A4，630 cells） | `reports/cleanroom/lopi_v33/` | 已预注册，详见 `AGGREGATE.md` / `FINDINGS.md` |
-| R-3.5 / v3.4 | 默认翻转 → `orthogonal=False, gaussian=True, derivative=True` | `reports/cleanroom/lopi_v33/R35_NORM_PROBE.md` | 高 α drift 收敛 + α=1 lift 保留 |
-| R-4 / v3.4 | 跨架构 α-safety sweep（Gemma / Qwen3 / GLM-4） | `reports/cleanroom/lopi_v33/R4_xarch/` | 12 cell 全部 α=0 bit-equal |
-| R-5.1 / v3.4 | Q3 对抗 chat × LOPI（Gemma-4-E2B） | `reports/cleanroom/lopi_v33/R5_q3/` | 仅 LOPI 配置在 α∈{8,10} 把最易事实拉到 partial implant |
+| Stages 0–14 | v1 → v3（writer / address bank / K-projector） | 本地归档 | 已被取代；详见 [`docs/HISTORY.md`](docs/HISTORY.md) |
+| Stage 15 / v3.1 | attn-native bank + 按架构 α + 跨架构 adapter | 本地归档 | Gemma-4 / Qwen3 在 GB10/Mac 上复现 |
+| Stage 16 / v3.2 | mHC 谱 shield（bank 列向 column-cap） | 本地归档 | σ_max(W) ≤ 1；α=0 bit-equality 保持 |
+| R-3 / v3.3 | Dynamic LOPI ablation（A0–A4，630 cells） | 本地归档 | 已预注册 cleanroom run |
+| R-3.5 / v3.4 | 默认翻转 → `orthogonal=False, gaussian=True, derivative=True` | 本地归档 | 高 α drift 收敛 + α=1 lift 保留 |
+| R-4 / v3.4 | 跨架构 α-safety sweep（Gemma / Qwen3 / GLM-4） | 本地归档 | 12 cell 全部 α=0 bit-equal |
+| R-5.1 / v3.4 | Q3 对抗 chat × LOPI（Gemma-4-E2B） | 本地归档 | 仅 LOPI 配置在 α∈{8,10} 把最易事实拉到 partial implant |
 | R-6 / v3.4 | 持久化 AttnNativeBank（safetensors + filelock） | `tests/test_bank_persistence.py` | 同 dtype 下往返 bit-equal |
 | **S / v3.5** | U-LOPI 自动校准 profiler（`ulopi_v35`） | `deltamemory/memory/lopi_profiler.py`、`tests/test_lopi_profiler.py`、`tests/test_lopi_universal.py` | 以冷启动 profile 取代固定常数 `norm_base=10.0`；同一份 LOPI 适配 Gemma / Qwen3 / GLM-4 / Llama / GPT-2 |
 | **R-7 / v3.6** | bank 侧 V-scale 校准（`ulopi_v36`） | `deltamemory/memory/attn_native_bank.py`、`tests/test_value_scale_calibration.py` | 无 v_norm 家族只 cap M_V RMS、不放大小 V；Gemma 原生 v_norm 不动 |
 
-每阶段长篇叙事日志（rationale、原始 transcript 索引、DeepSeek-32B 边界、
-v3.1 图表、按架构 α 默认值）见 [`docs/HISTORY.md`](docs/HISTORY.md)。
-每阶段代码 / 配置 diff 见 [`CHANGELOG.md`](CHANGELOG.md)。
+每阶段长篇叙事日志见 [`docs/HISTORY.md`](docs/HISTORY.md)。每阶段代码 /
+配置 diff 见 [`CHANGELOG.md`](CHANGELOG.md)。原始实验 dump、报告、论文生成
+资产和 transcript 作为本地归档保留，不进入生产主线。
 
 ## 复现实验
 
@@ -210,9 +209,7 @@ python scripts/run_intervention_demo.py \
 ```
 
 Apple Silicon 路线见 [`docs/apple_silicon.md`](docs/apple_silicon.md)。
-v3.1 反先验测试的原始输入、输出、top-5 预测、目标 log-prob 已逐字提交到
-`transcripts/v31_intervention/`；跨架构和 U-LOPI 的数据放在
-`reports/cleanroom/lopi_v33/`（R-3、R-3.5、R-4、R-5.1）。
+原始实验输出为本地归档；公开文档只提升经过审计、可复现的摘要。
 
 ## 测试
 
@@ -239,8 +236,6 @@ shape + bit-equality）。
 | `deltamemory/__init__.py` | 顶层公开 API（Phase S） |
 | `scripts/run_intervention_demo.py` | 跨架构 true/false-fact 干预 demo |
 | `scripts/run_v31_benchmark*.py` | Phase R+ benchmark driver |
-| `transcripts/v31_intervention/` | v3.1 原始 input/output/log-prob |
-| `reports/cleanroom/` | 预注册和 cleanroom 实验报告 |
 | `docs/HISTORY.md` | 长篇阶段叙事日志 |
 | `tests/` | 单测 + real-model conservation 检查 |
 

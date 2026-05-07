@@ -13,13 +13,13 @@ def _load_otel_modules():
         from opentelemetry import metrics, trace
         from opentelemetry.sdk.resources import SERVICE_NAME, Resource
         from opentelemetry.sdk.trace import TracerProvider
-        from opentelemetry.sdk.trace.export import BatchSpanProcessor
+        from opentelemetry.sdk.trace.export import BatchSpanProcessor, SimpleSpanProcessor
     except ImportError as exc:  # pragma: no cover - optional dependency
         raise ImportError(
             "OpenTelemetry tracing requires opentelemetry-api and opentelemetry-sdk. "
             "Install with `pip install opentelemetry-api opentelemetry-sdk`."
         ) from exc
-    return metrics, trace, SERVICE_NAME, Resource, TracerProvider, BatchSpanProcessor
+    return metrics, trace, SERVICE_NAME, Resource, TracerProvider, BatchSpanProcessor, SimpleSpanProcessor
 
 
 def setup_otel(service_name: str = "mneme", endpoint: str | None = None):
@@ -32,7 +32,15 @@ def setup_otel(service_name: str = "mneme", endpoint: str | None = None):
     Returns:
         Configured TracerProvider.
     """
-    metrics, trace, SERVICE_NAME, Resource, TracerProvider, BatchSpanProcessor = _load_otel_modules()
+    (
+        metrics,
+        trace,
+        SERVICE_NAME,
+        Resource,
+        TracerProvider,
+        BatchSpanProcessor,
+        SimpleSpanProcessor,
+    ) = _load_otel_modules()
 
     resource = Resource(attributes={SERVICE_NAME: service_name})
     tracer_provider = TracerProvider(resource=resource)
@@ -49,8 +57,11 @@ def setup_otel(service_name: str = "mneme", endpoint: str | None = None):
     else:
         from opentelemetry.sdk.trace.export import ConsoleSpanExporter
         exporter = ConsoleSpanExporter()
+        span_processor = SimpleSpanProcessor(exporter)
 
-    tracer_provider.add_span_processor(BatchSpanProcessor(exporter))
+    if endpoint:
+        span_processor = BatchSpanProcessor(exporter)
+    tracer_provider.add_span_processor(span_processor)
     trace.set_tracer_provider(tracer_provider)
     return tracer_provider
 

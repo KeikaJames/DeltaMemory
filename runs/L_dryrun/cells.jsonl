@@ -1,1 +1,0 @@
-{"run_id": "dffb1a9db55bebb4d30230442c5689927aac52b1", "model": "gpt2-medium", "method": "caa", "seed": 0, "turn": 1, "nll_target_new": 6.199778757756576, "residual_norm_mu": NaN, "mem_rss_mb": 1757.1875, "nan_inf_count": 0, "kv_cache_size_bytes": 0, "abort_reason": null}

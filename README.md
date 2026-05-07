@@ -23,8 +23,7 @@
 <p align="center">
   <a href="docs/design.md">Design</a> ·
   <a href="docs/apple_silicon.md">Apple Silicon</a> ·
-  <a href="docs/HISTORY.md">Phase history</a> ·
-  <a href="reports/cleanroom">Reports</a>
+  <a href="docs/HISTORY.md">Phase history</a>
 </p>
 
 ---
@@ -185,23 +184,23 @@ $$
 
 ## Phase history
 
-| Phase | What shipped | Report dir | Status |
+| Phase | What shipped | Evidence | Status |
 |---|---|---|---|
-| Stages 0–14 | v1 → v3 (writer / address bank / K-projector) | `reports/cleanroom/{stage13b_*,stage14_*}/`, `transcripts/v31_intervention/` | superseded; see [`docs/HISTORY.md`](docs/HISTORY.md) |
-| Stage 15 / v3.1 | attn-native bank + per-arch α + cross-arch adapters | `reports/cleanroom/v31_bench/`, `transcripts/v31_intervention/` | reproduced on Gemma-4 and Qwen3 (GB10/Mac) |
-| Stage 16 / v3.2 | mHC spectral shield (column-cap on bank weights) | `reports/cleanroom/mhc_flagship_sweep/` | bounds σ_max(W) ≤ 1; α=0 bit-equality preserved |
-| R-3 / v3.3 | Dynamic LOPI ablation (A0–A4, 630 cells) | `reports/cleanroom/lopi_v33/` | preregistered, see `AGGREGATE.md` / `FINDINGS.md` |
-| R-3.5 / v3.4 | default flip → `orthogonal=False, gaussian=True, derivative=True` | `reports/cleanroom/lopi_v33/R35_NORM_PROBE.md` | high-α drift collapse + α=1 lift preserved |
-| R-4 / v3.4 | cross-arch α-safety sweep (Gemma / Qwen3 / GLM-4) | `reports/cleanroom/lopi_v33/R4_xarch/` | α=0 bit-equal across 12 cells |
-| R-5.1 / v3.4 | Q3 adversarial chat × LOPI on Gemma-4-E2B | `reports/cleanroom/lopi_v33/R5_q3/` | LOPI is the only configuration that elevates the easiest-fact pair to partial implant at α∈{8,10} |
+| Stages 0–14 | v1 → v3 (writer / address bank / K-projector) | local archive | superseded; see [`docs/HISTORY.md`](docs/HISTORY.md) |
+| Stage 15 / v3.1 | attn-native bank + per-arch α + cross-arch adapters | local archive | reproduced on Gemma-4 and Qwen3 (GB10/Mac) |
+| Stage 16 / v3.2 | mHC spectral shield (column-cap on bank weights) | local archive | bounds σ_max(W) ≤ 1; α=0 bit-equality preserved |
+| R-3 / v3.3 | Dynamic LOPI ablation (A0–A4, 630 cells) | local archive | preregistered cleanroom run |
+| R-3.5 / v3.4 | default flip → `orthogonal=False, gaussian=True, derivative=True` | local archive | high-α drift collapse + α=1 lift preserved |
+| R-4 / v3.4 | cross-arch α-safety sweep (Gemma / Qwen3 / GLM-4) | local archive | α=0 bit-equal across 12 cells |
+| R-5.1 / v3.4 | Q3 adversarial chat × LOPI on Gemma-4-E2B | local archive | LOPI is the only configuration that elevates the easiest-fact pair to partial implant at α∈{8,10} |
 | R-6 / v3.4 | persistent AttnNativeBank (safetensors + filelock) | `tests/test_bank_persistence.py` | round-trip bit-equal under same dtype |
 | **S / v3.5** | U-LOPI auto-calibration profiler (`ulopi_v35`) | `deltamemory/memory/lopi_profiler.py`, `tests/test_lopi_profiler.py`, `tests/test_lopi_universal.py` | replaces hard-coded `norm_base=10.0`; same LOPI across Gemma / Qwen3 / GLM-4 / Llama / GPT-2 |
 | **R-7 / v3.6** | bank-side V-scale calibration (`ulopi_v36`) | `deltamemory/memory/attn_native_bank.py`, `tests/test_value_scale_calibration.py` | no-v_norm families cap M_V RMS without amplifying small V; Gemma native v_norm stays untouched |
 
-The long-form narrative log (per-stage rationale, raw transcripts pointer,
-DeepSeek-32B limitation, v3.1 figure set, per-architecture α defaults) lives
-in [`docs/HISTORY.md`](docs/HISTORY.md). Per-stage code/config diffs live in
-[`CHANGELOG.md`](CHANGELOG.md).
+The long-form narrative log lives in [`docs/HISTORY.md`](docs/HISTORY.md).
+Per-stage code/config diffs live in [`CHANGELOG.md`](CHANGELOG.md). Raw
+experiment dumps, reports, generated paper assets, and transcripts are kept as
+local archives and are intentionally not tracked in the production tree.
 
 ## Reproducing experiments
 
@@ -221,10 +220,8 @@ python scripts/run_intervention_demo.py \
 ```
 
 On Apple Silicon, follow [`docs/apple_silicon.md`](docs/apple_silicon.md) for
-the stable MPS stack. Raw transcripts (inputs, outputs, top-5 predictions,
-target log-probs) for the v3.1 counter-prior result are committed under
-`transcripts/v31_intervention/`; cross-arch and U-LOPI numbers live in
-`reports/cleanroom/lopi_v33/` (R-3, R-3.5, R-4, R-5.1).
+the stable MPS stack. Raw experiment outputs are local-only archives; promote
+only audited, reproducible summaries into public documentation.
 
 ## Tests
 
@@ -251,8 +248,6 @@ Qwen3 / GLM-4 / Llama / GPT-2).
 | `deltamemory/__init__.py` | top-level public API (Phase S) |
 | `scripts/run_intervention_demo.py` | cross-architecture true/false-fact demo |
 | `scripts/run_v31_benchmark*.py` | Phase R+ benchmark drivers |
-| `transcripts/v31_intervention/` | v3.1 raw inputs/outputs/log-probs |
-| `reports/cleanroom/` | preregistered and cleanroom experiment reports |
 | `docs/HISTORY.md` | long-form per-stage narrative log |
 | `tests/` | unit and real-model conservation checks |
 

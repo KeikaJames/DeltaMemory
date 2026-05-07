@@ -7,8 +7,8 @@ help:
 	@echo "Available targets:"
 	@echo "  make test          — run pytest (CPU-only, no GPU required)"
 	@echo "  make lint          — run ruff linter"
-	@echo "  make runs-index    — regenerate runs/INDEX.md"
-	@echo "  make check-auth    — check all run dirs for cells.jsonl + env.json (strict)"
+	@echo "  make runs-index    — regenerate tracked runs/INDEX.md (local archive: pass --local manually)"
+	@echo "  make check-auth    — check tracked run dirs for cells.jsonl + env.json (strict)"
 
 test:
 	pytest tests/ -x -q

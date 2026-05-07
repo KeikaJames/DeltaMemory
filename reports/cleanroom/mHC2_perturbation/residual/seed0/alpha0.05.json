@@ -1,9 +1,0 @@
-{
-  "arch": "residual",
-  "alpha": 0.05,
-  "seed": 0,
-  "nll": 3.5685833990573883,
-  "n_attn_layers": 12,
-  "mean_v_norm": 470.2440634568532,
-  "wallclock_s": 2.061951160430908
-}

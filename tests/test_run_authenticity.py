@@ -1,9 +1,10 @@
-"""CI authenticity check: ensure every committed run directory contains
+"""CI authenticity check: ensure every tracked run directory contains
 ``cells.jsonl`` and ``env.json``.
 
 This test is part of the standard pytest suite and will fail if any run
-directory that is NOT explicitly excluded (see EXEMPT_RUNS below) is missing
-either required artifact.
+directory tracked by Git and NOT explicitly excluded (see EXEMPT_RUNS below)
+is missing either required artifact. Local-only archives under ``runs/`` are
+ignored so production CI is not coupled to private experiment dumps.
 
 The rationale: ``cells.jsonl`` contains raw cell data (the primary evidence
 artifact) and ``env.json`` captures the full reproducibility context
@@ -18,11 +19,13 @@ are listed in ``EXEMPT_RUNS``.  New runs MUST NOT be added to this list.
 from __future__ import annotations
 
 import json
+import subprocess
 from pathlib import Path
 
 import pytest
 
-RUNS_DIR = Path(__file__).resolve().parents[1] / "runs"
+REPO_ROOT = Path(__file__).resolve().parents[1]
+RUNS_DIR = REPO_ROOT / "runs"
 
 # Run directories that predate the mandatory-artifact requirement OR are
 # intentionally incomplete (stub / pending execution on GB10).
@@ -63,16 +66,27 @@ EXEMPT_RUNS = {
 EXEMPT_RUNS |= {"X7_mech_v1_b1", "X7_mech_v1_b2", "X7_mech_v1_b3"}
 
 
-def _run_dirs():
-    if not RUNS_DIR.exists():
-        return []
+def _tracked_run_dirs() -> list[Path]:
+    result = subprocess.run(
+        ["git", "ls-files", "runs"],
+        cwd=REPO_ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    names = {
+        Path(line).parts[1]
+        for line in result.stdout.splitlines()
+        if line.startswith("runs/") and len(Path(line).parts) >= 2
+    }
     return [
-        d for d in sorted(RUNS_DIR.iterdir())
-        if d.is_dir() and not d.name.startswith(".") and d.name not in EXEMPT_RUNS
+        RUNS_DIR / name
+        for name in sorted(names)
+        if name not in EXEMPT_RUNS
     ]
 
 
-@pytest.mark.parametrize("run_dir", _run_dirs(), ids=lambda d: d.name)
+@pytest.mark.parametrize("run_dir", _tracked_run_dirs(), ids=lambda d: d.name)
 def test_run_has_cells_jsonl(run_dir: Path):
     """Every non-exempt run directory must have ``cells.jsonl``."""
     cells = run_dir / "cells.jsonl"
@@ -87,7 +101,7 @@ def test_run_has_cells_jsonl(run_dir: Path):
     )
 
 
-@pytest.mark.parametrize("run_dir", _run_dirs(), ids=lambda d: d.name)
+@pytest.mark.parametrize("run_dir", _tracked_run_dirs(), ids=lambda d: d.name)
 def test_run_has_env_json(run_dir: Path):
     """Every non-exempt run directory must have a valid ``env.json``."""
     env_path = run_dir / "env.json"

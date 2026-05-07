@@ -47,10 +47,10 @@ run crashes mid-way the env is still recoverable.
 
 ## 2. Per-cell raw output retention
 
-Aggregate-only artifacts are forbidden. Any `summary.json` or
-`REPORT.md` published from an experiment MUST be derivable from a
-sibling `cells.jsonl` (or `cells_<arm>.jsonl`) preserved on disk in the
-same commit. The aggregate is a pure function of the rows.
+Aggregate-only artifacts are forbidden. Any public `summary.json` or
+`REPORT.md` promoted from an experiment MUST be derivable from a sibling
+`cells.jsonl` (or `cells_<arm>.jsonl`) preserved in the local evidence
+archive. The aggregate is a pure function of the rows.
 
 A cell row MUST include:
 - a `cell_id` (sha1 of canonical cell key)
@@ -78,12 +78,11 @@ same (model, method) pair.
 
 ## 4. No fabrication, no editorial trimming
 
-Generation transcripts (Phase Q, marathon checkpoints) are committed
-verbatim as produced by the model. Where a report quotes a trimmed
+Generation transcripts (Phase Q, marathon checkpoints) are archived
+verbatim as produced by the model. Where a public report quotes a trimmed
 excerpt for narrative purposes:
-- the trimmed quote is paired with a link to the full transcript at
-  `transcripts/qualitative/<id>.md` or `transcripts/marathon/<run_id>/`
-- the full transcript file is in the same commit
+- the trimmed quote records the local archive path and run identifier
+- the full transcript remains in the local evidence archive
 
 The trimmed copy NEVER replaces the full transcript. Removing the full
 transcript and keeping only the curated excerpt is a contract violation.

@@ -1,14 +1,0 @@
-[stage9-baseline] sft_lora on cuda (bfloat16)
-[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
-Loading weights:   0%|          | 0/1951 [00:00<?, ?it/s]Loading weights:  36%|███▌      | 706/1951 [00:00<00:00, 7048.16it/s]Loading weights:  72%|███████▏  | 1411/1951 [00:00<00:00, 6655.91it/s]Loading weights: 100%|██████████| 1951/1951 [00:00<00:00, 6571.90it/s]
-[stage9-baseline] 183 facts
-
-[stage9-baseline] === RESULTS ===
-  method                           = sft_lora
-  edit_success_top1                = 0.4480874240398407
-  edit_success_top5                = 0.5573770403862
-  locality_drift_top1              = 0.5
-  train_seconds                    = 9.576803922653198
-  rank                             = 16
-  steps                            = 200
-  wall_seconds                     = 9.96
