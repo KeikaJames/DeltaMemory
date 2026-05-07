@@ -1,0 +1,10 @@
+{
+  "V1_bank_fires": true,
+  "V1_pre_rope_beats_no_bank": false,
+  "V2_pre_rope_position_stable": true,
+  "V3_bit_equal": true,
+  "V4_atb_beats_baseline": true,
+  "V4_alpha0_consistent": true,
+  "V6_correct_dominates": false,
+  "V6b_post_rope_correct_dominates": false
+}
