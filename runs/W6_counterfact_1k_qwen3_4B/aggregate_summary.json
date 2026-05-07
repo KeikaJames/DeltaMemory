@@ -1,0 +1,41 @@
+{
+  "n_real_cells": 9684,
+  "groups": {
+    "none|alpha=0.0": {
+      "seeds": 3,
+      "recall_at_1_mean": 0.1449814126394052,
+      "recall_at_1_std": 0.0,
+      "margin_mean": -4.905448480148993,
+      "margin_std": 0.0,
+      "kl_unrel_mean": 0.0,
+      "kl_unrel_std": 0.0
+    },
+    "none|alpha=1.0": {
+      "seeds": 3,
+      "recall_at_1_mean": 0.1449814126394052,
+      "recall_at_1_std": 0.0,
+      "margin_mean": -4.905448480148993,
+      "margin_std": 0.0,
+      "kl_unrel_mean": 0.0,
+      "kl_unrel_std": 0.0
+    },
+    "lopi_default|alpha=0.0": {
+      "seeds": 3,
+      "recall_at_1_mean": 0.1449814126394052,
+      "recall_at_1_std": 0.0,
+      "margin_mean": -4.905448480148993,
+      "margin_std": 0.0,
+      "kl_unrel_mean": -1.0695433635592882e-09,
+      "kl_unrel_std": 7.87326742124085e-10
+    },
+    "lopi_default|alpha=1.0": {
+      "seeds": 3,
+      "recall_at_1_mean": 0.44609665427509293,
+      "recall_at_1_std": 0.0,
+      "margin_mean": -0.4563879513238295,
+      "margin_std": 0.0,
+      "kl_unrel_mean": 0.46053478577426,
+      "kl_unrel_std": 0.033281746932857036
+    }
+  }
+}
