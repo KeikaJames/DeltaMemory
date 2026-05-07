@@ -7,7 +7,7 @@
 # Locked by DECISIONS.md D4 (2026-05-07).
 # Run AFTER the current L.1 marathon finishes (GPU contention is fine for a CPU
 # download but disk thrash on the same NVMe slows GPU loads).
-set -uo pipefail
+set -euo pipefail
 
 WHITELIST=/home/gabira/Desktop/workspace/models/whitelist
 mkdir -p "$WHITELIST"
@@ -48,13 +48,24 @@ download_one() {
 
 # D4 targets — both dense attention, 4-8B class, dense KV → ANB-compatible.
 # Canonical HF repo names verified against existing run env.json artifacts.
-download_one "Qwen/Qwen3-4B-Instruct-2507"        "$WHITELIST/Qwen3-4B-Instruct-2507"
+# Both targets are HARD requirements; if either fails the script must fail
+# loudly so downstream jobs do not assume the whitelist is complete.
+if ! download_one "Qwen/Qwen3-4B-Instruct-2507" "$WHITELIST/Qwen3-4B-Instruct-2507"; then
+    echo "[FATAL] Qwen3-4B-Instruct-2507 download failed — aborting." >&2
+    exit 2
+fi
+
 # meta-llama/* repos are gated and the HF mirror does not bypass gating;
 # unsloth/* hosts byte-identical mirrors of Meta's instruct weights with the
 # Llama-3.1 community license redistributed in-repo. Same model weights, no
-# approval flow.
-download_one "unsloth/Meta-Llama-3.1-8B-Instruct" "$WHITELIST/Llama-3.1-8B-Instruct" || \
-    download_one "NousResearch/Meta-Llama-3.1-8B-Instruct" "$WHITELIST/Llama-3.1-8B-Instruct"
+# approval flow. Try unsloth first, fall back to NousResearch; only after
+# BOTH fail do we abort.
+if ! download_one "unsloth/Meta-Llama-3.1-8B-Instruct" "$WHITELIST/Llama-3.1-8B-Instruct"; then
+    if ! download_one "NousResearch/Meta-Llama-3.1-8B-Instruct" "$WHITELIST/Llama-3.1-8B-Instruct"; then
+        echo "[FATAL] Llama-3.1-8B-Instruct download failed on both mirrors — aborting." >&2
+        exit 2
+    fi
+fi
 
 echo "[done] v0.8 replication models in $WHITELIST at $(date)"
 ls -la "$WHITELIST"

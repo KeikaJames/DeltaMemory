@@ -48,7 +48,14 @@ The result is **strong but boring**: zero drift on a fixed probe set is a lower 
 - KL-vs-base divergence on a held-out distractor set,
 - residual trajectory norm tracked end-to-end.
 
-The current `residual_norm_mu = 610.82` (constant across all 36 cells) confirms the residual stream is also unchanged — consistent with the α=0 / append-only invariants and the patcher’s `q_proj`/`k_proj`/`v_proj` post-projection hook semantics.
+`residual_norm_mu` is constant **within each method** across all 18 of that method's cells, but **differs between methods**, reflecting the different injection paths exercised by each adapter:
+
+| Method | `residual_norm_mu` (constant across 18 cells) |
+| --- | ---: |
+| `lopi_default` | 569.7443 |
+| `caa`          | 610.8176 |
+
+Per-method stationarity (zero variance across 6 checkpoints × 3 seeds) confirms the residual stream is unchanged once the bank is populated — consistent with the α=0 / append-only invariants and the patcher's `q_proj`/`k_proj`/`v_proj` post-projection hook semantics. The between-method gap is expected: `lopi_default` and `caa` route the bank through different post-projection compositions, producing different equilibrium residual norms but the same per-method bit-stability.
 
 ## Cross-arch status (sibling runs)
 
