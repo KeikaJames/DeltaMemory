@@ -1,0 +1,77 @@
+experiment: exp4_cf1k_main
+schema_version: atb_validation_v1.0
+timestamp_utc: "2026-05-07T15:04:40+00:00"
+host: spark-263c
+platform: Linux-6.17.0-1008-nvidia-aarch64-with-glibc2.39
+python: 3.12.3
+code:
+  repo: RCV-HC
+  git_sha: fda6aea029d470d5c26d7d0b9f2aa54233d02787
+  git_dirty: true
+model: /home/gabira/Desktop/workspace/models/whitelist/gemma-4-31B-it
+dtype: bf16
+attention_impl: eager
+dataset:
+  path: /home/gabira/projects/RCV-HC/experiments/datasets/counterfact_1k.jsonl
+  sha1: c36ab9533089cb5a035dd505ffc123b997474325
+seeds:
+- 0
+- 1
+- 2
+variants:
+- name: none_alpha0
+  method: none
+  alpha: 0.0
+  bank_key_mode: pre_rope
+  value_scale_mode: auto_rms_cap
+  bank_perturbation: null
+  enable_scar: false
+  description: No bank, baseline reference.
+- name: AttnNativeBank_alpha0
+  method: anb
+  alpha: 0.0
+  bank_key_mode: pre_rope
+  value_scale_mode: auto_rms_cap
+  bank_perturbation: null
+  enable_scar: false
+  description: ATB installed but α=0 (bit-equal redline).
+- name: AttnNativeBank_alpha1
+  method: anb
+  alpha: 1.0
+  bank_key_mode: pre_rope
+  value_scale_mode: auto_rms_cap
+  bank_perturbation: null
+  enable_scar: false
+  description: ATB at production α=1 (main result).
+templates:
+  write: "Fact: {subject} {phrase} {target_new}."
+  read: prompt.format(subject)
+modules:
+  enabled:
+  - AttnNativeBank
+  disabled:
+  - SCAR
+  - CAA
+  - LOPI-skip-list
+metric_definitions:
+  recall_at_1: argmax of next-token logits at end of read prompt equals first token of target_new
+  margin: sum_logp(target_new | prompt) - sum_logp(target_true | prompt) over all target tokens
+  target_rank: 0-indexed rank of first target_new token in next-token distribution
+  js_drift: mean symmetric Jensen-Shannon divergence (nats) over last-8 logits across 100 fixed neutral prompts
+  kl_drift: mean KL(p_baseline || p_patched) (nats) over last-8 logits across 100 fixed neutral prompts
+  bank_attention_mass: sum of merged-softmax weights over bank columns, mean across (B,H,T,layers)
+  max_bank_prob: max merged-softmax weight on any bank column, mean across (B,H,T,layers)
+gpu:
+  cuda_available: true
+  device_count: 1
+  device_name_0: NVIDIA GB10
+  torch_version: 2.13.0.dev20260505+cu130
+  cuda_version: 13.0
+  mps_available: false
+extra:
+  filter_rule: paraphrase_prompts present and target tokenizable with distinct ≥3-alpha-token heads
+  sampled_size: 1000
+  drift_protocol: 100 fixed neutral Wikitext-2 prompts
+  stat_tests:
+  - paired bootstrap CI on Δrecall and Δmargin
+  - McNemar χ² on recall@1

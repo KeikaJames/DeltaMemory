@@ -34,12 +34,9 @@ reports/
 runs/
 transcripts/
 
-# ATB validation v1 — outputs (harness code is tracked, raw runs are not)
+# ATB validation v1 — raw data is not tracked; metadata and tables are
 experiments/atb_validation_v1/**/results.jsonl
-experiments/atb_validation_v1/**/summary.csv
-experiments/atb_validation_v1/**/manifest.yaml
 experiments/atb_validation_v1/**/run.log
-experiments/atb_validation_v1/**/tables/
 experiments/atb_validation_v1/**/plots/
 experiments/atb_validation_v1/SUMMARY.csv
 experiments/atb_validation_v1/_lib/neutral_100.json

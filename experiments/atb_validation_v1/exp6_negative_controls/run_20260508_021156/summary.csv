@@ -1,0 +1,6 @@
+experiment,model,dataset,variant,method,alpha,bank_size,n,recall_at_1,mean_margin,median_margin,js_drift,kl_drift,bank_attention_mass,max_bank_prob,mean_target_rank,torch_equal_all,max_abs_diff_max
+exp6_negative_controls,/home/gabira/Desktop/workspace/models/whitelist/gemma-4-31B-it,counterfact_1k.jsonl,correct_bank,anb,1.0,1,480,0.0,-0.6320340454578399,-0.5791015625,0.5394302512705326,8.524997577667236,,,61817.775,,
+exp6_negative_controls,/home/gabira/Desktop/workspace/models/whitelist/gemma-4-31B-it,counterfact_1k.jsonl,shuffled_bank,anb,1.0,1,480,0.0,-0.6320340454578399,-0.5791015625,0.5451028861105442,9.033249962329865,,,61817.775,,
+exp6_negative_controls,/home/gabira/Desktop/workspace/models/whitelist/gemma-4-31B-it,counterfact_1k.jsonl,random_kv,anb,1.0,1,480,0.0,-0.24839938580989837,-0.30859375,0.38063724542036653,4.313100467026234,,,57021.3875,,
+exp6_negative_controls,/home/gabira/Desktop/workspace/models/whitelist/gemma-4-31B-it,counterfact_1k.jsonl,correct_K_random_V,anb,1.0,1,480,0.0,0.793358039855957,0.52734375,0.5948377725481987,9.799339474439622,,,74169.91875,,
+exp6_negative_controls,/home/gabira/Desktop/workspace/models/whitelist/gemma-4-31B-it,counterfact_1k.jsonl,random_K_correct_V,anb,1.0,1,480,0.0,0.5225211203098297,0.6953125,0.3277985816448927,3.9891008162498474,,,61249.3625,,

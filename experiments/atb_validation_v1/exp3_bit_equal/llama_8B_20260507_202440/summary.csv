@@ -1,0 +1,2 @@
+experiment,model,dataset,variant,method,alpha,bank_size,n,recall_at_1,mean_margin,median_margin,js_drift,kl_drift,bank_attention_mass,max_bank_prob,mean_target_rank,torch_equal_all,max_abs_diff_max
+exp3_bit_equal,/home/gabira/Desktop/workspace/models/whitelist/Llama-3.1-8B-Instruct,neutral_100,anb_alpha0,anb,0.0,,100,,,,,,,,,True,0.0

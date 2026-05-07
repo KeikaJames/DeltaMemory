@@ -1,0 +1,3 @@
+experiment,model,dataset,variant,method,alpha,bank_size,n,recall_at_1,mean_margin,median_margin,js_drift,kl_drift,bank_attention_mass,max_bank_prob,mean_target_rank,torch_equal_all,max_abs_diff_max
+exp2_position_invariance,/home/gabira/Desktop/workspace/models/whitelist/gemma-4-31B-it,counterfact_1k.jsonl,post_rope_bank,anb,1.0,1,600,0.0,-2.4675301267703373,-2.0,,,,,33358.693333333336,,
+exp2_position_invariance,/home/gabira/Desktop/workspace/models/whitelist/gemma-4-31B-it,counterfact_1k.jsonl,pre_rope_bank,anb,1.0,1,600,0.0,-2.3846631079167127,-1.90625,,,,,36194.458333333336,,

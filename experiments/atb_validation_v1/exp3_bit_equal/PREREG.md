@@ -6,9 +6,8 @@ With ATB installed and α set exactly to 0.0, the patched logits are
 revocability is bit-level, not float-tolerance level.
 
 ## Setup
-- Models: Gemma-4-31B-it, Qwen3.6-27B, Llama-3.1-8B-Instruct (three largest
-  distinct architectures that fit bf16 on GB10's 128GB unified memory; bit-
-  equality is architecture-agnostic so 3 families are sufficient).
+- Models: Gemma-4-E2B, Qwen3.6-4B (or Qwen3-4B fallback if unavailable),
+  GLM-4-9B.
 - Bank: 8 facts drawn from CounterFact-1k (non-empty, real K/V).
 - α = 0.0 (set on the patcher, NOT method-skipped).
 - Prompts: 100 fixed neutral Wikitext-2 sentences (seed=42).

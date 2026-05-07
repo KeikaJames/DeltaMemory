@@ -1,0 +1,4 @@
+experiment,model,dataset,variant,method,alpha,bank_size,n,recall_at_1,mean_margin,median_margin,js_drift,kl_drift,bank_attention_mass,max_bank_prob,mean_target_rank,torch_equal_all,max_abs_diff_max
+exp4_cf1k_main,/home/gabira/Desktop/workspace/models/whitelist/gemma-4-31B-it,counterfact_1k.jsonl,none_alpha0,none,0.0,1,2421,0.0,-0.6580781425399038,-0.71875,5.668152502913415e-11,0.0,,,69171.17719950434,,
+exp4_cf1k_main,/home/gabira/Desktop/workspace/models/whitelist/gemma-4-31B-it,counterfact_1k.jsonl,AttnNativeBank_alpha0,anb,0.0,1,2421,0.0,-0.6580781425399038,-0.71875,5.668152502913415e-11,0.0,,,69171.17719950434,,
+exp4_cf1k_main,/home/gabira/Desktop/workspace/models/whitelist/gemma-4-31B-it,counterfact_1k.jsonl,AttnNativeBank_alpha1,anb,1.0,1,2421,0.0,-0.5842800337955115,-0.49169921875,0.5394302512705326,8.524997577667236,,,59216.921933085505,,
