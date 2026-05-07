@@ -242,6 +242,7 @@ def save_bank(
             "profile_corpus_sha": profile_corpus_sha,
             "value_scale_mode": sd.get("value_scale_mode", "auto_rms_cap"),
             "value_target_rms": float(sd.get("value_target_rms", 0.5)),
+            "bank_key_mode": sd.get("bank_key_mode", "pre_rope"),
             **_bank_runtime_cfg(sd),
         },
     )
@@ -274,6 +275,7 @@ def save_bank(
             "value_scale_mode": str(sd.get("value_scale_mode", "auto_rms_cap")),
             "value_target_rms": float(sd.get("value_target_rms", 0.5)),
             "value_scale_eps": float(sd.get("value_scale_eps", 1e-6)),
+            "bank_key_mode": str(sd.get("bank_key_mode", "pre_rope")),
             "lopi_cfg": _lopi_cfg_to_dict(getattr(bank, "lopi_cfg", None)),
             "lopi_profile": profile_dict,
             **_bank_runtime_cfg(sd),
@@ -360,6 +362,7 @@ def load_bank(
         "value_scale_mode": str(meta.get("value_scale_mode", "auto_rms_cap")),
         "value_target_rms": float(meta.get("value_target_rms", 0.5)),
         "value_scale_eps": float(meta.get("value_scale_eps", 1e-6)),
+        "bank_key_mode": str(meta.get("bank_key_mode", "pre_rope")),
         "bank_cosine": bool(meta.get("bank_cosine", False)),
         "bank_topk": int(meta.get("bank_topk", 0) or 0),
         "bank_separate_softmax": bool(meta.get("bank_separate_softmax", False)),

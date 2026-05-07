@@ -280,19 +280,18 @@ def test_partial_rope_glm4_pre_rope_invariance() -> None:
 
 
 # ---------------------------------------------------------------------------
-# Test 4: code-level tripwire — bank scoring uses ``q_pre``, not ``q_post``.
+# Test 4: code-level tripwire — default bank scoring uses ``q_pre``.
 # ---------------------------------------------------------------------------
 
-def test_attn_native_bank_uses_q_pre_for_bank_scoring() -> None:
-    """Textual guard: ``scores_bank = ... q_pre ... mk_e ...`` in the patcher.
+def test_attn_native_bank_defaults_to_q_pre_for_bank_scoring() -> None:
+    """Textual guard: default ``bank_key_mode`` routes scoring through q_pre.
 
-    A future refactor that swaps ``q_pre`` for ``q_post`` in the bank-scoring
-    line of ``deltamemory/memory/attn_native_bank.py`` would silently break
-    the position-invariance of the bank. This test fails fast in that case.
+    The paper ablation now has an explicit ``post_rope`` mode, but the
+    production default must remain pre-RoPE. A future refactor that changes
+    the default to post-RoPE would silently break position-invariant recall.
 
     The check is intentionally narrow: it scans only the body of
-    ``_make_patched_forward`` for a ``scores_bank = ... q_pre ...`` pattern
-    and a complementary absence of ``scores_bank = ... q_post ...``.
+    ``_make_patched_forward`` for the explicit ``pre_rope`` branch.
     """
     src = Path(__file__).resolve().parents[1] / "deltamemory" / "memory" / "attn_native_bank.py"
     text = src.read_text(encoding="utf-8")
@@ -302,23 +301,12 @@ def test_attn_native_bank_uses_q_pre_for_bank_scoring() -> None:
     assert m is not None, "Could not locate _make_patched_forward in attn_native_bank.py"
     body = m.group(1)
 
-    # Either dense scoring (matmul) or cosine scoring uses q_pre as the LHS;
-    # we accept any line that assigns to scores_bank with q_pre or q_cos
-    # (where q_cos is derived from q_pre at line ~512).
-    has_q_pre_score = bool(
-        re.search(r"scores_bank\s*=\s*torch\.matmul\(\s*q_pre\b", body)
-    ) or bool(re.search(r"scores_bank\s*=\s*torch\.matmul\(\s*q_cos\b", body))
-    has_q_post_score = bool(
-        re.search(r"scores_bank\s*=\s*torch\.matmul\(\s*q_post\b", body)
-    )
-    assert has_q_pre_score, (
-        "scores_bank must be computed from q_pre (or q_cos derived from q_pre); "
+    assert re.search(r"bank_key_mode\s*==\s*[\"']pre_rope[\"']:\s*\n\s*q_bank\s*=\s*q_pre", body), (
+        "Default bank scoring must route through q_pre; "
         "see attn_native_bank.py:18-24 for the design contract."
     )
-    assert not has_q_post_score, (
-        "scores_bank must NOT be computed from q_post — that would make the "
-        "bank score position-dependent and silently break recall@k for any "
-        "fact whose write-position differs from the query position."
+    assert re.search(r"bank_key_mode\s*==\s*[\"']post_rope[\"']:\s*\n\s*q_bank\s*=\s*q_post", body), (
+        "The post-RoPE ablation must be explicit, not an implicit default."
     )
 
 
@@ -343,7 +331,10 @@ def test_attn_native_bank_captures_k_pre_rope() -> None:
     assert re.search(r"k_pre_for_capture\s*=\s*None\b", text), (
         "Shared branch must set k_pre_for_capture = None (no post-RoPE leak)."
     )
-    # Capture write must use k_pre_for_capture, not k_post or key_states.
+    # Capture write must use k_pre_for_capture by default, not key_states.
     assert re.search(
         r"ctx\._capture_K\[layer_idx\]\s*=\s*k_pre_for_capture\[", text
-    ), "Bank K capture must write k_pre_for_capture, never key_states or k_post_."
+    ), "Default bank K capture must write k_pre_for_capture, never key_states."
+    assert "bank_key_mode" in text and "post_rope" in text, (
+        "Post-RoPE capture must remain an explicit ablation mode."
+    )

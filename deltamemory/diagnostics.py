@@ -214,6 +214,21 @@ class DiagnosticRecorder:
 
         # 1. bank_col_sum — sum over (B, H, T) per bank slot.
         w_bank = w[..., T_orig:]  # (B, H, T, N)
+        if w_bank.numel() > 0:
+            self._records.append({
+                "step": step,
+                "layer": layer_idx,
+                "token": -1,
+                "signal_name": "bank_attention_mass",
+                "value": float(w_bank.sum(dim=-1).mean().item()),
+            })
+            self._records.append({
+                "step": step,
+                "layer": layer_idx,
+                "token": -1,
+                "signal_name": "max_bank_prob",
+                "value": float(w_bank.max(dim=-1).values.mean().item()),
+            })
         col_sum = w_bank.sum(dim=(0, 1, 2))  # (N,)
         for j in range(col_sum.size(0)):
             self._records.append({
@@ -248,6 +263,40 @@ class DiagnosticRecorder:
             "signal_name": "attn_entropy_bank",
             "value": float(ent_bnk.mean().item()),
         })
+
+    def record_bank_readout(
+        self,
+        layer_idx: int,
+        out_bank: torch.Tensor,
+        out_seq: torch.Tensor,
+    ) -> None:
+        """Record AttnNativeBank readout norms at the attention merge site.
+
+        ``out_bank`` is the bank-column contribution and ``out_seq`` is the
+        native sequence contribution before the final output projection.  These
+        rows are AttnNativeBank-specific telemetry, not CAA/SCAR/LOPI signals.
+        """
+        step = self._current_step
+        if step < 0:
+            return
+        ob = out_bank.detach().float()
+        osq = out_seq.detach().float()
+        ob_norm = float(torch.linalg.vector_norm(ob).item())
+        os_norm = float(torch.linalg.vector_norm(osq).item())
+        ratio = ob_norm / (os_norm + 1e-10)
+        for name, value in (
+            ("o_bank_norm", ob_norm),
+            ("o_seq_norm", os_norm),
+            ("obank_oseq_ratio", ratio),
+            ("residual_delta_norm", ob_norm),
+        ):
+            self._records.append({
+                "step": step,
+                "layer": layer_idx,
+                "token": -1,
+                "signal_name": name,
+                "value": float(value),
+            })
 
     def record_lopi_gamma_w(
         self,

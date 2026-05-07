@@ -72,6 +72,7 @@ import torch.nn.functional as F
 # ---------------------------------------------------------------------------
 
 ValueScaleMode = Literal["none", "auto_rms_cap", "rms_cap", "auto_unit_rms", "unit_rms"]
+BankKeyMode = Literal["pre_rope", "post_rope"]
 
 
 def _scale_bank_value_capture(
@@ -169,6 +170,10 @@ class AttnNativeBank:
     value_scale_mode: ValueScaleMode = "auto_rms_cap"
     value_target_rms: float = 0.5
     value_scale_eps: float = 1e-6
+    # Paper-ablation knob: default production path stores and scores bank K in
+    # pre-RoPE coordinates. ``post_rope`` is intentionally opt-in for the
+    # AttnNativeBank paper's position-invariance ablation.
+    bank_key_mode: BankKeyMode = "pre_rope"
 
     def __post_init__(self) -> None:
         if not self.head_dims:
@@ -489,6 +494,7 @@ class AttnNativeBank:
             "value_scale_mode": str(self.value_scale_mode),
             "value_target_rms": float(self.value_target_rms),
             "value_scale_eps": float(self.value_scale_eps),
+            "bank_key_mode": str(self.bank_key_mode),
             "bank_cosine": bool(getattr(self, "bank_cosine", False)),
             "bank_topk": int(getattr(self, "bank_topk", 0) or 0),
             "bank_separate_softmax": bool(getattr(self, "bank_separate_softmax", False)),
@@ -518,7 +524,8 @@ class AttnNativeBank:
                    mhc_shield=bool(sd.get("mhc_shield", False)),
                    value_scale_mode=sd.get("value_scale_mode", "auto_rms_cap"),
                    value_target_rms=float(sd.get("value_target_rms", 0.5)),
-                   value_scale_eps=float(sd.get("value_scale_eps", 1e-6)))
+                   value_scale_eps=float(sd.get("value_scale_eps", 1e-6)),
+                   bank_key_mode=sd.get("bank_key_mode", "pre_rope"))
         bank.M_K = [t.to(device, dtype) for t in sd["M_K"]]
         bank.M_V = [t.to(device, dtype) for t in sd["M_V"]]
         bank.fact_ids = list(sd["fact_ids"])
@@ -700,6 +707,9 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
         if capture and k_pre_for_capture is not None:
             T_full = k_pre_for_capture.size(1)
             pos = (T_full - 1) if capture_pos is None else int(capture_pos)
+            # ``capture_bank`` carries the bank's runtime config (in particular
+            # ``bank_key_mode``). Resolve it before consulting the knob below.
+            capture_bank = ctx.capture_bank
             # A.1 ablation: force POST-RoPE K capture (vs the default pre-RoPE
             # for position-invariant retrieval). Hypothesis: pre-RoPE invariance
             # is necessary for bank K to score on a different read position.
@@ -707,11 +717,12 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
             # is always defined alongside k_pre_for_capture.
             if getattr(ctx, "_a1_force_post_rope_capture", False):
                 ctx._capture_K[layer_idx] = k_post_[:, pos, :, :].detach()
+            elif getattr(capture_bank, "bank_key_mode", "pre_rope") == "post_rope":
+                ctx._capture_K[layer_idx] = k_post_[:, pos, :, :].detach()
             else:
                 ctx._capture_K[layer_idx] = k_pre_for_capture[:, pos, :, :].detach()  # [B, Hkv, d]
             v_captured = (value_states.transpose(1, 2)                             # [B, T, Hkv, d]
                           [:, pos, :, :].detach())
-            capture_bank = ctx.capture_bank
             if capture_bank is not None:
                 v_captured = _scale_bank_value_capture(
                     v_captured,
@@ -763,12 +774,21 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
             # Stage 15B: optional cosine (L2-normalized) scoring on the bank
             # branch. ``bank_cosine = False`` (default) preserves v3 behavior.
             use_cosine = bool(getattr(bank, "bank_cosine", False))
+            bank_key_mode = getattr(bank, "bank_key_mode", "pre_rope")
+            if bank_key_mode == "pre_rope":
+                q_bank = q_pre
+            elif bank_key_mode == "post_rope":
+                q_bank = q_post
+            else:
+                raise ValueError(
+                    f"bank_key_mode must be 'pre_rope' or 'post_rope', got {bank_key_mode!r}"
+                )
             if use_cosine:
-                q_cos = q_pre / (q_pre.norm(dim=-1, keepdim=True).clamp_min(1e-6))
+                q_cos = q_bank / (q_bank.norm(dim=-1, keepdim=True).clamp_min(1e-6))
                 k_cos = mk_e / (mk_e.norm(dim=-1, keepdim=True).clamp_min(1e-6))
                 scores_bank = torch.matmul(q_cos, k_cos.transpose(2, 3))  # [B,Hq,T,N]
             else:
-                scores_bank = torch.matmul(q_pre, mk_e.transpose(2, 3)) * scaling  # [B,Hq,T,N]
+                scores_bank = torch.matmul(q_bank, mk_e.transpose(2, 3)) * scaling  # [B,Hq,T,N]
             if bool(getattr(bank, "enable_importance", False)):
                 from deltamemory.memory.bank_importance import importance_bias
 
@@ -840,6 +860,8 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
                     )
                 out_orig = torch.matmul(weights[..., :T_orig], v_repeat)
                 out_bank = torch.matmul(weights[..., T_orig:], alpha * mv_e)
+                if _diag_mod._RECORDER is not None:
+                    _diag_mod._RECORDER.record_bank_readout(layer_idx, out_bank, out_orig)
                 # Stage R (v3.3): optional Dynamic LOPI wrapper.  When
                 # ``bank.lopi_cfg.enabled = False`` (default) this is a
                 # no-op and the formula stays bit-for-bit identical to v3.2.
