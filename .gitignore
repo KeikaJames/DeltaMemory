@@ -43,3 +43,5 @@ experiments/atb_validation_v1/**/tables/
 experiments/atb_validation_v1/**/plots/
 experiments/atb_validation_v1/SUMMARY.csv
 experiments/atb_validation_v1/_lib/neutral_100.json
+experiments/atb_validation_v1/results_archive/
+experiments/atb_validation_v1/final_report/
