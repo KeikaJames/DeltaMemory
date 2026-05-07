@@ -4,12 +4,14 @@ set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 source "${HERE}/_common.sh"
 
-# 3 distinct architectures from the on-disk whitelist:
-#   Gemma-4-31B-it, Qwen3-4B-Instruct-2507, Llama-3.1-8B-Instruct.
-# Bit-equality is architecture-agnostic — any 3 distinct families suffice.
+# Three largest distinct-architecture models that fit bf16 on GB10 (128GB unified):
+#   Gemma-4-31B-it (~62GB), Qwen3.6-27B (~54GB), Llama-3.1-8B-Instruct (~16GB).
+# gpt-oss-120b is excluded — bf16 ≈ 240GB exceeds GB10; quantising would break
+# bit-equality semantics. Bit-equality is architecture-agnostic; 3 distinct
+# families are sufficient evidence.
 declare -a MODELS=(
     "gemma_31B|$GEMMA_31B"
-    "qwen_4B|$QWEN3_4B"
+    "qwen36_27B|$QWEN36_27B"
     "llama_8B|$LLAMA_8B"
 )
 
