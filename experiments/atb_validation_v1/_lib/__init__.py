@@ -88,7 +88,12 @@ def seed_everything(seed: int) -> None:
 # Model loading
 
 def load_model(name: str, device: str = "cuda", dtype: str = "bf16"):
-    """Load HF causal LM in eager attention with deterministic flags."""
+    """Load HF causal LM in eager attention with deterministic flags.
+
+    For large models on a single GPU we use ``device_map={"": device}`` so the
+    weights are placed on-device during the from_pretrained call, avoiding the
+    duplicate CPU→GPU copy that ``.to(device)`` otherwise triggers.
+    """
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
     torch_dtype = {"bf16": torch.bfloat16, "fp16": torch.float16,
@@ -96,13 +101,18 @@ def load_model(name: str, device: str = "cuda", dtype: str = "bf16"):
     tok = AutoTokenizer.from_pretrained(name, trust_remote_code=True)
     if tok.pad_token is None:
         tok.pad_token = tok.eos_token
-    model = AutoModelForCausalLM.from_pretrained(
-        name,
+    kwargs: dict[str, Any] = dict(
         torch_dtype=torch_dtype,
         trust_remote_code=True,
         attn_implementation="eager",
         low_cpu_mem_usage=True,
-    ).to(device)
+    )
+    if device == "cpu":
+        model = AutoModelForCausalLM.from_pretrained(name, **kwargs).to("cpu")
+    else:
+        model = AutoModelForCausalLM.from_pretrained(
+            name, device_map={"": device}, **kwargs
+        )
     model.eval()
     return tok, model
 
