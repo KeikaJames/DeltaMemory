@@ -77,6 +77,9 @@ GRANDFATHERED_DIRS = frozenset(
         "experiments/scar_smoke",
         "experiments/bench",
         "experiments/datasets",
+        # Generated report outputs (gitignored; not raw experiment results)
+        "experiments/atb_validation_v1/final_report",
+        "experiments/atb_validation_v1/results_archive",
     }
 )
 
