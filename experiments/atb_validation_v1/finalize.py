@@ -322,7 +322,8 @@ def analyze_exp5(run_dir: Path) -> dict:
 # ---------------------------------------------------------------------------
 # Exp6 — Negative Controls
 
-def analyze_exp6(run_dir: Path) -> dict:
+def _analyze_neg_controls(run_dir: Path) -> dict:
+    """Shared analysis for Exp6 and Exp6b negative controls."""
     rows = _read_jsonl(run_dir / "results.jsonl")
     by_v: dict[str, list] = defaultdict(list)
     for r in rows:
@@ -332,11 +333,18 @@ def analyze_exp6(run_dir: Path) -> dict:
         vrows = by_v.get(vname, [])
         margins = [r["margin"] for r in vrows if "margin" in r]
         recalls = [bool(r.get("recall_at_1")) for r in vrows]
+        ranks = [r["target_rank"] for r in vrows if "target_rank" in r]
+        m, lo, hi = bootstrap_ci(margins)
         return {
             "n": len(vrows),
             "recall_at_1": sum(recalls) / max(len(recalls), 1),
-            "mean_margin": _safe_mean(margins),
+            "mean_margin": m, "ci_lo": lo, "ci_hi": hi,
             "median_margin": _safe_median(margins),
+            "js_drift": _safe_mean([r.get("js_drift") for r in vrows
+                                    if r.get("js_drift") is not None]),
+            "kl_drift": _safe_mean([r.get("kl_drift") for r in vrows
+                                    if r.get("kl_drift") is not None]),
+            "mean_target_rank": _safe_mean(ranks),
         }
 
     correct = stats("correct_bank")
@@ -361,7 +369,16 @@ def analyze_exp6(run_dir: Path) -> dict:
             "random_K_correct_V": rk_cv,
         },
         "verdict_correct_dominates": verdict,
+        "bank_key_mode": rows[0].get("bank_key_mode", "unknown") if rows else "unknown",
     }
+
+
+def analyze_exp6(run_dir: Path) -> dict:
+    return _analyze_neg_controls(run_dir)
+
+
+def analyze_exp6b(run_dir: Path) -> dict:
+    return _analyze_neg_controls(run_dir)
 
 
 # ---------------------------------------------------------------------------
@@ -428,7 +445,7 @@ def write_exp4_tex(analysis: dict, path: Path) -> None:
     path.write_text("\n".join(lines) + "\n")
 
 
-def write_exp6_tex(analysis: dict, path: Path) -> None:
+def _write_neg_controls_tex(analysis: dict, path: Path, caption_tag: str = "") -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     order = ["correct_bank", "shuffled_bank", "random_kv",
              "correct_K_random_V", "random_K_correct_V"]
@@ -439,20 +456,34 @@ def write_exp6_tex(analysis: dict, path: Path) -> None:
         "correct_K_random_V": "Correct K, Random V",
         "random_K_correct_V": "Random K, Correct V",
     }
+    mode = analysis.get("bank_key_mode", "—")
     lines = [
-        r"\begin{tabular}{l r r r}",
+        r"\begin{tabular}{l r r r r r}",
         r"\toprule",
-        r"Variant & Recall@1 & Margin (mean) & Margin (med) \\",
+        (r"Variant & n & Recall@1 & Margin (mean) & 95\% CI & Margin (med) \\"
+         f"  % bank\\_key\\_mode={mode} {caption_tag}"),
         r"\midrule",
     ]
     for v in order:
         s = analysis["variants"].get(v, {})
+        ci = f"[{_fmt(s.get('ci_lo'))}, {_fmt(s.get('ci_hi'))}]"
         lines.append(
-            f"{labels.get(v, v)} & {_fmt(s.get('recall_at_1'))} & "
-            f"{_fmt(s.get('mean_margin'))} & {_fmt(s.get('median_margin'))} \\\\"
+            f"{labels.get(v, v)} & {s.get('n', '—')} & "
+            f"{_fmt(s.get('recall_at_1'))} & "
+            f"{_fmt(s.get('mean_margin'))} & "
+            f"{ci} & "
+            f"{_fmt(s.get('median_margin'))} \\\\"
         )
     lines += [r"\bottomrule", r"\end{tabular}"]
     path.write_text("\n".join(lines) + "\n")
+
+
+def write_exp6_tex(analysis: dict, path: Path) -> None:
+    _write_neg_controls_tex(analysis, path, caption_tag="(Exp6: pre\\_rope)")
+
+
+def write_exp6b_tex(analysis: dict, path: Path) -> None:
+    _write_neg_controls_tex(analysis, path, caption_tag="(Exp6b: post\\_rope)")
 
 
 # ---------------------------------------------------------------------------
@@ -510,6 +541,56 @@ def write_exp2_plot(analysis: dict, path: Path) -> None:
     ax.set_ylabel("mean margin (nats)")
     ax.set_title("Exp2: Position Invariance")
     ax.legend()
+    plt.tight_layout()
+    plt.savefig(path, dpi=150, bbox_inches="tight")
+    plt.close()
+
+
+def write_exp6b_plot(analysis: dict, path: Path) -> None:
+    try:
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+        import numpy as np
+    except ImportError:
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    order = ["correct_bank", "shuffled_bank", "random_kv",
+             "correct_K_random_V", "random_K_correct_V"]
+    labels = {
+        "correct_bank": "Correct K/V",
+        "shuffled_bank": "Shuffled",
+        "random_kv": "Random K+V",
+        "correct_K_random_V": "Correct K, Rand V",
+        "random_K_correct_V": "Rand K, Correct V",
+    }
+    colors = {
+        "correct_bank": "steelblue",
+        "shuffled_bank": "darkorange",
+        "random_kv": "crimson",
+        "correct_K_random_V": "mediumpurple",
+        "random_K_correct_V": "green",
+    }
+    variants_data = analysis.get("variants", {})
+    names = [v for v in order if v in variants_data]
+    means = [variants_data[v]["mean_margin"] for v in names]
+    cis_lo = [variants_data[v].get("ci_lo", means[i]) for i, v in enumerate(names)]
+    cis_hi = [variants_data[v].get("ci_hi", means[i]) for i, v in enumerate(names)]
+    errs_lo = [m - lo for m, lo in zip(means, cis_lo)]
+    errs_hi = [hi - m for m, hi in zip(means, cis_hi)]
+
+    fig, ax = plt.subplots(figsize=(9, 5))
+    xs = list(range(len(names)))
+    for i, vname in enumerate(names):
+        ax.bar(i, means[i], color=colors.get(vname, "gray"),
+               yerr=[[errs_lo[i]], [errs_hi[i]]], capsize=5,
+               label=labels.get(vname, vname))
+    ax.axhline(0, color="black", linewidth=0.8, linestyle="--")
+    ax.set_xticks(xs)
+    ax.set_xticklabels([labels.get(v, v) for v in names], rotation=15, ha="right")
+    ax.set_ylabel("Mean Margin (nats)")
+    ax.set_title("Exp 6b: post-RoPE Negative Controls\n(correct_bank should dominate)")
+    ax.legend(loc="upper right", fontsize=8)
     plt.tight_layout()
     plt.savefig(path, dpi=150, bbox_inches="tight")
     plt.close()
@@ -599,6 +680,18 @@ def main():
     else:
         print("[exp6] MISSING")
 
+    # Exp6b — post-RoPE negative controls rerun
+    run6b = latest_run(exp_root / "exp6b_post_rope_negative_controls")
+    if run6b:
+        print(f"[exp6b] analyzing {run6b}")
+        a6b = analyze_exp6b(run6b)
+        all_analyses["exp6b"] = a6b
+        verdicts["V6b_post_rope_correct_dominates"] = a6b["verdict_correct_dominates"]
+        write_exp6b_tex(a6b, out / "paper_tables" / "exp6b_post_rope_neg_controls.tex")
+        write_exp6b_plot(a6b, out / "plots" / "exp6b_post_rope_negative_controls.png")
+    else:
+        print("[exp6b] MISSING")
+
     # Write verdicts
     (out / "verdicts.json").write_text(json.dumps(verdicts, indent=2))
     print(f"\n[verdicts]\n{json.dumps(verdicts, indent=2)}")
@@ -620,6 +713,8 @@ def _write_readme(analyses: dict, verdicts: dict, out: Path) -> None:
     a4 = analyses.get("exp4", {})
     a5 = analyses.get("exp5", {})
     a6 = analyses.get("exp6", {})
+
+    a6b = analyses.get("exp6b", {})
 
     def vc(key):
         v = verdicts.get(key)
@@ -691,11 +786,20 @@ def _write_readme(analyses: dict, verdicts: dict, out: Path) -> None:
             f"{fmt(pt.get('mean_margin'))} | {fmt(pt.get('recall_at_1'))} |\n"
         )
 
+    # Exp6b table rows
+    exp6b_rows = ""
+    for vname, s in a6b.get("variants", {}).items():
+        ci = f"[{fmt(s.get('ci_lo'))}, {fmt(s.get('ci_hi'))}]"
+        exp6b_rows += (
+            f"| {vname} | {s.get('n','N/A')} | {fmt(s.get('recall_at_1'))} | "
+            f"{fmt(s.get('mean_margin'))} | {ci} | {fmt(s.get('median_margin'))} |\n"
+        )
+
     readme = f"""# ATB Validation v1 — Final Report
 
 **Model:** Gemma-4-31B-it  
 **Dataset:** CounterFact-1k (W.6 filter)  
-**Suite:** 6 experiments, 3 seeds each
+**Suite:** 6 experiments + Exp 6b rerun, 3 seeds each
 
 ## PREREG Verdicts
 
@@ -707,7 +811,8 @@ def _write_readme(analyses: dict, verdicts: dict, out: Path) -> None:
 | V3 α=0 bit-equal | {vc('V3_bit_equal')} |
 | V4 ATB beats baseline | {vc('V4_atb_beats_baseline')} |
 | V4 α=0 consistent | {vc('V4_alpha0_consistent')} |
-| V6 correct bank dominates | {vc('V6_correct_dominates')} |
+| V6 correct bank dominates (pre_rope) | {vc('V6_correct_dominates')} |
+| V6b correct bank dominates (post_rope) | {vc('V6b_post_rope_correct_dominates')} |
 
 ---
 
@@ -764,13 +869,29 @@ See `plots/exp5_alpha_sweep.png`.
 
 ---
 
-## Exp 6 — Negative Controls
+## Exp 6 — Negative Controls (pre_rope; INVALIDATED)
+
+> ⚠️  Exp 6 used `bank_key_mode=pre_rope` which is a near-no-op on Gemma-4-31B
+> due to native V-norm.  Results are not meaningful.  See Exp 6b below.
 
 | Variant | Recall@1 | Mean Margin |
 |---------|----------|-------------|
 {exp6_rows}
 
-**Verdict:** correct_bank dominates all controls = {verdicts.get('V6_correct_dominates', 'N/A')}
+**Verdict:** correct_bank dominates = {verdicts.get('V6_correct_dominates', 'N/A')}
+
+---
+
+## Exp 6b — Negative Controls (post_rope; CANONICAL)
+
+`bank_key_mode=post_rope` — the only mode confirmed to produce positive margin
+on Gemma-4-31B (Exp 1: +0.088 mean margin).
+
+| Variant | n | Recall@1 | Mean Margin | 95% CI | Median Margin |
+|---------|---|----------|-------------|--------|---------------|
+{exp6b_rows}
+
+**Verdict:** correct_bank dominates all controls = {verdicts.get('V6b_post_rope_correct_dominates', 'N/A')}
 
 ---
 
