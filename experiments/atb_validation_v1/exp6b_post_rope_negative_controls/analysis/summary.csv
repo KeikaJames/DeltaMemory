@@ -1,0 +1,2 @@
+experiment,variant,n,recall_at_1,mean_margin,ci_lo,ci_hi,median_margin,js_drift,kl_drift,mean_target_rank
+exp6b_post_rope_negative_controls,correct_bank,1795,0.0,0.029752690845213228,-0.20659705720904145,0.26340272921373586,-0.0625,0.30887659621424973,3.3876497261226177,51863.470194986076

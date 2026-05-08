@@ -1,0 +1,20 @@
+{
+  "run_dir": "/Users/gabiri/projects/RCV-HC/experiments/atb_validation_v1/exp6b_post_rope_negative_controls/run_20260508_041338",
+  "n_total": 1795,
+  "bank_key_mode": "post_rope",
+  "variants": {
+    "correct_bank": {
+      "n": 1795,
+      "recall_at_1": 0.0,
+      "mean_margin": 0.029752690845213228,
+      "ci_lo": -0.20659705720904145,
+      "ci_hi": 0.26340272921373586,
+      "median_margin": -0.0625,
+      "js_drift": 0.30887659621424973,
+      "kl_drift": 3.3876497261226177,
+      "mean_target_rank": 51863.470194986076
+    }
+  },
+  "verdict_correct_dominates": true,
+  "verdict_strict_ci_dominance": true
+}

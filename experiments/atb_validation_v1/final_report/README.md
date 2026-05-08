@@ -130,11 +130,11 @@ on Gemma-4-31B (Exp 1: +0.088 mean margin).
 
 | Variant | n | Recall@1 | Mean Margin | 95% CI | Median Margin |
 |---------|---|----------|-------------|--------|---------------|
-| correct_bank | 1908 | 0.0000 | 0.0983 | [-0.1295, 0.3301] | -0.0137 |
-| shuffled_bank | 0 | 0.0000 | N/A | [N/A, N/A] | N/A |
-| random_kv | 0 | 0.0000 | N/A | [N/A, N/A] | N/A |
-| correct_K_random_V | 0 | 0.0000 | N/A | [N/A, N/A] | N/A |
-| random_K_correct_V | 0 | 0.0000 | N/A | [N/A, N/A] | N/A |
+| correct_bank | 2421 | 0.0000 | 0.0205 | [-0.1851, 0.2291] | -0.0742 |
+| shuffled_bank | 2421 | 0.0000 | 0.0205 | [-0.1851, 0.2291] | -0.0742 |
+| random_kv | 2421 | 0.0000 | -0.1009 | [-0.2757, 0.0787] | -0.1875 |
+| correct_K_random_V | 2421 | 0.0000 | -0.7288 | [-0.9501, -0.5017] | -0.7812 |
+| random_K_correct_V | 2421 | 0.0000 | 0.6745 | [0.4847, 0.8668] | 0.5769 |
 
 
 **Verdict:** correct_bank dominates all controls = False
