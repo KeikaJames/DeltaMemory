@@ -1,0 +1,70 @@
+{
+  "run_dir": "/home/gabira/projects/RCV-HC/experiments/atb_validation_v1/exp7_non_gemma_pre_rope/run_20260508_134155",
+  "n_total": 12105,
+  "bank_key_mode": "pre_rope",
+  "bank_size": 200,
+  "variants": {
+    "correct_bank": {
+      "n": 2421,
+      "recall_at_1": 0.0,
+      "mean_margin": -0.5374025297972448,
+      "ci_lo": -0.6536611898139408,
+      "ci_hi": -0.4220731514438722,
+      "median_margin": -0.4375,
+      "js_drift": 0.3686231090128422,
+      "kl_drift": 3.3120510540902615,
+      "mean_target_rank": 15290.429574555968
+    },
+    "shuffled_bank": {
+      "n": 2421,
+      "recall_at_1": 0.0,
+      "mean_margin": -0.5208854981563841,
+      "ci_lo": -0.636113973453684,
+      "ci_hi": -0.4066040424313835,
+      "median_margin": -0.375,
+      "js_drift": 0.3667722924053669,
+      "kl_drift": 3.2509802827239036,
+      "mean_target_rank": 15253.330028913671
+    },
+    "random_kv": {
+      "n": 2421,
+      "recall_at_1": 0.0,
+      "mean_margin": -0.24880903666298138,
+      "ci_lo": -0.3707444816520026,
+      "ci_hi": -0.12707694233670208,
+      "median_margin": -0.171875,
+      "js_drift": 0.335180768246452,
+      "kl_drift": 2.297575831413269,
+      "mean_target_rank": 11326.265592730277
+    },
+    "correct_K_random_V": {
+      "n": 2421,
+      "recall_at_1": 0.0,
+      "mean_margin": -0.46369728462009674,
+      "ci_lo": -0.5712579130289329,
+      "ci_hi": -0.35430311560877,
+      "median_margin": -0.462890625,
+      "js_drift": 0.36381351652244726,
+      "kl_drift": 3.2489683656891186,
+      "mean_target_rank": 17639.539859562163
+    },
+    "random_K_correct_V": {
+      "n": 2421,
+      "recall_at_1": 0.0,
+      "mean_margin": -0.2564298656547134,
+      "ci_lo": -0.37933583468358806,
+      "ci_hi": -0.13175859179490856,
+      "median_margin": -0.163330078125,
+      "js_drift": 0.31556674485405284,
+      "kl_drift": 2.1755740596850712,
+      "mean_target_rank": 10111.161503510946
+    }
+  },
+  "verdict_correct_dominates": false,
+  "verdict_strict_ci_dominance": false,
+  "h73_k_addressing_pass": false,
+  "h74_shuffled_degrades_pass": false,
+  "pattern_shuffled_eq_correct": false,
+  "pattern_v_dominates": true,
+  "pattern_k_addressing": false
+}
