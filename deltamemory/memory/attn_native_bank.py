@@ -158,6 +158,9 @@ class AttnNativeBank:
     # columns bit-for-bit unchanged.  Default False keeps v3.1 behaviour.
     # See ``deltamemory.memory.mhc_shield.shield_attention_weights``.
     mhc_shield: bool = False
+    # Per-bank kappa for the mHC spectral shield.  Overrides the default
+    # kappa=1.0 so Exp8 can sweep kappa without rebuilding the bank.
+    mhc_kappa: float = 1.0
     # Stage R (v3.3): Dynamic LOPI configuration + per-call state. Default
     # cfg.enabled=False makes the LOPI wrapper a no-op so the merged-softmax
     # branch keeps its v3.2 byte-equal behavior.  See ``deltamemory.memory.lopi``.
@@ -491,6 +494,7 @@ class AttnNativeBank:
             "address_strs": list(self.address_strs),
             "bank_temperature": float(self.bank_temperature),
             "mhc_shield": bool(self.mhc_shield),
+            "mhc_kappa": float(getattr(self, "mhc_kappa", 1.0)),
             "value_scale_mode": str(self.value_scale_mode),
             "value_target_rms": float(self.value_target_rms),
             "value_scale_eps": float(self.value_scale_eps),
@@ -526,6 +530,7 @@ class AttnNativeBank:
                    value_target_rms=float(sd.get("value_target_rms", 0.5)),
                    value_scale_eps=float(sd.get("value_scale_eps", 1e-6)),
                    bank_key_mode=sd.get("bank_key_mode", "pre_rope"))
+        bank.mhc_kappa = float(sd.get("mhc_kappa", 1.0))
         bank.M_K = [t.to(device, dtype) for t in sd["M_K"]]
         bank.M_V = [t.to(device, dtype) for t in sd["M_V"]]
         bank.fact_ids = list(sd["fact_ids"])
@@ -857,6 +862,7 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
                     weights = shield_attention_weights(
                         weights, bank_size=bank_n,
                         enabled=True,
+                        kappa=getattr(bank, "mhc_kappa", 1.0),
                     )
                 out_orig = torch.matmul(weights[..., :T_orig], v_repeat)
                 out_bank = torch.matmul(weights[..., T_orig:], alpha * mv_e)

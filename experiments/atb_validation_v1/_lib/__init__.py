@@ -68,6 +68,8 @@ class Variant:
     value_scale_mode: str = "auto_rms_cap"
     bank_perturbation: Optional[str] = None
     enable_scar: bool = False
+    mhc_shield: bool = False
+    mhc_kappa: float = 1.0
     description: str = ""
 
     def to_dict(self) -> dict[str, Any]:

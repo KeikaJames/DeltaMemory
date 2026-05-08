@@ -948,7 +948,28 @@ def main():
     else:
         print("[exp7] MISSING")
 
-    # Write verdicts
+    # Exp8 — mHC-Smoothed Pre-RoPE Negative Controls
+    exp8_analysis_dir = exp_root / "exp8_mhc_smoothed_pre_rope" / "analysis"
+    if exp8_analysis_dir.exists():
+        exp8_json = exp8_analysis_dir / "analysis.json"
+        if exp8_json.exists():
+            print(f"[exp8] loading from {exp8_json}")
+            try:
+                exp8_data = json.loads(exp8_json.read_text())
+                all_analyses["exp8"] = exp8_data
+                pb = exp8_data.get("phase_b") or {}
+                pb_pass = pb.get("correct_dominates", False)
+                pb_strict = pb.get("strict_ci_dominance", False)
+                verdicts["V8_mhc_correct_dominates_phase_b"] = pb_pass
+                verdicts["V8_mhc_strict_ci_phase_b"] = pb_strict
+                verdicts["V8_best_kappa"] = exp8_data.get("best_kappa")
+                print(f"[exp8] phase_b correct_dominates={pb_pass} strict={pb_strict}")
+            except Exception as e:
+                print(f"[exp8] WARNING: failed to parse analysis.json: {e}")
+        else:
+            print("[exp8] analysis.json not found (run analyze.py after rsyncing)")
+    else:
+        print("[exp8] MISSING (run exp8 first)")
     (out / "verdicts.json").write_text(json.dumps(verdicts, indent=2))
     print(f"\n[verdicts]\n{json.dumps(verdicts, indent=2)}")
 
