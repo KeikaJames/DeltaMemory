@@ -241,6 +241,9 @@ def run(
                 value_scale_mode=variant.value_scale_mode,
             )
             apply_perturbation(drift_bank, variant.bank_perturbation, seed)
+            # Propagate mHC settings so drift measurement uses the same shield config.
+            drift_bank.mhc_shield = getattr(variant, "mhc_shield", False)
+            drift_bank.mhc_kappa = getattr(variant, "mhc_kappa", 1.0)
             js_vals: list[float] = []
             kl_vals: list[float] = []
             patcher.install()

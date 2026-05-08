@@ -62,7 +62,7 @@ def make_variants(alpha: float, kappa: float,
         Variant(name="correct_bank", **base,
                 description=f"Production ATB pre_rope + mHC kappa={kappa}."),
         Variant(name="shuffled_bank", **base, bank_perturbation="shuffled",
-                description="K/V rows permuted; mHC on."),
+                description="Correct K (pre_rope), V rows permuted across facts; mHC on."),
         Variant(name="random_kv", **base, bank_perturbation="random_kv",
                 description="K and V both Gaussian RMS-matched; mHC on."),
         Variant(name="correct_K_random_V", **base, bank_perturbation="random_V_only",
@@ -132,18 +132,19 @@ def _run_phase_a(args, cf_path: Path, seeds: list[int]) -> float:
                             out_dir=out_dir)
         append_to_global(summary, ROOT / "experiments" / "atb_validation_v1" /
                          "SUMMARY.csv")
-        # Read correct_bank mean_margin from summary.csv to pick best kappa.
-        correct_margin = _read_correct_bank_margin(out_dir)
-        print(f"  kappa={kappa}: correct_bank mean_margin={correct_margin:.4f}")
-        if correct_margin > best_margin:
-            best_margin = correct_margin
+        # Score kappa as correct_bank_margin - max_control_margin (gap metric).
+        score = _score_kappa(out_dir)
+        correct_margin = _read_variant_margins(out_dir).get("correct_bank", float("-inf"))
+        print(f"  kappa={kappa}: correct_bank={correct_margin:.4f}  gap={score:.4f}")
+        if score > best_margin:
+            best_margin = score
             best_kappa = kappa
 
-    print(f"Best kappa from Phase A: {best_kappa} (margin={best_margin:.4f})")
+    print(f"Best kappa from Phase A: {best_kappa} (gap={best_margin:.4f})")
     # Persist best kappa for downstream phases.
     best_path = Path(args.out) / "best_kappa.json"
     best_path.write_text(json.dumps({"best_kappa": best_kappa,
-                                     "best_correct_bank_margin": best_margin}))
+                                     "best_gap_score": best_margin}))
     return best_kappa
 
 
@@ -206,21 +207,39 @@ def _run_phase_c(args, cf_path: Path, seeds: list[int], kappa: float) -> None:
         print(f"  alpha={alpha_c}: summary -> {summary}")
 
 
-def _read_correct_bank_margin(out_dir: Path) -> float:
-    """Extract correct_bank mean_margin from summary.csv if present."""
+def _read_variant_margins(out_dir: Path) -> dict[str, float]:
+    """Read mean_margin per variant from summary.csv."""
+    import csv
     csv_path = out_dir / "summary.csv"
     if not csv_path.exists():
-        return float("-inf")
-    import csv
+        return {}
+    margins: dict[str, float] = {}
     with open(csv_path) as f:
         reader = csv.DictReader(f)
         for row in reader:
-            if row.get("variant") == "correct_bank":
-                try:
-                    return float(row["mean_margin"])
-                except (KeyError, ValueError):
-                    pass
-    return float("-inf")
+            v = row.get("variant", "")
+            try:
+                margins[v] = float(row["mean_margin"])
+            except (KeyError, ValueError):
+                pass
+    return margins
+
+
+def _score_kappa(out_dir: Path) -> float:
+    """Score a kappa run as: correct_bank_margin - max_control_margin.
+
+    Positive score means correct_bank is best; score=0 means tied for first;
+    negative means some control beats correct_bank.
+    Maximising this is better than maximising correct_bank alone because it
+    filters out kappas where all variants improve uniformly.
+    """
+    margins = _read_variant_margins(out_dir)
+    correct = margins.get("correct_bank", float("-inf"))
+    controls = [v for v in margins if v != "correct_bank"]
+    if not controls:
+        return correct
+    max_control = max(margins[v] for v in controls)
+    return correct - max_control
 
 
 def main() -> int:

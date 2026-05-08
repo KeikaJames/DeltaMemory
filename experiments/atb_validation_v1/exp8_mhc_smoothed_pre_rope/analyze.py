@@ -50,7 +50,7 @@ VARIANT_ORDER = [
 
 VARIANT_LABELS = {
     "correct_bank": "Correct K/V + mHC",
-    "shuffled_bank": "Shuffled K/V + mHC",
+    "shuffled_bank": "Correct K, Shuffled V + mHC",
     "random_kv": "Random K+V + mHC",
     "correct_K_random_V": "Correct K, Random V + mHC",
     "random_K_correct_V": "Random K, Correct V + mHC",
@@ -244,13 +244,23 @@ def analyze_phase_c(run_dir: Path) -> list[dict]:
 
 
 def pick_best_kappa(phase_a_results: list[dict]) -> float | None:
-    """Return kappa with highest correct_bank mean_margin from Phase A."""
+    """Return kappa with highest correct_bank - max_control_margin gap from Phase A.
+
+    Maximising the gap selects the kappa where correct_bank most clearly
+    outperforms controls, not just the kappa where it's highest in isolation.
+    Falls back to correct_bank margin only if all gaps are equal (e.g., 1 variant).
+    """
     best_kappa = None
-    best_margin = float("-inf")
+    best_score = float("-inf")
     for entry in phase_a_results:
-        m = entry["variants"].get("correct_bank", {}).get("mean_margin", float("-inf"))
-        if m > best_margin:
-            best_margin = m
+        vs = entry["variants"]
+        cb_m = vs.get("correct_bank", {}).get("mean_margin", float("-inf"))
+        controls = [v for v in vs if v != "correct_bank"]
+        max_ctrl = max((vs[v].get("mean_margin", float("-inf")) for v in controls),
+                       default=float("-inf"))
+        gap = cb_m - max_ctrl
+        if gap > best_score:
+            best_score = gap
             best_kappa = entry["kappa"]
     return best_kappa
 

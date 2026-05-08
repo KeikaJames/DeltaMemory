@@ -22,9 +22,9 @@ the K–V binding contrast required for a valid ATB signal.
 **H8.1 (primary):** Under mHC-on α=0.05, `correct_bank` achieves the highest
 mean margin among all 5 variants.
 
-**H8.2:** `random_kv` and `random_K_correct_V` margins increase (become less
-negative or positive) relative to Exp7 raw baseline — confirming mHC reduces
-V-dominance.
+**H8.2:** `random_kv` and `random_K_correct_V` margins *decrease* relative to
+Exp7 raw baseline (or no longer exceed `correct_bank`), indicating mHC suppresses
+V-path dominance.
 
 **H8.3:** JS/KL drift for `correct_bank` does not increase relative to Exp7
 (mHC does not increase semantic drift on the base distribution).
@@ -53,6 +53,10 @@ kappas tested: **1.0, 0.5, 0.25**
 
 ### Phase B — full run (n=807, best kappa from Phase A)
 
+Best kappa is selected as: `argmax_κ (correct_bank_margin − max_control_margin)`.
+This maximises the gap between `correct_bank` and the strongest control,
+rather than correct_bank's absolute margin in isolation.
+
 5 variants × 3 seeds × 807 = **12 105 cells**
 
 ### Phase C — high-alpha stress (n=200, best kappa, 3 variants)
@@ -67,7 +71,7 @@ alphas: 0.10, 0.20, 0.50, 1.00
 | variant | K | V | mhc_shield |
 |---------|---|---|------------|
 | correct_bank | correct (pre_rope) | correct | **True** (kappa swept) |
-| shuffled_bank | rows permuted | rows permuted | True |
+| shuffled_bank | correct (pre_rope) | V rows permuted across facts | True |
 | random_kv | random RMS-matched | random RMS-matched | True |
 | correct_K_random_V | correct | random | True |
 | random_K_correct_V | random | correct | True |
@@ -80,7 +84,7 @@ alphas: 0.10, 0.20, 0.50, 1.00
 - **DIRECTIONAL PASS:** H8.1 met, H8.4 not met
 - **FAIL:** H8.1 not met at any tested kappa
 
-If FAIL: test whether lower alpha (Phase C) rescues K–V contrast.
+If FAIL: Phase C tests whether mHC prevents high-alpha runaway; lower-alpha rescue is left for a separate experiment.
 
 ---
 
