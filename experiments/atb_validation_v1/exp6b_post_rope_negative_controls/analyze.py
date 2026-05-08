@@ -294,6 +294,50 @@ def write_readme(analysis: dict, out: Path) -> None:
     verdict_str = "✅ PASS" if analysis["verdict_correct_dominates"] else "❌ FAIL"
     strict_str = "✅ PASS" if analysis["verdict_strict_ci_dominance"] else "❌ FAIL"
 
+    # Detect methodological issues for the interpretation block
+    variants = analysis.get("variants", {})
+    correct = variants.get("correct_bank", {})
+    shuffled = variants.get("shuffled_bank", {})
+    rk_cv = variants.get("random_K_correct_V", {})
+    ck_rv = variants.get("correct_K_random_V", {})
+    shuffled_eq_correct = (
+        abs((correct.get("mean_margin") or 0.0) - (shuffled.get("mean_margin") or 0.0)) < 1e-5
+    )
+    v_dominates = (rk_cv.get("mean_margin") or -999) > (correct.get("mean_margin") or -999) + 0.05
+
+    interpretation_lines = []
+    if shuffled_eq_correct:
+        interpretation_lines.append(
+            "- **shuffled_bank == correct_bank** — bank_size=1 per test means the "
+            "'shuffled' perturbation is a no-op (n<2 guard). Shuffled is NOT an "
+            "independent negative control at this bank_size."
+        )
+    if v_dominates:
+        interpretation_lines.append(
+            "- **random_K_correct_V > correct_bank** — post-RoPE K is "
+            "position-specific (RoPE encodes write-time token positions). "
+            "The correct K captured at write time does not generalise to the "
+            "query's read-time positions, so K addressing is unreliable in "
+            "`post_rope` mode. V carries the factual content; once injected "
+            "it shifts logits toward the target regardless of attention routing."
+        )
+        interpretation_lines.append(
+            "- **correct_K_random_V is worst** — correct K gets high attention "
+            "weight but injects random V → strong noise, negative margin."
+        )
+        interpretation_lines.append(
+            "- **Design note:** a bank_size > 1 shuffled experiment would be needed "
+            "to test fact-level binding meaningfully. Pre-RoPE K (position-invariant) "
+            "would be needed for stable K-based addressing, but Gemma-4-31B's native "
+            "V-norm makes pre_rope V injection ineffective."
+        )
+    if not interpretation_lines:
+        interpretation_lines.append(
+            "- correct_bank does not dominate all controls; see per-variant analysis above."
+        )
+
+    interpretation = "\n".join(interpretation_lines)
+
     readme = f"""# Exp 6b — post-RoPE Negative Controls
 
 **bank_key_mode:** `{mode}`  
@@ -316,12 +360,9 @@ mode confirmed to produce positive margin on Gemma-4-31B (Exp 1: +0.088 mean mar
 | correct_bank dominates (mean) | {verdict_str} |
 | correct_bank dominates (strict CI) | {strict_str} |
 
-**Interpretation:**  
-- If correct_bank mean_margin > all others → mechanism is real (correct K/V binding matters).  
-- If correct_K_random_V has positive margin → K alone is sufficient for addressing
-  (V content doesn't matter for margin, but may matter for factual recall).  
-- If random_K_correct_V fails → K is necessary for addressing.  
-- If shuffled_bank fails → fact-level binding (not just "any bank") drives the effect.
+## Interpretation
+
+{interpretation}
 
 ## Files
 

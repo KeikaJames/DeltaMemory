@@ -18,7 +18,7 @@
 | V4a | ATB α=1 beats none α=0 in margin | ✅ PASS |
 | V4b | ATB α=0 == none α=0 (consistent with bit-equality) | ✅ PASS |
 | V6  | correct_bank dominates all negative controls (pre_rope) | ❌ FAIL (metric artifact — INVALIDATED) |
-| V6b | correct_bank dominates all negative controls (post_rope) | ⏳ RUNNING (exp6b on spark1, ETA ~09:13 CST) |
+| V6b | correct_bank dominates all negative controls (post_rope) | ❌ FAIL (see design note below) |
 
 ---
 
@@ -159,31 +159,47 @@ binding.
 
 ## Exp 6b — Negative Controls (post_rope; CANONICAL)
 
-> 🔄 **Currently running on spark1 (GB10, 8×H100).**  
-> Launched: 2026-05-08 04:13 CST. Est. completion: ~10:10 CST.  
-> Results will be committed to `exp6b_post_rope_negative_controls/analysis/` on completion.
-
 **Setup:** Identical to Exp 6, with single change `bank_key_mode="post_rope"`.  
 `post_rope` is the only mode confirmed to produce positive margin on Gemma-4-31B
 (Exp 1: mean margin +0.088). Total cells: 12,105 (807 × 5 variants × 3 seeds).
 
-**5 variants:**
+| Variant | n | Mean Margin | 95% CI | Median | JS Drift |
+|---------|---|-------------|--------|--------|----------|
+| correct_bank | 2421 | **+0.0205** | [−0.185, +0.229] | −0.0742 | 0.309 |
+| shuffled_bank | 2421 | +0.0205 | [−0.185, +0.229] | −0.0742 | 0.312 |
+| random_kv | 2421 | −0.1009 | [−0.276, +0.079] | −0.1875 | 0.391 |
+| correct_K_random_V | 2421 | −0.7288 | [−0.950, −0.502] | −0.7812 | 0.511 |
+| random_K_correct_V | 2421 | **+0.6745** | [+0.485, +0.867] | +0.5769 | 0.322 |
 
-| Variant | K | V | Purpose |
-|---------|---|---|---------|
-| correct_bank | correct (post_rope) | correct | Production ATB — reference |
-| shuffled_bank | shuffled K/V rows | shuffled | Fact-binding check |
-| random_kv | Gaussian (RMS-matched) | Gaussian (RMS-matched) | Random-signal check |
-| correct_K_random_V | correct (post_rope) | Gaussian (RMS-matched) | V content check |
-| random_K_correct_V | Gaussian (RMS-matched) | correct | K addressing check |
+**Verdict ❌ (with design notes):**
 
-**Expected:** correct_bank mean_margin > all others (validated post_rope positive regime).
+1. **shuffled_bank == correct_bank** — each test writes a single fact (`bank_size=1`);
+   the "shuffle" perturbation is a no-op when n<2. Shuffled is not an independent
+   control at this bank size. A valid shuffled test requires `bank_size > 1`.
 
-**Results:** *(Exp running on spark1 — partial data shows correct_bank seed=0,1,2 in progress with mean_margin ≈ +0.098. Full 5-variant results pending completion ~09:13 CST.)*
+2. **random_K_correct_V dominates** — post-RoPE K captures position-specific key
+   vectors (RoPE encodes the write-prompt token positions). At read time the query
+   Q has different token positions, so the inner product Q_read · K_write is
+   unreliable. Random K (zero mean, same RMS) occasionally aligns better with
+   the query than the correct K does, inflating `random_K_correct_V` margin.
+   This reveals that **V carries the factual content** in the post-RoPE regime,
+   while K addressing is position-sensitive and does not generalise write→read.
+
+3. **correct_K_random_V is worst (−0.729)** — when K is correct (high attention
+   weight) but V is random, the injected noise actively degrades the output.
+   This confirms strong attn-weight × V coupling: correct addressing without
+   correct content causes harm.
+
+**Design implication:** Pre-RoPE K is theoretically position-invariant, which would
+make K addressing robust. However, Gemma-4-31B's native V-norm makes pre_rope
+injection ineffective (V scale ≈ 1 regardless of alpha). A future experiment on a
+model without native V-norm (e.g. Llama-3, Qwen3 without RMSNorm-on-V) would be
+needed to test the full pre_rope hypothesis cleanly.
 
 **Analysis scripts:**
 - `exp6b_post_rope_negative_controls/analyze.py` — standalone analysis
 - `exp6b_post_rope_negative_controls/post_process.sh` — rsync + analyze + commit
+- `exp6b_post_rope_negative_controls/analysis/README.md` — full results + interpretation
 
 ---
 
@@ -196,6 +212,16 @@ making pre_rope_vscale identical to pre_rope_bank_only. This is not a bug; it me
 pre_rope injection on Gemma-4 requires a different value injection strategy. post_rope
 injection bypasses this normalisation and does produce positive margin (+0.088 mean,
 +0.086 median in Exp 1).
+
+### V-Dominance in post-RoPE Regime (Exp 6b Finding)
+Exp 6b reveals that, in the `post_rope` regime on Gemma-4-31B, **V carries the
+factual content while K addressing is position-unstable**. The `random_K_correct_V`
+variant achieves the highest margin (+0.675) because correct V vectors encode target
+token information regardless of K routing, while post-RoPE K (position-encoded from
+write time) does not reliably match Q (read time positions). This is consistent with
+the RoPE design: post-RoPE K is inherently position-specific. Pre-RoPE K is
+theoretically position-invariant but is ineffective on Gemma-4-31B due to native
+V-norm. A clean test of K addressing requires a model without native V-norm.
 
 ### Recall@1 = 0 Throughout
 CounterFact targets are rarely the single-highest-probability token under a
@@ -219,10 +245,14 @@ experiments/atb_validation_v1/
 │   ├── PREREG.md
 │   ├── run.py
 │   ├── analyze.py                       # Standalone analysis script
-│   └── post_process.sh                  # rsync + analyze + commit automation
+│   ├── post_process.sh                  # rsync + analyze + commit automation
+│   └── analysis/
+│       ├── README.md                    # Full results + scientific interpretation
+│       ├── summary.csv
+│       └── tables/exp6b.tex
 ├── finalize.py                          # Aggregation + report generator (incl. exp6b)
 ├── SUMMARY.csv                          # Cross-experiment canonical table
-└── final_report/                        # Generated outputs (gitignored)
+└── final_report/
     ├── README.md
     ├── verdicts.json
     ├── analyses.json
@@ -230,14 +260,11 @@ experiments/atb_validation_v1/
     └── plots/                           # PNG figures
 ```
 
-*Regenerate final_report after exp6b completes:*
-```bash
-bash experiments/atb_validation_v1/exp6b_post_rope_negative_controls/post_process.sh
-```
-
-*Or manually:*
+*Regenerate final_report locally:*
 ```bash
 python3 experiments/atb_validation_v1/finalize.py \
     --exp-root experiments/atb_validation_v1 \
     --out experiments/atb_validation_v1/final_report
 ```
+
+*Note: finalize.py requires `results.jsonl` (gitignored). Run on spark1 for full data, or rsync first.*

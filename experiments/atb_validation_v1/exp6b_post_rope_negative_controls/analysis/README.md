@@ -5,28 +5,32 @@
 native V-norm (`auto_rms_cap` → scale≈1.0). This rerun uses `post_rope`, the only
 mode confirmed to produce positive margin on Gemma-4-31B (Exp 1: +0.088 mean margin).
 
-**Total cells:** 1795
+**Total cells:** 12105
 
 ## Results
 
 | Variant | n | Recall@1 | Mean Margin | 95% CI | Median Margin | JS Drift |
 |---------|---|----------|-------------|--------|---------------|----------|
-| Correct K/V (post-RoPE) | 1795 | 0.0000 | 0.0298 | [-0.2066, 0.2634] | -0.0625 | 0.3089 |
+| Correct K/V (post-RoPE) | 2421 | 0.0000 | 0.0205 | [-0.1851, 0.2291] | -0.0742 | 0.3089 |
+| Shuffled K/V | 2421 | 0.0000 | 0.0205 | [-0.1851, 0.2291] | -0.0742 | 0.3115 |
+| Random K + V | 2421 | 0.0000 | -0.1009 | [-0.2757, 0.0787] | -0.1875 | 0.3907 |
+| Correct K, Random V | 2421 | 0.0000 | -0.7288 | [-0.9501, -0.5017] | -0.7812 | 0.5112 |
+| Random K, Correct V | 2421 | 0.0000 | 0.6745 | [0.4847, 0.8668] | 0.5769 | 0.3219 |
 
 
 ## Verdict
 
 | Criterion | Result |
 |-----------|--------|
-| correct_bank dominates (mean) | ✅ PASS |
-| correct_bank dominates (strict CI) | ✅ PASS |
+| correct_bank dominates (mean) | ❌ FAIL |
+| correct_bank dominates (strict CI) | ❌ FAIL |
 
-**Interpretation:**  
-- If correct_bank mean_margin > all others → mechanism is real (correct K/V binding matters).  
-- If correct_K_random_V has positive margin → K alone is sufficient for addressing
-  (V content doesn't matter for margin, but may matter for factual recall).  
-- If random_K_correct_V fails → K is necessary for addressing.  
-- If shuffled_bank fails → fact-level binding (not just "any bank") drives the effect.
+## Interpretation
+
+- **shuffled_bank == correct_bank** — bank_size=1 per test means the 'shuffled' perturbation is a no-op (n<2 guard). Shuffled is NOT an independent negative control at this bank_size.
+- **random_K_correct_V > correct_bank** — post-RoPE K is position-specific (RoPE encodes write-time token positions). The correct K captured at write time does not generalise to the query's read-time positions, so K addressing is unreliable in `post_rope` mode. V carries the factual content; once injected it shifts logits toward the target regardless of attention routing.
+- **correct_K_random_V is worst** — correct K gets high attention weight but injects random V → strong noise, negative margin.
+- **Design note:** a bank_size > 1 shuffled experiment would be needed to test fact-level binding meaningfully. Pre-RoPE K (position-invariant) would be needed for stable K-based addressing, but Gemma-4-31B's native V-norm makes pre_rope V injection ineffective.
 
 ## Files
 
