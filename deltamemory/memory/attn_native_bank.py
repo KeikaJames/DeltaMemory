@@ -839,6 +839,7 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
                 out_orig = torch.matmul(w_orig, v_repeat)
                 out_bank = torch.matmul(w_bank, alpha * mv_e)
                 # Diagnostics for separate-softmax branch.
+                import deltamemory.diagnostics as _diag_mod  # noqa: PLC0415
                 if _diag_mod._RECORDER is not None:
                     _diag_mod._RECORDER.record_bank_readout(layer_idx, out_bank, out_orig)
                 attn_out = (out_orig + beta * out_bank).transpose(1, 2).contiguous()
