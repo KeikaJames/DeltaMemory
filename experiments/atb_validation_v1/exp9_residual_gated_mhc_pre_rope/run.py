@@ -35,8 +35,10 @@ Restart from saved best config (after A1+A2 done):
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import csv
 import json
+import multiprocessing
 import sys
 from pathlib import Path
 
@@ -57,6 +59,57 @@ _ALL_VARIANTS = ["correct_bank", "shuffled_bank", "random_kv",
 _A1_VARIANTS = ["correct_bank", "random_kv", "random_K_correct_V"]
 _STRESS_VARIANTS = ["correct_bank", "random_kv", "random_K_correct_V"]
 _PHASE_C_ALPHAS = [0.10, 0.20, 0.50, 1.00]
+
+
+# ---------------------------------------------------------------------------
+# Multi-GPU dispatch helpers
+
+def _worker_run_one(kwargs: dict) -> tuple[str, str]:
+    """ProcessPoolExecutor worker: run one multi_bank_runner.run() task.
+
+    Receives a dict of kwargs for multi_bank_runner.run() plus the reserved
+    key ``_tag``.  Returns ``(tag, str(results_path))``.
+    """
+    tag = kwargs.pop("_tag")
+    result_path = multi_bank_runner.run(**kwargs)
+    return tag, str(result_path)
+
+
+def _dispatch(items: list[dict], devices: list[str]) -> list[tuple[str, str]]:
+    """Run items in parallel across devices.
+
+    Creates one single-worker sub-pool per device and distributes items
+    round-robin.  Each task runs in a fresh forked process so CUDA memory
+    is fully reclaimed between configs.  Falls back to in-process sequential
+    execution when only one device is given.
+
+    Returns list of ``(tag, results_path_str)`` in completion order.
+    """
+    if len(devices) == 1:
+        results = []
+        for item in items:
+            item = dict(item)
+            item["device"] = devices[0]
+            results.append(_worker_run_one(item))
+        return results
+
+    ctx = multiprocessing.get_context("fork")
+    pools = [
+        concurrent.futures.ProcessPoolExecutor(
+            max_workers=1, max_tasks_per_child=1, mp_context=ctx
+        )
+        for _ in devices
+    ]
+    try:
+        futures: list[concurrent.futures.Future] = []
+        for i, item in enumerate(items):
+            item = dict(item)
+            item["device"] = devices[i % len(devices)]
+            futures.append(pools[i % len(devices)].submit(_worker_run_one, item))
+        return [f.result() for f in concurrent.futures.as_completed(futures)]
+    finally:
+        for p in pools:
+            p.shutdown(wait=True)
 
 
 # ---------------------------------------------------------------------------
@@ -164,11 +217,12 @@ def _gap_score(out_dir: Path, control_names: list[str] | None = None) -> float:
 # ---------------------------------------------------------------------------
 # Phase A1
 
-def _run_phase_a1(args, cf_path: Path, seeds: list[int]) -> list[dict]:
+def _run_phase_a1(args, cf_path: Path, seeds: list[int], devices: list[str]) -> list[dict]:
     """Beta × mode grid smoke with 3 key variants, n=100. Returns scored configs."""
     print("\n=== Phase A1: beta × mode grid smoke (n=100, 3 variants) ===")
     base_out = Path(args.out) / "phase_a1"
-    results: list[dict] = []
+    work_items: list[dict] = []
+    item_meta: list[dict] = []
 
     for mode in _MODES:
         for beta in _BETAS:
@@ -180,26 +234,32 @@ def _run_phase_a1(args, cf_path: Path, seeds: list[int]) -> list[dict]:
                             variants, args.bank_size,
                             {"phase": "A1", "mode": mode, "beta": beta,
                              "kappa": args.kappa, "n_prompts": args.n_prompts_smoke})
-            res = multi_bank_runner.run(
-                model_name=args.model,
-                dtype=args.dtype,
-                device=args.device,
-                counterfact_path=cf_path,
-                variants=variants,
-                seeds=seeds,
-                out_dir=out_dir,
-                bank_size=args.bank_size,
-                n_prompts=args.n_prompts_smoke,
-            )
-            aggregate(res, experiment=f"{EXPERIMENT}_a1_{tag}",
-                      model=args.model, dataset=cf_path.name, out_dir=out_dir)
-            # A1 gap uses only the 3 key control variants
-            score = _gap_score(out_dir, control_names=["random_kv", "random_K_correct_V"])
-            margins = _read_variant_margins(out_dir)
-            correct_m = margins.get("correct_bank", float("nan"))
-            print(f"  mode={mode} beta={beta}: correct={correct_m:.4f}  A1-gap={score:.4f}")
-            results.append({"mode": mode, "beta": beta, "gap_a1": score,
-                            "out_dir": str(out_dir)})
+            work_items.append({
+                "_tag": tag,
+                "model_name": args.model,
+                "dtype": args.dtype,
+                "counterfact_path": cf_path,
+                "variants": variants,
+                "seeds": seeds,
+                "out_dir": out_dir,
+                "bank_size": args.bank_size,
+                "n_prompts": args.n_prompts_smoke,
+            })
+            item_meta.append({"mode": mode, "beta": beta, "out_dir": out_dir, "tag": tag})
+
+    tag_to_path = {tag: Path(p) for tag, p in _dispatch(work_items, devices)}
+
+    results: list[dict] = []
+    for meta in item_meta:
+        tag, out_dir = meta["tag"], meta["out_dir"]
+        mode, beta = meta["mode"], meta["beta"]
+        aggregate(tag_to_path[tag], experiment=f"{EXPERIMENT}_a1_{tag}",
+                  model=args.model, dataset=cf_path.name, out_dir=out_dir)
+        score = _gap_score(out_dir, control_names=["random_kv", "random_K_correct_V"])
+        correct_m = _read_variant_margins(out_dir).get("correct_bank", float("nan"))
+        print(f"  mode={mode} beta={beta}: correct={correct_m:.4f}  A1-gap={score:.4f}")
+        results.append({"mode": mode, "beta": beta, "gap_a1": score,
+                        "out_dir": str(out_dir)})
 
     # Select top 2 by A1 gap score.
     results.sort(key=lambda x: x["gap_a1"], reverse=True)
@@ -216,11 +276,12 @@ def _run_phase_a1(args, cf_path: Path, seeds: list[int]) -> list[dict]:
 # Phase A2
 
 def _run_phase_a2(args, cf_path: Path, seeds: list[int],
-                  top2_configs: list[dict]) -> dict:
+                  top2_configs: list[dict], devices: list[str]) -> dict:
     """Full 5-variant smoke for top 2 A1 configs. Returns best config."""
     print("\n=== Phase A2: full controls smoke (n=100, all 5 variants) ===")
     base_out = Path(args.out) / "phase_a2"
-    results: list[dict] = []
+    work_items: list[dict] = []
+    item_meta: list[dict] = []
 
     for i, cfg in enumerate(top2_configs):
         mode = cfg["mode"]
@@ -233,22 +294,29 @@ def _run_phase_a2(args, cf_path: Path, seeds: list[int],
                         variants, args.bank_size,
                         {"phase": "A2", "mode": mode, "beta": beta,
                          "kappa": args.kappa, "n_prompts": args.n_prompts_smoke})
-        res = multi_bank_runner.run(
-            model_name=args.model,
-            dtype=args.dtype,
-            device=args.device,
-            counterfact_path=cf_path,
-            variants=variants,
-            seeds=seeds,
-            out_dir=out_dir,
-            bank_size=args.bank_size,
-            n_prompts=args.n_prompts_smoke,
-        )
-        aggregate(res, experiment=f"{EXPERIMENT}_a2_{tag}",
+        work_items.append({
+            "_tag": tag,
+            "model_name": args.model,
+            "dtype": args.dtype,
+            "counterfact_path": cf_path,
+            "variants": variants,
+            "seeds": seeds,
+            "out_dir": out_dir,
+            "bank_size": args.bank_size,
+            "n_prompts": args.n_prompts_smoke,
+        })
+        item_meta.append({"i": i, "mode": mode, "beta": beta, "out_dir": out_dir, "tag": tag})
+
+    tag_to_path = {tag: Path(p) for tag, p in _dispatch(work_items, devices)}
+
+    results: list[dict] = []
+    for meta in item_meta:
+        tag, out_dir = meta["tag"], meta["out_dir"]
+        mode, beta, i = meta["mode"], meta["beta"], meta["i"]
+        aggregate(tag_to_path[tag], experiment=f"{EXPERIMENT}_a2_{tag}",
                   model=args.model, dataset=cf_path.name, out_dir=out_dir)
         score = _gap_score(out_dir)  # all 5 variants
-        margins = _read_variant_margins(out_dir)
-        correct_m = margins.get("correct_bank", float("nan"))
+        correct_m = _read_variant_margins(out_dir).get("correct_bank", float("nan"))
         print(f"  config {i} (mode={mode} beta={beta}): correct={correct_m:.4f} A2-gap={score:.4f}")
         results.append({"mode": mode, "beta": beta, "gap_a2": score,
                         "out_dir": str(out_dir)})
@@ -265,28 +333,73 @@ def _run_phase_a2(args, cf_path: Path, seeds: list[int],
 # ---------------------------------------------------------------------------
 # Phase B
 
-def _run_phase_b(args, cf_path: Path, seeds: list[int], best: dict) -> None:
-    """Full 807-prompt validation with best (mode, beta)."""
+def _run_phase_b(args, cf_path: Path, seeds: list[int], best: dict,
+                 devices: list[str]) -> None:
+    """Full 807-prompt validation with best (mode, beta).
+
+    With multiple devices, seeds are split across GPUs and results merged.
+    """
     mode, beta = best["mode"], best["beta"]
     print(f"\n=== Phase B: full validation (n=807, mode={mode}, beta={beta}) ===")
     out_dir = Path(args.out) / "phase_b"
-    variants = make_variants(alpha=args.alpha, kappa=args.kappa,
-                             beta=beta, mode=mode)
-    _write_manifest(out_dir, cf_path, args.model, args.dtype, seeds,
-                    variants, args.bank_size,
-                    {"phase": "B", "mode": mode, "beta": beta,
-                     "kappa": args.kappa, "n_prompts": None})
-    res = multi_bank_runner.run(
-        model_name=args.model,
-        dtype=args.dtype,
-        device=args.device,
-        counterfact_path=cf_path,
-        variants=variants,
-        seeds=seeds,
-        out_dir=out_dir,
-        bank_size=args.bank_size,
-        n_prompts=None,
-    )
+
+    if len(devices) > 1:
+        # Split seeds across GPUs: [0,2] → GPU0, [1] → GPU1 (for 3 seeds, 2 GPUs)
+        chunks = [seeds[i::len(devices)] for i in range(len(devices))]
+        chunks = [c for c in chunks if c]
+        work_items: list[dict] = []
+        part_dirs: list[Path] = []
+        for i, chunk in enumerate(chunks):
+            part_dir = Path(args.out) / f"phase_b_part{i}"
+            part_dirs.append(part_dir)
+            variants = make_variants(alpha=args.alpha, kappa=args.kappa,
+                                     beta=beta, mode=mode)
+            _write_manifest(part_dir, cf_path, args.model, args.dtype, chunk,
+                            variants, args.bank_size,
+                            {"phase": "B", "mode": mode, "beta": beta,
+                             "kappa": args.kappa, "n_prompts": None,
+                             "seed_chunk": chunk})
+            work_items.append({
+                "_tag": f"phase_b_part{i}",
+                "model_name": args.model,
+                "dtype": args.dtype,
+                "counterfact_path": cf_path,
+                "variants": variants,
+                "seeds": chunk,
+                "out_dir": part_dir,
+                "bank_size": args.bank_size,
+                "n_prompts": None,
+            })
+        _dispatch(work_items, devices)
+
+        # Merge per-GPU results.jsonl into a single Phase B results file.
+        out_dir.mkdir(parents=True, exist_ok=True)
+        merged_path = out_dir / "results.jsonl"
+        with open(merged_path, "w") as fout:
+            for d in part_dirs:
+                src = d / "results.jsonl"
+                if src.exists():
+                    fout.write(src.read_text())
+        res = merged_path
+    else:
+        variants = make_variants(alpha=args.alpha, kappa=args.kappa,
+                                 beta=beta, mode=mode)
+        _write_manifest(out_dir, cf_path, args.model, args.dtype, seeds,
+                        variants, args.bank_size,
+                        {"phase": "B", "mode": mode, "beta": beta,
+                         "kappa": args.kappa, "n_prompts": None})
+        res = multi_bank_runner.run(
+            model_name=args.model,
+            dtype=args.dtype,
+            device=devices[0],
+            counterfact_path=cf_path,
+            variants=variants,
+            seeds=seeds,
+            out_dir=out_dir,
+            bank_size=args.bank_size,
+            n_prompts=None,
+        )
+
     summary = aggregate(res, experiment=f"{EXPERIMENT}_phase_b",
                         model=args.model, dataset=cf_path.name, out_dir=out_dir)
     append_to_global(summary, ROOT / "experiments" / "atb_validation_v1" / "SUMMARY.csv")
@@ -297,11 +410,14 @@ def _run_phase_b(args, cf_path: Path, seeds: list[int], best: dict) -> None:
 # ---------------------------------------------------------------------------
 # Phase C
 
-def _run_phase_c(args, cf_path: Path, seeds: list[int], best: dict) -> None:
+def _run_phase_c(args, cf_path: Path, seeds: list[int], best: dict,
+                 devices: list[str]) -> None:
     """High-alpha stress: alphas 0.10/0.20/0.50/1.00, 3 variants, n=200."""
     mode, beta = best["mode"], best["beta"]
     print(f"\n=== Phase C: alpha stress (mode={mode}, beta={beta}) ===")
     base_out = Path(args.out) / "phase_c"
+    work_items: list[dict] = []
+    alpha_metas: list[dict] = []
 
     for alpha_c in _PHASE_C_ALPHAS:
         alpha_tag = f"alpha_{alpha_c:.2f}".replace(".", "_")
@@ -312,18 +428,24 @@ def _run_phase_c(args, cf_path: Path, seeds: list[int], best: dict) -> None:
                         variants, args.bank_size,
                         {"phase": "C", "mode": mode, "beta": beta,
                          "kappa": args.kappa, "alpha": alpha_c, "n_prompts": 200})
-        res = multi_bank_runner.run(
-            model_name=args.model,
-            dtype=args.dtype,
-            device=args.device,
-            counterfact_path=cf_path,
-            variants=variants,
-            seeds=seeds,
-            out_dir=out_dir,
-            bank_size=args.bank_size,
-            n_prompts=200,
-        )
-        summary = aggregate(res, experiment=f"{EXPERIMENT}_phase_c_{alpha_tag}",
+        work_items.append({
+            "_tag": alpha_tag,
+            "model_name": args.model,
+            "dtype": args.dtype,
+            "counterfact_path": cf_path,
+            "variants": variants,
+            "seeds": seeds,
+            "out_dir": out_dir,
+            "bank_size": args.bank_size,
+            "n_prompts": 200,
+        })
+        alpha_metas.append({"alpha": alpha_c, "tag": alpha_tag, "out_dir": out_dir})
+
+    tag_to_path = {tag: Path(p) for tag, p in _dispatch(work_items, devices)}
+
+    for meta in alpha_metas:
+        alpha_c, tag, out_dir = meta["alpha"], meta["tag"], meta["out_dir"]
+        summary = aggregate(tag_to_path[tag], experiment=f"{EXPERIMENT}_phase_c_{tag}",
                             model=args.model, dataset=cf_path.name, out_dir=out_dir)
         append_to_global(summary, ROOT / "experiments" / "atb_validation_v1" / "SUMMARY.csv")
         gap = _gap_score(out_dir, control_names=["random_kv", "random_K_correct_V"])
@@ -338,7 +460,13 @@ def main() -> int:  # noqa: C901
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--model", required=True)
     ap.add_argument("--dtype", default="bf16")
-    ap.add_argument("--device", default="cuda")
+    ap.add_argument("--device", default="cuda",
+                    help="Default device when --devices is not given.")
+    ap.add_argument("--devices", default=None,
+                    help="Comma-separated CUDA device list for multi-GPU parallelism, "
+                         "e.g. cuda:0,cuda:1.  Overrides --device when provided. "
+                         "Phase A1 (10 configs) and A2 (2 configs) run in parallel "
+                         "across GPUs; Phase B splits seeds; Phase C splits alphas.")
     ap.add_argument("--seeds", default="0,1,2")
     ap.add_argument("--alpha", type=float, default=0.05,
                     help="Primary alpha (A1, A2, B). Phase C sweeps its own alphas.")
@@ -361,6 +489,8 @@ def main() -> int:  # noqa: C901
 
     cf_path = Path(args.counterfact)
     seeds = [int(s) for s in args.seeds.split(",")]
+    devices = ([d.strip() for d in args.devices.split(",") if d.strip()]
+               if args.devices else [args.device])
     Path(args.out).mkdir(parents=True, exist_ok=True)
 
     # Determine best config if provided externally.
@@ -377,7 +507,7 @@ def main() -> int:  # noqa: C901
 
     # --- Phase A1 ---
     if run_all or args.phase == "A1":
-        top2 = _run_phase_a1(args, cf_path, seeds)
+        top2 = _run_phase_a1(args, cf_path, seeds, devices)
     else:
         a1_path = Path(args.out) / "phase_a1_selection.json"
         if a1_path.exists():
@@ -389,7 +519,7 @@ def main() -> int:  # noqa: C901
 
     # --- Phase A2 ---
     if run_all or args.phase == "A2":
-        best_config = _run_phase_a2(args, cf_path, seeds, top2)
+        best_config = _run_phase_a2(args, cf_path, seeds, top2, devices)
 
     if best_config is None:
         raise RuntimeError(
@@ -398,11 +528,11 @@ def main() -> int:  # noqa: C901
 
     # --- Phase B ---
     if run_all or args.phase == "B":
-        _run_phase_b(args, cf_path, seeds, best_config)
+        _run_phase_b(args, cf_path, seeds, best_config, devices)
 
     # --- Phase C ---
     if run_all or args.phase == "C":
-        _run_phase_c(args, cf_path, seeds, best_config)
+        _run_phase_c(args, cf_path, seeds, best_config, devices)
 
     print("\nExp9 complete.")
     return 0
