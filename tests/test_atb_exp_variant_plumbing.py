@@ -23,7 +23,12 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from deltamemory.memory.attn_native_bank import AttnNativeBank
-from experiments.atb_validation_v1._lib import Variant
+from deltamemory.memory.lopi import LOPIConfig, LOPIState
+from experiments.atb_validation_v1._lib import (
+    Variant,
+    apply_variant_bank_config,
+    variant_uses_dynamic_lopi,
+)
 from experiments.atb_validation_v1._lib.multi_bank_runner import clone_bank
 
 
@@ -82,6 +87,37 @@ def test_variant_to_dict_includes_all_exp9_fields():
     assert d["bank_merge_beta"] == 0.1
 
 
+def test_variant_has_lopi_fields():
+    v = Variant(name="test", alpha=0.05)
+    assert hasattr(v, "lopi_enabled")
+    assert hasattr(v, "lopi_orthogonal")
+    assert hasattr(v, "lopi_gaussian")
+    assert hasattr(v, "lopi_derivative")
+    assert hasattr(v, "lopi_profile_mode")
+    assert v.lopi_enabled is False
+    assert v.lopi_orthogonal is False
+    assert v.lopi_gaussian is True
+    assert v.lopi_derivative is True
+    assert v.lopi_profile_mode == "auto"
+
+
+def test_variant_to_dict_includes_lopi_fields():
+    v = Variant(
+        name="dynlopi",
+        lopi_enabled=True,
+        lopi_orthogonal=True,
+        lopi_gaussian=False,
+        lopi_derivative=False,
+        lopi_profile_mode="static",
+    )
+    d = v.to_dict()
+    assert d["lopi_enabled"] is True
+    assert d["lopi_orthogonal"] is True
+    assert d["lopi_gaussian"] is False
+    assert d["lopi_derivative"] is False
+    assert d["lopi_profile_mode"] == "static"
+
+
 # ---------------------------------------------------------------------------
 # 2. clone_bank propagates sep/beta/mhc fields
 
@@ -107,6 +143,72 @@ def test_clone_bank_default_fields():
     assert cloned.bank_merge_beta == 1.0
     assert cloned.mhc_shield is False
     assert cloned.mhc_kappa == 1.0
+
+
+def test_clone_bank_copies_lopi_cfg_with_fresh_state():
+    bank = _make_bank()
+    profile = object()
+    bank.lopi_cfg = LOPIConfig(
+        enabled=True,
+        orthogonal=True,
+        gaussian=False,
+        derivative=False,
+        profile_mode="static",
+    )
+    bank.lopi_state = LOPIState(num_layers=bank.num_layers)
+    bank.lopi_state.prev_residual_norms[0] = 123.0
+    bank.lopi_state.profile = profile
+
+    cloned = clone_bank(bank)
+
+    assert cloned.lopi_cfg is not bank.lopi_cfg
+    assert cloned.lopi_cfg.enabled is True
+    assert cloned.lopi_cfg.orthogonal is True
+    assert cloned.lopi_cfg.gaussian is False
+    assert cloned.lopi_cfg.derivative is False
+    assert cloned.lopi_cfg.profile_mode == "static"
+    assert cloned.lopi_state is not bank.lopi_state
+    assert cloned.lopi_state.prev_residual_norms == {}
+    assert cloned.lopi_state.profile is profile
+
+
+def test_apply_variant_bank_config_propagates_lopi_mhc_beta():
+    bank = _make_bank()
+    v = Variant(
+        name="dynlopi_mhc_beta",
+        mhc_shield=True,
+        mhc_kappa=0.25,
+        bank_separate_softmax=True,
+        bank_merge_beta=0.1,
+        lopi_enabled=True,
+        lopi_orthogonal=True,
+        lopi_gaussian=False,
+        lopi_derivative=False,
+        lopi_profile_mode="static",
+    )
+
+    apply_variant_bank_config(bank, v)
+
+    assert bank.mhc_shield is True
+    assert bank.mhc_kappa == 0.25
+    assert bank.bank_separate_softmax is True
+    assert bank.bank_merge_beta == 0.1
+    assert bank.lopi_cfg.enabled is True
+    assert bank.lopi_cfg.orthogonal is True
+    assert bank.lopi_cfg.gaussian is False
+    assert bank.lopi_cfg.derivative is False
+    assert bank.lopi_cfg.profile_mode == "static"
+    assert variant_uses_dynamic_lopi(v) is True
+
+
+def test_mhc_beta_do_not_require_forward_sequence_preservation():
+    v = Variant(
+        name="mhc_beta",
+        mhc_shield=True,
+        mhc_kappa=0.25,
+        bank_merge_beta=0.1,
+    )
+    assert variant_uses_dynamic_lopi(v) is False
 
 
 # ---------------------------------------------------------------------------

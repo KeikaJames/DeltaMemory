@@ -24,6 +24,7 @@ import math
 import random
 import sys
 import time
+import copy
 from pathlib import Path
 from typing import Any, Optional
 
@@ -35,6 +36,7 @@ sys.path.insert(0, str(ROOT))
 
 from . import (
     Variant,
+    apply_variant_bank_config,
     evaluate_prompt,
     filter_cf_for_tokenizer,
     first_token_id,
@@ -42,6 +44,7 @@ from . import (
     load_model,
     neutral_prompts,
     seed_everything,
+    variant_uses_dynamic_lopi,
     _js_nats,
     _kl_nats,
     _last_k_logsoftmax,
@@ -79,6 +82,15 @@ def clone_bank(bank):
     new.mhc_kappa = getattr(bank, "mhc_kappa", 1.0)
     new.bank_separate_softmax = getattr(bank, "bank_separate_softmax", False)
     new.bank_merge_beta = getattr(bank, "bank_merge_beta", 1.0)
+    src_cfg = getattr(bank, "lopi_cfg", None)
+    if src_cfg is not None:
+        new.lopi_cfg = copy.deepcopy(src_cfg)
+    src_state = getattr(bank, "lopi_state", None)
+    if src_state is not None:
+        from deltamemory.memory.lopi import LOPIState
+
+        new.lopi_state = LOPIState(num_layers=bank.num_layers)
+        new.lopi_state.profile = getattr(src_state, "profile", None)
     return new
 
 
@@ -243,11 +255,7 @@ def run(
                 value_scale_mode=variant.value_scale_mode,
             )
             apply_perturbation(drift_bank, variant.bank_perturbation, seed)
-            # Propagate mHC settings so drift measurement uses the same shield config.
-            drift_bank.mhc_shield = getattr(variant, "mhc_shield", False)
-            drift_bank.mhc_kappa = getattr(variant, "mhc_kappa", 1.0)
-            drift_bank.bank_separate_softmax = getattr(variant, "bank_separate_softmax", False)
-            drift_bank.bank_merge_beta = getattr(variant, "bank_merge_beta", 1.0)
+            apply_variant_bank_config(drift_bank, variant, reset_lopi=True)
             js_vals: list[float] = []
             kl_vals: list[float] = []
             patcher.install()
@@ -338,20 +346,17 @@ def run(
                                     patcher, model, tok, all_facts,
                                     bank_key_mode=variant.bank_key_mode,
                                     value_scale_mode=variant.value_scale_mode,
-                                )
+                            )
                             apply_perturbation(bank, variant.bank_perturbation, seed)
-                            # Propagate mHC shield settings from variant.
-                            bank.mhc_shield = getattr(variant, "mhc_shield", False)
-                            bank.mhc_kappa = getattr(variant, "mhc_kappa", 1.0)
-                            bank.bank_separate_softmax = getattr(variant, "bank_separate_softmax", False)
-                            bank.bank_merge_beta = getattr(variant, "bank_merge_beta", 1.0)
+                            apply_variant_bank_config(bank, variant, reset_lopi=True)
                             # Inject and evaluate.
                             patcher.install()
                             patcher.bank = bank
                             patcher.alpha = float(variant.alpha)
                             try:
                                 mp = evaluate_prompt(model, tok, query,
-                                                     target_new, target_true, device)
+                                                     target_new, target_true, device,
+                                                     preserve_forward_sequence=variant_uses_dynamic_lopi(variant))
                             finally:
                                 patcher.bank = None
                                 patcher.alpha = 0.0
@@ -375,6 +380,11 @@ def run(
                         "mhc_kappa": getattr(variant, "mhc_kappa", 1.0),
                         "bank_separate_softmax": getattr(variant, "bank_separate_softmax", False),
                         "bank_merge_beta": getattr(variant, "bank_merge_beta", 1.0),
+                        "lopi_enabled": getattr(variant, "lopi_enabled", False),
+                        "lopi_orthogonal": getattr(variant, "lopi_orthogonal", False),
+                        "lopi_gaussian": getattr(variant, "lopi_gaussian", True),
+                        "lopi_derivative": getattr(variant, "lopi_derivative", True),
+                        "lopi_profile_mode": getattr(variant, "lopi_profile_mode", "auto"),
                         "seed": seed,
                         "prompt_id": pid,
                         "subject": prow["subject"],

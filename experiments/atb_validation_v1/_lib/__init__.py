@@ -72,10 +72,60 @@ class Variant:
     mhc_kappa: float = 1.0
     bank_separate_softmax: bool = False
     bank_merge_beta: float = 1.0
+    lopi_enabled: bool = False
+    lopi_orthogonal: bool = False
+    lopi_gaussian: bool = True
+    lopi_derivative: bool = True
+    lopi_profile_mode: str = "auto"
     description: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return dataclasses.asdict(self)
+
+
+def variant_uses_dynamic_lopi(variant: Variant) -> bool:
+    """Return True when a variant requires LOPI's forward-state semantics."""
+    return bool(getattr(variant, "lopi_enabled", False))
+
+
+def apply_variant_bank_config(
+    bank: Any,
+    variant: Variant,
+    *,
+    reset_lopi: bool = True,
+) -> None:
+    """Apply read-time variant knobs to a bank without changing K/V contents."""
+    bank.mhc_shield = getattr(variant, "mhc_shield", False)
+    bank.mhc_kappa = getattr(variant, "mhc_kappa", 1.0)
+    bank.bank_separate_softmax = getattr(variant, "bank_separate_softmax", False)
+    bank.bank_merge_beta = getattr(variant, "bank_merge_beta", 1.0)
+
+    from deltamemory.memory.lopi import LOPIConfig, LOPIState
+
+    old_state = getattr(bank, "lopi_state", None)
+    profile = getattr(old_state, "profile", None)
+    if variant_uses_dynamic_lopi(variant):
+        bank.lopi_cfg = LOPIConfig(
+            enabled=True,
+            orthogonal=bool(getattr(variant, "lopi_orthogonal", False)),
+            gaussian=bool(getattr(variant, "lopi_gaussian", True)),
+            derivative=bool(getattr(variant, "lopi_derivative", True)),
+            profile_mode=str(getattr(variant, "lopi_profile_mode", "auto")),
+        )
+        if reset_lopi or old_state is None:
+            bank.lopi_state = LOPIState(num_layers=bank.num_layers)
+        else:
+            bank.lopi_state = old_state
+            bank.lopi_state.reset()
+        bank.lopi_state.profile = profile
+    else:
+        bank.lopi_cfg = LOPIConfig()
+        if reset_lopi or old_state is None:
+            bank.lopi_state = LOPIState(num_layers=bank.num_layers)
+        else:
+            bank.lopi_state = old_state
+            bank.lopi_state.reset()
+        bank.lopi_state.profile = profile
 
 
 # ---------------------------------------------------------------------------
@@ -175,6 +225,44 @@ def first_token_rank(
     return rank, float(logp[target_first_id].item())
 
 
+@torch.no_grad()
+def _continuation_logp_with_prompt_last_logits(
+    model: Any,
+    tok: Any,
+    prompt: str,
+    target: str,
+    device: str,
+) -> tuple[float, list[int], torch.Tensor | None]:
+    """Return continuation logp plus the prompt-last logits from the same pass.
+
+    A causal LM's logits at ``prompt_len - 1`` are independent of future target
+    tokens, so the first-token rank can reuse this tensor instead of running a
+    separate prompt-only forward. This keeps ATB cell metrics unchanged while
+    reducing ``evaluate_prompt`` from three model forwards to two.
+    """
+    prompt_ids = tok.encode(prompt, add_special_tokens=True)
+    sep = "" if (prompt.endswith(" ") or not prompt) else " "
+    full_ids = tok.encode(prompt + sep + target, add_special_tokens=True)
+    if len(full_ids) <= len(prompt_ids):
+        return float("nan"), [], None
+    target_ids = full_ids[len(prompt_ids):]
+    ids = torch.tensor([full_ids], device=device)
+    out = model(input_ids=ids, use_cache=False)
+    logits = out.logits[0].float()
+    logp = F.log_softmax(logits, dim=-1)
+    total = 0.0
+    for i, tid in enumerate(target_ids):
+        total += float(logp[len(prompt_ids) - 1 + i, tid].item())
+    return total, target_ids, logits[len(prompt_ids) - 1].detach()
+
+
+def _rank_from_logits(logits: torch.Tensor, target_first_id: int) -> tuple[int, float]:
+    logp = F.log_softmax(logits.float(), dim=-1)
+    sorted_ids = torch.argsort(logits, descending=True)
+    rank = int((sorted_ids == target_first_id).nonzero(as_tuple=False).item())
+    return rank, float(logp[target_first_id].item())
+
+
 # ---------------------------------------------------------------------------
 # Per-prompt evaluation
 
@@ -194,12 +282,30 @@ def evaluate_prompt(
     target_new: str,
     target_true: str,
     device: str,
+    preserve_forward_sequence: bool = False,
 ) -> dict[str, Any]:
     """Compute the per-prompt metric pack."""
-    logp_new, ids_new = continuation_logp(model, tok, prompt, target_new, device)
+    if preserve_forward_sequence:
+        logp_new, ids_new = continuation_logp(model, tok, prompt, target_new, device)
+        logp_true, _ = continuation_logp(model, tok, prompt, target_true, device)
+        target_new_first = ids_new[0] if ids_new else -1
+        rank, _ = first_token_rank(model, tok, prompt, target_new_first, device)
+        return {
+            "target_new_logprob": logp_new,
+            "target_true_logprob": logp_true,
+            "margin": logp_new - logp_true,
+            "target_rank": rank,
+            "recall_at_1": (rank == 0),
+        }
+    logp_new, ids_new, prompt_last_logits = _continuation_logp_with_prompt_last_logits(
+        model, tok, prompt, target_new, device
+    )
     logp_true, _ = continuation_logp(model, tok, prompt, target_true, device)
     target_new_first = ids_new[0] if ids_new else -1
-    rank, _ = first_token_rank(model, tok, prompt, target_new_first, device)
+    if prompt_last_logits is None:
+        rank, _ = first_token_rank(model, tok, prompt, target_new_first, device)
+    else:
+        rank, _ = _rank_from_logits(prompt_last_logits, target_new_first)
     return {
         "target_new_logprob": logp_new,
         "target_true_logprob": logp_true,
@@ -356,6 +462,7 @@ class VariantContext:
         # patcher reads ``bank_key_mode`` / ``value_scale_mode`` per-call.
         self._bank.value_scale_mode = variant.value_scale_mode
         self._bank.bank_key_mode = variant.bank_key_mode
+        apply_variant_bank_config(self._bank, variant, reset_lopi=True)
         for fact in facts:
             write_fact(
                 self._patcher,
