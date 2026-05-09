@@ -93,7 +93,7 @@ def _dispatch(items: list[dict], devices: list[str]) -> list[tuple[str, str]]:
             results.append(_worker_run_one(item))
         return results
 
-    ctx = multiprocessing.get_context("fork")
+    ctx = multiprocessing.get_context("spawn")
     pools = [
         concurrent.futures.ProcessPoolExecutor(
             max_workers=1, max_tasks_per_child=1, mp_context=ctx
@@ -380,6 +380,15 @@ def _run_phase_b(args, cf_path: Path, seeds: list[int], best: dict,
                 src = d / "results.jsonl"
                 if src.exists():
                     fout.write(src.read_text())
+        # Write combined manifest for the merged Phase B directory.
+        _write_manifest(out_dir, cf_path, args.model, args.dtype, seeds,
+                        make_variants(alpha=args.alpha, kappa=args.kappa,
+                                      beta=beta, mode=mode),
+                        args.bank_size,
+                        {"phase": "B", "mode": mode, "beta": beta,
+                         "kappa": args.kappa, "n_prompts": None,
+                         "multi_gpu": True, "devices": devices,
+                         "seed_chunks": [c for c in chunks if c]})
         res = merged_path
     else:
         variants = make_variants(alpha=args.alpha, kappa=args.kappa,
