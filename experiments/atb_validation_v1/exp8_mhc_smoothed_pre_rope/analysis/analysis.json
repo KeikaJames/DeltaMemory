@@ -203,62 +203,62 @@
   ],
   "phase_b": {
     "kappa": 0.25,
-    "n_total": 15,
+    "n_total": 12105,
     "variants": {
       "correct_bank": {
-        "n": 3,
+        "n": 2421,
         "recall_at_1": 0.0,
-        "mean_margin": 0.0632464090983073,
-        "ci_lo": -0.3782691955566406,
-        "ci_hi": 0.8447589874267578,
-        "median_margin": -0.2767505645751953,
+        "mean_margin": -0.5420660848511196,
+        "ci_lo": -0.6506204596239394,
+        "ci_hi": -0.43440371062429617,
+        "median_margin": -0.45683956146240234,
         "js_drift": 0.3629755723103881,
         "kl_drift": 3.213686110973358,
-        "mean_target_rank": 6186.0
+        "mean_target_rank": 16976.506402313094
       },
       "shuffled_bank": {
-        "n": 3,
+        "n": 2421,
         "recall_at_1": 0.0,
-        "mean_margin": -0.1872549057006836,
-        "ci_lo": -0.6638422012329102,
-        "ci_hi": 0.3018798828125,
-        "median_margin": -0.19980239868164062,
+        "mean_margin": -0.5471199396866897,
+        "ci_lo": -0.6580528251792911,
+        "ci_hi": -0.4379288527848355,
+        "median_margin": -0.49239158630371094,
         "js_drift": 0.3631290146522224,
         "kl_drift": 3.213491581082344,
-        "mean_target_rank": 5088.0
+        "mean_target_rank": 16883.002478314746
       },
       "random_kv": {
-        "n": 3,
+        "n": 2421,
         "recall_at_1": 0.0,
-        "mean_margin": 0.48440996805826825,
-        "ci_lo": 0.2630586624145508,
-        "ci_hi": 0.6778192520141602,
-        "median_margin": 0.5123519897460938,
-        "js_drift": 0.3055832577496767,
-        "kl_drift": 1.9877751928567886,
-        "mean_target_rank": 1463.3333333333333
+        "mean_margin": -0.22069268136022505,
+        "ci_lo": -0.3434580929365004,
+        "ci_hi": -0.09183782508973,
+        "median_margin": -0.20337677001953125,
+        "js_drift": 0.3295858981087804,
+        "kl_drift": 2.2466548225283622,
+        "mean_target_rank": 11236.830648492358
       },
       "correct_K_random_V": {
-        "n": 3,
+        "n": 2421,
         "recall_at_1": 0.0,
-        "mean_margin": 1.2533162434895833,
-        "ci_lo": 0.39316749572753906,
-        "ci_hi": 2.884418487548828,
-        "median_margin": 0.4823627471923828,
-        "js_drift": 0.3618389986641705,
-        "kl_drift": 3.260421297252178,
-        "mean_target_rank": 4964.333333333333
+        "mean_margin": -0.48739932283592935,
+        "ci_lo": -0.5970657806857368,
+        "ci_hi": -0.3773415756343761,
+        "median_margin": -0.3923177719116211,
+        "js_drift": 0.36208216318860653,
+        "kl_drift": 3.233426906019449,
+        "mean_target_rank": 17645.546881453945
       },
       "random_K_correct_V": {
-        "n": 3,
+        "n": 2421,
         "recall_at_1": 0.0,
-        "mean_margin": 1.3502864837646484,
-        "ci_lo": -0.4362659454345703,
-        "ci_hi": 3.2221975326538086,
-        "median_margin": 1.264927864074707,
-        "js_drift": 0.3059061749279499,
-        "kl_drift": 2.070381393134594,
-        "mean_target_rank": 1825.3333333333333
+        "mean_margin": -0.25867763121036497,
+        "ci_lo": -0.3817030339632976,
+        "ci_hi": -0.13310297852161254,
+        "median_margin": -0.17514705657958984,
+        "js_drift": 0.31898213211447,
+        "kl_drift": 2.203957845469316,
+        "mean_target_rank": 10561.51053283767
       }
     },
     "correct_dominates": false,
@@ -266,5 +266,186 @@
     "pattern_v_dominates": true,
     "pattern_k_addressing": false
   },
-  "phase_c": []
+  "phase_c": [
+    {
+      "alpha_dir": "/Users/gabiri/projects/RCV-HC/experiments/atb_validation_v1/exp8_mhc_smoothed_pre_rope/run_20260508_233618/phase_c/alpha_0_10",
+      "alpha": 0.1,
+      "kappa": 0.25,
+      "n_total": 1800,
+      "variants": {
+        "correct_bank": {
+          "n": 600,
+          "recall_at_1": 0.0,
+          "mean_margin": -0.5312045022845269,
+          "ci_lo": -0.7433136524756749,
+          "ci_hi": -0.3185470744967461,
+          "median_margin": -0.6135821342468262,
+          "js_drift": 0.3650329448655248,
+          "kl_drift": 3.2598800356686115,
+          "mean_target_rank": 15409.405
+        },
+        "random_kv": {
+          "n": 600,
+          "recall_at_1": 0.0,
+          "mean_margin": -0.245016344388326,
+          "ci_lo": -0.4689321621259053,
+          "ci_hi": -0.030888066291809083,
+          "median_margin": -0.18328046798706055,
+          "js_drift": 0.32910828144599996,
+          "kl_drift": 2.2374984315037727,
+          "mean_target_rank": 9189.778333333334
+        },
+        "random_K_correct_V": {
+          "n": 600,
+          "recall_at_1": 0.0,
+          "mean_margin": -0.307809587319692,
+          "ci_lo": -0.5219924815495809,
+          "ci_hi": -0.09760644435882568,
+          "median_margin": -0.1822643280029297,
+          "js_drift": 0.31812429228176675,
+          "kl_drift": 2.1864458589752513,
+          "mean_target_rank": 9139.813333333334
+        }
+      },
+      "correct_dominates": false,
+      "strict_ci_dominance": false,
+      "pattern_v_dominates": true,
+      "pattern_k_addressing": false
+    },
+    {
+      "alpha_dir": "/Users/gabiri/projects/RCV-HC/experiments/atb_validation_v1/exp8_mhc_smoothed_pre_rope/run_20260508_233618/phase_c/alpha_0_20",
+      "alpha": 0.2,
+      "kappa": 0.25,
+      "n_total": 1800,
+      "variants": {
+        "correct_bank": {
+          "n": 600,
+          "recall_at_1": 0.0,
+          "mean_margin": -0.5625075395901998,
+          "ci_lo": -0.7818527968724569,
+          "ci_hi": -0.3444140326976776,
+          "median_margin": -0.45058584213256836,
+          "js_drift": 0.36372023168951273,
+          "kl_drift": 3.254678956270218,
+          "mean_target_rank": 13768.306666666667
+        },
+        "random_kv": {
+          "n": 600,
+          "recall_at_1": 0.0,
+          "mean_margin": -0.2777979362010956,
+          "ci_lo": -0.48936070283253985,
+          "ci_hi": -0.06872597177823385,
+          "median_margin": -0.22654008865356445,
+          "js_drift": 0.3288574627165993,
+          "kl_drift": 2.239838179896275,
+          "mean_target_rank": 9475.338333333333
+        },
+        "random_K_correct_V": {
+          "n": 600,
+          "recall_at_1": 0.0,
+          "mean_margin": -0.2816852307319641,
+          "ci_lo": -0.5123488585154216,
+          "ci_hi": -0.05636639595031738,
+          "median_margin": -0.2611517906188965,
+          "js_drift": 0.3181756719822685,
+          "kl_drift": 2.189336858441432,
+          "mean_target_rank": 9824.711666666666
+        }
+      },
+      "correct_dominates": false,
+      "strict_ci_dominance": false,
+      "pattern_v_dominates": true,
+      "pattern_k_addressing": false
+    },
+    {
+      "alpha_dir": "/Users/gabiri/projects/RCV-HC/experiments/atb_validation_v1/exp8_mhc_smoothed_pre_rope/run_20260508_233618/phase_c/alpha_0_50",
+      "alpha": 0.5,
+      "kappa": 0.25,
+      "n_total": 1800,
+      "variants": {
+        "correct_bank": {
+          "n": 600,
+          "recall_at_1": 0.0,
+          "mean_margin": -0.5079336152474085,
+          "ci_lo": -0.7357502633333206,
+          "ci_hi": -0.2838267129659653,
+          "median_margin": -0.5738959312438965,
+          "js_drift": 0.36239748131483795,
+          "kl_drift": 3.202853157967329,
+          "mean_target_rank": 13489.676666666666
+        },
+        "random_kv": {
+          "n": 600,
+          "recall_at_1": 0.0,
+          "mean_margin": -0.11851579586664836,
+          "ci_lo": -0.33949662526448565,
+          "ci_hi": 0.0975673778851827,
+          "median_margin": -0.19940567016601562,
+          "js_drift": 0.3285424046590924,
+          "kl_drift": 2.2349253578980766,
+          "mean_target_rank": 10323.59
+        },
+        "random_K_correct_V": {
+          "n": 600,
+          "recall_at_1": 0.0,
+          "mean_margin": -0.4280154999097188,
+          "ci_lo": -0.6832051134109497,
+          "ci_hi": -0.17829880793889363,
+          "median_margin": -0.25885581970214844,
+          "js_drift": 0.31822648343940574,
+          "kl_drift": 2.1866465824842454,
+          "mean_target_rank": 11484.726666666667
+        }
+      },
+      "correct_dominates": false,
+      "strict_ci_dominance": false,
+      "pattern_v_dominates": true,
+      "pattern_k_addressing": false
+    },
+    {
+      "alpha_dir": "/Users/gabiri/projects/RCV-HC/experiments/atb_validation_v1/exp8_mhc_smoothed_pre_rope/run_20260508_233618/phase_c/alpha_1_00",
+      "alpha": 1.0,
+      "kappa": 0.25,
+      "n_total": 1800,
+      "variants": {
+        "correct_bank": {
+          "n": 600,
+          "recall_at_1": 0.0,
+          "mean_margin": -0.7242062731583914,
+          "ci_lo": -0.937525887688001,
+          "ci_hi": -0.5180455428361893,
+          "median_margin": -0.6382496356964111,
+          "js_drift": 0.3614601754024625,
+          "kl_drift": 3.1973174600303174,
+          "mean_target_rank": 8532.476666666667
+        },
+        "random_kv": {
+          "n": 600,
+          "recall_at_1": 0.0,
+          "mean_margin": -0.26263303677241007,
+          "ci_lo": -0.5042393406232198,
+          "ci_hi": -0.027183205286661783,
+          "median_margin": -0.25818443298339844,
+          "js_drift": 0.3286824412023028,
+          "kl_drift": 2.237584963689248,
+          "mean_target_rank": 9756.69
+        },
+        "random_K_correct_V": {
+          "n": 600,
+          "recall_at_1": 0.0,
+          "mean_margin": -0.2689308202266693,
+          "ci_lo": -0.5797227426369985,
+          "ci_hi": 0.028831586440404258,
+          "median_margin": -0.22675418853759766,
+          "js_drift": 0.3185615100959937,
+          "kl_drift": 2.1937205092112224,
+          "mean_target_rank": 17065.945
+        }
+      },
+      "correct_dominates": false,
+      "strict_ci_dominance": false,
+      "pattern_v_dominates": true,
+      "pattern_k_addressing": false
+    }
+  ]
 }
