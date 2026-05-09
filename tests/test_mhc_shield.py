@@ -12,6 +12,7 @@ import torch
 
 from deltamemory.memory.mhc_shield import (
     shield_attention_weights,
+    shield_bank_weights,
     sinkhorn_knopp_projection,
 )
 
@@ -271,3 +272,49 @@ def test_shield_alpha_one_modifies_logits(model_bundle):
     diff = (a0 - a1).abs().max().item()
     print(f"\n[mHC shield on, α=0 vs α=1]  max-abs-diff = {diff:.3e}")
     assert diff > 1e-3, f"α=1 should still inject signal under shield (diff={diff:.3e})"
+
+
+# ---------------------------------------------------------------------------
+# shield_bank_weights — standalone bank weight tests (Exp9 / separate-softmax)
+# ---------------------------------------------------------------------------
+
+
+def test_shield_bank_weights_col_sum_capped():
+    """After shield_bank_weights, every column sum <= kappa + eps."""
+    torch.manual_seed(10)
+    B, H, T, N = 2, 4, 16, 8
+    kappa = 0.5
+    raw = torch.randn(B, H, T, N)
+    w = torch.softmax(raw, dim=-1)
+    capped = shield_bank_weights(w, kappa=kappa)
+    col_sums = capped.reshape(-1, N).sum(dim=0)
+    assert col_sums.max().item() <= kappa + 1e-5, (
+        f"col_sum exceeds kappa={kappa}: max={col_sums.max().item():.6f}"
+    )
+
+
+def test_shield_bank_weights_shape_dtype_device():
+    """shield_bank_weights preserves shape, dtype, and device."""
+    for dtype in (torch.float32, torch.bfloat16, torch.float16):
+        w = torch.rand(2, 4, 10, 6, dtype=dtype)
+        out = shield_bank_weights(w, kappa=0.25)
+        assert out.shape == w.shape, f"shape mismatch for dtype={dtype}"
+        assert out.dtype == w.dtype, f"dtype changed for dtype={dtype}"
+
+
+def test_shield_bank_weights_no_amplify_when_below_kappa():
+    """Columns already below kappa must be left untouched (scale=1)."""
+    torch.manual_seed(11)
+    B, H, T, N = 1, 1, 4, 3
+    # Build weights with very small values — col sums << 1.
+    w = torch.full((B, H, T, N), 0.01)
+    kappa = 1.0
+    out = shield_bank_weights(w, kappa=kappa)
+    assert torch.allclose(out, w, atol=1e-6), "should be unchanged when col_sum < kappa"
+
+
+def test_shield_bank_weights_large_kappa_identity():
+    """With kappa=1e7 (effectively disabled), output equals input."""
+    w = torch.rand(2, 2, 8, 5, dtype=torch.float32)
+    out = shield_bank_weights(w, kappa=1e7)
+    assert torch.allclose(out, w, atol=1e-6)

@@ -162,6 +162,45 @@ def shield_attention_weights(
     return torch.cat([native, bank_capped], dim=-1)
 
 
+def shield_bank_weights(
+    weights_bank: torch.Tensor,
+    *,
+    kappa: float = 1.0,
+    eps: float = 1e-9,
+) -> torch.Tensor:
+    """Apply mHC column-sum cap to standalone bank attention weights.
+
+    Unlike :func:`shield_attention_weights`, which expects the full merged
+    ``[seq; bank]`` weight tensor, this function accepts **only** the bank
+    portion — shape ``[B, H, T, N]`` — as produced by the separate-softmax
+    branch of :class:`~deltamemory.memory.attn_native_bank.AttnNativeBank`.
+
+    The same global column-sum cap semantics apply:
+        Σ_{b,h,t} weights_bank[b, h, t, n] ≤ kappa   for every slot n.
+
+    Args:
+        weights_bank: ``[B, H, T, N]`` post-softmax bank attention weights.
+            Must be a float tensor (any dtype; computation in float32).
+        kappa: Maximum allowed column sum.  Default 1.0 (spectral
+            non-amplification).  Smaller values suppress V injection more
+            aggressively.
+        eps: Numerical floor for column sums.
+
+    Returns:
+        Bank weights of identical shape and dtype, with each column's
+        total mass capped at ``kappa``.
+    """
+    if kappa >= 1e6:  # effectively disabled
+        return weights_bank
+    orig_dtype = weights_bank.dtype
+    bank_fp = weights_bank.to(torch.float32)
+    N = bank_fp.size(-1)
+    col_sum = bank_fp.reshape(-1, N).sum(dim=0).clamp_min(eps)  # (N,)
+    scale = (kappa / col_sum).clamp(max=1.0)                    # (N,)
+    scale = scale.reshape((1,) * (bank_fp.dim() - 1) + (N,))
+    return (bank_fp * scale).to(orig_dtype)
+
+
 def apply_shield_per_expert(
     weights: torch.Tensor,
     T_orig: int,

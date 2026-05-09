@@ -1,0 +1,12 @@
+\begin{tabular}{l r r r r r r}
+\toprule
+Variant & $n$ & Recall@1 & $\mu$ Margin & 95\% CI & $\tilde{\mu}$ Margin & JS Drift \\
+% phase=Phase A κ=1.0, kappa=1.00, alpha=0.05
+\midrule
+Correct K/V + mHC & 600 & 0.0000 & -0.5137 & [-0.7393, -0.2975] & -0.4566 & 0.3637 \\
+Correct K, Shuffled V + mHC & 600 & 0.0000 & -0.5441 & [-0.7650, -0.3303] & -0.4787 & 0.3657 \\
+Random K+V + mHC & 600 & 0.0000 & -0.2735 & [-0.4851, -0.0617] & -0.2529 & 0.3290 \\
+Correct K, Random V + mHC & 600 & 0.0000 & -0.3751 & [-0.5827, -0.1797] & -0.4825 & 0.3611 \\
+Random K, Correct V + mHC & 600 & 0.0000 & -0.2998 & [-0.5234, -0.0762] & -0.1833 & 0.3188 \\
+\bottomrule
+\end{tabular}

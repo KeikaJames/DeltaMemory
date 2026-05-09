@@ -70,6 +70,8 @@ class Variant:
     enable_scar: bool = False
     mhc_shield: bool = False
     mhc_kappa: float = 1.0
+    bank_separate_softmax: bool = False
+    bank_merge_beta: float = 1.0
     description: str = ""
 
     def to_dict(self) -> dict[str, Any]:

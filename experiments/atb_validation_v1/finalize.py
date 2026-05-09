@@ -970,6 +970,37 @@ def main():
             print("[exp8] analysis.json not found (run analyze.py after rsyncing)")
     else:
         print("[exp8] MISSING (run exp8 first)")
+
+    # Exp9 — Residual-Gated mHC AttnNativeBank
+    exp9_analysis_dir = exp_root / "exp9_residual_gated_mhc_pre_rope" / "analysis"
+    if exp9_analysis_dir.exists():
+        exp9_json = exp9_analysis_dir / "analysis.json"
+        if exp9_json.exists():
+            print(f"[exp9] loading from {exp9_json}")
+            try:
+                exp9_data = json.loads(exp9_json.read_text())
+                all_analyses["exp9"] = exp9_data
+                vd9 = exp9_data.get("verdict") or {}
+                bc9 = exp9_data.get("best_config") or {}
+                pb9 = exp9_data.get("phase_b") or {}
+                pb9_pass = vd9.get("verdict") in ("PASS_STRONG", "PASS_DIRECTIONAL")
+                pb9_strict = vd9.get("strict_ci_dominance", False)
+                verdicts["V9_residual_beta_correct_dominates"] = pb9_pass
+                verdicts["V9_residual_strict_ci"] = pb9_strict
+                verdicts["V9_verdict_label"] = vd9.get("verdict")
+                verdicts["V9_gap"] = vd9.get("gap")
+                verdicts["V9_best_mode"] = bc9.get("mode")
+                verdicts["V9_best_beta"] = bc9.get("beta")
+                verdicts["V9_pattern_v_dominates"] = vd9.get("pattern_v_dominates")
+                print(f"[exp9] verdict={vd9.get('verdict')} gap={vd9.get('gap')} "
+                      f"mode={bc9.get('mode')} beta={bc9.get('beta')}")
+            except Exception as e:
+                print(f"[exp9] WARNING: failed to parse analysis.json: {e}")
+        else:
+            print("[exp9] analysis.json not found (run analyze.py after rsyncing)")
+    else:
+        print("[exp9] MISSING (run exp9 first)")
+
     (out / "verdicts.json").write_text(json.dumps(verdicts, indent=2))
     print(f"\n[verdicts]\n{json.dumps(verdicts, indent=2)}")
 

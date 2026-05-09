@@ -1,0 +1,4 @@
+kappa,correct_bank_mean_margin,correct_bank_ci_lo,correct_bank_ci_hi,correct_dominates,strict_ci_dominance,pattern_v_dominates,pattern_k_addressing,n_total
+0.25,-0.407751384973526,-0.6239294302463532,-0.19838950534661612,False,False,True,False,3000
+0.5,-0.5137212431430817,-0.7249971453348796,-0.2994578023751577,False,False,True,False,3000
+1.0,-0.5137474310398101,-0.7393263419469197,-0.29753117442131044,False,False,True,False,3000

@@ -77,6 +77,8 @@ def clone_bank(bank):
     new.bank_temperature = getattr(bank, "bank_temperature", 1.0)
     new.mhc_shield = getattr(bank, "mhc_shield", False)
     new.mhc_kappa = getattr(bank, "mhc_kappa", 1.0)
+    new.bank_separate_softmax = getattr(bank, "bank_separate_softmax", False)
+    new.bank_merge_beta = getattr(bank, "bank_merge_beta", 1.0)
     return new
 
 
@@ -244,6 +246,8 @@ def run(
             # Propagate mHC settings so drift measurement uses the same shield config.
             drift_bank.mhc_shield = getattr(variant, "mhc_shield", False)
             drift_bank.mhc_kappa = getattr(variant, "mhc_kappa", 1.0)
+            drift_bank.bank_separate_softmax = getattr(variant, "bank_separate_softmax", False)
+            drift_bank.bank_merge_beta = getattr(variant, "bank_merge_beta", 1.0)
             js_vals: list[float] = []
             kl_vals: list[float] = []
             patcher.install()
@@ -339,6 +343,8 @@ def run(
                             # Propagate mHC shield settings from variant.
                             bank.mhc_shield = getattr(variant, "mhc_shield", False)
                             bank.mhc_kappa = getattr(variant, "mhc_kappa", 1.0)
+                            bank.bank_separate_softmax = getattr(variant, "bank_separate_softmax", False)
+                            bank.bank_merge_beta = getattr(variant, "bank_merge_beta", 1.0)
                             # Inject and evaluate.
                             patcher.install()
                             patcher.bank = bank
@@ -367,6 +373,8 @@ def run(
                         "enable_scar": variant.enable_scar,
                         "mhc_shield": getattr(variant, "mhc_shield", False),
                         "mhc_kappa": getattr(variant, "mhc_kappa", 1.0),
+                        "bank_separate_softmax": getattr(variant, "bank_separate_softmax", False),
+                        "bank_merge_beta": getattr(variant, "bank_merge_beta", 1.0),
                         "seed": seed,
                         "prompt_id": pid,
                         "subject": prow["subject"],

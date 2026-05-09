@@ -828,9 +828,19 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
             if sep:
                 w_orig = F.softmax(scores_orig, dim=-1, dtype=torch.float32).to(q_post.dtype)
                 w_bank = F.softmax(scores_bank, dim=-1, dtype=torch.float32).to(q_post.dtype)
+                # Stage 17-S: mHC column cap on separate bank weights.
+                if getattr(bank, "mhc_shield", False):
+                    from deltamemory.memory.mhc_shield import shield_bank_weights
+                    w_bank = shield_bank_weights(
+                        w_bank,
+                        kappa=float(getattr(bank, "mhc_kappa", 1.0)),
+                    )
                 beta = float(getattr(bank, "bank_merge_beta", 1.0))
                 out_orig = torch.matmul(w_orig, v_repeat)
                 out_bank = torch.matmul(w_bank, alpha * mv_e)
+                # Diagnostics for separate-softmax branch.
+                if _diag_mod._RECORDER is not None:
+                    _diag_mod._RECORDER.record_bank_readout(layer_idx, out_bank, out_orig)
                 attn_out = (out_orig + beta * out_bank).transpose(1, 2).contiguous()
                 weights = w_orig  # for downstream sanity (unused)
             else:
@@ -899,6 +909,14 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
                         lopi_state.pending_residual_norms[layer_idx] = float(
                             torch.linalg.vector_norm(out_orig, ord=2, dim=-1).mean().item()
                         )
+                # Stage 17 (v3.4): optional merged-path beta gate.
+                # When bank_merge_beta != 1.0 the bank read-out is scaled
+                # before addition, mirroring legacy residual smoothing:
+                #   x' = x + beta * out_bank
+                # Default 1.0 keeps v3.2 bit-equal.
+                merged_beta = float(getattr(bank, "bank_merge_beta", 1.0))
+                if merged_beta != 1.0:
+                    out_bank = out_bank * merged_beta
                 attn_out = (out_orig + out_bank).transpose(1, 2).contiguous()
         else:
             weights = F.softmax(scores_orig, dim=-1, dtype=torch.float32).to(q_post.dtype)
