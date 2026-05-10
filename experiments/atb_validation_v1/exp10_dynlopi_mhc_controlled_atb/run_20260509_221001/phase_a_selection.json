@@ -1,0 +1,17 @@
+{
+  "top2_arms": [
+    {
+      "arm": "A3_mhc_dynlopi",
+      "alpha": 0.05,
+      "gap": 0.71197616259257,
+      "out_dir": "experiments/atb_validation_v1/exp10_dynlopi_mhc_controlled_atb/run_20260509_221001/phase_a/A3_mhc_dynlopi_alpha_0_05"
+    },
+    {
+      "arm": "A2_dynlopi_only",
+      "alpha": 0.05,
+      "gap": 0.6138977098464966,
+      "out_dir": "experiments/atb_validation_v1/exp10_dynlopi_mhc_controlled_atb/run_20260509_221001/phase_a/A2_dynlopi_only_alpha_0_05"
+    }
+  ],
+  "best_alpha": 0.05
+}

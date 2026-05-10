@@ -1,0 +1,4 @@
+experiment,model,dataset,variant,method,alpha,bank_size,n,recall_at_1,mean_margin,median_margin,js_drift,kl_drift,bank_attention_mass,max_bank_prob,mean_target_rank,torch_equal_all,max_abs_diff_max
+exp10_dynlopi_mhc_controlled_atb_a_A3_mhc_dynlopi_alpha_0_05,/root/models/Qwen3-4B-Instruct-2507,counterfact_1k.jsonl,correct_bank,anb,0.05,50,150,0.0,-0.1551859442392985,-0.4412999153137207,0.5152735137939453,5.240905585289002,,,24124.726666666666,,
+exp10_dynlopi_mhc_controlled_atb_a_A3_mhc_dynlopi_alpha_0_05,/root/models/Qwen3-4B-Instruct-2507,counterfact_1k.jsonl,random_kv,anb,0.05,50,150,0.0,-0.886676991780599,-0.6649284362792969,0.3943174439668655,2.9216852883497872,,,14919.026666666667,,
+exp10_dynlopi_mhc_controlled_atb_a_A3_mhc_dynlopi_alpha_0_05,/root/models/Qwen3-4B-Instruct-2507,counterfact_1k.jsonl,random_K_correct_V,anb,0.05,50,150,0.0,-0.8671621068318685,-0.8473114967346191,0.3718157454331716,2.6063657176494597,,,14819.206666666667,,

@@ -1,0 +1,4 @@
+experiment,model,dataset,variant,method,alpha,bank_size,n,recall_at_1,mean_margin,median_margin,js_drift,kl_drift,bank_attention_mass,max_bank_prob,mean_target_rank,torch_equal_all,max_abs_diff_max
+exp9_residual_gated_mhc_pre_rope_a1_mode_merged_beta_mhc_beta_0_20,/root/models/Qwen3-4B-Instruct-2507,counterfact_1k.jsonl,correct_bank,anb,0.05,100,300,0.0,-0.7308251587549845,-0.7008113861083984,0.5009704542160034,4.961770596504212,,,31451.23,,
+exp9_residual_gated_mhc_pre_rope_a1_mode_merged_beta_mhc_beta_0_20,/root/models/Qwen3-4B-Instruct-2507,counterfact_1k.jsonl,random_kv,anb,0.05,100,300,0.0,-0.6410332918167114,-0.34070873260498047,0.39438162207603455,2.9263740638891855,,,19125.83,,
+exp9_residual_gated_mhc_pre_rope_a1_mode_merged_beta_mhc_beta_0_20,/root/models/Qwen3-4B-Instruct-2507,counterfact_1k.jsonl,random_K_correct_V,anb,0.05,100,300,0.0,-0.8050796826680501,-0.7109341621398926,0.37324092715978624,2.624280123114586,,,20099.99,,
