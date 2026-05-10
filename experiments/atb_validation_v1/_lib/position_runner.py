@@ -26,6 +26,7 @@ from . import (
     load_model,
     neutral_prompts,
     seed_everything,
+    variant_uses_dynamic_lopi,
 )
 from .cf_runner import build_write_prompt, render_query
 
@@ -127,7 +128,8 @@ def run(
                                 mp = evaluate_prompt(model, tok, read_prompt,
                                                      row["target_new"],
                                                      row["target_true"],
-                                                     device)
+                                                     device,
+                                                     preserve_forward_sequence=variant_uses_dynamic_lopi(variant))
                         except Exception as exc:
                             _log(f"  ERROR pid={row['id']} pd={pd}: {exc}")
                             continue

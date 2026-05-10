@@ -67,6 +67,22 @@ def _legacy_evaluate_prompt(
     }
 
 
+def test_evaluate_prompt_default_preserves_legacy_forward_sequence() -> None:
+    tok = _ToyTokenizer()
+    model = _ToyCausalLM()
+
+    evaluate_prompt(
+        model,
+        tok,
+        "The capital of Avalon is",
+        "Eldoria",
+        "Paris",
+        "cpu",
+    )
+
+    assert model.calls == 3
+
+
 def test_evaluate_prompt_fast_path_matches_legacy_metrics() -> None:
     tok = _ToyTokenizer()
     prompt = "The capital of Avalon is"
@@ -79,14 +95,22 @@ def test_evaluate_prompt_fast_path_matches_legacy_metrics() -> None:
     expected = _legacy_evaluate_prompt(
         legacy_model, tok, prompt, target_new, target_true, "cpu"
     )
-    actual = evaluate_prompt(fast_model, tok, prompt, target_new, target_true, "cpu")
+    actual = evaluate_prompt(
+        fast_model,
+        tok,
+        prompt,
+        target_new,
+        target_true,
+        "cpu",
+        preserve_forward_sequence=False,
+    )
 
     assert actual == expected
     assert legacy_model.calls == 3
     assert fast_model.calls == 2
 
 
-def test_evaluate_prompt_can_preserve_legacy_forward_sequence() -> None:
+def test_evaluate_prompt_can_explicitly_preserve_legacy_forward_sequence() -> None:
     tok = _ToyTokenizer()
     model = _ToyCausalLM()
 

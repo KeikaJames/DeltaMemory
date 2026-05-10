@@ -282,7 +282,7 @@ def evaluate_prompt(
     target_new: str,
     target_true: str,
     device: str,
-    preserve_forward_sequence: bool = False,
+    preserve_forward_sequence: bool = True,
 ) -> dict[str, Any]:
     """Compute the per-prompt metric pack."""
     if preserve_forward_sequence:

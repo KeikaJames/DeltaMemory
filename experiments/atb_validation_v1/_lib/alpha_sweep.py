@@ -28,6 +28,7 @@ from . import (
     load_counterfact,
     load_model,
     seed_everything,
+    variant_uses_dynamic_lopi,
 )
 from .cf_runner import build_write_prompt, render_query
 
@@ -92,7 +93,8 @@ def run(
                 try:
                     with VariantContext(model, tok, device, variant, facts):
                         mp = evaluate_prompt(model, tok, target_query,
-                                             target_new, target_true, device)
+                                             target_new, target_true, device,
+                                             preserve_forward_sequence=variant_uses_dynamic_lopi(variant))
                 except Exception as exc:
                     _log(f"  ERROR alpha={alpha} seed={seed}: {exc}")
                     continue

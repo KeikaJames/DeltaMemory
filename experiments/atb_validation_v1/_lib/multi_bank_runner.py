@@ -331,7 +331,8 @@ def run(
                         # No bank: evaluate baseline.
                         try:
                             mp = evaluate_prompt(model, tok, query,
-                                                 target_new, target_true, device)
+                                                 target_new, target_true, device,
+                                                 preserve_forward_sequence=False)
                         except Exception as exc:
                             _log(f"  ERROR pid={pid} variant={variant.name} "
                                  f"seed={seed}: {exc}")
@@ -346,7 +347,7 @@ def run(
                                     patcher, model, tok, all_facts,
                                     bank_key_mode=variant.bank_key_mode,
                                     value_scale_mode=variant.value_scale_mode,
-                            )
+                                )
                             apply_perturbation(bank, variant.bank_perturbation, seed)
                             apply_variant_bank_config(bank, variant, reset_lopi=True)
                             # Inject and evaluate.

@@ -136,7 +136,13 @@ def main() -> None:
     if args.warmup and rows_n:
         row = rows_n[0]
         evaluate_prompt(
-            model, tok, _query(row), row["target_new"], row["target_true"], args.device
+            model,
+            tok,
+            _query(row),
+            row["target_new"],
+            row["target_true"],
+            args.device,
+            preserve_forward_sequence=args.preserve_forward_sequence,
         )
         _sync(args.device)
 
