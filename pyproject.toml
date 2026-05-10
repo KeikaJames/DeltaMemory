@@ -15,6 +15,7 @@ dependencies = [
   "matplotlib",
   "numpy",
   "pandas",
+  "pydantic>=2",
   "pyyaml",
   "safetensors",
   "scipy",
