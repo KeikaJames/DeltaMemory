@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import pytest
 import torch
-from transformers import GPT2Config, GPT2LMHeadModel, GPT2Tokenizer
+from transformers import GPT2Config, GPT2LMHeadModel
 
 from deltamemory.memory.caa_injector import CAAConfig, CAAInjector
 
@@ -27,6 +27,39 @@ _VOCAB = 50257   # Match real GPT-2 tokenizer to avoid index-out-of-range in cal
 _LAYERS = 4
 _HIDDEN = 64
 _HEADS = 4
+
+
+class _TinyTokenizer:
+    """Minimal deterministic tokenizer for tiny GPT-2 tests."""
+
+    def __init__(self) -> None:
+        self.pad_token = "<eos>"
+        self.eos_token = "<eos>"
+        self._vocab = {self.eos_token: 0}
+
+    def _token_ids(self, text: str) -> list[int]:
+        ids: list[int] = []
+        for token in text.split():
+            if token not in self._vocab:
+                self._vocab[token] = len(self._vocab) % _VOCAB
+            ids.append(self._vocab[token])
+        return ids or [self._vocab[self.eos_token]]
+
+    def __call__(
+        self,
+        text: str,
+        *,
+        return_tensors: str = "pt",
+        truncation: bool = False,
+        max_length: int | None = None,
+    ) -> dict[str, torch.Tensor]:
+        if return_tensors != "pt":
+            raise ValueError("_TinyTokenizer only supports return_tensors='pt'")
+        ids = self._token_ids(text)
+        if truncation and max_length is not None:
+            ids = ids[:max_length]
+        input_ids = torch.tensor([ids], dtype=torch.long)
+        return {"input_ids": input_ids, "attention_mask": torch.ones_like(input_ids)}
 
 
 @pytest.fixture(scope="module")
@@ -44,16 +77,7 @@ def tiny_gpt2():
         attn_pdrop=0.0,
     )
     model = GPT2LMHeadModel(cfg).eval()
-
-    # Build a minimal tokenizer backed by the real GPT-2 vocab construction
-    # but without network access: use the fast tokenizer stub.
-    try:
-        tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
-        tokenizer.pad_token = tokenizer.eos_token
-    except Exception:
-        tokenizer = None  # calibration tests skip if tokenizer unavailable
-
-    return model, tokenizer
+    return model, _TinyTokenizer()
 
 
 @pytest.fixture(scope="module")

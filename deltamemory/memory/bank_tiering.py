@@ -78,8 +78,8 @@ class BankTier:
                 return ("hot", self.hot_k.size(0) - 1)
             if tier == "cold":
                 cold_k, cold_v = self._load_cold()
-                row_k = cold_k[i : i + 1].to(self.hot_k.device)
-                row_v = cold_v[i : i + 1].to(self.hot_v.device)
+                row_k = cold_k[i : i + 1].clone().to(self.hot_k.device)
+                row_v = cold_v[i : i + 1].clone().to(self.hot_v.device)
                 keep = torch.tensor([j for j in range(cold_k.size(0)) if j != i], dtype=torch.long)
                 self._save_cold(cold_k.index_select(0, keep), cold_v.index_select(0, keep))
                 self.hot_k = torch.cat([self.hot_k, row_k], dim=0)

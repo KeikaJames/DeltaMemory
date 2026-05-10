@@ -33,6 +33,7 @@ from . import (
     seed_everything,
     sha1_of_file,
     unrelated_drift,
+    variant_uses_dynamic_lopi,
 )
 
 
@@ -142,7 +143,8 @@ def run(
                                             [fact]):
                             mp = evaluate_prompt(model, tok, query,
                                                  target_new, target_true,
-                                                 device)
+                                                 device,
+                                                 preserve_forward_sequence=variant_uses_dynamic_lopi(variant))
                     except Exception as exc:
                         _log(f"  ERROR pid={prow['id']} variant={variant.name}"
                              f" seed={seed}: {exc}")

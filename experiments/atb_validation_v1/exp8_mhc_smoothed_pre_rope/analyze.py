@@ -510,6 +510,9 @@ def write_readme(run_dir: Path,
     else:
         overall = "**FAIL** — correct_bank does not dominate at any kappa on full run"
 
+    pb_table_text = pb_table if pb_table else "_Phase B not yet run._\n"
+    pc_table_text = pc_table if pc_table else "_Phase C not yet run._\n"
+
     readme = f"""# Exp8 — mHC-Smoothed Pre-RoPE Negative Controls
 
 **Model:** Qwen3-4B-Instruct-2507  
@@ -538,7 +541,7 @@ def write_readme(run_dir: Path,
 
 | Variant | n | Recall@1 | Mean Margin | 95% CI | Median Margin | JS Drift |
 |---------|---|----------|-------------|--------|---------------|----------|
-{pb_table if pb_table else "_Phase B not yet run._\n"}
+{pb_table_text}
 
 ---
 
@@ -546,7 +549,7 @@ def write_readme(run_dir: Path,
 
 | alpha | correct_bank margin | random_K_correct_V margin | correct_dominates |
 |-------|---------------------|---------------------------|-------------------|
-{pc_table if pc_table else "_Phase C not yet run._\n"}
+{pc_table_text}
 
 ---
 
