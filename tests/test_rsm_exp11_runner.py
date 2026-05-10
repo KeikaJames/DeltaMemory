@@ -1,12 +1,17 @@
 """Regression tests for Exp11 RSM scoring semantics."""
 from __future__ import annotations
 
+from pathlib import Path
+
+import pytest
 import torch
 from transformers import GPT2Config, GPT2LMHeadModel
 
 from deltamemory.memory.rsm_injector import RSMConfig, RSMInjector, RSMMemoryBank
 from experiments.atb_validation_v1.exp11_rsm_residual_stream_memory.run import (
     _continuation_logp_rsm,
+    _phase_b_verdict,
+    _run_one_config,
 )
 
 
@@ -75,3 +80,37 @@ def test_continuation_rsm_scores_prompt_only_and_injects_prefixes():
     assert rsm.score_lengths == [prompt_len]
     assert rsm.forward_lengths == [prompt_len, prompt_len + 1]
     assert full_len not in rsm.score_lengths
+
+
+def test_phase_b_verdict_requires_beating_random_memory():
+    assert _phase_b_verdict({
+        "correct_memory": 1.0,
+        "base_model": 0.0,
+        "random_memory": 1.2,
+        "gap": 0.1,
+    }) == "FAIL"
+    assert _phase_b_verdict({
+        "correct_memory": 1.0,
+        "base_model": 0.0,
+        "random_memory": 0.9,
+        "gate_off": 1.2,
+        "gap": -0.2,
+    }) == "STABILIZER_ONLY"
+
+
+def test_include_anb_best_is_disabled_until_full_a3_plumbing():
+    with pytest.raises(RuntimeError, match="include-anb-best is disabled"):
+        _run_one_config(
+            model=None,
+            tok=None,
+            rsm=None,
+            rows=[],
+            cache={},
+            device="cpu",
+            out_dir=Path("/tmp/unused-rsm-test"),
+            eta=0.1,
+            theta=0.5,
+            bank_size=1,
+            seeds=[0],
+            include_anb_best=True,
+        )

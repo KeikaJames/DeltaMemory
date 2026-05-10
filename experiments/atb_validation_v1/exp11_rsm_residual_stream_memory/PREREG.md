@@ -30,7 +30,7 @@ Phase B confirms the top two Phase A configs on the full eligible subset.
 
 - `random_memory`: unrelated fact memories only.
 - `shuffled_layers`: correct memory bank with layer order shuffled.
-- `gate_off`: all memories injected with unit score.
+- `gate_off`: skip the theta threshold but keep nonnegative cosine weights.
 - `base_model`: no injection.
 
 ## Verdict Criteria
@@ -42,8 +42,8 @@ baseline.
 **PASS_DIRECTIONAL:** correct memory improves over base and has positive
 `gap = correct - max_control`, without strict CI separation.
 
-**STABILIZER_ONLY:** correct memory improves over base but does not beat all
-controls.
+**STABILIZER_ONLY:** correct memory improves over base and beats random memory,
+but does not beat all controls.
 
 **FAIL:** correct memory does not improve over base or is indistinguishable from
 random memory.

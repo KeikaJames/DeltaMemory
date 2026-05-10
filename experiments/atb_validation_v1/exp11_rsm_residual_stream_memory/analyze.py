@@ -84,6 +84,18 @@ def _gap(summary: list[dict[str, Any]]) -> float:
     return correct - max(controls) if controls else float("nan")
 
 
+def _phase_b_verdict(top: dict[str, float]) -> str:
+    correct = top.get("correct_memory", float("-inf"))
+    base = top.get("base_model", float("inf"))
+    random_memory = top.get("random_memory", float("inf"))
+    gap = top.get("gap", float("-inf"))
+    if gap > 0 and correct > base and correct > random_memory:
+        return "PASS_DIRECTIONAL"
+    if correct > base and correct > random_memory:
+        return "STABILIZER_ONLY"
+    return "FAIL"
+
+
 def _write_csv(rows: list[dict[str, Any]], path: Path) -> None:
     if not rows:
         return
@@ -105,6 +117,7 @@ def main() -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     all_configs = []
+    phase_b_configs = []
     for phase in ("phase_a", "phase_b"):
         phase_dir = run_dir / phase
         if not phase_dir.exists():
@@ -120,19 +133,21 @@ def main() -> None:
                 row[s["variant"]] = s["mean_margin"]
             phase_rows.append(row)
             all_configs.append(row)
+            if phase == "phase_b":
+                phase_b_configs.append(row)
         _write_csv(phase_rows, out_dir / f"{phase}_comparison.csv")
 
     best = sorted(all_configs, key=lambda r: r.get("gap", float("-inf")), reverse=True)
-    (out_dir / "analysis.json").write_text(json.dumps({"configs": all_configs, "best": best[:3]}, indent=2))
-    if best:
-        top = best[0]
-        verdict = (
-            "PASS_DIRECTIONAL"
-            if top.get("gap", float("-inf")) > 0 and top.get("correct_memory", -999) > top.get("base_model", 999)
-            else "STABILIZER_ONLY"
-            if top.get("correct_memory", -999) > top.get("base_model", 999)
-            else "FAIL"
-        )
+    verdict_pool = phase_b_configs or all_configs
+    verdict_best = sorted(verdict_pool, key=lambda r: r.get("gap", float("-inf")), reverse=True)
+    (out_dir / "analysis.json").write_text(json.dumps({
+        "configs": all_configs,
+        "best": best[:3],
+        "verdict_best": verdict_best[:1],
+    }, indent=2))
+    if verdict_best:
+        top = verdict_best[0]
+        verdict = _phase_b_verdict(top)
     else:
         verdict = "FAIL"
     (out_dir / "README.md").write_text(

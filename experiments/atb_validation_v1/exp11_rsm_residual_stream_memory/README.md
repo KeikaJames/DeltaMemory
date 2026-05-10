@@ -17,6 +17,7 @@ python experiments/atb_validation_v1/exp11_rsm_residual_stream_memory/run.py \
   --bank-size 200 \
   --n-prompts-smoke 100 \
   --n-prompts-confirm 807 \
+  --n-neutral 100 \
   --out experiments/atb_validation_v1/exp11_rsm_residual_stream_memory/run_$(date +%Y%m%d_%H%M%S)
 ```
 
@@ -33,11 +34,10 @@ python experiments/atb_validation_v1/exp11_rsm_residual_stream_memory/analyze.py
 | `correct_memory` | Current fact memory plus distractors. |
 | `random_memory` | Unrelated fact memories only. |
 | `shuffled_layers` | Correct memory bank with layer axis permuted. |
-| `gate_off` | Correct memory bank, all memories injected with unit score. |
+| `gate_off` | Correct memory bank, skips theta threshold but keeps nonnegative cosine weights. |
 
 Primary score:
 
 ```text
 gap = margin(correct_memory) - max(random_memory, shuffled_layers, gate_off)
 ```
-

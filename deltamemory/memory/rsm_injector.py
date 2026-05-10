@@ -26,6 +26,8 @@ class RSMConfig:
     eta: float = 0.1
     theta: float = 0.5
     hook_point: RSMHookPoint = "block_output"
+    # Skip the theta threshold but keep similarity weighting.  This is not an
+    # all-ones stress path: weights are max(scores, 0).
     gate_off: bool = False
     inject_only_last_token: bool = True
 
@@ -222,8 +224,8 @@ class RSMInjector:
                 f"scores={tuple(scores.shape)} bank_n={bank.n_memories}"
             )
         if self.config.gate_off:
-            weights = torch.ones_like(scores)
-            active = torch.ones_like(scores, dtype=torch.bool)
+            weights = scores.clamp_min(0.0)
+            active = weights > 0.0
         else:
             active = scores > float(self.config.theta)
             weights = torch.where(active, scores, torch.zeros_like(scores))

@@ -100,6 +100,25 @@ def test_gate_off_changes_output(tiny_gpt2):
     assert diag["rsm_activation_rate"] == 1.0
 
 
+def test_gate_off_keeps_similarity_weights_not_all_ones(tiny_gpt2):
+    ids = _ids(7)
+    rsm = RSMInjector(tiny_gpt2, RSMConfig(eta=1.0, theta=2.0, gate_off=True))
+    memory = rsm.capture(ids)
+    bank = RSMMemoryBank(memory.unsqueeze(0), ["fact_0"])
+
+    with torch.no_grad():
+        base = tiny_gpt2(input_ids=ids, use_cache=False).logits.detach().clone()
+        out, diag = rsm.forward_with_scores(
+            bank,
+            torch.tensor([-0.25], dtype=torch.float32),
+            input_ids=ids,
+        )
+        injected = out.logits.detach().clone()
+
+    assert torch.equal(base, injected)
+    assert diag["rsm_activation_rate"] == 0.0
+
+
 def test_shuffled_layers_preserves_shape_and_norms(tiny_gpt2):
     rsm = RSMInjector(tiny_gpt2)
     memory = rsm.capture(_ids(5))

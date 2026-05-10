@@ -25,13 +25,12 @@ sys.path.insert(0, str(ROOT))
 
 from deltamemory.memory.rsm_injector import RSMConfig, RSMInjector, RSMMemoryBank
 from experiments.atb_validation_v1._lib import (
-    Variant,
-    VariantContext,
     evaluate_prompt,
     filter_cf_for_tokenizer,
     first_token_id,
     load_counterfact,
     load_model,
+    neutral_prompts,
     seed_everything,
 )
 from experiments.atb_validation_v1._lib.aggregator import aggregate
@@ -40,6 +39,7 @@ from experiments.atb_validation_v1._lib.manifest import write_manifest
 
 EXPERIMENT = "exp11_rsm_residual_stream_memory"
 RSM_VARIANTS = ["correct_memory", "random_memory", "shuffled_layers", "gate_off"]
+_KL_LAST = 8
 
 
 def _log(msg: str) -> None:
@@ -119,11 +119,119 @@ def _make_bank(
         fact_ids = _distractor_ids(rows, current_id, bank_size, seed)
     else:
         fact_ids = [current_id] + _distractor_ids(rows, current_id, bank_size - 1, seed)
+    if not fact_ids:
+        raise ValueError(f"RSM variant={variant} requires at least one memory.")
     memories = torch.stack([cache[fid] for fid in fact_ids], dim=0)
     bank = RSMMemoryBank(memories=memories, fact_ids=fact_ids)
     if variant == "shuffled_layers":
         bank = bank.shuffled_layers(seed=seed + 0x51A7)
     return bank
+
+
+def _make_neutral_bank(
+    *,
+    variant: str,
+    rows: list[dict],
+    cache: dict[str, torch.Tensor],
+    bank_size: int,
+    seed: int,
+) -> RSMMemoryBank:
+    if not rows:
+        raise ValueError("neutral drift requires at least one cached memory.")
+    rng = random.Random(seed + 0xD41F7)
+    ids = [str(r["id"]) for r in rows]
+    rng.shuffle(ids)
+    fact_ids = ids[:max(1, min(bank_size, len(ids)))]
+    bank = RSMMemoryBank(torch.stack([cache[fid] for fid in fact_ids], dim=0), fact_ids)
+    if variant == "shuffled_layers":
+        bank = bank.shuffled_layers(seed=seed + 0x51A7)
+    return bank
+
+
+@torch.no_grad()
+def _last_k_logsoftmax_model(model: Any, tok: Any, prompt: str, device: str) -> torch.Tensor:
+    ids = torch.tensor([tok.encode(prompt, add_special_tokens=True)], device=device)
+    out = model(input_ids=ids, use_cache=False)
+    return F.log_softmax(out.logits[0, -_KL_LAST:].float(), dim=-1).detach().cpu()
+
+
+@torch.no_grad()
+def _last_k_logsoftmax_rsm(
+    rsm: RSMInjector,
+    bank: RSMMemoryBank,
+    tok: Any,
+    prompt: str,
+    device: str,
+) -> torch.Tensor:
+    ids = torch.tensor([tok.encode(prompt, add_special_tokens=True)], device=device)
+    out, _diag = rsm.forward_with_memory(bank, input_ids=ids)
+    return F.log_softmax(out.logits[0, -_KL_LAST:].float(), dim=-1).detach().cpu()
+
+
+def _js_nats(logp_a: torch.Tensor, logp_b: torch.Tensor) -> float:
+    p = torch.exp(logp_a)
+    q = torch.exp(logp_b)
+    m = 0.5 * (p + q)
+    log_m = torch.log(m.clamp(min=1e-30))
+    return float(0.5 * ((p * (logp_a - log_m)).sum(-1) + (q * (logp_b - log_m)).sum(-1)).mean().item())
+
+
+def _kl_nats(logp_a: torch.Tensor, logp_b: torch.Tensor) -> float:
+    p = torch.exp(logp_a)
+    return float((p * (logp_a - logp_b)).sum(-1).mean().item())
+
+
+def _compute_rsm_neutral_drifts(
+    *,
+    model: Any,
+    tok: Any,
+    rsm: RSMInjector,
+    rows: list[dict],
+    cache: dict[str, torch.Tensor],
+    device: str,
+    eta: float,
+    theta: float,
+    bank_size: int,
+    n_neutral: int,
+) -> dict[str, tuple[float | None, float | None]]:
+    drifts: dict[str, tuple[float | None, float | None]] = {
+        "base_model": (0.0, 0.0),
+    }
+    if n_neutral <= 0:
+        for variant in RSM_VARIANTS:
+            drifts[variant] = (None, None)
+        return drifts
+    prompts = neutral_prompts(n=n_neutral)
+    base_lps = [_last_k_logsoftmax_model(model, tok, prompt, device) for prompt in prompts]
+    for variant in RSM_VARIANTS:
+        rsm.config = RSMConfig(eta=eta, theta=theta, gate_off=(variant == "gate_off"))
+        bank = _make_neutral_bank(
+            variant=variant,
+            rows=rows,
+            cache=cache,
+            bank_size=bank_size,
+            seed=0,
+        )
+        js_vals: list[float] = []
+        kl_vals: list[float] = []
+        for prompt, base_lp in zip(prompts, base_lps):
+            inj_lp = _last_k_logsoftmax_rsm(rsm, bank, tok, prompt, device)
+            js_vals.append(_js_nats(base_lp, inj_lp))
+            kl_vals.append(_kl_nats(base_lp, inj_lp))
+        drifts[variant] = (sum(js_vals) / len(js_vals), sum(kl_vals) / len(kl_vals))
+    return drifts
+
+
+def _phase_b_verdict(best: dict[str, float]) -> str:
+    correct = best.get("correct_memory", float("-inf"))
+    base = best.get("base_model", float("inf"))
+    random_memory = best.get("random_memory", float("inf"))
+    gap = best.get("gap", float("-inf"))
+    if gap > 0 and correct > base and correct > random_memory:
+        return "PASS_DIRECTIONAL"
+    if correct > base and correct > random_memory:
+        return "STABILIZER_ONLY"
+    return "FAIL"
 
 
 @torch.no_grad()
@@ -218,12 +326,29 @@ def _run_one_config(
     bank_size: int,
     seeds: list[int],
     include_anb_best: bool,
+    n_neutral: int = 0,
 ) -> Path:
+    if include_anb_best:
+        raise RuntimeError(
+            "--include-anb-best is disabled in Exp11 until the full Exp10 A3 "
+            "LOPI/mHC VariantContext plumbing is available on this branch."
+        )
     out_dir.mkdir(parents=True, exist_ok=True)
     results_path = out_dir / "results.jsonl"
     if results_path.exists():
         results_path.unlink()
-
+    drift_by_variant = _compute_rsm_neutral_drifts(
+        model=model,
+        tok=tok,
+        rsm=rsm,
+        rows=rows,
+        cache=cache,
+        device=device,
+        eta=eta,
+        theta=theta,
+        bank_size=bank_size,
+        n_neutral=n_neutral,
+    )
     with open(results_path, "a") as f:
         for seed in seeds:
             seed_everything(seed)
@@ -253,6 +378,7 @@ def _run_one_config(
                         )
                         mp = _evaluate_rsm(rsm, bank, tok, row, device)
                         extra = {}
+                    js_drift, kl_drift = drift_by_variant.get(variant, (None, None))
                     rec = {
                         "experiment": EXPERIMENT,
                         "variant": variant,
@@ -267,44 +393,10 @@ def _run_one_config(
                         "target_new": row["target_new"],
                         "target_true": row["target_true"],
                         "bank_size": 0 if variant == "base_model" else bank_size,
-                        "js_drift": None,
-                        "kl_drift": None,
+                        "js_drift": js_drift,
+                        "kl_drift": kl_drift,
                         **mp,
                         **extra,
-                    }
-                    f.write(json.dumps(rec) + "\n")
-            if include_anb_best:
-                anb = Variant(
-                    name="anb_best_exp10_a3",
-                    method="anb",
-                    alpha=0.05,
-                    bank_key_mode="pre_rope",
-                    value_scale_mode="auto_rms_cap",
-                    mhc_shield=True,
-                    mhc_kappa=0.25,
-                    lopi_enabled=True,
-                )
-                for row in rows:
-                    fact = {"id": row["id"], "subject": row["subject"], "write_prompt": row["_write_prompt"]}
-                    query = render_query(row)
-                    with VariantContext(model, tok, device, anb, [fact]):
-                        mp = evaluate_prompt(model, tok, query, row["target_new"], row["target_true"], device)
-                    rec = {
-                        "experiment": EXPERIMENT,
-                        "variant": "anb_best_exp10_a3",
-                        "method": "anb",
-                        "alpha": 0.05,
-                        "rsm_eta": eta,
-                        "rsm_theta": theta,
-                        "seed": seed,
-                        "prompt_id": row["id"],
-                        "subject": row["subject"],
-                        "target_new": row["target_new"],
-                        "target_true": row["target_true"],
-                        "bank_size": 1,
-                        "js_drift": None,
-                        "kl_drift": None,
-                        **mp,
                     }
                     f.write(json.dumps(rec) + "\n")
     return results_path
@@ -363,8 +455,10 @@ def _write_config_manifest(
             "theta": theta,
             "bank_size": args.bank_size,
             "n_prompts": n_prompts,
-            "gate": "max_layer_cosine",
+            "gate": "max_layer_cosine; gate_off skips theta but keeps nonnegative score weights",
             "inject_only_last_token": True,
+            "include_anb_best": bool(args.include_anb_best),
+            "n_neutral": args.n_neutral,
         },
     )
 
@@ -382,8 +476,13 @@ def main() -> None:
     p.add_argument("--bank-size", type=int, default=200)
     p.add_argument("--n-prompts-smoke", type=int, default=100)
     p.add_argument("--n-prompts-confirm", type=int, default=807)
+    p.add_argument("--n-neutral", type=int, default=100)
     p.add_argument("--phase", default="AB", choices=["A", "B", "AB"])
-    p.add_argument("--include-anb-best", action="store_true")
+    p.add_argument(
+        "--include-anb-best",
+        action="store_true",
+        help="Disabled for now: Exp10 A3 requires full LOPI/mHC VariantContext plumbing.",
+    )
     args = p.parse_args()
 
     out_root = Path(args.out)
@@ -422,6 +521,7 @@ def main() -> None:
                     bank_size=args.bank_size,
                     seeds=seeds,
                     include_anb_best=False,
+                    n_neutral=0,
                 )
                 summary = aggregate(
                     res,
@@ -467,6 +567,7 @@ def main() -> None:
                 bank_size=args.bank_size,
                 seeds=seeds,
                 include_anb_best=args.include_anb_best,
+                n_neutral=args.n_neutral,
             )
             summary = aggregate(
                 res,
@@ -482,12 +583,7 @@ def main() -> None:
         phase_b_scores.sort(key=lambda r: r["gap"], reverse=True)
         (out_root / "phase_b_summary.json").write_text(json.dumps(phase_b_scores, indent=2))
         best = phase_b_scores[0] if phase_b_scores else {}
-        if best.get("gap", float("-inf")) > 0 and best.get("correct_memory", -999) > best.get("base_model", 999):
-            verdict = "PASS_DIRECTIONAL"
-        elif best.get("correct_memory", -999) > best.get("base_model", 999):
-            verdict = "STABILIZER_ONLY"
-        else:
-            verdict = "FAIL"
+        verdict = _phase_b_verdict(best)
         (out_root / "verdict.txt").write_text(verdict + "\n")
         _log(f"verdict={verdict}")
 
