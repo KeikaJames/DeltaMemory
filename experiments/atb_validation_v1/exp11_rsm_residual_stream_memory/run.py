@@ -141,13 +141,20 @@ def _continuation_logp_rsm(
     if len(full_ids) <= len(prompt_ids):
         return float("nan"), [], {}
     target_ids = full_ids[len(prompt_ids):]
-    ids = torch.tensor([full_ids], device=device)
-    out, diag = rsm.forward_with_memory(bank, input_ids=ids)
-    logp = F.log_softmax(out.logits[0].float(), dim=-1)
+    prompt_tensor = torch.tensor([prompt_ids], device=device)
+    prompt_scores = rsm.score(bank, input_ids=prompt_tensor)
     total = 0.0
+    first_diag: dict[str, Any] = {}
     for i, tid in enumerate(target_ids):
-        total += float(logp[len(prompt_ids) - 1 + i, tid].item())
-    return total, target_ids, diag
+        prefix_ids = full_ids[: len(prompt_ids) + i]
+        ids = torch.tensor([prefix_ids], device=device)
+        out, diag = rsm.forward_with_scores(bank, prompt_scores, input_ids=ids)
+        if i == 0:
+            first_diag = diag
+        logits = out.logits[0, -1].float()
+        logp = F.log_softmax(logits, dim=-1)
+        total += float(logp[tid].item())
+    return total, target_ids, first_diag
 
 
 @torch.no_grad()
@@ -160,7 +167,8 @@ def _first_token_rank_rsm(
     device: str,
 ) -> int:
     ids = torch.tensor([tok.encode(prompt, add_special_tokens=True)], device=device)
-    out, _diag = rsm.forward_with_memory(bank, input_ids=ids)
+    scores = rsm.score(bank, input_ids=ids)
+    out, _diag = rsm.forward_with_scores(bank, scores, input_ids=ids)
     logits = out.logits[0, -1].float()
     sorted_ids = torch.argsort(logits, descending=True)
     return int((sorted_ids == target_first_id).nonzero(as_tuple=False).item())

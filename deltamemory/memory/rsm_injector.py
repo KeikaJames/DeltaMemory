@@ -192,6 +192,35 @@ class RSMInjector:
     ) -> tuple[Any, dict[str, Any]]:
         """Run a two-pass RSM forward and return ``(model_output, diagnostics)``."""
         scores = self.score(bank, input_ids=input_ids, attention_mask=attention_mask)
+        return self.forward_with_scores(
+            bank,
+            scores,
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            **forward_kwargs,
+        )
+
+    @torch.no_grad()
+    def forward_with_scores(
+        self,
+        bank: RSMMemoryBank,
+        scores: torch.Tensor,
+        input_ids: torch.Tensor,
+        attention_mask: torch.Tensor | None = None,
+        **forward_kwargs: Any,
+    ) -> tuple[Any, dict[str, Any]]:
+        """Run an RSM forward with caller-supplied per-memory scores.
+
+        This is the leakage-safe path for teacher-forced logprob evaluation:
+        callers can compute scores on the prompt-only prefix, then reuse those
+        fixed scores while scoring target-token prefixes.
+        """
+        scores = scores.detach().cpu().float()
+        if scores.ndim != 1 or scores.numel() != bank.n_memories:
+            raise ValueError(
+                "scores must have shape (N,) matching bank memories; "
+                f"scores={tuple(scores.shape)} bank_n={bank.n_memories}"
+            )
         if self.config.gate_off:
             weights = torch.ones_like(scores)
             active = torch.ones_like(scores, dtype=torch.bool)
