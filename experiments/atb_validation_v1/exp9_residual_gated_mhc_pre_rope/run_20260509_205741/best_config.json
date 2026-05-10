@@ -1,0 +1,6 @@
+{
+  "mode": "merged_beta_mhc",
+  "beta": 0.1,
+  "gap_a2": 0.010473173459370932,
+  "out_dir": "experiments/atb_validation_v1/exp9_residual_gated_mhc_pre_rope/run_20260509_205741/phase_a2/config_0_mode_merged_beta_mhc_beta_0_10"
+}

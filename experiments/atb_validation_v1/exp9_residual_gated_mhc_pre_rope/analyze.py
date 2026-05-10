@@ -480,7 +480,8 @@ def write_phase_c_plot(phase_c: list[dict], path: Path) -> None:
         return
 
     fig, ax = plt.subplots(figsize=(9, 5))
-    for vname in _STRESS_VARIANTS := ["correct_bank", "random_kv", "random_K_correct_V"]:
+    _STRESS_VARIANTS = ["correct_bank", "random_kv", "random_K_correct_V"]
+    for vname in _STRESS_VARIANTS:
         alphas = [e["alpha"] for e in phase_c if vname in e["variants"]]
         margins = [e["variants"][vname]["mean_margin"]
                    for e in phase_c if vname in e["variants"]]

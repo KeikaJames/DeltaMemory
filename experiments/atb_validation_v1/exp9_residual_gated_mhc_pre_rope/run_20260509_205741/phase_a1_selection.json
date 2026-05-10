@@ -1,0 +1,14 @@
+[
+  {
+    "mode": "merged_beta_mhc",
+    "beta": 0.1,
+    "gap_a1": 0.028257425626118993,
+    "out_dir": "experiments/atb_validation_v1/exp9_residual_gated_mhc_pre_rope/run_20260509_205741/phase_a1/mode_merged_beta_mhc_beta_0_10"
+  },
+  {
+    "mode": "sep_beta_mhc",
+    "beta": 0.2,
+    "gap_a1": 0.010770752741178669,
+    "out_dir": "experiments/atb_validation_v1/exp9_residual_gated_mhc_pre_rope/run_20260509_205741/phase_a1/mode_sep_beta_mhc_beta_0_20"
+  }
+]
