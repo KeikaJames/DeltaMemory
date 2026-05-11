@@ -1,0 +1,105 @@
+{
+  "configs": [
+    {
+      "phase": "phase_a",
+      "config": "eta_0_05_theta_0_30",
+      "gap": -0.22580171766735257,
+      "verdict": "STABILIZER_ONLY",
+      "base_model": -4.287946417218163,
+      "correct_memory": -1.0561522983369374,
+      "gate_off": -1.0561522983369374,
+      "gate_uniform": -0.9928850900559199,
+      "random_memory": -1.1263717469714938,
+      "shuffled_layers": -0.8303505806695848
+    },
+    {
+      "phase": "phase_a",
+      "config": "eta_0_05_theta_0_50",
+      "gap": -0.22580171766735257,
+      "verdict": "STABILIZER_ONLY",
+      "base_model": -4.287946417218163,
+      "correct_memory": -1.0561522983369374,
+      "gate_off": -1.0561522983369374,
+      "gate_uniform": -0.9928850900559199,
+      "random_memory": -1.1263717469714938,
+      "shuffled_layers": -0.8303505806695848
+    },
+    {
+      "phase": "phase_a",
+      "config": "eta_0_10_theta_0_30",
+      "gap": -0.053987094334193686,
+      "verdict": "STABILIZER_ONLY",
+      "base_model": -4.287946417218163,
+      "correct_memory": -0.9291063036237445,
+      "gate_off": -0.9291063036237445,
+      "gate_uniform": -0.8978939964657738,
+      "random_memory": -1.002400625319708,
+      "shuffled_layers": -0.8751192092895508
+    },
+    {
+      "phase": "phase_a",
+      "config": "eta_0_10_theta_0_50",
+      "gap": -0.053987094334193686,
+      "verdict": "STABILIZER_ONLY",
+      "base_model": -4.287946417218163,
+      "correct_memory": -0.9291063036237445,
+      "gate_off": -0.9291063036237445,
+      "gate_uniform": -0.8978939964657738,
+      "random_memory": -1.002400625319708,
+      "shuffled_layers": -0.8751192092895508
+    }
+  ],
+  "best": [
+    {
+      "phase": "phase_a",
+      "config": "eta_0_10_theta_0_30",
+      "gap": -0.053987094334193686,
+      "verdict": "STABILIZER_ONLY",
+      "base_model": -4.287946417218163,
+      "correct_memory": -0.9291063036237445,
+      "gate_off": -0.9291063036237445,
+      "gate_uniform": -0.8978939964657738,
+      "random_memory": -1.002400625319708,
+      "shuffled_layers": -0.8751192092895508
+    },
+    {
+      "phase": "phase_a",
+      "config": "eta_0_10_theta_0_50",
+      "gap": -0.053987094334193686,
+      "verdict": "STABILIZER_ONLY",
+      "base_model": -4.287946417218163,
+      "correct_memory": -0.9291063036237445,
+      "gate_off": -0.9291063036237445,
+      "gate_uniform": -0.8978939964657738,
+      "random_memory": -1.002400625319708,
+      "shuffled_layers": -0.8751192092895508
+    },
+    {
+      "phase": "phase_a",
+      "config": "eta_0_05_theta_0_30",
+      "gap": -0.22580171766735257,
+      "verdict": "STABILIZER_ONLY",
+      "base_model": -4.287946417218163,
+      "correct_memory": -1.0561522983369374,
+      "gate_off": -1.0561522983369374,
+      "gate_uniform": -0.9928850900559199,
+      "random_memory": -1.1263717469714938,
+      "shuffled_layers": -0.8303505806695848
+    }
+  ],
+  "verdict_best": [
+    {
+      "phase": "phase_a",
+      "config": "eta_0_10_theta_0_30",
+      "gap": -0.053987094334193686,
+      "verdict": "STABILIZER_ONLY",
+      "base_model": -4.287946417218163,
+      "correct_memory": -0.9291063036237445,
+      "gate_off": -0.9291063036237445,
+      "gate_uniform": -0.8978939964657738,
+      "random_memory": -1.002400625319708,
+      "shuffled_layers": -0.8751192092895508
+    }
+  ],
+  "verdict": "STABILIZER_ONLY"
+}

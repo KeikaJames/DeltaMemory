@@ -1,0 +1,12 @@
+\begin{tabular}{l l r r r r r r r r}
+\toprule
+Variant & Method & $\alpha$ & n & Recall@1 & Margin (mean) & Margin (med) & JS drift & Bank mass & Mean rank \\
+\midrule
+base\_model & none & 0.0500 & 42 & 0.0000 & -4.2879 & -3.6250 & 0.0000 &  & 714.4762 \\
+correct\_memory & rsm & 0.0500 & 42 & 0.0000 & -1.0562 & -1.2500 &  &  & 17818.8333 \\
+random\_memory & rsm & 0.0500 & 42 & 0.0000 & -1.1264 & -1.4688 &  &  & 18850.4048 \\
+shuffled\_layers & rsm & 0.0500 & 42 & 0.0000 & -0.8304 & -1.0283 &  &  & 25757.5714 \\
+gate\_off & rsm & 0.0500 & 42 & 0.0000 & -1.0562 & -1.2500 &  &  & 17818.8333 \\
+gate\_uniform & rsm & 0.0500 & 42 & 0.0000 & -0.9929 & -1.1094 &  &  & 18668.4762 \\
+\bottomrule
+\end{tabular}
