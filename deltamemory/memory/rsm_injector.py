@@ -16,7 +16,8 @@ import torch.nn.functional as F
 
 from deltamemory.memory._layer_locator import get_decoder_layers
 
-RSMHookPoint = Literal["block_output"]
+RSMHookPoint = Literal["block_output", "pre_block_input", "mlp_mid"]
+RSMGateMode = Literal["threshold", "off", "uniform"]
 
 
 @dataclass
@@ -26,10 +27,21 @@ class RSMConfig:
     eta: float = 0.1
     theta: float = 0.5
     hook_point: RSMHookPoint = "block_output"
-    # Skip the theta threshold but keep similarity weighting.  This is not an
-    # all-ones stress path: weights are max(scores, 0).
+    # Gate semantics:
+    #   "threshold" (default): weights = where(scores > theta, scores, 0).
+    #   "off": skip theta threshold but keep nonnegative cosine weights
+    #          (weights = clamp_min(scores, 0)).  Still selectivity-weighted.
+    #   "uniform": ignore both theta and score magnitude — every bank entry
+    #              contributes with weight 1.  Pure "global steering" stress.
+    gate_mode: RSMGateMode = "threshold"
+    # Back-compat shim: if gate_off=True is supplied at construction time we
+    # promote it to gate_mode="off" in __post_init__.
     gate_off: bool = False
     inject_only_last_token: bool = True
+
+    def __post_init__(self) -> None:
+        if self.gate_off and self.gate_mode == "threshold":
+            self.gate_mode = "off"
 
 
 @dataclass
@@ -87,19 +99,48 @@ def _replace_hidden(output: Any, hidden: torch.Tensor) -> Any:
     return hidden
 
 
+def _resolve_target_module(layer: Any, hook_point: RSMHookPoint) -> Any:
+    """Return the nn.Module on which to attach the hook for ``hook_point``."""
+    if hook_point in ("block_output", "pre_block_input"):
+        return layer
+    if hook_point == "mlp_mid":
+        mlp = getattr(layer, "mlp", None)
+        if mlp is None:
+            raise ValueError("RSM mlp_mid hook requires a layer with a .mlp child.")
+        down = getattr(mlp, "down_proj", None)
+        if down is None:
+            raise ValueError(
+                "RSM mlp_mid hook requires .mlp.down_proj (SwiGLU-style). "
+                f"Found mlp children: {[n for n, _ in mlp.named_children()]}"
+            )
+        return down
+    raise ValueError(f"Unsupported RSM hook_point: {hook_point}")
+
+
 class RSMInjector:
     """Hook-based RSM capture and two-pass read injector."""
 
     def __init__(self, model: Any, config: RSMConfig | None = None) -> None:
         self.model = model
         self.config = config or RSMConfig()
-        if self.config.hook_point != "block_output":
-            raise ValueError("RSMInjector currently supports hook_point='block_output'.")
         self.layers = get_decoder_layers(model)
+        # Validate hook_point early so a bad config fails before forward calls.
+        for layer in self.layers:
+            _resolve_target_module(layer, self.config.hook_point)
 
     @property
     def num_layers(self) -> int:
         return len(self.layers)
+
+    @property
+    def hook_point(self) -> RSMHookPoint:
+        return self.config.hook_point
+
+    def _target_modules(self) -> list[Any]:
+        return [_resolve_target_module(layer, self.config.hook_point) for layer in self.layers]
+
+    def _is_pre_hook(self) -> bool:
+        return self.config.hook_point in ("pre_block_input", "mlp_mid")
 
     @torch.no_grad()
     def capture(
@@ -107,20 +148,35 @@ class RSMInjector:
         input_ids: torch.Tensor,
         attention_mask: torch.Tensor | None = None,
     ) -> torch.Tensor:
-        """Capture last-token residual vectors, returning ``(L, D)`` CPU fp32."""
+        """Capture last-token activation vectors, returning ``(L, D)`` CPU fp32.
+
+        ``D`` follows the hook point:
+        - ``block_output`` / ``pre_block_input``: ``hidden_size``.
+        - ``mlp_mid``: ``intermediate_size`` (input to ``mlp.down_proj``).
+        """
         last_idx = _last_index(input_ids, attention_mask)
         captured: dict[int, torch.Tensor] = {}
         handles = []
+        use_pre = self._is_pre_hook()
+        targets = self._target_modules()
 
-        def make_hook(layer_idx: int):
+        def make_post_hook(layer_idx: int):
             def _hook(module: Any, inputs: tuple[Any, ...], output: Any) -> None:
                 hidden = _as_hidden(output)
                 captured[layer_idx] = hidden[0, last_idx, :].detach().cpu().float()
-
             return _hook
 
-        for layer_idx, layer in enumerate(self.layers):
-            handles.append(layer.register_forward_hook(make_hook(layer_idx)))
+        def make_pre_hook(layer_idx: int):
+            def _hook(module: Any, inputs: tuple[Any, ...]) -> None:
+                hidden = inputs[0]
+                captured[layer_idx] = hidden[0, last_idx, :].detach().cpu().float()
+            return _hook
+
+        for layer_idx, mod in enumerate(targets):
+            if use_pre:
+                handles.append(mod.register_forward_pre_hook(make_pre_hook(layer_idx)))
+            else:
+                handles.append(mod.register_forward_hook(make_post_hook(layer_idx)))
 
         was_training = bool(getattr(self.model, "training", False))
         self.model.eval()
@@ -223,20 +279,48 @@ class RSMInjector:
                 "scores must have shape (N,) matching bank memories; "
                 f"scores={tuple(scores.shape)} bank_n={bank.n_memories}"
             )
-        if self.config.gate_off:
-            weights = scores.clamp_min(0.0)
-            active = weights > 0.0
-        else:
+        gate_mode = self.config.gate_mode
+        if gate_mode == "threshold":
             active = scores > float(self.config.theta)
             weights = torch.where(active, scores, torch.zeros_like(scores))
+        elif gate_mode == "off":
+            weights = scores.clamp_min(0.0)
+            active = weights > 0.0
+        elif gate_mode == "uniform":
+            active = torch.ones_like(scores, dtype=torch.bool)
+            weights = torch.ones_like(scores)
+        else:  # pragma: no cover - guarded by Literal
+            raise ValueError(f"Unsupported RSM gate_mode: {gate_mode}")
+
+        if scores.numel():
+            score_mean = float(scores.mean().item())
+            score_min = float(scores.min().item())
+            score_max = float(scores.max().item())
+            score_std = float(scores.std(unbiased=False).item()) if scores.numel() > 1 else 0.0
+            top_idx = int(scores.argmax().item())
+            top_score = float(scores[top_idx].item())
+            top_minus_mean = top_score - score_mean
+            top_fact = bank.fact_ids[top_idx]
+        else:
+            score_mean = score_min = score_max = score_std = float("nan")
+            top_idx = -1
+            top_score = float("nan")
+            top_minus_mean = float("nan")
+            top_fact = None
 
         diag = {
             "rsm_scores": scores.detach().cpu(),
             "rsm_active": active.detach().cpu(),
             "rsm_activation_rate": float(active.float().mean().item()) if active.numel() else 0.0,
-            "rsm_max_score": float(scores.max().item()) if scores.numel() else float("nan"),
-            "rsm_top_index": int(scores.argmax().item()) if scores.numel() else -1,
-            "rsm_top_fact_id": bank.fact_ids[int(scores.argmax().item())] if scores.numel() else None,
+            "rsm_max_score": score_max,
+            "rsm_min_score": score_min,
+            "rsm_mean_score": score_mean,
+            "rsm_score_std": score_std,
+            "rsm_top_score_minus_mean": top_minus_mean,
+            "rsm_top_index": top_idx,
+            "rsm_top_fact_id": top_fact,
+            "rsm_hook_point": self.config.hook_point,
+            "rsm_gate_mode": gate_mode,
         }
 
         if float(self.config.eta) == 0.0 or bank.n_memories == 0 or float(weights.abs().sum().item()) == 0.0:
@@ -252,8 +336,17 @@ class RSMInjector:
         memories = bank.memories.to(device=input_ids.device, dtype=torch.float32)
         weights_dev = weights.to(device=input_ids.device, dtype=torch.float32)
         handles = []
+        use_pre = self._is_pre_hook()
+        targets = self._target_modules()
 
-        def make_hook(layer_idx: int):
+        def _apply_delta(hidden: torch.Tensor, delta_local: torch.Tensor) -> torch.Tensor:
+            if self.config.inject_only_last_token:
+                new_hidden = hidden.clone()
+                new_hidden[0, last_idx, :] = new_hidden[0, last_idx, :] + delta_local
+                return new_hidden
+            return hidden + delta_local.view(1, 1, -1)
+
+        def make_post_hook(layer_idx: int):
             delta = torch.einsum("n,nd->d", weights_dev, memories[:, layer_idx, :])
 
             def _hook(module: Any, inputs: tuple[Any, ...], output: Any) -> Any:
@@ -262,17 +355,29 @@ class RSMInjector:
                     device=hidden.device,
                     dtype=hidden.dtype,
                 )
-                if self.config.inject_only_last_token:
-                    new_hidden = hidden.clone()
-                    new_hidden[0, last_idx, :] = new_hidden[0, last_idx, :] + delta_local
-                else:
-                    new_hidden = hidden + delta_local.view(1, 1, -1)
-                return _replace_hidden(output, new_hidden)
+                return _replace_hidden(output, _apply_delta(hidden, delta_local))
 
             return _hook
 
-        for layer_idx, layer in enumerate(self.layers):
-            handles.append(layer.register_forward_hook(make_hook(layer_idx)))
+        def make_pre_hook(layer_idx: int):
+            delta = torch.einsum("n,nd->d", weights_dev, memories[:, layer_idx, :])
+
+            def _hook(module: Any, inputs: tuple[Any, ...]) -> Any:
+                hidden = inputs[0]
+                delta_local = (float(self.config.eta) * delta).to(
+                    device=hidden.device,
+                    dtype=hidden.dtype,
+                )
+                new_hidden = _apply_delta(hidden, delta_local)
+                return (new_hidden,) + tuple(inputs[1:])
+
+            return _hook
+
+        for layer_idx, mod in enumerate(targets):
+            if use_pre:
+                handles.append(mod.register_forward_pre_hook(make_pre_hook(layer_idx)))
+            else:
+                handles.append(mod.register_forward_hook(make_post_hook(layer_idx)))
 
         was_training = bool(getattr(self.model, "training", False))
         self.model.eval()
@@ -291,4 +396,4 @@ class RSMInjector:
         return out, diag
 
 
-__all__ = ["RSMConfig", "RSMMemoryBank", "RSMInjector"]
+__all__ = ["RSMConfig", "RSMInjector", "RSMMemoryBank", "RSMHookPoint", "RSMGateMode"]
