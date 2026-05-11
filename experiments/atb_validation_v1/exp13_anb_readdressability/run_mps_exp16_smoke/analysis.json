@@ -1,0 +1,107 @@
+{
+  "experiment": "exp16_site_map",
+  "n_seeds": 3,
+  "n_facts": 21,
+  "per_quartile": {
+    "Q1": {
+      "mean_margin": {
+        "Kc_Vc": -2.554408459436326,
+        "Kc_Vr": -2.6660195267389692,
+        "Kr_Vc": -2.5575706656017,
+        "Kr_Vr": -2.58889331136431
+      },
+      "n": 63,
+      "K_causality_Kc_Vc_minus_Kr_Vc": {
+        "mean": 0.0031622061653742714,
+        "ci_lo": -0.5454489162990025,
+        "ci_hi": 0.5329240882207477
+      },
+      "V_causality_Kc_Vc_minus_Kc_Vr": {
+        "mean": 0.11161106730264331,
+        "ci_lo": -0.02551467456514873,
+        "ci_hi": 0.28832252063448466
+      },
+      "joint_Kc_Vc_minus_Kr_Vr": {
+        "mean": 0.034484851927984325,
+        "ci_lo": -0.5086699667431059,
+        "ci_hi": 0.5580774337526352
+      }
+    },
+    "Q2": {
+      "mean_margin": {
+        "Kc_Vc": -4.32961308388483,
+        "Kc_Vr": -4.316964266792176,
+        "Kr_Vc": -4.226686496583242,
+        "Kr_Vr": -4.220238076315986
+      },
+      "n": 63,
+      "K_causality_Kc_Vc_minus_Kr_Vc": {
+        "mean": -0.1029265873015873,
+        "ci_lo": -0.168402804268731,
+        "ci_hi": -0.034226235889253165
+      },
+      "V_causality_Kc_Vc_minus_Kc_Vr": {
+        "mean": -0.012648817092653305,
+        "ci_lo": -0.025297702304900638,
+        "ci_hi": -0.00024806885492234
+      },
+      "joint_Kc_Vc_minus_Kr_Vr": {
+        "mean": -0.10937500756884379,
+        "ci_lo": -0.17733137191288054,
+        "ci_hi": -0.04315475433591812
+      }
+    },
+    "Q3": {
+      "mean_margin": {
+        "Kc_Vc": -4.098958197094145,
+        "Kc_Vr": -4.096726152631971,
+        "Kr_Vc": -4.169890873015873,
+        "Kr_Vr": -4.164682532113696
+      },
+      "n": 63,
+      "K_causality_Kc_Vc_minus_Kr_Vc": {
+        "mean": 0.07093267592172774,
+        "ci_lo": 0.0014882163395957342,
+        "ci_hi": 0.14335336760869102
+      },
+      "V_causality_Kc_Vc_minus_Kc_Vr": {
+        "mean": -0.002232044462173704,
+        "ci_lo": -0.015872872064984035,
+        "ci_hi": 0.010416712079729353
+      },
+      "joint_Kc_Vc_minus_Kr_Vr": {
+        "mean": 0.06572433501955062,
+        "ci_lo": -0.003968144220019143,
+        "ci_hi": 0.1366569276839968
+      }
+    },
+    "Q4": {
+      "mean_margin": {
+        "Kc_Vc": -4.140624920527141,
+        "Kc_Vr": -4.138144875329639,
+        "Kr_Vc": -4.145833299273536,
+        "Kr_Vr": -4.131696489122179
+      },
+      "n": 63,
+      "K_causality_Kc_Vc_minus_Kr_Vc": {
+        "mean": 0.005208378746396019,
+        "ci_lo": -0.03075387364342099,
+        "ci_hi": 0.04290679522923061
+      },
+      "V_causality_Kc_Vc_minus_Kc_Vr": {
+        "mean": -0.0024800451975020153,
+        "ci_lo": -0.014384754120357453,
+        "ci_hi": 0.00917673110961914
+      },
+      "joint_Kc_Vc_minus_Kr_Vr": {
+        "mean": -0.00892843140496148,
+        "ci_lo": -0.04563475412035745,
+        "ci_hi": 0.02876992452712286
+      }
+    }
+  },
+  "best_K_quartile": "Q3",
+  "best_V_quartile": "Q4",
+  "verdict": "SITE_DIRECTIONAL",
+  "notes": "SITE_PASS requires both K-causality and V-causality CIs > 0 in at least one quartile each. SITE_DIRECTIONAL if only one."
+}
