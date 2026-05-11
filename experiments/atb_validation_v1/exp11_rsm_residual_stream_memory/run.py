@@ -38,8 +38,16 @@ from experiments.atb_validation_v1._lib.cf_runner import build_write_prompt, ren
 from experiments.atb_validation_v1._lib.manifest import write_manifest
 
 EXPERIMENT = "exp11_rsm_residual_stream_memory"
-RSM_VARIANTS = ["correct_memory", "random_memory", "shuffled_layers", "gate_off"]
+RSM_VARIANTS = ["correct_memory", "random_memory", "shuffled_layers", "gate_off", "gate_uniform"]
 _KL_LAST = 8
+
+
+def _variant_gate_mode(variant: str) -> str:
+    if variant == "gate_off":
+        return "off"
+    if variant == "gate_uniform":
+        return "uniform"
+    return "threshold"
 
 
 def _log(msg: str) -> None:
@@ -204,7 +212,11 @@ def _compute_rsm_neutral_drifts(
     prompts = neutral_prompts(n=n_neutral)
     base_lps = [_last_k_logsoftmax_model(model, tok, prompt, device) for prompt in prompts]
     for variant in RSM_VARIANTS:
-        rsm.config = RSMConfig(eta=eta, theta=theta, gate_off=(variant == "gate_off"))
+        rsm.config = RSMConfig(
+            eta=eta, theta=theta,
+            gate_mode=_variant_gate_mode(variant),
+            hook_point=rsm.config.hook_point,
+        )
         bank = _make_neutral_bank(
             variant=variant,
             rows=rows,
@@ -307,6 +319,10 @@ def _evaluate_rsm(
         "recall_at_1": rank == 0,
         "rsm_activation_rate": diag.get("rsm_activation_rate"),
         "rsm_max_score": diag.get("rsm_max_score"),
+        "rsm_mean_score": diag.get("rsm_mean_score"),
+        "rsm_min_score": diag.get("rsm_min_score"),
+        "rsm_score_std": diag.get("rsm_score_std"),
+        "rsm_top_score_minus_mean": diag.get("rsm_top_score_minus_mean"),
         "rsm_top_fact_id": diag.get("rsm_top_fact_id"),
         "rsm_top_memory_hit": diag.get("rsm_top_fact_id") == current_id,
     }
@@ -353,7 +369,11 @@ def _run_one_config(
         for seed in seeds:
             seed_everything(seed)
             for variant in ["base_model", *RSM_VARIANTS]:
-                cfg = RSMConfig(eta=eta, theta=theta, gate_off=(variant == "gate_off"))
+                cfg = RSMConfig(
+                    eta=eta, theta=theta,
+                    gate_mode=_variant_gate_mode(variant),
+                    hook_point=rsm.config.hook_point,
+                )
                 rsm.config = cfg
                 for row in rows:
                     query = render_query(row)
@@ -364,6 +384,10 @@ def _run_one_config(
                         extra = {
                             "rsm_activation_rate": math.nan,
                             "rsm_max_score": math.nan,
+                            "rsm_mean_score": math.nan,
+                            "rsm_min_score": math.nan,
+                            "rsm_score_std": math.nan,
+                            "rsm_top_score_minus_mean": math.nan,
                             "rsm_top_fact_id": None,
                             "rsm_top_memory_hit": False,
                         }
@@ -386,7 +410,8 @@ def _run_one_config(
                         "alpha": eta,
                         "rsm_eta": eta,
                         "rsm_theta": theta,
-                        "rsm_hook_point": "block_output",
+                        "rsm_hook_point": rsm.config.hook_point,
+                        "rsm_gate_mode": _variant_gate_mode(variant),
                         "seed": seed,
                         "prompt_id": row["id"],
                         "subject": row["subject"],
@@ -416,7 +441,12 @@ def _read_margins(summary_path: Path) -> dict[str, float]:
 def _gap(summary_path: Path) -> float:
     m = _read_margins(summary_path)
     correct = m.get("correct_memory", float("-inf"))
-    controls = [m.get("random_memory"), m.get("shuffled_layers"), m.get("gate_off")]
+    controls = [
+        m.get("random_memory"),
+        m.get("shuffled_layers"),
+        m.get("gate_off"),
+        m.get("gate_uniform"),
+    ]
     controls = [c for c in controls if c is not None]
     return correct - max(controls) if controls else float("nan")
 
@@ -453,9 +483,13 @@ def _write_config_manifest(
             "phase": phase,
             "eta": eta,
             "theta": theta,
+            "hook_point": args.hook_point,
             "bank_size": args.bank_size,
             "n_prompts": n_prompts,
-            "gate": "max_layer_cosine; gate_off skips theta but keeps nonnegative score weights",
+            "gate": (
+                "max_layer_cosine; gate_off keeps clamp_min(score,0) weights; "
+                "gate_uniform forces all-1 weights for all bank entries"
+            ),
             "inject_only_last_token": True,
             "include_anb_best": bool(args.include_anb_best),
             "n_neutral": args.n_neutral,
@@ -479,6 +513,12 @@ def main() -> None:
     p.add_argument("--n-neutral", type=int, default=100)
     p.add_argument("--phase", default="AB", choices=["A", "B", "AB"])
     p.add_argument(
+        "--hook-point",
+        default="block_output",
+        choices=["block_output", "pre_block_input", "mlp_mid"],
+        help="Where to capture/inject residual memories.",
+    )
+    p.add_argument(
         "--include-anb-best",
         action="store_true",
         help="Disabled for now: Exp10 A3 requires full LOPI/mHC VariantContext plumbing.",
@@ -490,9 +530,12 @@ def main() -> None:
     seeds = [int(s) for s in args.seeds.split(",") if s]
     cf_path = Path(args.counterfact)
 
-    _log(f"loading {args.model} dtype={args.dtype} device={args.device}")
+    _log(
+        f"loading {args.model} dtype={args.dtype} device={args.device} "
+        f"hook_point={args.hook_point}"
+    )
     tok, model = load_model(args.model, device=args.device, dtype=args.dtype)
-    rsm = RSMInjector(model, RSMConfig())
+    rsm = RSMInjector(model, RSMConfig(hook_point=args.hook_point))
 
     phase_a_scores: list[dict[str, Any]] = []
     if "A" in args.phase:

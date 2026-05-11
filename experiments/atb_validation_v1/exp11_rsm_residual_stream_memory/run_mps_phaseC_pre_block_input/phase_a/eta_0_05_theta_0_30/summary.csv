@@ -1,0 +1,7 @@
+experiment,model,dataset,variant,method,alpha,bank_size,n,recall_at_1,mean_margin,median_margin,js_drift,kl_drift,bank_attention_mass,max_bank_prob,mean_target_rank,torch_equal_all,max_abs_diff_max
+exp11_rsm_residual_stream_memory_a_eta_0_05_theta_0_30,Qwen/Qwen3-4B-Instruct-2507,counterfact_1k.jsonl,base_model,none,0.05,0,42,0.0,-4.287946417218163,-3.624999523162842,0.0,0.0,,,714.4761904761905,,
+exp11_rsm_residual_stream_memory_a_eta_0_05_theta_0_30,Qwen/Qwen3-4B-Instruct-2507,counterfact_1k.jsonl,correct_memory,rsm,0.05,64,42,0.0,-1.0561522983369374,-1.25,,,,,17818.833333333332,,
+exp11_rsm_residual_stream_memory_a_eta_0_05_theta_0_30,Qwen/Qwen3-4B-Instruct-2507,counterfact_1k.jsonl,random_memory,rsm,0.05,64,42,0.0,-1.1263717469714938,-1.46875,,,,,18850.404761904763,,
+exp11_rsm_residual_stream_memory_a_eta_0_05_theta_0_30,Qwen/Qwen3-4B-Instruct-2507,counterfact_1k.jsonl,shuffled_layers,rsm,0.05,64,42,0.0,-0.8303505806695848,-1.0283203125,,,,,25757.571428571428,,
+exp11_rsm_residual_stream_memory_a_eta_0_05_theta_0_30,Qwen/Qwen3-4B-Instruct-2507,counterfact_1k.jsonl,gate_off,rsm,0.05,64,42,0.0,-1.0561522983369374,-1.25,,,,,17818.833333333332,,
+exp11_rsm_residual_stream_memory_a_eta_0_05_theta_0_30,Qwen/Qwen3-4B-Instruct-2507,counterfact_1k.jsonl,gate_uniform,rsm,0.05,64,42,0.0,-0.9928850900559199,-1.109375,,,,,18668.47619047619,,
