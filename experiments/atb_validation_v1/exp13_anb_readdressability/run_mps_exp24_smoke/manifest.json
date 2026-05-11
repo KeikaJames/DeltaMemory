@@ -1,0 +1,14 @@
+{
+  "experiment": "exp24_sparse_attention_readout",
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "n_eligible": 100,
+  "alphas": [
+    0.005,
+    0.05,
+    1.0
+  ],
+  "seeds": [
+    0,
+    1
+  ]
+}
