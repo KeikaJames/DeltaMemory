@@ -55,15 +55,61 @@ generic activation steering that any non-empty bank produces. The contrast
 that worked at k=1 vanishes at single-slot oracle vs full-bank because the
 full-bank steering term is a much larger lever than the routing term.
 
-### Decision: pivot to **Exp31 (learned read-time key adapter)**
+### α-sweep confirms structural failure
 
-The natural Exp24 routing (next on the original ladder) cannot recover from
-this. If oracle (perfect routing!) loses to random selection by 0.0–0.2 nats,
-natural QK routing will be at best indistinguishable. The contingency tree
-sends us to Exp31: learn `A: d_q → d_k` so that `A(q_rel) · M_K[*, rel_last]^T`
-forms a discriminative score. If even with a learned adapter we cannot
-separate correct from random, ATB-native memory is empirically false and we
-exit to RAG-hybrid territory (Exp36).
+Tested α ∈ {0.0005, 0.001, 0.005, 0.02} on n=50 × 2 seeds:
+
+| α | base | old_full_bank | oracle_relationK_subjectV | minus_correct | oracle − full |
+|---:|---:|---:|---:|---:|---:|
+| 0.0005 | −5.76 | −0.20 | −2.26 | −0.15 | **−2.06** |
+| 0.0010 | −5.76 | −0.08 | −2.23 | +0.04 | **−2.15** |
+| 0.0050 | −5.76 | −0.14 | −2.22 | −0.20 | **−2.08** |
+| 0.0200 | −5.76 | −0.00 | −2.25 | −0.02 | **−2.25** |
+
+**The 2-nat oracle deficit is α-invariant**. This is not an injection-strength
+problem — it is a **substrate-capacity** problem. A single slot's K/V cannot
+match the activation steering of a 100-slot full bank at any α.
+
+### Decision: site-stratified KV direction is structurally falsified
+
+Originally the contingency tree pointed to **Exp31 (learned adapter)** as the
+fallback. But the α-sweep shows the gap is downstream of K matching — even
+**perfect routing** (oracle) can't close it, because the issue is that a single
+slot's V is too small a lever vs. the bank-presence steering term. A learned
+adapter (which only improves K matching) cannot fix V-side capacity. Exp31
+would therefore be a known-null run.
+
+**Implications for the rest of Exp23–40**:
+
+- **Exp24** (natural routing) — strictly weaker than oracle, already dead.
+- **Exp25** (swap matrix) — every cell would test a single-slot variant; all dead.
+- **Exp27** (α stability) — already done above; no α range exists where the
+  method works.
+- **Exp31** (adapter) — solves wrong problem; deferred unless V-side fix found.
+- **Exp36** (RAG comparison) — user has explicitly rejected RAG-hybrid as a
+  pivot direction (ATB philosophy is native memory).
+
+**Scientific conclusion** (locked):
+
+> The K-causality observed in Exp17/21 (relation_last is K-causal in single-fact
+> banks) does **not** compose to bank-level retrieval. At full bank scale,
+> activation-steering term dominates routing term by >2 nats independent of α.
+> Native single-slot retrieval in a 100-fact bank is empirically infeasible on
+> Qwen3-4B with this capture/inject architecture.
+
+**Remaining non-dead directions** (require user input):
+
+1. **V-side amplification** — make per-slot V contribution match full-bank
+   energy. Equivalent to learning a per-slot scale at write time. New experiment
+   (call it Exp23v: V-side scaling). Borderline native.
+2. **Sparse attention bank** — instead of α-scaled additive injection, use
+   a softmax over slots that competes with native KV. Closer to in-context
+   attention. Architectural change. (Was implicit in Exp24 spec but with α-add
+   readout — needs full attention-replace readout.)
+3. **Pivot to a different substrate** — Gemma/Llama may have different
+   activation-steering vs routing balance. Was Exp29.
+4. **Accept the negative result** — publish "site-stratified native ANB does
+   not scale beyond k=1" as a clean negative.
 
 ### Artifacts
 
