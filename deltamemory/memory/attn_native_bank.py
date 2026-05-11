@@ -618,10 +618,11 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
         alpha = ctx.alpha
         capture = ctx.capture_mode
         capture_pos = ctx.capture_pos  # int or None; default = last token
+        record_q = getattr(ctx, "record_queries", False)
 
-        # α=0 / empty-bank redline: if no capture and no positive bank injection
-        # is requested, delegate to the original module exactly.
-        if not capture and (bank is None or bank.empty or alpha <= 0.0):
+        # α=0 / empty-bank redline: if no capture, no positive bank injection,
+        # and no Q recording is requested, delegate to the original module exactly.
+        if not capture and not record_q and (bank is None or bank.empty or alpha <= 0.0):
             return orig_forward(
                 hidden_states,
                 position_embeddings,
@@ -694,6 +695,15 @@ def _make_patched_forward(orig_forward, layer_idx: int, ctx: "AttnNativePatcher"
             k_pre_for_capture = k_pre  # [B, T, Hkv, d]
 
         q_pre = q_pre.transpose(1, 2)              # [B, Hq, T, d]
+
+        # Exp13 diagnostic: record q_pre / q_post for offline QK-only scoring.
+        # Guarded by ctx.record_queries; default False keeps zero overhead.
+        if record_q:
+            T_now = q_pre.size(2)
+            rec_pos = ctx.record_query_pos if ctx.record_query_pos is not None else (T_now - 1)
+            rec_pos = max(0, min(int(rec_pos), T_now - 1))
+            ctx._recorded_Q_pre[layer_idx] = q_pre[:, :, rec_pos, :].detach()    # [B, Hq, d]
+            ctx._recorded_Q_post[layer_idx] = q_post[:, :, rec_pos, :].detach()  # [B, Hq, d]
 
         if past_key_values is not None and not is_kv_shared:
             key_states, value_states = past_key_values.update(key_states, value_states, self.layer_idx)
@@ -1010,6 +1020,14 @@ class AttnNativePatcher:
         self.capture_bank: AttnNativeBank | None = None
         self._capture_K: list[torch.Tensor | None] = [None] * self.num_layers
         self._capture_V: list[torch.Tensor | None] = [None] * self.num_layers
+        # Exp13 addition: per-layer Q recording for QK-only diagnostics.
+        # Default False → strictly additive, no behavior change. When True,
+        # the patched forward records q_pre (and q_post) at every layer for
+        # the configured token position(s) into ``_recorded_Q_pre/_recorded_Q_post``.
+        self.record_queries: bool = False
+        self.record_query_pos: int | None = None  # None → last real token (per row)
+        self._recorded_Q_pre: list[torch.Tensor | None] = [None] * self.num_layers
+        self._recorded_Q_post: list[torch.Tensor | None] = [None] * self.num_layers
         self.enable_compression = bool(enable_compression)
         self.enable_decay = bool(enable_decay)
         self.enable_importance = bool(enable_importance)
@@ -1066,6 +1084,27 @@ class AttnNativePatcher:
             yield
         finally:
             self.bank, self.alpha = prev_bank, prev_alpha
+
+    @contextmanager
+    def recording_queries(self, capture_pos: int | None = None):
+        """Exp13 QK-only diagnostic: record per-layer Q at a single token pos.
+
+        Pure recorder — does not inject or modify outputs.  Sets
+        ``record_queries=True`` and pins ``record_query_pos`` for the duration.
+        On exit, recorded tensors remain in ``_recorded_Q_pre/_recorded_Q_post``
+        for the caller to consume.
+        """
+        prev_flag = self.record_queries
+        prev_pos = self.record_query_pos
+        self.record_queries = True
+        self.record_query_pos = capture_pos
+        self._recorded_Q_pre = [None] * self.num_layers
+        self._recorded_Q_post = [None] * self.num_layers
+        try:
+            yield
+        finally:
+            self.record_queries = prev_flag
+            self.record_query_pos = prev_pos
 
 
 # ---------------------------------------------------------------------------
