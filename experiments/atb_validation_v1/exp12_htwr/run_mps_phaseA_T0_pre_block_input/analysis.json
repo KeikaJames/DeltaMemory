@@ -1,0 +1,70 @@
+{
+  "stats": {
+    "base_model": {
+      "n": 42,
+      "n_margin": 42,
+      "mean_margin": -4.287946417218163,
+      "median_margin": -3.624999523162842,
+      "ci95_margin_lo": -5.175883571874528,
+      "ci95_margin_hi": -3.4281435746522178,
+      "mean_recall_at_1": 0.0,
+      "retrieval_accuracy": null,
+      "mean_top_score": NaN
+    },
+    "oracle_correct": {
+      "n": 42,
+      "n_margin": 42,
+      "mean_margin": -2.871279761904762,
+      "median_margin": -2.65625,
+      "ci95_margin_lo": -3.6235769865058716,
+      "ci95_margin_hi": -2.180199077299664,
+      "mean_recall_at_1": 0.0,
+      "retrieval_accuracy": 1.0,
+      "mean_top_score": 1.0
+    },
+    "oracle_random": {
+      "n": 42,
+      "n_margin": 42,
+      "mean_margin": -3.2659040292104087,
+      "median_margin": -2.984375,
+      "ci95_margin_lo": -3.9871977644307273,
+      "ci95_margin_hi": -2.600611569484075,
+      "mean_recall_at_1": 0.0,
+      "retrieval_accuracy": 0.0,
+      "mean_top_score": 0.793212354183197
+    },
+    "oracle_shuffled": {
+      "n": 42,
+      "n_margin": 42,
+      "mean_margin": -0.2335146949404762,
+      "median_margin": -0.3662109375,
+      "ci95_margin_lo": -0.6386468796502975,
+      "ci95_margin_hi": 0.15694551013764857,
+      "mean_recall_at_1": 0.0,
+      "retrieval_accuracy": 1.0,
+      "mean_top_score": 1.0
+    },
+    "oracle_sign_flip": {
+      "n": 42,
+      "n_margin": 42,
+      "mean_margin": -5.0432011513482955,
+      "median_margin": -4.124999523162842,
+      "ci95_margin_lo": -6.056477215176537,
+      "ci95_margin_hi": -4.125800341083891,
+      "mean_recall_at_1": 0.0,
+      "retrieval_accuracy": 1.0,
+      "mean_top_score": 1.0
+    }
+  },
+  "verdict": {
+    "verdict": "STEERING_ONLY",
+    "base_margin": -4.287946417218163,
+    "oracle_correct_margin": -2.871279761904762,
+    "oracle_correct_ci_lo": -3.6235769865058716,
+    "oracle_random_margin": -3.2659040292104087,
+    "oracle_shuffled_margin": -0.2335146949404762,
+    "oracle_sign_flip_margin": -5.0432011513482955,
+    "delta_vs_base": 1.416666655313401,
+    "gap_vs_strongest_control": -2.6377650669642856
+  }
+}
