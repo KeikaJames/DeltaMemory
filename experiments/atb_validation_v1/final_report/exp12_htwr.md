@@ -166,14 +166,26 @@ with last-token capture.
 
 ## Next directions (out of scope for this report)
 
+ATB's design philosophy is **native memory** — the memory is internal to the
+model's processing pathway, not text injected into the context.  External
+retrieval-augmented generation (RAG, prefix-stuffing) is explicitly out of
+scope: it trades the native-memory problem for a context-management problem and
+does not address the core research question.
+
+Within the native-memory constraint, the open paths are:
+
 1. **Sparse-token writes**: instead of one residual at last token, capture all
    subject-token positions and replay them as a small KV cache addendum.
+   This targets the write side — richer capture, same native injection path.
 2. **Adapter or LoRA-conditioned injection**: read out the bank via a trained
-   adapter that consumes the memory and emits per-token logit biases rather
-   than per-layer residual deltas.
-3. **Hippocampus-style indexed retrieval into prompt prefix**: render the
-   retrieved fact as text into the context window — explicit "RAG"
-   baseline — as the upper bound any internal-state method must beat.
+   adapter that consumes the memory vector and emits per-token attention bias or
+   per-layer scale/shift rather than an additive residual delta.  This targets
+   the injection side — learned routing instead of raw vector addition.
+3. **Attention-layer key/value delta (revisit ANB)**: the Exp10 failures were
+   on Qwen3-4B with dynLoPI / mHC variants; the underlying idea of writing
+   fact-specific KV deltas at attention layers has not been exhausted on all
+   model families or injection sites (e.g. static KV prefix vs. dynamic
+   gate-multiplied delta).
 
 ## Artifacts
 
