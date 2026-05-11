@@ -1,0 +1,16 @@
+{
+  "experiment": "exp19_paraphrase",
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "dtype": "bf16",
+  "device": "mps",
+  "site": "relation_last",
+  "alpha": 0.005,
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "n_eligible": 21,
+  "counterfact": "experiments/datasets/counterfact_1k.jsonl",
+  "torch_version": "2.11.0"
+}
