@@ -1,0 +1,46 @@
+{
+  "experiment": "exp15_kv_binding",
+  "n_seeds": 3,
+  "n_facts": 21,
+  "mean_margin": {
+    "base": -4.287946417218163,
+    "Kc_Vc": -2.0606399263654436,
+    "Kc_Vr": -2.299277593219091,
+    "Kr_Vc": -2.061050679948595,
+    "Kr_Vr": -2.5442359825921437
+  },
+  "contrasts": {
+    "Kc_Vc_vs_Kc_Vr": {
+      "mean": 0.23863766685364737,
+      "ci_lo": 0.015888433607797774,
+      "ci_hi": 0.5508431328667535,
+      "n": 63
+    },
+    "Kc_Vc_vs_Kr_Vc": {
+      "mean": 0.0004107535831511967,
+      "ci_lo": -0.7541775741274395,
+      "ci_hi": 0.656544496142675,
+      "n": 63
+    },
+    "Kc_Vc_vs_Kr_Vr": {
+      "mean": 0.48359605622670004,
+      "ci_lo": -0.33139573581635007,
+      "ci_hi": 1.2213191986083984,
+      "n": 63
+    },
+    "Kc_Vr_vs_Kr_Vr": {
+      "mean": 0.2449583893730527,
+      "ci_lo": -0.5141406513395763,
+      "ci_hi": 0.9076450930701362,
+      "n": 63
+    },
+    "Kr_Vc_vs_Kr_Vr": {
+      "mean": 0.48318530264354886,
+      "ci_lo": -0.13660251905047704,
+      "ci_hi": 1.1365405718485515,
+      "n": 63
+    }
+  },
+  "verdict": "BINDING_DIRECTIONAL",
+  "notes": "Kc_Vc_vs_Kc_Vr captures V-causality given correct K; Kc_Vc_vs_Kr_Vc captures K-causality given correct V. BINDING_PASS requires both CIs > 0."
+}

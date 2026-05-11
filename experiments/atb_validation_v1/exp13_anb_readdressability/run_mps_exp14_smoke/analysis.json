@@ -1,0 +1,167 @@
+{
+  "experiment": "exp14_oracle_addressed",
+  "n_seeds": 3,
+  "n_facts": 21,
+  "alphas": [
+    0.005,
+    0.01,
+    0.02,
+    0.05
+  ],
+  "per_alpha": {
+    "0.005": {
+      "mean_margin": {
+        "oracle_correct_KV": -2.0606399263654436,
+        "oracle_random_KV": -2.5016624738299655,
+        "oracle_shuffled_layer_KV": -4.155009905497233,
+        "oracle_KcorrectVrandom": -2.354414731737167
+      },
+      "n_pairs": 63,
+      "delta_vs_worst_control": {
+        "mean": -0.48695976393563406,
+        "ci_lo": -0.978972768026685,
+        "ci_hi": -0.06299598633296906
+      },
+      "delta_vs_each_control": {
+        "oracle_random_KV": {
+          "mean": 0.44102254746452213,
+          "ci_lo": -0.2928369991363041,
+          "ci_hi": 1.129452554006425
+        },
+        "oracle_shuffled_layer_KV": {
+          "mean": 2.0943699791317893,
+          "ci_lo": 1.4417162055060977,
+          "ci_hi": 2.8473461809612455
+        },
+        "oracle_KcorrectVrandom": {
+          "mean": 0.29377480537172346,
+          "ci_lo": 0.04389874140421549,
+          "ci_hi": 0.62053572563898
+        }
+      },
+      "delta_vs_base": {
+        "mean": 2.2273064908527194,
+        "ci_lo": 1.5608878324902247,
+        "ci_hi": 3.001860077418978
+      },
+      "beats_all_controls": true,
+      "ci_lo_above_zero": false
+    },
+    "0.01": {
+      "mean_margin": {
+        "oracle_correct_KV": -2.342936186563401,
+        "oracle_random_KV": -2.464115203373016,
+        "oracle_shuffled_layer_KV": -4.155754006098187,
+        "oracle_KcorrectVrandom": -2.2935500750466
+      },
+      "n_pairs": 63,
+      "delta_vs_worst_control": {
+        "mean": -0.8048579919905889,
+        "ci_lo": -1.3002697134774828,
+        "ci_hi": -0.37829397216675775
+      },
+      "delta_vs_each_control": {
+        "oracle_random_KV": {
+          "mean": 0.12117901680961488,
+          "ci_lo": -0.5743969584268237,
+          "ci_hi": 0.7699807749854194
+        },
+        "oracle_shuffled_layer_KV": {
+          "mean": 1.8128178195347862,
+          "ci_lo": 1.2992544779701838,
+          "ci_hi": 2.3331086294991628
+        },
+        "oracle_KcorrectVrandom": {
+          "mean": -0.04938611151680114,
+          "ci_lo": -0.22515186052473765,
+          "ci_hi": 0.07945816100589813
+        }
+      },
+      "delta_vs_base": {
+        "mean": 1.9450102306547619,
+        "ci_lo": 1.4097686570788186,
+        "ci_hi": 2.504704524600317
+      },
+      "beats_all_controls": false,
+      "ci_lo_above_zero": false
+    },
+    "0.02": {
+      "mean_margin": {
+        "oracle_correct_KV": -2.4739582425072077,
+        "oracle_random_KV": -2.4471881654527454,
+        "oracle_shuffled_layer_KV": -4.1468254043942405,
+        "oracle_KcorrectVrandom": -2.125705575186109
+      },
+      "n_pairs": 63,
+      "delta_vs_worst_control": {
+        "mean": -1.060926282216632,
+        "ci_lo": -1.559779167175293,
+        "ci_hi": -0.6547381764366513
+      },
+      "delta_vs_each_control": {
+        "oracle_random_KV": {
+          "mean": -0.026770077054462736,
+          "ci_lo": -0.7094337599618095,
+          "ci_hi": 0.5997180106147887
+        },
+        "oracle_shuffled_layer_KV": {
+          "mean": 1.6728671618870325,
+          "ci_lo": 1.1783234429737879,
+          "ci_hi": 2.2051092178102523
+        },
+        "oracle_KcorrectVrandom": {
+          "mean": -0.34825266732109916,
+          "ci_lo": -0.623510826201666,
+          "ci_hi": -0.14261654066661048
+        }
+      },
+      "delta_vs_base": {
+        "mean": 1.813988174710955,
+        "ci_lo": 1.2931548035334026,
+        "ci_hi": 2.385416719648573
+      },
+      "beats_all_controls": false,
+      "ci_lo_above_zero": false
+    },
+    "0.05": {
+      "mean_margin": {
+        "oracle_correct_KV": -2.2966890789213634,
+        "oracle_random_KV": -2.398261902824281,
+        "oracle_shuffled_layer_KV": -4.14930562367515,
+        "oracle_KcorrectVrandom": -2.217943933275011
+      },
+      "n_pairs": 63,
+      "delta_vs_worst_control": {
+        "mean": -0.8818515671624078,
+        "ci_lo": -1.3406809927925232,
+        "ci_hi": -0.5000623218596928
+      },
+      "delta_vs_each_control": {
+        "oracle_random_KV": {
+          "mean": 0.10157282390291729,
+          "ci_lo": -0.6078986932360937,
+          "ci_hi": 0.7599131114899166
+        },
+        "oracle_shuffled_layer_KV": {
+          "mean": 1.8526165447537861,
+          "ci_lo": 1.308097619858999,
+          "ci_hi": 2.4675718981122214
+        },
+        "oracle_KcorrectVrandom": {
+          "mean": -0.07874514564635261,
+          "ci_lo": -0.1604663303920201,
+          "ci_hi": 0.00043394452049618675
+        }
+      },
+      "delta_vs_base": {
+        "mean": 1.9912573382967995,
+        "ci_lo": 1.4040177171192472,
+        "ci_hi": 2.6356646484798856
+      },
+      "beats_all_controls": false,
+      "ci_lo_above_zero": false
+    }
+  },
+  "verdict": "ORACLE_DIRECTIONAL",
+  "notes": "Decisive controls = oracle_random_KV, oracle_shuffled_layer_KV, oracle_KcorrectVrandom. Paired bootstrap B=2000 on (correct - max(controls)) deltas. PREREG: if every alpha yields correct <= max(controls), Exp15/Exp18 are skipped."
+}

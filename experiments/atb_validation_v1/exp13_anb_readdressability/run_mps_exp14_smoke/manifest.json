@@ -1,0 +1,20 @@
+{
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "dtype": "bf16",
+  "device": "mps",
+  "site": "subject_last",
+  "alphas": [
+    0.005,
+    0.01,
+    0.02,
+    0.05
+  ],
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "n_eligible": 21,
+  "counterfact": "experiments/datasets/counterfact_1k.jsonl",
+  "torch_version": "2.11.0"
+}
