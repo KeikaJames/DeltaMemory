@@ -1,0 +1,206 @@
+{
+  "n_total_cells": 6600,
+  "alphas": [
+    0.005,
+    0.01
+  ],
+  "bank_size": 200,
+  "per_alpha": {
+    "0.0050": {
+      "variants": {
+        "base": {
+          "n": 600,
+          "mean_margin": -4.810191663136029,
+          "sem_margin": 0.19656588580362538
+        },
+        "full_bank_concat": {
+          "n": 600,
+          "mean_margin": -0.38008835792541507,
+          "sem_margin": 0.11180903489859366
+        },
+        "full_bank_topk1": {
+          "n": 600,
+          "mean_margin": -0.5497834206745028,
+          "sem_margin": 0.1327065129149537,
+          "retrieval_accuracy": 0.01,
+          "retrieval_se": 0.00406201920231798,
+          "chance": 0.005,
+          "accuracy_above_chance_3se": false,
+          "n_retrieval": 600,
+          "mean_bank_mass": 0.37639780029600606,
+          "mean_max_bank_prob": 0.0,
+          "mean_top1_top2_gap": 0.0
+        },
+        "full_bank_topk1_meanV": {
+          "n": 600,
+          "mean_margin": -0.4854409597441554,
+          "sem_margin": 0.12574063671855742,
+          "retrieval_accuracy": 0.01,
+          "retrieval_se": 0.00406201920231798,
+          "chance": 0.005,
+          "accuracy_above_chance_3se": false,
+          "n_retrieval": 600,
+          "mean_bank_mass": 0.37643610302475283,
+          "mean_max_bank_prob": 0.0,
+          "mean_top1_top2_gap": 0.0
+        },
+        "full_bank_topk1_minus_correct": {
+          "n": 600,
+          "mean_margin": -0.5278365736454725,
+          "sem_margin": 0.1244702840401167,
+          "mean_bank_mass": 0.3741918141438402,
+          "mean_max_bank_prob": 0.0,
+          "mean_top1_top2_gap": 0.0
+        },
+        "full_bank_topk1_shuffled_factids": {
+          "n": 600,
+          "mean_margin": -0.5150547564340134,
+          "sem_margin": 0.12917529247652657,
+          "retrieval_accuracy": 0.015,
+          "retrieval_se": 0.004962358310319802,
+          "chance": 0.005,
+          "accuracy_above_chance_3se": false,
+          "n_retrieval": 600,
+          "mean_bank_mass": 0.3769986413578132,
+          "mean_max_bank_prob": 0.0,
+          "mean_top1_top2_gap": 0.0
+        }
+      },
+      "contrasts": [
+        {
+          "gate": "A",
+          "hi": "full_bank_topk1",
+          "lo": "full_bank_topk1_minus_correct",
+          "n": 600,
+          "diff_mean": -0.021946847029030322,
+          "ci_lo": -0.10509113406979789,
+          "ci_hi": 0.06218115544163927,
+          "passes": false
+        },
+        {
+          "gate": "C",
+          "hi": "full_bank_topk1",
+          "lo": "full_bank_topk1_meanV",
+          "n": 600,
+          "diff_mean": -0.06434246093034744,
+          "ci_lo": -0.1384145978912711,
+          "ci_hi": 0.0061562567104895384,
+          "passes": false
+        },
+        {
+          "gate": "D",
+          "hi": "full_bank_topk1",
+          "lo": "full_bank_topk1_shuffled_factids",
+          "n": 600,
+          "diff_mean": -0.034728664240489406,
+          "ci_lo": -0.1004453152444524,
+          "ci_hi": 0.027428020070229285,
+          "passes": false
+        }
+      ],
+      "n_pairs": 600
+    },
+    "0.0100": {
+      "variants": {
+        "base": {
+          "n": 600,
+          "mean_margin": -4.810191663136029,
+          "sem_margin": 0.19656588580362538
+        },
+        "full_bank_concat": {
+          "n": 600,
+          "mean_margin": -0.25757054090499876,
+          "sem_margin": 0.1152723697831728
+        },
+        "full_bank_topk1": {
+          "n": 600,
+          "mean_margin": -0.549288349673152,
+          "sem_margin": 0.1330350073089953,
+          "retrieval_accuracy": 0.015,
+          "retrieval_se": 0.004962358310319802,
+          "chance": 0.005,
+          "accuracy_above_chance_3se": false,
+          "n_retrieval": 600,
+          "mean_bank_mass": 0.3773044096273521,
+          "mean_max_bank_prob": 0.0,
+          "mean_top1_top2_gap": 0.0
+        },
+        "full_bank_topk1_meanV": {
+          "n": 600,
+          "mean_margin": -0.5854801058582961,
+          "sem_margin": 0.132658347005726,
+          "retrieval_accuracy": 0.015,
+          "retrieval_se": 0.004962358310319802,
+          "chance": 0.005,
+          "accuracy_above_chance_3se": false,
+          "n_retrieval": 600,
+          "mean_bank_mass": 0.3777246292202121,
+          "mean_max_bank_prob": 0.0,
+          "mean_top1_top2_gap": 0.0
+        },
+        "full_bank_topk1_minus_correct": {
+          "n": 600,
+          "mean_margin": -0.5579675164446235,
+          "sem_margin": 0.12460102373132438,
+          "mean_bank_mass": 0.37558284969330996,
+          "mean_max_bank_prob": 0.0,
+          "mean_top1_top2_gap": 0.0
+        },
+        "full_bank_topk1_shuffled_factids": {
+          "n": 600,
+          "mean_margin": -0.4993455411928395,
+          "sem_margin": 0.1240255781375312,
+          "retrieval_accuracy": 0.015,
+          "retrieval_se": 0.004962358310319802,
+          "chance": 0.005,
+          "accuracy_above_chance_3se": false,
+          "n_retrieval": 600,
+          "mean_bank_mass": 0.3780432088423792,
+          "mean_max_bank_prob": 0.0,
+          "mean_top1_top2_gap": 0.0
+        }
+      },
+      "contrasts": [
+        {
+          "gate": "A",
+          "hi": "full_bank_topk1",
+          "lo": "full_bank_topk1_minus_correct",
+          "n": 600,
+          "diff_mean": 0.0086791667714715,
+          "ci_lo": -0.07741469961435844,
+          "ci_hi": 0.09930160947237163,
+          "passes": false
+        },
+        {
+          "gate": "C",
+          "hi": "full_bank_topk1",
+          "lo": "full_bank_topk1_meanV",
+          "n": 600,
+          "diff_mean": 0.03619175618514418,
+          "ci_lo": -0.018808307179405043,
+          "ci_hi": 0.09345892089605329,
+          "passes": false
+        },
+        {
+          "gate": "D",
+          "hi": "full_bank_topk1",
+          "lo": "full_bank_topk1_shuffled_factids",
+          "n": 600,
+          "diff_mean": -0.04994280848031243,
+          "ci_lo": -0.11719434816250578,
+          "ci_hi": 0.017888583126167448,
+          "passes": false
+        }
+      ],
+      "n_pairs": 600
+    }
+  },
+  "gates": {
+    "A_strict_passes_count": 0,
+    "A_ci_pos_count": 0,
+    "B_any_alpha": false,
+    "C_any_alpha": false,
+    "D_any_alpha": false
+  },
+  "verdict": "EXP25_FAIL"
+}
