@@ -1,0 +1,12 @@
+{
+  "experiment": "exp23_dual_oracle_ceiling",
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "site_K": "relation_last",
+  "site_V": "subject_last",
+  "alpha": 0.005,
+  "seeds": [
+    0,
+    1
+  ],
+  "n_eligible": 100
+}

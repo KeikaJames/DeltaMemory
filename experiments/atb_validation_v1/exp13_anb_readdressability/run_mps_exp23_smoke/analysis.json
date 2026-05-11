@@ -1,0 +1,116 @@
+{
+  "n_pairs": 200,
+  "variants": {
+    "base": {
+      "mean_margin": -4.87161620244733,
+      "sem": 0.29762376477939345,
+      "n": 200
+    },
+    "minus_correct": {
+      "mean_margin": -0.3284841823577881,
+      "sem": 0.1729694855125137,
+      "n": 200
+    },
+    "old_full_bank": {
+      "mean_margin": -0.2718330943584442,
+      "sem": 0.17461794080835885,
+      "n": 200
+    },
+    "oracle_relationK_relationV": {
+      "mean_margin": -2.3346200995892286,
+      "sem": 0.2822879458766939,
+      "n": 200
+    },
+    "oracle_relationK_subjectV": {
+      "mean_margin": -2.293257395401597,
+      "sem": 0.2851338090059287,
+      "n": 200
+    },
+    "oracle_subjectK_relationV": {
+      "mean_margin": -3.2453098153392785,
+      "sem": 0.29456460575774845,
+      "n": 200
+    },
+    "oracle_subjectK_subjectV": {
+      "mean_margin": -3.2571576821338386,
+      "sem": 0.2977456770536259,
+      "n": 200
+    },
+    "randomK_subjectV": {
+      "mean_margin": -2.4355811190977694,
+      "sem": 0.28810462105771323,
+      "n": 200
+    },
+    "random_relationK_subjectV": {
+      "mean_margin": -2.4577884936146437,
+      "sem": 0.28807441596311145,
+      "n": 200
+    },
+    "relationK_randomV": {
+      "mean_margin": -2.2762507231906057,
+      "sem": 0.27986145597514145,
+      "n": 200
+    },
+    "shuffled_fact_ids": {
+      "mean_margin": -0.4062927746772766,
+      "sem": 0.17754734479262266,
+      "n": 200
+    },
+    "shuffled_layers": {
+      "mean_margin": -4.322643389702425,
+      "sem": 0.31018736435830263,
+      "n": 200
+    }
+  },
+  "contrasts": [
+    {
+      "hi": "oracle_relationK_subjectV",
+      "lo": "base",
+      "diff_mean": 2.5783588070457335,
+      "ci_lo": 2.0249381433270317,
+      "ci_hi": 3.16048479163507,
+      "passes": true
+    },
+    {
+      "hi": "oracle_relationK_subjectV",
+      "lo": "old_full_bank",
+      "diff_mean": -2.0214243010431527,
+      "ci_lo": -2.608528381264303,
+      "ci_hi": -1.4610260505885817,
+      "passes": false
+    },
+    {
+      "hi": "oracle_relationK_subjectV",
+      "lo": "random_relationK_subjectV",
+      "diff_mean": 0.1645310982130468,
+      "ci_lo": -0.21757141327671708,
+      "ci_hi": 0.5458576522897923,
+      "passes": false
+    },
+    {
+      "hi": "oracle_relationK_subjectV",
+      "lo": "relationK_randomV",
+      "diff_mean": -0.01700667221099138,
+      "ci_lo": -0.0828155159559101,
+      "ci_hi": 0.04513379730610175,
+      "passes": false
+    },
+    {
+      "hi": "oracle_relationK_subjectV",
+      "lo": "randomK_subjectV",
+      "diff_mean": 0.14232372369617224,
+      "ci_lo": -0.2391008738270029,
+      "ci_hi": 0.5154048520266078,
+      "passes": false
+    },
+    {
+      "hi": "oracle_relationK_subjectV",
+      "lo": "minus_correct",
+      "diff_mean": -1.964773213043809,
+      "ci_lo": -2.5211684305882085,
+      "ci_hi": -1.4317255769395272,
+      "passes": false
+    }
+  ],
+  "verdict": "DUAL_ORACLE_FAIL"
+}
