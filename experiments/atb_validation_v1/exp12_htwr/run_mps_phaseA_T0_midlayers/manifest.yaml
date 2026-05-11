@@ -1,0 +1,67 @@
+experiment: exp12_htwr
+schema_version: atb_validation_v1.0
+timestamp_utc: "2026-05-11T06:48:30+00:00"
+host: xiaogatongzhideMacBook-Pro.local
+platform: macOS-26.3-arm64-arm-64bit-Mach-O
+python: 3.14.0
+code:
+  repo: RCV-HC
+  git_sha: fa471337b93a28c679d29af42f84aa3df66b42c9
+  git_dirty: true
+model: Qwen/Qwen3-4B-Instruct-2507
+dtype: bf16
+attention_impl: eager
+dataset:
+  path: /Users/gabiri/projects/RCV-HC/experiments/datasets/counterfact_1k.jsonl
+  sha1: c36ab9533089cb5a035dd505ffc123b997474325
+seeds:
+- 0
+- 1
+variants:
+- name: oracle_correct
+  method: htwr
+  eta: 0.1
+  tier: T0
+- name: oracle_random
+  method: htwr
+  eta: 0.1
+  tier: T0
+- name: oracle_shuffled
+  method: htwr
+  eta: 0.1
+  tier: T0
+- name: oracle_sign_flip
+  method: htwr
+  eta: 0.1
+  tier: T0
+templates:
+  write: "Fact: {subject} {phrase} {target_new}."
+  read: prompt.format(subject)
+modules:
+  enabled:
+  - HTWR
+  disabled:
+  - AttnNativeBank
+  - SCAR
+  - CAA
+  - RSM
+metric_definitions:
+  recall_at_1: argmax of next-token logits at end of read prompt equals first token of target_new
+  margin: sum_logp(target_new | prompt) - sum_logp(target_true | prompt) over all target tokens
+  target_rank: 0-indexed rank of first target_new token in next-token distribution
+  js_drift: mean symmetric Jensen-Shannon divergence (nats) over last-8 logits across 100 fixed neutral prompts
+  kl_drift: mean KL(p_baseline || p_patched) (nats) over last-8 logits across 100 fixed neutral prompts
+  bank_attention_mass: sum of merged-softmax weights over bank columns, mean across (B,H,T,layers)
+  max_bank_prob: max merged-softmax weight on any bank column, mean across (B,H,T,layers)
+gpu:
+  cuda_available: false
+  mps_available: true
+extra:
+  tier: T0
+  phase: alpha
+  eta: 0.1
+  hook_point: block_output
+  bank_size: 32
+  n_prompts: 21
+  inject_layers: 8,10,12,14,16,18,20,22
+  retrievers: OracleRetriever + RandomRetriever

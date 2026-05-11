@@ -197,7 +197,7 @@ def _evaluate_htwr(
         "target_rank": rank,
         "recall_at_1": rank == 0,
         "htwr_top_index": retrieval.top_index,
-        "htwr_top_fact_id": retrieval.top_fact_id,
+        "htwr_top_fact_id": bank.fact_ids[retrieval.top_index] if 0 <= retrieval.top_index < bank.n_memories else None,
         "htwr_top_score": retrieval.top_score,
         "htwr_correct_score": retrieval.correct_score,
         "htwr_retrieval_correct": retrieval.retrieval_accuracy,

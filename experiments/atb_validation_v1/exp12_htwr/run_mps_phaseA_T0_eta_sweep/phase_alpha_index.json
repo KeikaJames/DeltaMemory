@@ -1,0 +1,22 @@
+[
+  {
+    "eta": 0.01,
+    "tag": "eta_0_010",
+    "summary": "experiments/atb_validation_v1/exp12_htwr/run_mps_phaseA_T0_eta_sweep/eta_0_010/summary.csv"
+  },
+  {
+    "eta": 0.02,
+    "tag": "eta_0_020",
+    "summary": "experiments/atb_validation_v1/exp12_htwr/run_mps_phaseA_T0_eta_sweep/eta_0_020/summary.csv"
+  },
+  {
+    "eta": 0.1,
+    "tag": "eta_0_100",
+    "summary": "experiments/atb_validation_v1/exp12_htwr/run_mps_phaseA_T0_eta_sweep/eta_0_100/summary.csv"
+  },
+  {
+    "eta": 0.2,
+    "tag": "eta_0_200",
+    "summary": "experiments/atb_validation_v1/exp12_htwr/run_mps_phaseA_T0_eta_sweep/eta_0_200/summary.csv"
+  }
+]

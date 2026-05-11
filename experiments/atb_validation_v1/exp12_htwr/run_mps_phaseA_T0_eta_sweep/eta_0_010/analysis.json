@@ -1,0 +1,70 @@
+{
+  "stats": {
+    "base_model": {
+      "n": 42,
+      "n_margin": 42,
+      "mean_margin": -4.287946417218163,
+      "median_margin": -3.624999523162842,
+      "ci95_margin_lo": -5.175883571874528,
+      "ci95_margin_hi": -3.4281435746522178,
+      "mean_recall_at_1": 0.0,
+      "retrieval_accuracy": null,
+      "mean_top_score": NaN
+    },
+    "oracle_correct": {
+      "n": 42,
+      "n_margin": 42,
+      "mean_margin": -4.029761847995577,
+      "median_margin": -3.375,
+      "ci95_margin_lo": -4.899200074871381,
+      "ci95_margin_hi": -3.189657720071929,
+      "mean_recall_at_1": 0.0,
+      "retrieval_accuracy": 1.0,
+      "mean_top_score": 1.0
+    },
+    "oracle_random": {
+      "n": 42,
+      "n_margin": 42,
+      "mean_margin": -4.148809552192688,
+      "median_margin": -3.484375,
+      "ci95_margin_lo": -5.018275710372698,
+      "ci95_margin_hi": -3.317671121444021,
+      "mean_recall_at_1": 0.0,
+      "retrieval_accuracy": 0.0,
+      "mean_top_score": 0.793212354183197
+    },
+    "oracle_shuffled": {
+      "n": 42,
+      "n_margin": 42,
+      "mean_margin": -2.489513567515782,
+      "median_margin": -1.65625,
+      "ci95_margin_lo": -3.286907688776652,
+      "ci95_margin_hi": -1.7269502074945542,
+      "mean_recall_at_1": 0.0,
+      "retrieval_accuracy": 1.0,
+      "mean_top_score": 1.0
+    },
+    "oracle_sign_flip": {
+      "n": 42,
+      "n_margin": 42,
+      "mean_margin": -4.540178582781837,
+      "median_margin": -3.75,
+      "ci95_margin_lo": -5.462704607702437,
+      "ci95_margin_hi": -3.652864556653159,
+      "mean_recall_at_1": 0.0,
+      "retrieval_accuracy": 1.0,
+      "mean_top_score": 1.0
+    }
+  },
+  "verdict": {
+    "verdict": "STEERING_ONLY",
+    "base_margin": -4.287946417218163,
+    "oracle_correct_margin": -4.029761847995577,
+    "oracle_correct_ci_lo": -4.899200074871381,
+    "oracle_random_margin": -4.148809552192688,
+    "oracle_shuffled_margin": -2.489513567515782,
+    "oracle_sign_flip_margin": -4.540178582781837,
+    "delta_vs_base": 0.25818456922258637,
+    "gap_vs_strongest_control": -1.5402482804797946
+  }
+}
