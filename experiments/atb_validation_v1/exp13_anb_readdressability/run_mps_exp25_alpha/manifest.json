@@ -1,0 +1,20 @@
+{
+  "experiment": "exp25_alpha",
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "n": 100,
+  "bank_size": 100,
+  "alphas": [
+    0.003,
+    0.005,
+    0.007,
+    0.01,
+    0.015,
+    0.02,
+    0.03
+  ],
+  "seeds": [
+    0,
+    1,
+    2
+  ]
+}
