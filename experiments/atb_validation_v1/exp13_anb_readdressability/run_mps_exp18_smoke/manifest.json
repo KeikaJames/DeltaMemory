@@ -1,0 +1,19 @@
+{
+  "experiment": "exp18_natural_addressed",
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "dtype": "bf16",
+  "device": "mps",
+  "sites": [
+    "relation_last",
+    "subject_last"
+  ],
+  "alpha": 0.005,
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "n_eligible": 21,
+  "counterfact": "experiments/datasets/counterfact_1k.jsonl",
+  "torch_version": "2.11.0"
+}

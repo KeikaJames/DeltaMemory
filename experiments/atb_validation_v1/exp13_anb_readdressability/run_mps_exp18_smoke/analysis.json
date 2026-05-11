@@ -1,0 +1,82 @@
+{
+  "experiment": "exp18_natural_addressed",
+  "n_seeds": 3,
+  "n_facts": 21,
+  "per_site": {
+    "relation_last": {
+      "mean_margin": {
+        "base": -4.287946417218163,
+        "full_bank": -0.6256859643118722,
+        "full_bank_shuffled_L": -3.2194474613855757,
+        "full_bank_random_K": -0.17147972470238096,
+        "minus_correct_bank": -0.8615141823178246
+      },
+      "contrasts": {
+        "full_vs_base": {
+          "mean": 3.6622604529062905,
+          "ci_lo": 2.945382201482379,
+          "ci_hi": 4.354848600569225,
+          "n": 63
+        },
+        "full_vs_shuffled_L": {
+          "mean": 2.5937614970737033,
+          "ci_lo": 1.892353163825141,
+          "ci_hi": 3.3610761203463118,
+          "n": 63
+        },
+        "full_vs_random_K": {
+          "mean": -0.45420623960949125,
+          "ci_lo": -0.9385347139267695,
+          "ci_hi": 0.08418197480459062,
+          "n": 63
+        },
+        "full_vs_minus_correct": {
+          "mean": 0.23582821800595238,
+          "ci_lo": -0.44363843827020555,
+          "ci_hi": 1.093420596349807,
+          "n": 63
+        }
+      },
+      "verdict": "NATURAL_FAIL"
+    },
+    "subject_last": {
+      "mean_margin": {
+        "base": -4.287946417218163,
+        "full_bank": -0.7128092220851353,
+        "full_bank_shuffled_L": -3.1085379483207825,
+        "full_bank_random_K": -0.3724888619922456,
+        "minus_correct_bank": -0.31659223919823054
+      },
+      "contrasts": {
+        "full_vs_base": {
+          "mean": 3.5751371951330277,
+          "ci_lo": 2.8455093625992065,
+          "ci_hi": 4.275979643776303,
+          "n": 63
+        },
+        "full_vs_shuffled_L": {
+          "mean": 2.3957287262356473,
+          "ci_lo": 1.646422371031746,
+          "ci_hi": 3.1357654749401034,
+          "n": 63
+        },
+        "full_vs_random_K": {
+          "mean": -0.3403203600928897,
+          "ci_lo": -0.6805554874359615,
+          "ci_hi": -0.002937377445281498,
+          "n": 63
+        },
+        "full_vs_minus_correct": {
+          "mean": -0.39621698288690477,
+          "ci_lo": -0.8470904713585263,
+          "ci_hi": 0.03642347123887804,
+          "n": 63
+        }
+      },
+      "verdict": "NATURAL_FAIL"
+    }
+  },
+  "sites_PASS": [],
+  "sites_DIRECTIONAL": [],
+  "verdict": "NATURAL_FAIL"
+}
