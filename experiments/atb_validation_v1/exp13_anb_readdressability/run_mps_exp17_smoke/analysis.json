@@ -1,0 +1,296 @@
+{
+  "experiment": "exp17_capture_sweep",
+  "n_seeds": 3,
+  "n_facts": 21,
+  "sites": [
+    "full_content",
+    "object_first",
+    "object_last",
+    "relation_first",
+    "relation_last",
+    "subject_first",
+    "subject_last",
+    "subject_object_pair",
+    "subject_relation_pair"
+  ],
+  "sites_BINDING_PASS": [],
+  "sites_BINDING_DIRECTIONAL": [
+    "relation_last",
+    "subject_last",
+    "subject_relation_pair"
+  ],
+  "per_site": {
+    "full_content": {
+      "mean_margin": {
+        "base": -4.287946417218163,
+        "Kc_Vc": -1.82421875,
+        "Kc_Vr": -1.7135881620740134,
+        "Kr_Vc": -1.5312499735090468,
+        "Kr_Vr": -1.3751240117209298
+      },
+      "contrasts": {
+        "K_causality_Kc_Vc_minus_Kr_Vc": {
+          "mean": -0.2929687764909532,
+          "ci_lo": -0.729445703445919,
+          "ci_hi": 0.13482753814212858,
+          "n": 63
+        },
+        "V_causality_Kc_Vc_minus_Kc_Vr": {
+          "mean": -0.11063058792598664,
+          "ci_lo": -0.2258184485965305,
+          "ci_hi": 0.004836298170543853,
+          "n": 63
+        },
+        "Joint_Kc_Vc_minus_Kr_Vr": {
+          "mean": -0.44909473827907015,
+          "ci_lo": -0.9792596991100009,
+          "ci_hi": 0.04365078229752798,
+          "n": 63
+        }
+      },
+      "verdict": "BINDING_FAIL"
+    },
+    "object_first": {
+      "mean_margin": {
+        "base": -4.287946417218163,
+        "Kc_Vc": -1.82421875,
+        "Kc_Vr": -1.7135881620740134,
+        "Kr_Vc": -1.5312499735090468,
+        "Kr_Vr": -1.3751240117209298
+      },
+      "contrasts": {
+        "K_causality_Kc_Vc_minus_Kr_Vc": {
+          "mean": -0.2929687764909532,
+          "ci_lo": -0.729445703445919,
+          "ci_hi": 0.13482753814212858,
+          "n": 63
+        },
+        "V_causality_Kc_Vc_minus_Kc_Vr": {
+          "mean": -0.11063058792598664,
+          "ci_lo": -0.2258184485965305,
+          "ci_hi": 0.004836298170543853,
+          "n": 63
+        },
+        "Joint_Kc_Vc_minus_Kr_Vr": {
+          "mean": -0.44909473827907015,
+          "ci_lo": -0.9792596991100009,
+          "ci_hi": 0.04365078229752798,
+          "n": 63
+        }
+      },
+      "verdict": "BINDING_FAIL"
+    },
+    "object_last": {
+      "mean_margin": {
+        "base": -4.287946417218163,
+        "Kc_Vc": -1.82421875,
+        "Kc_Vr": -1.7135881620740134,
+        "Kr_Vc": -1.5312499735090468,
+        "Kr_Vr": -1.3751240117209298
+      },
+      "contrasts": {
+        "K_causality_Kc_Vc_minus_Kr_Vc": {
+          "mean": -0.2929687764909532,
+          "ci_lo": -0.729445703445919,
+          "ci_hi": 0.13482753814212858,
+          "n": 63
+        },
+        "V_causality_Kc_Vc_minus_Kc_Vr": {
+          "mean": -0.11063058792598664,
+          "ci_lo": -0.2258184485965305,
+          "ci_hi": 0.004836298170543853,
+          "n": 63
+        },
+        "Joint_Kc_Vc_minus_Kr_Vr": {
+          "mean": -0.44909473827907015,
+          "ci_lo": -0.9792596991100009,
+          "ci_hi": 0.04365078229752798,
+          "n": 63
+        }
+      },
+      "verdict": "BINDING_FAIL"
+    },
+    "relation_first": {
+      "mean_margin": {
+        "base": -4.287946417218163,
+        "Kc_Vc": -2.342819946152823,
+        "Kc_Vr": -2.2876208585406106,
+        "Kr_Vc": -1.9785291486316257,
+        "Kr_Vr": -1.8576117735060433
+      },
+      "contrasts": {
+        "K_causality_Kc_Vc_minus_Kr_Vc": {
+          "mean": -0.3642907975211976,
+          "ci_lo": -1.0225811875055706,
+          "ci_hi": 0.3480902683167231,
+          "n": 63
+        },
+        "V_causality_Kc_Vc_minus_Kc_Vr": {
+          "mean": -0.05519908761221265,
+          "ci_lo": -0.21600636414119176,
+          "ci_hi": 0.0798921717537774,
+          "n": 63
+        },
+        "Joint_Kc_Vc_minus_Kr_Vr": {
+          "mean": -0.48520817264677985,
+          "ci_lo": -0.9590076813622127,
+          "ci_hi": -0.008645648048037574,
+          "n": 63
+        }
+      },
+      "verdict": "BINDING_FAIL"
+    },
+    "relation_last": {
+      "mean_margin": {
+        "base": -4.287946417218163,
+        "Kc_Vc": -1.5097655795869374,
+        "Kc_Vr": -1.4294704709734236,
+        "Kr_Vc": -2.18077258079771,
+        "Kr_Vr": -1.837363602623107
+      },
+      "contrasts": {
+        "K_causality_Kc_Vc_minus_Kr_Vc": {
+          "mean": 0.6710070012107728,
+          "ci_lo": 0.09030879489959233,
+          "ci_hi": 1.3047185436127677,
+          "n": 63
+        },
+        "V_causality_Kc_Vc_minus_Kc_Vr": {
+          "mean": -0.08029510861351377,
+          "ci_lo": -0.1669301570407928,
+          "ci_hi": 0.003193227071610708,
+          "n": 63
+        },
+        "Joint_Kc_Vc_minus_Kr_Vr": {
+          "mean": 0.32759802303616964,
+          "ci_lo": -0.28834941273643855,
+          "ci_hi": 0.9799727712358747,
+          "n": 63
+        }
+      },
+      "verdict": "BINDING_DIRECTIONAL"
+    },
+    "subject_first": {
+      "mean_margin": {
+        "base": -4.287946417218163,
+        "Kc_Vc": -2.892386413755871,
+        "Kc_Vr": -2.8682648189484126,
+        "Kr_Vc": -1.6953182901654924,
+        "Kr_Vr": -1.8701017659807961
+      },
+      "contrasts": {
+        "K_causality_Kc_Vc_minus_Kr_Vc": {
+          "mean": -1.1970681235903786,
+          "ci_lo": -1.9560877179342604,
+          "ci_hi": -0.49152494233752053,
+          "n": 63
+        },
+        "V_causality_Kc_Vc_minus_Kc_Vr": {
+          "mean": -0.0241215948074583,
+          "ci_lo": -0.06978559494018555,
+          "ci_hi": 0.01832600056178986,
+          "n": 63
+        },
+        "Joint_Kc_Vc_minus_Kr_Vr": {
+          "mean": -1.0222846477750749,
+          "ci_lo": -1.8150402629186237,
+          "ci_hi": -0.280752041983226,
+          "n": 63
+        }
+      },
+      "verdict": "BINDING_FAIL"
+    },
+    "subject_last": {
+      "mean_margin": {
+        "base": -4.287946417218163,
+        "Kc_Vc": -2.0606399263654436,
+        "Kc_Vr": -2.299277593219091,
+        "Kr_Vc": -2.061050679948595,
+        "Kr_Vr": -2.5442359825921437
+      },
+      "contrasts": {
+        "K_causality_Kc_Vc_minus_Kr_Vc": {
+          "mean": 0.0004107535831511967,
+          "ci_lo": -0.7541775741274395,
+          "ci_hi": 0.656544496142675,
+          "n": 63
+        },
+        "V_causality_Kc_Vc_minus_Kc_Vr": {
+          "mean": 0.23863766685364737,
+          "ci_lo": 0.015888433607797774,
+          "ci_hi": 0.5508431328667535,
+          "n": 63
+        },
+        "Joint_Kc_Vc_minus_Kr_Vr": {
+          "mean": 0.48359605622670004,
+          "ci_lo": -0.33139573581635007,
+          "ci_hi": 1.2213191986083984,
+          "n": 63
+        }
+      },
+      "verdict": "BINDING_DIRECTIONAL"
+    },
+    "subject_object_pair": {
+      "mean_margin": {
+        "base": -4.287946417218163,
+        "Kc_Vc": -1.82421875,
+        "Kc_Vr": -1.7135881620740134,
+        "Kr_Vc": -1.5312499735090468,
+        "Kr_Vr": -1.3751240117209298
+      },
+      "contrasts": {
+        "K_causality_Kc_Vc_minus_Kr_Vc": {
+          "mean": -0.2929687764909532,
+          "ci_lo": -0.729445703445919,
+          "ci_hi": 0.13482753814212858,
+          "n": 63
+        },
+        "V_causality_Kc_Vc_minus_Kc_Vr": {
+          "mean": -0.11063058792598664,
+          "ci_lo": -0.2258184485965305,
+          "ci_hi": 0.004836298170543853,
+          "n": 63
+        },
+        "Joint_Kc_Vc_minus_Kr_Vr": {
+          "mean": -0.44909473827907015,
+          "ci_lo": -0.9792596991100009,
+          "ci_hi": 0.04365078229752798,
+          "n": 63
+        }
+      },
+      "verdict": "BINDING_FAIL"
+    },
+    "subject_relation_pair": {
+      "mean_margin": {
+        "base": -4.287946417218163,
+        "Kc_Vc": -1.5097655795869374,
+        "Kc_Vr": -1.4294704709734236,
+        "Kr_Vc": -2.18077258079771,
+        "Kr_Vr": -1.837363602623107
+      },
+      "contrasts": {
+        "K_causality_Kc_Vc_minus_Kr_Vc": {
+          "mean": 0.6710070012107728,
+          "ci_lo": 0.09030879489959233,
+          "ci_hi": 1.3047185436127677,
+          "n": 63
+        },
+        "V_causality_Kc_Vc_minus_Kc_Vr": {
+          "mean": -0.08029510861351377,
+          "ci_lo": -0.1669301570407928,
+          "ci_hi": 0.003193227071610708,
+          "n": 63
+        },
+        "Joint_Kc_Vc_minus_Kr_Vr": {
+          "mean": 0.32759802303616964,
+          "ci_lo": -0.28834941273643855,
+          "ci_hi": 0.9799727712358747,
+          "n": 63
+        }
+      },
+      "verdict": "BINDING_DIRECTIONAL"
+    }
+  },
+  "verdict": "SWEEP_DIRECTIONAL",
+  "notes": "SWEEP_PASS if any site reaches BINDING_PASS (both K & V CIs > 0). Per-site verdict matches Exp15 ladder."
+}
