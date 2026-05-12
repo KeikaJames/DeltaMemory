@@ -1,3 +1,13 @@
+> [!WARNING]
+> This repository is a research prototype involving LLM hidden-state,
+> attention-layer, tensor-bank, and injection mechanisms.
+>
+> Use of this repository is accompanied by the Security Policy and Responsible
+> Use Protocol set out in [`MnEmE/docs/security.md`](./docs/security.md).
+>
+> Users, operators, distributors, and downstream recipients are responsible for
+> complying with applicable laws, third-party rights, platform terms, and the
+> security requirements described in that document.
 <p align="center">
   <h1 align="center">Mneme</h1>
 </p>
