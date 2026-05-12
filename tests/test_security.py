@@ -198,48 +198,6 @@ def test_encrypted_bank_round_trip(tmp_path):
         torch.testing.assert_close(recovered[name], tensor)
 
 
-def test_load_encrypted_uses_cpu_map_location(tmp_path):
-    """Verify loaded tensors are on CPU even when source had GPU/meta hints."""
-    pytest.importorskip("cryptography")
-    from cryptography.fernet import Fernet
-    from deltamemory.security import load_encrypted, save_encrypted
-
-    path = tmp_path / "bank.enc"
-    key = Fernet.generate_key()
-    bank = {
-        "layer0": torch.arange(6, dtype=torch.float32).reshape(2, 3),
-        "layer1": torch.ones(2, dtype=torch.float32),
-    }
-    save_encrypted(bank, str(path), key)
-    recovered = load_encrypted(str(path), key)
-    
-    for name, tensor in recovered.items():
-        assert tensor.device.type == "cpu", f"{name} tensor not on CPU: {tensor.device}"
-
-
-def test_save_encrypted_is_atomic(tmp_path):
-    """Verify no .tmp files remain after successful save."""
-    pytest.importorskip("cryptography")
-    from cryptography.fernet import Fernet
-    from deltamemory.security import load_encrypted, save_encrypted
-
-    path = tmp_path / "bank.enc"
-    key = Fernet.generate_key()
-    bank = {
-        "layer0": torch.arange(6, dtype=torch.float32).reshape(2, 3),
-    }
-    save_encrypted(bank, str(path), key)
-    
-    tmp_files = list(tmp_path.glob("*.tmp"))
-    assert len(tmp_files) == 0, f"Orphaned .tmp files found: {tmp_files}"
-    
-    assert path.exists(), f"Encrypted bank file not created at {path}"
-    assert path.stat().st_size > 0, "Encrypted bank file is empty"
-    
-    recovered = load_encrypted(str(path), key)
-    assert "layer0" in recovered
-
-
 def test_encrypted_bank_wrong_key_raises(tmp_path):
     pytest.importorskip("cryptography")
     from cryptography.fernet import Fernet

@@ -2,8 +2,6 @@
 from __future__ import annotations
 
 import io
-import os
-import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -39,11 +37,7 @@ def _serialize_bank(bank: dict[str, torch.Tensor]) -> bytes:
 
 
 def save_encrypted(bank: dict[str, torch.Tensor], path: str, key: bytes) -> None:
-    """Encrypt and save a tensor bank with Fernet without logging the key.
-    
-    Performs atomic write using tempfile + os.replace to ensure no partial
-    files remain on interruption.
-    """
+    """Encrypt and save a tensor bank with Fernet without logging the key."""
     Fernet, _InvalidToken = _require_fernet()
     try:
         plaintext = _serialize_bank(bank)
@@ -52,38 +46,12 @@ def save_encrypted(bank: dict[str, torch.Tensor], path: str, key: bytes) -> None
         raise BankAuthError("failed to encrypt bank; verify the Fernet key") from exc
 
     Path(path).parent.mkdir(parents=True, exist_ok=True)
-    
-    tmp_file = None
-    try:
-        with tempfile.NamedTemporaryFile(
-            dir=Path(path).parent,
-            delete=False,
-            suffix=".tmp"
-        ) as tmp:
-            tmp_file = tmp.name
-            tmp.write(token)
-        os.replace(tmp_file, path)
-    except Exception:
-        if tmp_file and Path(tmp_file).exists():
-            os.remove(tmp_file)
-        raise
-    
+    Path(path).write_bytes(token)
     audit_event(event_type="bank_store", vector_hash=bytes_sha256(plaintext))
 
 
-def load_encrypted(path: str, key: bytes, device: str = "cpu") -> dict[str, torch.Tensor]:
-    """Decrypt and load a tensor bank using ``torch.load(..., weights_only=True)``.
-    
-    Args:
-        path: Path to the encrypted bank file.
-        key: Fernet encryption key.
-        device: Device to map tensors to (default: "cpu"). Pass "cuda" or other
-                device strings to override. This ensures banks saved from GPU/meta
-                writers can be restored on CPU-only readers.
-    
-    Returns:
-        Decrypted dict[str, torch.Tensor] with all tensors on the specified device.
-    """
+def load_encrypted(path: str, key: bytes) -> dict[str, torch.Tensor]:
+    """Decrypt and load a tensor bank using ``torch.load(..., weights_only=True)``."""
     Fernet, InvalidToken = _require_fernet()
     token = Path(path).read_bytes()
     try:
@@ -92,7 +60,7 @@ def load_encrypted(path: str, key: bytes, device: str = "cpu") -> dict[str, torc
         raise BankAuthError("failed to authenticate encrypted bank") from exc
 
     try:
-        bank = torch.load(io.BytesIO(plaintext), weights_only=True, map_location=device)
+        bank = torch.load(io.BytesIO(plaintext), weights_only=True)
     except Exception as exc:
         raise BankAuthError("failed to load decrypted bank weights") from exc
     if not isinstance(bank, dict) or not all(isinstance(v, torch.Tensor) for v in bank.values()):
