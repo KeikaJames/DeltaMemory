@@ -20,11 +20,9 @@ MNEME_ALPHA                 — default injection scale  (default: 1.0)
 MNEME_MAX_NEW_TOKENS        — default max generation tokens  (default: 64)
 MNEME_STUB_MODE             — if "1" / "true", skip model load (for unit tests)
 
-Startup mode
-------------
-The model is loaded **at startup** (``lifespan`` handler).  A warm bank may be
-written before serving traffic via POST /bank/write.  The server is then ready
-to handle high-throughput recall requests.
+FastAPI / pydantic are optional runtime dependencies.  The module imports
+cleanly even when they are absent; ``create_app()`` raises ``ImportError``
+with install instructions if called without them.
 """
 from __future__ import annotations
 
@@ -39,13 +37,13 @@ import torch
 
 try:
     from fastapi import FastAPI, HTTPException
-    from pydantic import BaseModel
+    from pydantic import BaseModel as _BaseModel
     _FASTAPI_AVAILABLE = True
 except ImportError:
     _FASTAPI_AVAILABLE = False
     FastAPI = None  # type: ignore
     HTTPException = None  # type: ignore
-    BaseModel = object  # type: ignore
+    _BaseModel = object  # type: ignore
 
 ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
@@ -91,12 +89,16 @@ _state: dict[str, Any] = {
 # ---------------------------------------------------------------------------
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app):
     """Load model + bank at startup; clean up on shutdown."""
     if not _STUB_MODE and _MODEL_PATH:
         _load_model(_MODEL_PATH)
     yield
-    # Teardown: nothing to do for frozen model
+
+
+@asynccontextmanager
+async def _null_lifespan(app):
+    yield
 
 
 def _load_model(model_path: str) -> None:
@@ -121,53 +123,48 @@ def _load_model(model_path: str) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Request / response schemas
+# Request / response schemas (only defined when FastAPI is available)
 # ---------------------------------------------------------------------------
 
-class FactItem(BaseModel):
-    fact_id: str
-    write_prompt: str
-    address: str
-    policy: str = "period"
+if _FASTAPI_AVAILABLE:
+    class FactItem(_BaseModel):
+        fact_id: str
+        write_prompt: str
+        address: str
+        policy: str = "period"
 
+    class WriteBankRequest(_BaseModel):
+        facts: list[FactItem]
 
-class WriteBankRequest(BaseModel):
-    facts: list[FactItem]
+    class WriteBankResponse(_BaseModel):
+        written: int
+        total_facts: int
 
+    class BankStatusResponse(_BaseModel):
+        model_path: Optional[str]
+        num_facts: int
+        empty: bool
+        device: str
+        dtype: str
+        stub_mode: bool
 
-class WriteBankResponse(BaseModel):
-    written: int
-    total_facts: int
+    class GenerateRequest(_BaseModel):
+        prompt: str
+        max_new_tokens: int = _MAX_NEW_TOKENS
+        alpha: float = _ALPHA
+        temperature: float = 0.0
 
+    class GenerateResponse(_BaseModel):
+        text: str
+        prompt: str
+        alpha: float
+        latency_ms: float
+        recall_top5: list[str]
 
-class BankStatusResponse(BaseModel):
-    model_path: Optional[str]
-    num_facts: int
-    empty: bool
-    device: str
-    dtype: str
-    stub_mode: bool
-
-
-class GenerateRequest(BaseModel):
-    prompt: str
-    max_new_tokens: int = _MAX_NEW_TOKENS
-    alpha: float = _ALPHA
-    temperature: float = 0.0
-
-
-class GenerateResponse(BaseModel):
-    text: str
-    prompt: str
-    alpha: float
-    latency_ms: float
-    recall_top5: list[str]
-
-
-class HealthResponse(BaseModel):
-    status: str
-    model_loaded: bool
-    vllm_version: Optional[str] = None
+    class HealthResponse(_BaseModel):
+        status: str
+        model_loaded: bool
+        vllm_version: Optional[str] = None
 
 
 # ---------------------------------------------------------------------------
@@ -190,10 +187,11 @@ def create_app(
     """
     if not _FASTAPI_AVAILABLE:
         raise ImportError(
-            "FastAPI is not installed.  Install with:\n"
+            "FastAPI is not installed.  Install it with:\n"
             "    pip install fastapi uvicorn\n"
             "then retry."
         )
+
     _effective_stub = stub_mode if stub_mode is not None else _STUB_MODE
     if model_path:
         _state["model_path"] = model_path
@@ -291,7 +289,7 @@ def create_app(
         top5_tokens = [tok.decode([tid]).strip() for tid in top5_ids]
 
         # Full generation (greedy)
-        enc = tok(req.prompt, return_tensors="pt").to(_state["model"].device)
+        enc = tok(req.prompt, return_tensors="pt").to(model.device)
         with patcher.patched(), patcher.injecting(bank, alpha=req.alpha), torch.no_grad():
             gen_ids = model.generate(
                 **enc,
@@ -315,11 +313,6 @@ def create_app(
         )
 
     return _app
-
-
-@asynccontextmanager
-async def _null_lifespan(app: FastAPI):
-    yield
 
 
 # ---------------------------------------------------------------------------
