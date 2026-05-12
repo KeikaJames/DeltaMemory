@@ -185,10 +185,66 @@ $$
 | R-6 / v3.4 | 持久化 AttnNativeBank（safetensors + filelock） | `tests/test_bank_persistence.py` | 同 dtype 下往返 bit-equal |
 | **S / v3.5** | U-LOPI 自动校准 profiler（`ulopi_v35`） | `deltamemory/memory/lopi_profiler.py`、`tests/test_lopi_profiler.py`、`tests/test_lopi_universal.py` | 以冷启动 profile 取代固定常数 `norm_base=10.0`；同一份 LOPI 适配 Gemma / Qwen3 / GLM-4 / Llama / GPT-2 |
 | **R-7 / v3.6** | bank 侧 V-scale 校准（`ulopi_v36`） | `deltamemory/memory/attn_native_bank.py`、`tests/test_value_scale_calibration.py` | 无 v_norm 家族只 cap M_V RMS、不放大小 V；Gemma 原生 v_norm 不动 |
+| **Exp23–27 / ATB-v1** | site-stratified ANB 证伪（cosine 路由 fact 召回） | `experiments/atb_validation_v1/exp13_anb_readdressability/EXP27_SPARSE_VERDICT.md` 等 verdict | 四种不同攻击轴（K site / V site / V span / joint vs additive softmax）都复现 **N=100 PASS → N=200 FAIL**。Qwen3-4B 原生 fact-bank 路由在 N≈100 以上不可扩展。详见下方“负面结论”章节。 |
 
 每阶段长篇叙事日志见 [`docs/HISTORY.md`](docs/HISTORY.md)。每阶段代码 /
 配置 diff 见 [`CHANGELOG.md`](CHANGELOG.md)。原始实验 dump、报告、论文生成
 资产和 transcript 作为本地归档保留，不进入生产主线。
+
+## 负面结论 — Site-Stratified ANB 证伪（Exp23–Exp27）
+
+针对 **site-stratified、fact-routed memory**（relation-site 抓 K + subject /
+object-site 抓 V，再用原生 sparse-attention 在 N 个 fact 的 bank 上做读出）
+的四组实验，于 `experiments/atb_validation_v1/exp13_anb_readdressability/`
+在 Qwen3-4B（MPS bf16、CounterFact）上完成。**四种独立攻击都复现完全一致的
+N=100 PASS → N=200 FAIL 证伪曲线**。
+
+| 攻击 | 改动 | N=100 gates | N=200 gates |
+|---|---|---|---|
+| Exp24 K-routing | 单 site K，α-additive readout | DIRECTIONAL +0.193 nat | 弱 / null |
+| Exp26 single-V | K=relation_last，V=object_last（1 token） | A+C+D PASS_STRONG | 全部 FAIL |
+| Exp26b multi-V | K=relation_last，V=`[subject_first..object_last]`（≈8 token） | A+C+D PASS | 全部 FAIL |
+| Exp27 sparse-attn | joint softmax `Attn(Q,[K;M_K],[V;M_V])`，α∈{0.05..3.0} | 仅 α=0.05 通过 C+D | 全部 FAIL |
+
+Gate 定义：A=`topk1 − minus_correct`（correct fact 是否有贡献）、
+B=`retrieval_accuracy > chance`（是否真选中 correct slot）、
+C=`topk1 − meanV`（V 是否有 content）、
+D=`topk1 − shuffled_factids`（K/V identity 是否绑定 fact）。
+
+`retrieval_accuracy` 在 N=100 始终只有 chance 的 2–3 倍，N≥200 时退回到 ~1×
+chance。与 K 抓取 site、V 抓取 site、V span 长度（1 vs 8 token）、α（跨 4 个
+数量级 0.003 → 3.0）、joint vs additive softmax 都**无关**。在 α≥1.0 时
+joint softmax 会主动把 bank **压低**（`bank_mass` 从 0.34 掉到 0.13），因为
+sequence keys 在 joint softmax 里赢；仅仅把 `M_K` 加进 softmax 并不能强迫
+bank 被选中。
+
+### 结论
+
+**原生 attention trace 在小规模（N≲100）下是可重寻址的，但 Qwen3-4B 抓出来的
+pre-RoPE K 空间不足以用 `q·M_K^T` 的余弦路由在 200-fact bank 里挑出一个 slot。**
+无参、原生 ANB 在 fact-bank 规模上是个小样本伪迹。早期 verdict 报告里的
+N=100 PASS_STRONG 信号本身没被证伪——steering 效应（Gate A）是真实的，但
+不构成 routed memory（Gate B 从未通过）。
+
+这条结果证伪了 ANB 原本的口号：*"原生 memory、不是外部注入"* 在 fact-bank
+规模上不成立。原型的守恒性质（α=0 bit-equality、base 权重 frozen、无 LoRA /
+MEMIT）仍然成立；本次负面结论只针对 **cosine-routed attention-native
+fact bank 的扩展性**，与读写基础设施本身无关。
+
+### 后续可选方向（每条都是新研究线，不是 ANB 的延续）
+
+1. **学习一个 read-time K adapter** — 用 held-out fact 训练一个小的
+   `A: q_relation → k_bank` 线性映射，把 correct slot 压过噪声 floor。
+   对原生 attention 的最小偏离。
+2. **不同架构** — 在 Gemma / Llama 上复现 Exp23–Exp27，确认 K 空间
+   discriminability 的天花板是不是 Qwen3 特有还是普遍现象。
+3. **接受 N≤50 作为工作区间** — 把原型当作 `α=0 bit-equal` 的工作 memory
+   模块发布，而不是长期 fact bank。
+
+详细 verdict：
+`experiments/atb_validation_v1/exp13_anb_readdressability/EXP25_VERDICT.md`、
+`EXP26_VERDICT.md`、`EXP26b_VERDICT.md`、`EXP27_VERDICT.md`、
+`EXP27_SPARSE_VERDICT.md`。原始 cells.jsonl 与配对 bootstrap 分析在同目录下。
 
 ## 复现实验
 

@@ -96,6 +96,65 @@ a real limitation, not hidden as a success.
 | **v3.4 / Phase R-5.1** | Q3 adversarial chat × LOPI on Gemma-4-E2B | none | frozen | `reports/cleanroom/lopi_v33/R5_q3/` |
 | **v3.4 / Phase R-6** | persistent bank: safetensors + filelock + content-addressed dirs | none | frozen | `deltamemory/memory/bank_persistence.py`, `tests/test_bank_persistence.py` |
 | **v3.5 / Phase S** | U-LOPI auto-calibration profiler (per-arch Z-score baselines replace hard-coded `norm_base=10.0`) | none | frozen | `deltamemory/memory/lopi_profiler.py`, `tests/test_lopi_profiler.py`, `tests/test_lopi_universal.py` |
+| **ATB-v1 / Exp23–27** | site-stratified ANB: relation-site K + subject/object-site V + sparse-attn readout over N-fact bank | none (parameter-free routing test) | frozen | **falsified at N≥200 on Qwen3-4B** — see negative-results section below |
+
+---
+
+## Exp23–Exp27 — Site-Stratified ANB falsification (2026 Q2)
+
+Four independent attacks on **fact-routed native attention memory** on
+Qwen3-4B (MPS bf16, CounterFact, 3 seeds, paired bootstrap CIs)
+produced the identical N=100 PASS → N=200 FAIL curve:
+
+- **Exp24** — single K site (`relation_last`), α-additive readout:
+  DIRECTIONAL +0.193 nat at N=100, weak at N=200.
+- **Exp26** — K=`relation_last`, V=`object_last` (1 token): all of
+  A (correct-fact contribution), C (V content), D (K/V identity)
+  PASS_STRONG at N=100; all fail at N=200.
+- **Exp26b** — same K, V=`[subject_first..object_last]` (~8 tokens
+  mean) to attack object-tokenisation collapse: A+C+D PASS at N=100,
+  all fail at N=200.
+- **Exp27** — joint softmax `Attn(Q,[K_seq;M_K],[V_seq;M_V])`, α swept
+  through {0.05, 0.1, 0.3, 1.0, 3.0}: only α=0.05 passes C+D at N=100;
+  all fail at N=200. At α≥1.0 the joint softmax actively downweights
+  the bank (`bank_mass` 0.34 → 0.13) because sequence keys dominate
+  the joint softmax.
+
+`retrieval_accuracy` (Gate B) **never escapes 2–3× chance at N=100 and
+decays to ~1× chance at N≥200**, independent of K site, V site, V span
+length, α (4 orders of magnitude), and joint-vs-additive softmax.
+
+**Diagnosis**: the captured pre-RoPE K-space of Qwen3-4B does not
+contain enough query-key discriminability to route a 200-fact bank by
+cosine routing on raw `q·M_K^T`. Native attention traces are
+re-addressable at small scale (N≲100) but do not scale to a fact bank.
+The N=100 PASS signals are real **steering** effects but do not
+constitute **routed memory**.
+
+**Scope**: this negative result applies to the *scaling* of
+cosine-routed attention-native fact banks. The conservation properties
+of the prototype (α=0 bit-equality, frozen base weights, no LoRA /
+MEMIT) and the v3 single-fact intervention lifts (e.g. +4.41 nat on
+Gemma-4-E2B f1) are **unaffected** — those are steering /
+per-fact-intervention results, not bank-scale routing.
+
+**Verdict files** (all under
+`experiments/atb_validation_v1/exp13_anb_readdressability/`):
+`EXP25_VERDICT.md`, `EXP26_VERDICT.md`, `EXP26b_VERDICT.md`,
+`EXP27_VERDICT.md`, `EXP27_SPARSE_VERDICT.md`. Raw `cells.jsonl` +
+paired-bootstrap analyses live in the same directory.
+
+**Open directions** (each a new research line, not an ANB continuation):
+
+1. **Learned read-time K adapter** — a small `A: q_relation → k_bank`
+   linear map trained on held-out facts, smallest deviation from
+   native attention.
+2. **Cross-arch replication** — repeat Exp23–27 on Gemma / Llama to
+   test whether the K-space discriminability ceiling is Qwen3-specific
+   or universal.
+3. **Accept N≤50 as the operating regime** — ship the prototype as a
+   calibrated `bit-equal-at-α=0` working-memory module rather than a
+   long-term fact bank.
 
 ---
 

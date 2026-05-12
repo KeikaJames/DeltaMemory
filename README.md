@@ -182,6 +182,70 @@ $$
   `compute_config_sha`, `resolve_location`.
 * Round-trip tests: `tests/test_bank_persistence.py`.
 
+## Negative findings — Site-Stratified ANB falsification (Exp23–Exp27)
+
+A four-experiment attack on **site-stratified, fact-routed memory** (separate
+relation-site K capture + subject/object-site V capture, then native
+sparse-attention readout over a bank of N facts) was carried out in
+`experiments/atb_validation_v1/exp13_anb_readdressability/` on Qwen3-4B
+(MPS bf16, CounterFact). All four attacks produced the **identical
+N=100 PASS → N=200 FAIL falsification curve**.
+
+| Attack | What changed | N=100 gates | N=200 gates |
+|---|---|---|---|
+| Exp24 K-routing | Single-site K, α-additive readout | DIRECTIONAL +0.193 nat | weak/null |
+| Exp26 single-V | K=relation_last, V=object_last (1 tok) | A+C+D PASS_STRONG | All FAIL |
+| Exp26b multi-V | K=relation_last, V=`[subject_first..object_last]` (~8 tok mean) | A+C+D PASS | All FAIL |
+| Exp27 sparse-attn | Joint softmax `Attn(Q,[K;M_K],[V;M_V])`, α∈{0.05..3.0} | C+D PASS only at α=0.05 | All FAIL |
+
+Gates: A=`topk1 − minus_correct` (correct-fact contribution),
+B=`retrieval_accuracy > chance` (selects correct slot),
+C=`topk1 − meanV` (V carries content),
+D=`topk1 − shuffled_factids` (K/V identity bound to fact).
+
+`retrieval_accuracy` never escapes 2–3× chance at N=100 and decays to ~1×
+chance at N≥200, **independent of** K capture site, V capture site, V span
+length (1 vs 8 tokens), α (4 orders of magnitude: 0.003 → 3.0), or
+joint-vs-additive softmax. At α≥1.0 the joint softmax actively
+**downweights** the bank (`bank_mass` drops 0.34 → 0.13) because sequence
+keys win the joint softmax — adding `M_K` to the softmax does not force
+the bank to be selected.
+
+### Conclusion
+
+**Native attention traces are re-addressable at small scale (N≲100) but
+the captured pre-RoPE K-space of Qwen3-4B does not contain enough
+query-key discriminability to single out one slot in a 200-fact bank by
+cosine routing on raw `q·M_K^T`.** Native, parameter-free ANB scaled
+fact-recall is a small-bank artifact. The N=100 PASS_STRONG signals
+reported in interim verdicts are not falsified as artifacts of N=100; the
+underlying steering effect (Gate A) is real but does not constitute
+routed memory (Gate B never passes).
+
+This falsifies the original ANB framing — *"原生 memory, not external
+injection"* at fact-bank scale. The conservation guarantees of the
+prototype (α=0 bit-equality, frozen base weights, no LoRA / MEMIT) are
+unaffected; the negative result applies to the **scaling** of cosine-routed
+attention-native fact banks, not to the read/write infrastructure itself.
+
+### Open directions (each a genuinely new research line, not an ANB continuation)
+
+1. **Learned read-time K adapter** — train a small `A: q_relation → k_bank`
+   linear map on held-out facts to push the correct slot above noise
+   floor. Smallest possible deviation from native attention.
+2. **Different model architectures** — replicate Exp23–Exp27 on Gemma /
+   Llama-family models to test whether the K-space discriminability ceiling
+   is Qwen-3 specific or universal.
+3. **Sparse-routed, parameter-free re-addressability at small N** — accept
+   N≤50 as the operating regime; ship the prototype as a calibrated
+   `bit-equal-at-α=0` working-memory module rather than a long-term fact
+   bank.
+
+Detailed verdicts: `experiments/atb_validation_v1/exp13_anb_readdressability/EXP25_VERDICT.md`,
+`EXP26_VERDICT.md`, `EXP26b_VERDICT.md`, `EXP27_VERDICT.md`,
+`EXP27_SPARSE_VERDICT.md`. Raw cells.jsonl + paired-bootstrap analyses
+live under the same directory.
+
 ## Phase history
 
 | Phase | What shipped | Evidence | Status |
@@ -196,6 +260,7 @@ $$
 | R-6 / v3.4 | persistent AttnNativeBank (safetensors + filelock) | `tests/test_bank_persistence.py` | round-trip bit-equal under same dtype |
 | **S / v3.5** | U-LOPI auto-calibration profiler (`ulopi_v35`) | `deltamemory/memory/lopi_profiler.py`, `tests/test_lopi_profiler.py`, `tests/test_lopi_universal.py` | replaces hard-coded `norm_base=10.0`; same LOPI across Gemma / Qwen3 / GLM-4 / Llama / GPT-2 |
 | **R-7 / v3.6** | bank-side V-scale calibration (`ulopi_v36`) | `deltamemory/memory/attn_native_bank.py`, `tests/test_value_scale_calibration.py` | no-v_norm families cap M_V RMS without amplifying small V; Gemma native v_norm stays untouched |
+| **Exp23–27 / ATB-v1** | site-stratified ANB falsification (cosine-routed fact recall) | `experiments/atb_validation_v1/exp13_anb_readdressability/EXP27_SPARSE_VERDICT.md` and sibling verdicts | N=100 PASS → N=200 FAIL on all four axes (K site, V site, V span, joint vs additive softmax). Native fact-bank routing does not scale beyond N≈100 on Qwen3-4B. See **Negative findings** above. |
 
 The long-form narrative log lives in [`docs/HISTORY.md`](docs/HISTORY.md).
 Per-stage code/config diffs live in [`CHANGELOG.md`](CHANGELOG.md). Raw

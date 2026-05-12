@@ -19,6 +19,7 @@
 | V4b | ATB α=0 == none α=0 (consistent with bit-equality) | ✅ PASS |
 | V6  | correct_bank dominates all negative controls (pre_rope) | ❌ FAIL (metric artifact — INVALIDATED) |
 | V6b | correct_bank dominates all negative controls (post_rope) | ❌ FAIL (see design note below) |
+| V7 (Exp23–27) | Site-stratified ANB (relation-K + subject/object-V) scales to N≥200 banks via cosine routing | ❌ FAIL — N=100 PASS → N=200 FAIL on 4 axes (K site, V site, V span, joint vs additive softmax). See [`experiments/atb_validation_v1/exp13_anb_readdressability/EXP27_SPARSE_VERDICT.md`](../experiments/atb_validation_v1/exp13_anb_readdressability/EXP27_SPARSE_VERDICT.md) and sibling verdicts. |
 
 ---
 
