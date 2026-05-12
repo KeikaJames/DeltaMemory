@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -u
+
+expected_name='KeikaJames'
+expected_email='gabira@bayagud.com'
+actual_name="$(git config user.name || true)"
+actual_email="$(git config user.email || true)"
+
+if [[ "$actual_name" != "$expected_name" || "$actual_email" != "$expected_email" ]]; then
+  cat >&2 <<MSG
+ERROR: Git author identity must be:
+  user.name  = $expected_name
+  user.email = $expected_email
+
+Run:
+  git config user.name "KeikaJames" && git config user.email "gabira@bayagud.com"
+MSG
+  exit 1
+fi
