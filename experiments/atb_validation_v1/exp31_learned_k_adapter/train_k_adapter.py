@@ -99,6 +99,14 @@ def train(args) -> None:
     # Flatten (fact_idx, paraphrase_idx) pairs for training.
     anchor_K = train_d["anchor_K"]                          # [N, L, Hkv, d]
     queries_Q = train_d["queries_Q"]                        # [N, P, L, Hq, d]
+    if getattr(args, "shuffle_pairs", False):
+        g = torch.Generator().manual_seed(args.seed + 9999)
+        perm = torch.randperm(queries_Q.shape[0], generator=g)
+        # ensure no fixed points
+        while int((perm == torch.arange(queries_Q.shape[0])).sum().item()) > 0:
+            perm = torch.randperm(queries_Q.shape[0], generator=g)
+        queries_Q = queries_Q[perm].contiguous()
+        print(f"[Gate-E control] queries_Q permuted ({queries_Q.shape[0]} facts)")
     # Per-step we'll sample B fact-pairs (anchor_K[i], queries_Q[i, p~U]).
 
     metrics = {"epochs": [], "config": vars(args)}
@@ -176,6 +184,9 @@ if __name__ == "__main__":
     ap.add_argument("--tau", type=float, default=0.07)
     ap.add_argument("--eval-every", type=int, default=5)
     ap.add_argument("--device", default="mps")
+    ap.add_argument("--shuffle-pairs", action="store_true",
+                    help="(Gate E control) train with paraphrase Q's shuffled across "
+                         "fact identities — projector should learn nothing useful.")
     args = ap.parse_args()
     if args.rank is not None and args.rank <= 0:
         args.rank = None
