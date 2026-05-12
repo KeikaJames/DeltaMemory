@@ -1,0 +1,22 @@
+{
+  "seed": 0,
+  "sources": {
+    "counterfact": {
+      "path": "experiments/datasets/counterfact_1k.jsonl",
+      "sha256": "976e35134dca4c15713569e39cca1fe9d860ecd828a3d7de523ea9acc76fc564"
+    },
+    "distractors": {
+      "path": "experiments/X1_bank_scaling/distractors.jsonl",
+      "sha256": "2424c756bfed3df07de1fcba458704093bbd6bd935838561a0f54b9fe4e608c0"
+    }
+  },
+  "split_sizes": {
+    "train": 700,
+    "val": 150,
+    "test": 150
+  },
+  "distractor_count": 10000,
+  "stratification": "by relation P-code, round-robin to largest remaining quota",
+  "relation_count": 34,
+  "fact_id_overlap": 0
+}
