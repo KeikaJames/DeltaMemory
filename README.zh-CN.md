@@ -237,7 +237,11 @@ fact bank 的扩展性**，与读写基础设施本身无关。
    `A: q_relation → k_bank` 线性映射，把 correct slot 压过噪声 floor。
    对原生 attention 的最小偏离。
 2. **不同架构** — 在 Gemma / Llama 上复现 Exp23–Exp27，确认 K 空间
-   discriminability 的天花板是不是 Qwen3 特有还是普遍现象。
+   discriminability 的天花板是不是 Qwen3 特有还是普遍现象。**已于
+   2026-05-13 完成** — Gemma-4-E2B 与 Mistral-7B-Instruct-v0.3 都复现了
+   相同的证伪：trace 级 routing 存在（Mistral retr_acc 峰值 10× chance），
+   但 Gate A 在三个架构上都在 N≥100 处塌掉。详见
+   `experiments/atb_validation_v1/exp13_anb_readdressability/EXP_CROSS_ARCH_VERDICT.md`。
 3. **接受 N≤50 作为工作区间** — 把原型当作 `α=0 bit-equal` 的工作 memory
    模块发布，而不是长期 fact bank。
 

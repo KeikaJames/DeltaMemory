@@ -1,0 +1,7 @@
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/1951 [00:00<?, ?it/s]Loading weights:  19%|█▉        | 379/1951 [00:00<00:00, 3786.59it/s]Loading weights:  39%|███▉      | 758/1951 [00:00<00:01, 1084.96it/s]Loading weights:  49%|████▉     | 957/1951 [00:00<00:00, 1221.27it/s]Loading weights:  59%|█████▊    | 1143/1951 [00:00<00:00, 1222.97it/s]Loading weights:  67%|██████▋   | 1304/1951 [00:01<00:00, 1199.55it/s]Loading weights:  94%|█████████▍| 1830/1951 [00:01<00:00, 2089.12it/s]Loading weights: 100%|██████████| 1951/1951 [00:01<00:00, 1669.43it/s]
+[exp26b] eligible rows = 100
+[exp26b] seed=0 bank=100/100 mean_V_span=8.04
+[exp26b] seed=1 bank=100/100 mean_V_span=8.04
+[exp26b] seed=2 bank=100/100 mean_V_span=8.04
+[exp26b] done in 1753.4s

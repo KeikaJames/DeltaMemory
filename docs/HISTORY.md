@@ -151,7 +151,10 @@ paired-bootstrap analyses live in the same directory.
    native attention.
 2. **Cross-arch replication** — repeat Exp23–27 on Gemma / Llama to
    test whether the K-space discriminability ceiling is Qwen3-specific
-   or universal.
+   or universal. **Completed 2026-05-13** — replicated on Gemma-4-E2B
+   and Mistral-7B-Instruct-v0.3; falsification holds across all three
+   architectures. See
+   [`experiments/atb_validation_v1/exp13_anb_readdressability/EXP_CROSS_ARCH_VERDICT.md`](../experiments/atb_validation_v1/exp13_anb_readdressability/EXP_CROSS_ARCH_VERDICT.md).
 3. **Accept N≤50 as the operating regime** — ship the prototype as a
    calibrated `bit-equal-at-α=0` working-memory module rather than a
    long-term fact bank.

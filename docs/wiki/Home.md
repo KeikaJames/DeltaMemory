@@ -98,3 +98,22 @@ weights) are unaffected. Detailed verdicts:
 `EXP25_VERDICT.md`, `EXP26_VERDICT.md`, `EXP26b_VERDICT.md`,
 `EXP27_VERDICT.md`, `EXP27_SPARSE_VERDICT.md` under
 `experiments/atb_validation_v1/exp13_anb_readdressability/`.
+
+### Cross-architecture replication (2026-05-13)
+
+The Qwen-only N=100→N=200 falsification was replicated on
+**Gemma-4-E2B** and **Mistral-7B-Instruct-v0.3** under the same
+infrastructure (per-architecture α grid rescaled by native V norm).
+Pattern holds across all three transformer families:
+
+| Architecture | Gate A peak N=100 | retr_acc peak | N=200 collapse |
+|---|---:|---:|---|
+| Qwen3-4B-Instruct | +0.447 | 1.89× chance | ≤+0.05 |
+| Gemma-4-E2B | +0.033 | 3.11× chance | ≤+0.012 |
+| Mistral-7B-Instruct-v0.3 | ≤0 | **10× chance** | (no co-tracking lift) |
+
+The Qwen N=100 PASS_STRONG result is an **outlier in magnitude**, not
+in mechanism: gate sign and α-dependence carry over identically.
+Mistral has the strongest **trace-level routing signal** of any tested
+arch (retr_acc 10× chance) but still no content-mediated lift. Full
+report: `EXP_CROSS_ARCH_VERDICT.md`.

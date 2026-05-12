@@ -235,7 +235,11 @@ attention-native fact banks, not to the read/write infrastructure itself.
    floor. Smallest possible deviation from native attention.
 2. **Different model architectures** — replicate Exp23–Exp27 on Gemma /
    Llama-family models to test whether the K-space discriminability ceiling
-   is Qwen-3 specific or universal.
+   is Qwen-3 specific or universal. **Completed 2026-05-13** — Gemma-4-E2B
+   and Mistral-7B-Instruct-v0.3 both replicate the same falsification: trace
+   routing exists (Mistral peaks at 10× chance retrieval), but Gate A
+   collapses for all three families at N≥100. See
+   `experiments/atb_validation_v1/exp13_anb_readdressability/EXP_CROSS_ARCH_VERDICT.md`.
 3. **Sparse-routed, parameter-free re-addressability at small N** — accept
    N≤50 as the operating regime; ship the prototype as a calibrated
    `bit-equal-at-α=0` working-memory module rather than a long-term fact

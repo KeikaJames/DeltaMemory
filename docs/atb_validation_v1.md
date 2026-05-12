@@ -20,6 +20,7 @@
 | V6  | correct_bank dominates all negative controls (pre_rope) | ❌ FAIL (metric artifact — INVALIDATED) |
 | V6b | correct_bank dominates all negative controls (post_rope) | ❌ FAIL (see design note below) |
 | V7 (Exp23–27) | Site-stratified ANB (relation-K + subject/object-V) scales to N≥200 banks via cosine routing | ❌ FAIL — N=100 PASS → N=200 FAIL on 4 axes (K site, V site, V span, joint vs additive softmax). See [`experiments/atb_validation_v1/exp13_anb_readdressability/EXP27_SPARSE_VERDICT.md`](../experiments/atb_validation_v1/exp13_anb_readdressability/EXP27_SPARSE_VERDICT.md) and sibling verdicts. |
+| V8 (cross-arch) | Falsification is a Qwen3 artifact (would not replicate on other transformer families) | ❌ FAIL — replicates on Gemma-4-E2B and Mistral-7B-Instruct-v0.3 with identical sign/monotonicity. Gate A peak N=100: Qwen +0.447, Gemma +0.033, Mistral ≤0; all collapse at N=200 or larger α. See [`experiments/atb_validation_v1/exp13_anb_readdressability/EXP_CROSS_ARCH_VERDICT.md`](../experiments/atb_validation_v1/exp13_anb_readdressability/EXP_CROSS_ARCH_VERDICT.md). |
 
 ---
 
