@@ -1,3 +1,4 @@
+**We reassessed our experimental direction. The data was rough, but useful: it gave us a clear reason to change course instead of staying stuck.**
 > [!WARNING]
 > This repository is a research prototype involving LLM hidden-state,
 > attention-layer, tensor-bank, and injection mechanisms.
