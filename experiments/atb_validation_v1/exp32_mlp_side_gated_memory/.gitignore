@@ -1,0 +1,6 @@
+data/cache/
+run_qwen_full/*.pt
+run_qwen_full/**/*.pt
+run_qwen_smoke/
+run_qwen_smoke_eval/
+*.log

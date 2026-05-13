@@ -240,20 +240,49 @@ attention-native fact banks, not to the read/write infrastructure itself.
 
 ### Open directions (each a genuinely new research line, not an ANB continuation)
 
-1. **Learned read-time K adapter** — train a small `A: q_relation → k_bank`
-   linear map on held-out facts to push the correct slot above noise
-   floor. Smallest possible deviation from native attention.
-2. **Different model architectures** — replicate Exp23–Exp27 on Gemma /
+1. **Learned read-time K adapter (Exp31)** — train a small `A: q → k_bank`
+   linear map on held-out facts to push the correct slot above noise floor.
+   **Completed 2026-05-13 — REJECTED.** Embedding-space top-1 reached ~40×
+   chance, but LM-output Gate B = 0/375 at every α, and a shuffled-pair
+   control adapter beats the correctly-trained one. See
+   `experiments/atb_validation_v1/exp31_learned_k_adapter/EXP31_VERDICT.md`.
+2. **MLP-side gated memory (Exp32)** — move injection from attention to
+   the MLP output (ROME/MEMIT fact-storage site) with a learned softmax
+   gate, capturing `(K=MLP-input, V=MLP-output)` at relation_last.
+   **Completed 2026-05-13 — REJECTED.** Embedding val top-1 climbed to
+   **92%** (~106× chance) on three seeds, yet LM-output Gate B = 0/375;
+   the shuffled-router Gate E control beat the trained router by **1.42
+   logits** of margin. See
+   `experiments/atb_validation_v1/exp32_mlp_side_gated_memory/EXP32_VERDICT.md`.
+3. **Different model architectures** — replicate Exp23–Exp27 on Gemma /
    Llama-family models to test whether the K-space discriminability ceiling
    is Qwen-3 specific or universal. **Completed 2026-05-13** — Gemma-4-E2B
    and Mistral-7B-Instruct-v0.3 both replicate the same falsification: trace
    routing exists (Mistral peaks at 10× chance retrieval), but Gate A
    collapses for all three families at N≥100. See
    `experiments/atb_validation_v1/exp13_anb_readdressability/EXP_CROSS_ARCH_VERDICT.md`.
-3. **Sparse-routed, parameter-free re-addressability at small N** — accept
+4. **Sparse-routed, parameter-free re-addressability at small N** — accept
    N≤50 as the operating regime; ship the prototype as a calibrated
    `bit-equal-at-α=0` working-memory module rather than a long-term fact
    bank.
+
+### Architectural ceiling — Exp31 + Exp32 double-negative
+
+Two orthogonal hypotheses now stand rejected with matching diagnostic
+signatures:
+
+| Hypothesis | Lever pulled | Embedding val top-1 | LM-output Gate B | Gate E (shuffled-pair control) |
+|---|---|---|---|---|
+| H_A — K-space discriminability | per-layer Linear K-adapter, InfoNCE | ~40× chance | 0/375 | FAIL |
+| H_B — wrong site (attention vs MLP) | MLP-output gated readout | ~106× chance | 0/375 | FAIL (Δ=−1.42) |
+
+The failure mode is **the α-scaled residual readout protocol itself**:
+`h ← h + α·readout(bank)` at any sublayer produces detectable activation
+drift but no fact-identity coupling at the LM head. Strong in-isolation
+routing does not transfer to the logit space, independent of read site
+or routing capacity. Cross-architecture replication of Exp31/Exp32 was
+*not* run because Qwen3 showed no LM-output signal — replication on
+Gemma/Mistral would only reproduce the null.
 
 Detailed verdicts: `experiments/atb_validation_v1/exp13_anb_readdressability/EXP25_VERDICT.md`,
 `EXP26_VERDICT.md`, `EXP26b_VERDICT.md`, `EXP27_VERDICT.md`,

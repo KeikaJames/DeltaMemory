@@ -85,6 +85,13 @@ def train(args) -> None:
     K_train = train_pt["anchor_K"]   # (N, L, D)
     V_train = train_pt["anchor_V"]
     Q_train = train_pt["queries_Q"]  # (N, P, L, D)
+    if getattr(args, "shuffle_pairs", False):
+        # Gate E control: scramble fact identity by permuting Q rows so that
+        # paraphrases of fact i now serve as positives for a different anchor.
+        g = torch.Generator().manual_seed(args.seed + 1000)
+        perm = torch.randperm(K_train.shape[0], generator=g)
+        Q_train = Q_train[perm].contiguous()
+        print(f"[shuffle_pairs] permuted Q rows under seed={args.seed+1000}")
     K_val = val_pt["anchor_K"]
     Q_val = val_pt["queries_Q"]
 
@@ -178,6 +185,8 @@ def main() -> None:
     ap.add_argument("--temperature", type=float, default=0.07)
     ap.add_argument("--lambda-v", type=float, default=0.1)
     ap.add_argument("--device", default="mps")
+    ap.add_argument("--shuffle-pairs", action="store_true",
+                    help="Gate E control: permute Q rows so adapter trains on wrong pairs")
     args = ap.parse_args()
     train(args)
 

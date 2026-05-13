@@ -117,3 +117,25 @@ in mechanism: gate sign and α-dependence carry over identically.
 Mistral has the strongest **trace-level routing signal** of any tested
 arch (retr_acc 10× chance) but still no content-mediated lift. Full
 report: `EXP_CROSS_ARCH_VERDICT.md`.
+
+### Architectural ceiling — Exp31 + Exp32 double-negative (2026-05-13)
+
+Two follow-up experiments each picked one orthogonal hypothesis to
+revive cosine-routed bank memory. Both rejected with the same signature.
+
+| Hypothesis | Lever pulled | Embedding val top-1 | LM-output Gate B | Gate E shuffled-pair control |
+|---|---|---:|---:|---|
+| **H_A — K-space discriminability bottleneck (Exp31)** | per-layer Linear K-adapter trained with InfoNCE | ~40× chance | 0 / 375 | FAIL — shuffled adapter beats trained |
+| **H_B — attention is the wrong site (Exp32)** | inject at MLP output, capture K=MLP-input / V=MLP-output, learned softmax gate | **~106× chance** | 0 / 375 | FAIL by **−1.42 logits** |
+
+Both adapters become highly discriminative in their own embedding space
+but contribute zero LM-output identity coupling. The failure mode is
+**the α-scaled residual readout protocol itself** — `h ← h + α·readout(bank)`
+at any sublayer produces detectable activation drift but no fact-identity
+binding at the logit head, regardless of read site or routing capacity.
+
+Cross-arch replication of Exp31/Exp32 was *not* run: Qwen3 produced no
+LM-output signal, and Gemma/Mistral would only reproduce the same null.
+Verdicts: `EXP31_VERDICT.md`, `EXP32_VERDICT.md` under
+`experiments/atb_validation_v1/exp31_learned_k_adapter/` and
+`experiments/atb_validation_v1/exp32_mlp_side_gated_memory/`.
