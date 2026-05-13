@@ -1,0 +1,27 @@
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading Qwen/Qwen3-4B-Instruct-2507 on mps bf16...
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001fa8cf080 (most recent call first):
+  <no Python frame>
+Loading weights:  12%|█▏        | 48/398 [00:00<00:00, 478.57it/s]Loading weights:  28%|██▊       | 112/398 [00:00<00:00, 572.96it/s]Loading weights:  43%|████▎     | 173/398 [00:00<00:00, 588.39it/s]Loading weights:  59%|█████▉    | 235/398 [00:00<00:00, 596.03it/s]Loading weights:  75%|███████▌  | 300/398 [00:00<00:00, 608.29it/s]Loading weights:  91%|█████████ | 361/398 [00:00<00:00, 607.41it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 597.58it/s]
+  model: L=36  d_model=2560
+
+=== train: 700 facts ===
+  train 25/700  kept=22 skipped=3  rate=3.90 fact/s  eta=2.9 min
+  train 50/700  kept=43 skipped=7  rate=4.02 fact/s  eta=2.7 min
+  train 75/700  kept=60 skipped=15  rate=4.41 fact/s  eta=2.4 min
+  train 100/700  kept=79 skipped=21  rate=4.58 fact/s  eta=2.2 min
+  train 125/700  kept=99 skipped=26  rate=4.54 fact/s  eta=2.1 min
+  train 150/700  kept=121 skipped=29  rate=4.41 fact/s  eta=2.1 min
+  train 175/700  kept=143 skipped=32  rate=4.33 fact/s  eta=2.0 min
+  train 200/700  kept=164 skipped=36  rate=4.30 fact/s  eta=1.9 min
+  train 225/700  kept=185 skipped=40  rate=4.28 fact/s  eta=1.8 min
+  train 250/700  kept=205 skipped=45  rate=4.31 fact/s  eta=1.7 min
+  train 275/700  kept=229 skipped=46  rate=4.24 fact/s  eta=1.7 min
+  train 300/700  kept=247 skipped=53  rate=4.29 fact/s  eta=1.6 min
+  train 325/700  kept=267 skipped=58  rate=4.31 fact/s  eta=1.5 min
+  train 350/700  kept=288 skipped=62  rate=4.30 fact/s  eta=1.4 min
+  train 450/700  kept=367 skipped=83  rate=4.29 fact/s  eta=1.0 min
