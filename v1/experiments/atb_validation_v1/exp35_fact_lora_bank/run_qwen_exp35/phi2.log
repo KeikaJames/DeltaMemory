@@ -1,0 +1,71 @@
+after solo_pass + 2-paraphrase filter: 764 facts
+N_classes (bank size, used) = 764
+[load model] Qwen/Qwen3-4B-Instruct-2507
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:25,  4.66it/s]Loading weights:  15%|█▍        | 58/398 [00:00<00:01, 227.65it/s]Loading weights:  30%|███       | 121/398 [00:00<00:00, 371.91it/s]Loading weights:  46%|████▌     | 182/398 [00:00<00:00, 452.58it/s]Loading weights:  61%|██████    | 242/398 [00:00<00:00, 499.65it/s]Loading weights:  76%|███████▌  | 301/398 [00:00<00:00, 527.31it/s]Loading weights:  92%|█████████▏| 366/398 [00:00<00:00, 558.61it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 454.59it/s]
+[embed train = prompt]
+  embed 100/764
+  embed 200/764
+  embed 300/764
+  embed 400/764
+  embed 500/764
+  embed 600/764
+  embed 700/764
+[embed val = paraphrase[0]]
+  embed 100/764
+  embed 200/764
+  embed 300/764
+  embed 400/764
+  embed 500/764
+  embed 600/764
+  embed 700/764
+[embed test = paraphrase[1]]
+  embed 100/764
+  embed 200/764
+  embed 300/764
+  embed 400/764
+  embed 500/764
+  embed 600/764
+  embed 700/764
+X: train=(764, 2560) val=(764, 2560) test=(764, 2560)
+
+[Φ2] honest router
+  [honest] ep10  val_top1=0.651
+  [honest] ep20  val_top1=0.733
+  [honest] ep30  val_top1=0.750
+  [honest] ep40  val_top1=0.768
+  [honest] ep50  val_top1=0.781
+honest: {'val_top1_best': 0.7814136147499084, 'test_top1': 0.7879580855369568, 'test_top5': 0.9070680737495422}  (4s)
+
+[Φ2] shuffled-label baseline (anti-cheat C8)
+  [shuffled] ep10  val_top1=0.000
+  [shuffled] ep20  val_top1=0.000
+  [shuffled] ep30  val_top1=0.000
+  [shuffled] ep40  val_top1=0.000
+  [shuffled] ep50  val_top1=0.000
+shuffled: {'val_top1_best': 0.002617801073938608, 'test_top1': 0.0, 'test_top5': 0.007853402756154537}  (4s)
+
+{
+  "n_classes": 764,
+  "chance": 0.0013089005235602095,
+  "honest": {
+    "val_top1_best": 0.7814136147499084,
+    "test_top1": 0.7879580855369568,
+    "test_top5": 0.9070680737495422
+  },
+  "shuffled_label_baseline": {
+    "val_top1_best": 0.002617801073938608,
+    "test_top1": 0.0,
+    "test_top5": 0.007853402756154537
+  },
+  "pre_registered": {
+    "test_top1_min": 0.5,
+    "test_top5_min": 0.8,
+    "shuffled_baseline_top1_max": 0.05
+  },
+  "verdict": {
+    "honest_pass_top1": true,
+    "honest_pass_top5": true,
+    "shuffled_safe": true
+  }
+}

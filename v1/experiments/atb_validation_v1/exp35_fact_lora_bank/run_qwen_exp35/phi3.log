@@ -1,0 +1,19 @@
+[load model] Qwen/Qwen3-4B-Instruct-2507
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:39,  4.01it/s]Loading weights:  15%|█▍        | 58/398 [00:00<00:01, 209.87it/s]Loading weights:  30%|██▉       | 119/398 [00:00<00:00, 345.16it/s]Loading weights:  45%|████▌     | 180/398 [00:00<00:00, 431.47it/s]Loading weights:  59%|█████▉    | 235/398 [00:00<00:00, 467.92it/s]Loading weights:  73%|███████▎  | 291/398 [00:00<00:00, 496.13it/s]Loading weights:  88%|████████▊ | 352/398 [00:00<00:00, 529.68it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 428.98it/s]
+  25/105  routed_uplift=+7.42  router_top1=76%  (16s)
+  50/105  routed_uplift=+8.30  router_top1=76%  (34s)
+  75/105  routed_uplift=+8.77  router_top1=72%  (50s)
+  100/105  routed_uplift=+6.83  router_top1=76%  (65s)
+
+{
+  "n_test": 105,
+  "router_top1_acc": 0.7428571428571429,
+  "router_top3_acc": 0.8571428571428571,
+  "mean_routed_uplift": 7.876338923353303,
+  "mean_oracle_uplift": 10.304572450165963,
+  "frac_routed_beats_base": 0.9047619047619048,
+  "frac_oracle_beats_base": 1.0,
+  "learned_vs_oracle_ratio_uplift": 0.7643537819200299,
+  "pre_registered_min_ratio": 0.7
+}

@@ -1,0 +1,353 @@
+[load model] Qwen/Qwen3-4B-Instruct-2507
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:  12%|█▏        | 49/398 [00:00<00:00, 487.64it/s]Loading weights:  29%|██▊       | 114/398 [00:00<00:00, 571.00it/s]Loading weights:  45%|████▍     | 179/398 [00:00<00:00, 605.53it/s]Loading weights:  61%|██████    | 242/398 [00:00<00:00, 614.07it/s]Loading weights:  76%|███████▋  | 304/398 [00:00<00:00, 595.65it/s]Loading weights:  92%|█████████▏| 366/398 [00:00<00:00, 595.91it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 584.28it/s]
+distractor pool = 659  test = 105
+[Φ1 bit-equal k=0 sanity]
+[Φ1] precomputing base margins for 764 facts (test+pool, for locality)…
+  base 100/764 (16s)
+  base 200/764 (31s)
+  base 300/764 (46s)
+  base 400/764 (61s)
+  base 500/764 (77s)
+  base 600/764 (92s)
+  base 700/764 (107s)
+  base mean margin over test = -3.335
+
+[Φ1] seed=0  k=1
+  25/105  uplift=+9.48  gateD=+9.48  (7s)
+  50/105  uplift=+9.89  gateD=+9.89  (14s)
+  75/105  uplift=+12.39  gateD=+12.41  (22s)
+  100/105  uplift=+9.07  gateD=+9.09  (29s)
+  k=1 seed=0: uplift=+10.30  gateD_mean=+10.31  posB=100%  posD=100%
+
+[Φ1] seed=0  k=2
+  25/105  uplift=+9.51  gateD=+9.52  (12s)
+  50/105  uplift=+9.83  gateD=+9.86  (23s)
+  75/105  uplift=+12.48  gateD=+12.47  (35s)
+  100/105  uplift=+9.09  gateD=+9.08  (47s)
+  k=2 seed=0: uplift=+10.33  gateD_mean=+10.33  posB=100%  posD=100%
+
+[Φ1] seed=0  k=5
+  25/105  uplift=+9.44  gateD=+9.26  (24s)
+  50/105  uplift=+10.02  gateD=+10.00  (48s)
+  75/105  uplift=+12.64  gateD=+12.51  (73s)
+  100/105  uplift=+9.26  gateD=+9.21  (97s)
+  k=5 seed=0: uplift=+10.42  gateD_mean=+10.33  posB=100%  posD=100%
+
+[Φ1] seed=0  k=10
+  25/105  uplift=+9.87  gateD=+9.66  (28s)
+  50/105  uplift=+10.11  gateD=+9.79  (56s)
+  75/105  uplift=+12.42  gateD=+12.33  (85s)
+  100/105  uplift=+9.25  gateD=+9.05  (113s)
+  k=10 seed=0: uplift=+10.52  gateD_mean=+10.30  posB=100%  posD=99%
+
+[Φ1] seed=0  k=25
+  25/105  uplift=+10.18  gateD=+9.19  (28s)
+  50/105  uplift=+10.23  gateD=+9.73  (56s)
+  75/105  uplift=+13.06  gateD=+11.94  (84s)
+  100/105  uplift=+10.23  gateD=+9.38  (113s)
+  k=25 seed=0: uplift=+11.02  gateD_mean=+10.16  posB=100%  posD=100%
+
+[Φ1] seed=0  k=50
+  25/105  uplift=+10.05  gateD=+8.30  (29s)
+  50/105  uplift=+10.80  gateD=+9.83  (57s)
+  75/105  uplift=+12.82  gateD=+10.93  (85s)
+  100/105  uplift=+10.10  gateD=+8.41  (114s)
+  k=50 seed=0: uplift=+11.01  gateD_mean=+9.45  posB=100%  posD=100%
+
+[Φ1] seed=1  k=1
+  25/105  uplift=+9.48  gateD=+9.48  (8s)
+  50/105  uplift=+9.89  gateD=+9.90  (15s)
+  75/105  uplift=+12.39  gateD=+12.38  (23s)
+  100/105  uplift=+9.07  gateD=+9.07  (31s)
+  k=1 seed=1: uplift=+10.30  gateD_mean=+10.30  posB=100%  posD=100%
+
+[Φ1] seed=1  k=2
+  25/105  uplift=+9.56  gateD=+9.59  (12s)
+  50/105  uplift=+9.95  gateD=+9.95  (24s)
+  75/105  uplift=+12.46  gateD=+12.32  (36s)
+  100/105  uplift=+9.08  gateD=+9.03  (48s)
+  k=2 seed=1: uplift=+10.36  gateD_mean=+10.32  posB=100%  posD=100%
+
+[Φ1] seed=1  k=5
+  25/105  uplift=+9.61  gateD=+9.36  (24s)
+  50/105  uplift=+9.84  gateD=+9.93  (48s)
+  75/105  uplift=+12.48  gateD=+12.45  (72s)
+  100/105  uplift=+9.16  gateD=+8.96  (96s)
+  k=5 seed=1: uplift=+10.38  gateD_mean=+10.26  posB=100%  posD=99%
+
+[Φ1] seed=1  k=10
+  25/105  uplift=+9.75  gateD=+9.50  (29s)
+  50/105  uplift=+10.28  gateD=+9.61  (57s)
+  75/105  uplift=+12.86  gateD=+12.61  (85s)
+  100/105  uplift=+9.39  gateD=+9.08  (113s)
+  k=10 seed=1: uplift=+10.64  gateD_mean=+10.29  posB=100%  posD=100%
+
+[Φ1] seed=1  k=25
+  25/105  uplift=+9.89  gateD=+9.02  (28s)
+  50/105  uplift=+10.79  gateD=+9.48  (57s)
+  75/105  uplift=+12.96  gateD=+11.65  (85s)
+  100/105  uplift=+9.33  gateD=+8.58  (114s)
+  k=25 seed=1: uplift=+10.84  gateD_mean=+9.80  posB=100%  posD=99%
+
+[Φ1] seed=1  k=50
+  25/105  uplift=+10.74  gateD=+9.10  (29s)
+  50/105  uplift=+10.91  gateD=+9.37  (57s)
+  75/105  uplift=+12.74  gateD=+10.28  (86s)
+  100/105  uplift=+9.81  gateD=+8.57  (114s)
+  k=50 seed=1: uplift=+11.08  gateD_mean=+9.35  posB=100%  posD=100%
+
+[Φ1] seed=2  k=1
+  25/105  uplift=+9.48  gateD=+9.47  (8s)
+  50/105  uplift=+9.89  gateD=+9.90  (15s)
+  75/105  uplift=+12.39  gateD=+12.39  (23s)
+  100/105  uplift=+9.07  gateD=+9.07  (31s)
+  k=1 seed=2: uplift=+10.30  gateD_mean=+10.30  posB=100%  posD=100%
+
+[Φ1] seed=2  k=2
+  25/105  uplift=+9.50  gateD=+9.48  (12s)
+  50/105  uplift=+9.96  gateD=+9.82  (24s)
+  75/105  uplift=+12.41  gateD=+12.33  (36s)
+  100/105  uplift=+9.08  gateD=+9.10  (48s)
+  k=2 seed=2: uplift=+10.34  gateD_mean=+10.29  posB=100%  posD=100%
+
+[Φ1] seed=2  k=5
+  25/105  uplift=+9.45  gateD=+9.33  (24s)
+  50/105  uplift=+10.12  gateD=+10.04  (47s)
+  75/105  uplift=+12.67  gateD=+12.69  (71s)
+  100/105  uplift=+9.17  gateD=+8.99  (95s)
+  k=5 seed=2: uplift=+10.43  gateD_mean=+10.34  posB=100%  posD=100%
+
+[Φ1] seed=2  k=10
+  25/105  uplift=+9.63  gateD=+9.42  (28s)
+  50/105  uplift=+10.35  gateD=+10.05  (55s)
+  75/105  uplift=+12.51  gateD=+12.43  (83s)
+  100/105  uplift=+9.10  gateD=+8.62  (110s)
+  k=10 seed=2: uplift=+10.50  gateD_mean=+10.23  posB=100%  posD=99%
+
+[Φ1] seed=2  k=25
+  25/105  uplift=+9.90  gateD=+8.67  (28s)
+  50/105  uplift=+10.63  gateD=+9.98  (56s)
+  75/105  uplift=+13.30  gateD=+12.38  (84s)
+  100/105  uplift=+9.61  gateD=+8.94  (112s)
+  k=25 seed=2: uplift=+10.94  gateD_mean=+10.10  posB=100%  posD=100%
+
+[Φ1] seed=2  k=50
+  25/105  uplift=+10.51  gateD=+9.13  (28s)
+  50/105  uplift=+11.35  gateD=+9.79  (56s)
+  75/105  uplift=+12.66  gateD=+10.43  (84s)
+  100/105  uplift=+10.39  gateD=+8.85  (112s)
+  k=50 seed=2: uplift=+11.30  gateD_mean=+9.63  posB=100%  posD=99%
+
+{
+  "k1_seed0": {
+    "n_facts": 105,
+    "mean_uplift_nats": 10.304572450165963,
+    "mean_gate_d_diff_nats": 10.30858877565867,
+    "frac_target_beats_base": 1.0,
+    "frac_target_beats_shuffled": 1.0,
+    "frac_target_above_zero": 0.9904761904761905
+  },
+  "k1_seed1": {
+    "n_facts": 105,
+    "mean_uplift_nats": 10.304572450165963,
+    "mean_gate_d_diff_nats": 10.298948104097509,
+    "frac_target_beats_base": 1.0,
+    "frac_target_beats_shuffled": 1.0,
+    "frac_target_above_zero": 0.9904761904761905
+  },
+  "k1_seed2": {
+    "n_facts": 105,
+    "mean_uplift_nats": 10.304572450165963,
+    "mean_gate_d_diff_nats": 10.303615257981056,
+    "frac_target_beats_base": 1.0,
+    "frac_target_beats_shuffled": 1.0,
+    "frac_target_above_zero": 0.9904761904761905
+  },
+  "k1_agg": {
+    "n_obs": 315,
+    "mean_uplift_nats": 10.304572450165962,
+    "mean_gate_d_diff_nats": 10.303717379245745,
+    "frac_target_beats_base": 1.0,
+    "frac_target_beats_shuffled": 1.0,
+    "frac_target_above_zero": 0.9904761904761905,
+    "locality_median_abs_shift_nats": 0.0,
+    "locality_mean_shift_nats": 0.0,
+    "locality_n": 0
+  },
+  "k2_seed0": {
+    "n_facts": 105,
+    "mean_uplift_nats": 10.327789879396432,
+    "mean_gate_d_diff_nats": 10.329366336835156,
+    "frac_target_beats_base": 1.0,
+    "frac_target_beats_shuffled": 1.0,
+    "frac_target_above_zero": 0.9809523809523809
+  },
+  "k2_seed1": {
+    "n_facts": 105,
+    "mean_uplift_nats": 10.363878308748594,
+    "mean_gate_d_diff_nats": 10.324792561275535,
+    "frac_target_beats_base": 1.0,
+    "frac_target_beats_shuffled": 1.0,
+    "frac_target_above_zero": 0.9809523809523809
+  },
+  "k2_seed2": {
+    "n_facts": 105,
+    "mean_uplift_nats": 10.34177671739294,
+    "mean_gate_d_diff_nats": 10.290493258311402,
+    "frac_target_beats_base": 1.0,
+    "frac_target_beats_shuffled": 1.0,
+    "frac_target_above_zero": 0.9809523809523809
+  },
+  "k2_agg": {
+    "n_obs": 315,
+    "mean_uplift_nats": 10.34448163517932,
+    "mean_gate_d_diff_nats": 10.314884052140698,
+    "frac_target_beats_base": 1.0,
+    "frac_target_beats_shuffled": 1.0,
+    "frac_target_above_zero": 0.9809523809523809,
+    "locality_median_abs_shift_nats": 9.899088223775228,
+    "locality_mean_shift_nats": 10.935965850589325,
+    "locality_n": 315
+  },
+  "k5_seed0": {
+    "n_facts": 105,
+    "mean_uplift_nats": 10.420975136602092,
+    "mean_gate_d_diff_nats": 10.33152045927658,
+    "frac_target_beats_base": 1.0,
+    "frac_target_beats_shuffled": 1.0,
+    "frac_target_above_zero": 0.9809523809523809
+  },
+  "k5_seed1": {
+    "n_facts": 105,
+    "mean_uplift_nats": 10.376505929345056,
+    "mean_gate_d_diff_nats": 10.263417194234828,
+    "frac_target_beats_base": 1.0,
+    "frac_target_beats_shuffled": 0.9904761904761905,
+    "frac_target_above_zero": 1.0
+  },
+  "k5_seed2": {
+    "n_facts": 105,
+    "mean_uplift_nats": 10.42655318918269,
+    "mean_gate_d_diff_nats": 10.335445341599726,
+    "frac_target_beats_base": 1.0,
+    "frac_target_beats_shuffled": 1.0,
+    "frac_target_above_zero": 0.9714285714285714
+  },
+  "k5_agg": {
+    "n_obs": 315,
+    "mean_uplift_nats": 10.408011418376612,
+    "mean_gate_d_diff_nats": 10.310127665037044,
+    "frac_target_beats_base": 1.0,
+    "frac_target_beats_shuffled": 0.9968253968253968,
+    "frac_target_above_zero": 0.9841269841269841,
+    "locality_median_abs_shift_nats": 9.6748046875,
+    "locality_mean_shift_nats": 10.676340372527799,
+    "locality_n": 1260
+  },
+  "k10_seed0": {
+    "n_facts": 105,
+    "mean_uplift_nats": 10.521075022083778,
+    "mean_gate_d_diff_nats": 10.30250560421236,
+    "frac_target_beats_base": 1.0,
+    "frac_target_beats_shuffled": 0.9904761904761905,
+    "frac_target_above_zero": 0.9809523809523809
+  },
+  "k10_seed1": {
+    "n_facts": 105,
+    "mean_uplift_nats": 10.64316094607955,
+    "mean_gate_d_diff_nats": 10.293289629314515,
+    "frac_target_beats_base": 1.0,
+    "frac_target_beats_shuffled": 1.0,
+    "frac_target_above_zero": 0.9904761904761905
+  },
+  "k10_seed2": {
+    "n_facts": 105,
+    "mean_uplift_nats": 10.500242955915631,
+    "mean_gate_d_diff_nats": 10.22676671542736,
+    "frac_target_beats_base": 1.0,
+    "frac_target_beats_shuffled": 0.9904761904761905,
+    "frac_target_above_zero": 0.9809523809523809
+  },
+  "k10_agg": {
+    "n_obs": 315,
+    "mean_uplift_nats": 10.55482630802632,
+    "mean_gate_d_diff_nats": 10.274187316318079,
+    "frac_target_beats_base": 1.0,
+    "frac_target_beats_shuffled": 0.9936507936507937,
+    "frac_target_above_zero": 0.9841269841269841,
+    "locality_median_abs_shift_nats": 9.713541507720947,
+    "locality_mean_shift_nats": 10.721671436515233,
+    "locality_n": 1575
+  },
+  "k25_seed0": {
+    "n_facts": 105,
+    "mean_uplift_nats": 11.020496260395458,
+    "mean_gate_d_diff_nats": 10.155830770042067,
+    "frac_target_beats_base": 1.0,
+    "frac_target_beats_shuffled": 1.0,
+    "frac_target_above_zero": 1.0
+  },
+  "k25_seed1": {
+    "n_facts": 105,
+    "mean_uplift_nats": 10.841468208333263,
+    "mean_gate_d_diff_nats": 9.799427989819863,
+    "frac_target_beats_base": 1.0,
+    "frac_target_beats_shuffled": 0.9904761904761905,
+    "frac_target_above_zero": 1.0
+  },
+  "k25_seed2": {
+    "n_facts": 105,
+    "mean_uplift_nats": 10.939195794002421,
+    "mean_gate_d_diff_nats": 10.100366989593438,
+    "frac_target_beats_base": 1.0,
+    "frac_target_beats_shuffled": 1.0,
+    "frac_target_above_zero": 1.0
+  },
+  "k25_agg": {
+    "n_obs": 315,
+    "mean_uplift_nats": 10.933720087577047,
+    "mean_gate_d_diff_nats": 10.018541916485121,
+    "frac_target_beats_base": 1.0,
+    "frac_target_beats_shuffled": 0.9968253968253968,
+    "frac_target_above_zero": 1.0,
+    "locality_median_abs_shift_nats": 10.364583353201548,
+    "locality_mean_shift_nats": 11.239879605041876,
+    "locality_n": 1575
+  },
+  "k50_seed0": {
+    "n_facts": 105,
+    "mean_uplift_nats": 11.00674600592422,
+    "mean_gate_d_diff_nats": 9.44511556332169,
+    "frac_target_beats_base": 1.0,
+    "frac_target_beats_shuffled": 1.0,
+    "frac_target_above_zero": 1.0
+  },
+  "k50_seed1": {
+    "n_facts": 105,
+    "mean_uplift_nats": 11.075097869113435,
+    "mean_gate_d_diff_nats": 9.354973699538355,
+    "frac_target_beats_base": 1.0,
+    "frac_target_beats_shuffled": 1.0,
+    "frac_target_above_zero": 0.9809523809523809
+  },
+  "k50_seed2": {
+    "n_facts": 105,
+    "mean_uplift_nats": 11.30001142297493,
+    "mean_gate_d_diff_nats": 9.63183187837541,
+    "frac_target_beats_base": 1.0,
+    "frac_target_beats_shuffled": 0.9904761904761905,
+    "frac_target_above_zero": 1.0
+  },
+  "k50_agg": {
+    "n_obs": 315,
+    "mean_uplift_nats": 11.127285099337527,
+    "mean_gate_d_diff_nats": 9.477307047078485,
+    "frac_target_beats_base": 1.0,
+    "frac_target_beats_shuffled": 0.9968253968253968,
+    "frac_target_above_zero": 0.9936507936507937,
+    "locality_median_abs_shift_nats": 10.86718781789144,
+    "locality_mean_shift_nats": 11.653883680344112,
+    "locality_n": 1575
+  }
+}

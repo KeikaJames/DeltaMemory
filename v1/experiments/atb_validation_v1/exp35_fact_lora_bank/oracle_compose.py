@@ -112,9 +112,13 @@ def main():
     val_rows = {row["id"]: row for row in json.load(open(SPLITS / "val.json"))}
     all_rows = {**train_rows, **val_rows, **test_rows}
 
-    # base margins (k=0 means no patch)
+    # base margins (k=0 means no patch) — for test AND train_pool (locality)
     base = {}
-    for fid in test_facts:
+    base_fids = list(set(test_facts) | set(train_pool))
+    print(f"[Φ1] precomputing base margins for {len(base_fids)} facts "
+          f"(test+pool, for locality)…", flush=True)
+    t0_base = time.time()
+    for n_done, fid in enumerate(base_fids):
         e = entries[fid]
         row = all_rows[fid]
         t_new = first_target_id(tok, e["target_new"])
@@ -122,9 +126,12 @@ def main():
         margins, mean = margins_for_fact(model, tok, row, t_new, t_true)
         base[fid] = {"margins": margins, "mean": mean,
                      "t_new": t_new, "t_true": t_true}
+        if (n_done + 1) % 100 == 0:
+            print(f"  base {n_done+1}/{len(base_fids)} ({time.time()-t0_base:.0f}s)",
+                  flush=True)
     assert_bit_equal(model, args.edit_layer, W_ref)
-    print(f"  base mean margin over test = "
-          f"{sum(v['mean'] for v in base.values())/len(base):+.3f}", flush=True)
+    test_mean = sum(base[fid]["mean"] for fid in test_facts) / len(test_facts)
+    print(f"  base mean margin over test = {test_mean:+.3f}", flush=True)
 
     # --- main sweep ---
     rows = []
@@ -155,16 +162,14 @@ def main():
                     for dj in distractor_fids[:n_loc]:
                         drow = all_rows[dj]
                         de = entries[dj]
-                        dt_new = first_target_id(tok, de["target_new"])
-                        dt_true = first_target_id(tok, de["target_true"])
+                        dt_new = base[dj]["t_new"]
+                        dt_true = base[dj]["t_true"]
                         _, dj_mean = margins_for_fact(model, tok, drow, dt_new, dt_true)
-                        # baseline for dj — compute lazily/cached
-                        if dj not in base:
-                            # quick base eval (restore first)
-                            pass
-                        # we'll compute base for distractors below if needed
                         locality_shifts.append({
-                            "id": dj, "patched_mean": dj_mean,
+                            "id": dj,
+                            "patched_mean": dj_mean,
+                            "base_mean": base[dj]["mean"],
+                            "shift": dj_mean - base[dj]["mean"],
                         })
                 finally:
                     restore(model, args.edit_layer, W_old)
@@ -192,7 +197,7 @@ def main():
                     "shuffled_mean": shuffled_mean,
                     "uplift": target_mean - base[fid]["mean"],
                     "gate_d_diff": target_mean - shuffled_mean,
-                    "distractor_patched_means": [s["patched_mean"] for s in locality_shifts],
+                    "locality": locality_shifts,
                 })
 
                 if (ti + 1) % 25 == 0:
@@ -212,24 +217,16 @@ def main():
                   f"gateD_mean={gd:+.2f}  posB={pos_b:.0%}  posD={pos_d:.0%}",
                   flush=True)
 
-    # baseline for distractor locality: need to compute base for any fid that
-    # appeared as a distractor — do it now in bulk.
-    needed = set()
-    for r in rows:
-        # we stored patched_means but not the base; need base for shift.
-        # We'll record distractor base now.
-        pass
-    # build base map for distractors that appeared
-    distractor_ids_seen = set()
-    for r in rows:
-        # not stored — recompute? Simpler: record base_means for those that show up.
-        pass
-    # In post-processing we'll compute the locality shifts using a separate pass.
-
     # --- aggregate ---
     with open(out / "phi1_cells.jsonl", "w") as f:
         for r in rows:
             f.write(json.dumps(r) + "\n")
+
+    def median(xs):
+        xs = sorted(xs)
+        n = len(xs)
+        if n == 0: return 0.0
+        return xs[n // 2] if n % 2 else 0.5 * (xs[n//2 - 1] + xs[n//2])
 
     summary = {}
     for k in args.k_values:
@@ -248,6 +245,7 @@ def main():
         # cross-seed aggregate
         cur = [r for r in rows if r["k"] == k]
         n = len(cur)
+        loc_shifts = [s["shift"] for r in cur for s in r["locality"]]
         summary[f"k{k}_agg"] = {
             "n_obs": n,
             "mean_uplift_nats": sum(r["uplift"] for r in cur) / n,
@@ -255,6 +253,9 @@ def main():
             "frac_target_beats_base": sum(1 for r in cur if r["uplift"] > 0) / n,
             "frac_target_beats_shuffled": sum(1 for r in cur if r["gate_d_diff"] > 0) / n,
             "frac_target_above_zero": sum(1 for r in cur if r["target_mean"] > 0) / n,
+            "locality_median_abs_shift_nats": median([abs(x) for x in loc_shifts]) if loc_shifts else 0.0,
+            "locality_mean_shift_nats": (sum(loc_shifts) / len(loc_shifts)) if loc_shifts else 0.0,
+            "locality_n": len(loc_shifts),
         }
 
     json.dump(summary, open(out / "phi1_summary.json", "w"), indent=2)

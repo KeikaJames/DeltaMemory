@@ -150,25 +150,31 @@ def main():
     seed_everything(args.seed)
     out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
 
-    train_rows = json.load(open(SPLITS / "train.json"))
-    val_rows = json.load(open(SPLITS / "val.json"))
-    test_rows = json.load(open(SPLITS / "test.json"))[: args.n_test]
+    train_rows_raw = json.load(open(SPLITS / "train.json"))
+    val_rows_raw = json.load(open(SPLITS / "val.json"))
+    test_rows_raw = json.load(open(SPLITS / "test.json"))[: args.n_test]
 
     # Filter to solo_pass facts in bank (consistent with Φ1)
     bank = torch.load(HERE / "bank.pt", map_location="cpu", weights_only=False)
     ok = {fid for fid, e in bank["entries"].items()
           if e["solo_pass"] and not e.get("norm_outlier", False)}
-    train_rows = [r for r in train_rows if r["id"] in ok]
-    val_rows = [r for r in val_rows if r["id"] in ok]
-    test_rows = [r for r in test_rows if r["id"] in ok]
-    print(f"after solo_pass filter: train={len(train_rows)}  val={len(val_rows)}  test={len(test_rows)}",
-          flush=True)
+    # Use the FULL bank (train+val+test fact pools) as the classification set.
+    # For each fact, derive 3 inputs:
+    #   train embed = subject embed from row["prompt"]              (C3)
+    #   val embed   = subject embed from row["paraphrase_prompts"][0]
+    #   test embed  = subject embed from row["paraphrase_prompts"][1]
+    # The fact_id is the label; same label across splits.  This is the only
+    # honest cross-paraphrase design — splitting fact_ids across train/val/test
+    # makes the task unlearnable (labels disjoint).
+    all_rows = train_rows_raw + val_rows_raw + test_rows_raw
+    rows = [r for r in all_rows if r["id"] in ok and len(r.get("paraphrase_prompts", [])) >= 2]
+    print(f"after solo_pass + 2-paraphrase filter: {len(rows)} facts", flush=True)
 
-    # Label space = all bank facts (concat order)
-    all_ids = list(ok)
+    # Label space = all facts (after filter)
+    all_ids = [r["id"] for r in rows]
     id2label = {fid: i for i, fid in enumerate(all_ids)}
     n_classes = len(all_ids)
-    print(f"N_classes (bank size) = {n_classes}", flush=True)
+    print(f"N_classes (bank size, used) = {n_classes}", flush=True)
 
     # Cache embeds (expensive)
     if Path(args.cache).exists():
@@ -180,12 +186,12 @@ def main():
         model.eval()
         for p in model.parameters():
             p.requires_grad_(False)
-        print("[embed train (prompt)]", flush=True)
-        X_tr, ids_tr = collect_embeds(model, tok, train_rows, "prompt")
-        print("[embed val (paraphrase[0])]", flush=True)
-        X_va, ids_va = collect_embeds(model, tok, val_rows, "para", with_para_index=0)
-        print("[embed test (paraphrase[1])]", flush=True)
-        X_te, ids_te = collect_embeds(model, tok, test_rows, "para", with_para_index=1)
+        print("[embed train = prompt]", flush=True)
+        X_tr, ids_tr = collect_embeds(model, tok, rows, "prompt")
+        print("[embed val = paraphrase[0]]", flush=True)
+        X_va, ids_va = collect_embeds(model, tok, rows, "para", with_para_index=0)
+        print("[embed test = paraphrase[1]]", flush=True)
+        X_te, ids_te = collect_embeds(model, tok, rows, "para", with_para_index=1)
         cache = {"X_train": X_tr, "ids_train": ids_tr,
                  "X_val": X_va, "ids_val": ids_va,
                  "X_test": X_te, "ids_test": ids_te}

@@ -1,0 +1,30 @@
+{
+  "meta": {
+    "edit_layer": 5,
+    "v_steps": 25,
+    "v_lr": 0.5,
+    "lam": 0.01,
+    "seed": 0,
+    "n_total": 975,
+    "n_test": 125
+  },
+  "solo_pass_rate": 0.7835897435897435,
+  "solo_pass_by_split": {
+    "train": {
+      "n": 700,
+      "pass": 539
+    },
+    "val": {
+      "n": 150,
+      "pass": 120
+    },
+    "test": {
+      "n": 125,
+      "pass": 105
+    }
+  },
+  "delta_norm_median": 7.857067584991455,
+  "delta_norm_max": 16.985803604125977,
+  "delta_norm_outlier_cutoff": 23.571202754974365,
+  "n_norm_outliers": 0
+}

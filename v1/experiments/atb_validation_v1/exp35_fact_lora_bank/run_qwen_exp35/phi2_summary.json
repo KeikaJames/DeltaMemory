@@ -1,0 +1,24 @@
+{
+  "n_classes": 764,
+  "chance": 0.0013089005235602095,
+  "honest": {
+    "val_top1_best": 0.7814136147499084,
+    "test_top1": 0.7879580855369568,
+    "test_top5": 0.9070680737495422
+  },
+  "shuffled_label_baseline": {
+    "val_top1_best": 0.002617801073938608,
+    "test_top1": 0.0,
+    "test_top5": 0.007853402756154537
+  },
+  "pre_registered": {
+    "test_top1_min": 0.5,
+    "test_top5_min": 0.8,
+    "shuffled_baseline_top1_max": 0.05
+  },
+  "verdict": {
+    "honest_pass_top1": true,
+    "honest_pass_top5": true,
+    "shuffled_safe": true
+  }
+}

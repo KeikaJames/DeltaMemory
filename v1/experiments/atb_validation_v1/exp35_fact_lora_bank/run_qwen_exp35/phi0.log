@@ -1,0 +1,74 @@
+[load] Qwen/Qwen3-4B-Instruct-2507
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:29,  4.45it/s]Loading weights:  12%|█▏        | 49/398 [00:00<00:01, 188.75it/s]Loading weights:  29%|██▊       | 114/398 [00:00<00:00, 349.96it/s]Loading weights:  45%|████▍     | 179/398 [00:00<00:00, 445.35it/s]Loading weights:  60%|██████    | 240/398 [00:00<00:00, 498.11it/s]Loading weights:  76%|███████▌  | 302/398 [00:00<00:00, 532.14it/s]Loading weights:  92%|█████████▏| 367/398 [00:00<00:00, 563.61it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 450.98it/s]
+bank size = 975 (train=700 val=150 test=125)
+  25/975 (40s)  recent_solo_pass=76%  ||Δ||_F mean=8.48
+  50/975 (82s)  recent_solo_pass=88%  ||Δ||_F mean=8.29
+  75/975 (124s)  recent_solo_pass=76%  ||Δ||_F mean=9.07
+  100/975 (165s)  recent_solo_pass=80%  ||Δ||_F mean=8.37
+  125/975 (210s)  recent_solo_pass=68%  ||Δ||_F mean=7.87
+  150/975 (255s)  recent_solo_pass=68%  ||Δ||_F mean=8.48
+  175/975 (298s)  recent_solo_pass=76%  ||Δ||_F mean=8.05
+  200/975 (341s)  recent_solo_pass=80%  ||Δ||_F mean=7.83
+  225/975 (384s)  recent_solo_pass=72%  ||Δ||_F mean=8.32
+  250/975 (426s)  recent_solo_pass=80%  ||Δ||_F mean=7.59
+  275/975 (467s)  recent_solo_pass=76%  ||Δ||_F mean=7.53
+  300/975 (510s)  recent_solo_pass=60%  ||Δ||_F mean=7.86
+  325/975 (553s)  recent_solo_pass=84%  ||Δ||_F mean=7.87
+  350/975 (595s)  recent_solo_pass=84%  ||Δ||_F mean=8.56
+  375/975 (639s)  recent_solo_pass=88%  ||Δ||_F mean=8.50
+  400/975 (683s)  recent_solo_pass=64%  ||Δ||_F mean=7.82
+  425/975 (726s)  recent_solo_pass=68%  ||Δ||_F mean=7.90
+  450/975 (771s)  recent_solo_pass=64%  ||Δ||_F mean=8.13
+  475/975 (814s)  recent_solo_pass=88%  ||Δ||_F mean=8.30
+  500/975 (857s)  recent_solo_pass=76%  ||Δ||_F mean=8.12
+  525/975 (899s)  recent_solo_pass=92%  ||Δ||_F mean=8.24
+  550/975 (943s)  recent_solo_pass=84%  ||Δ||_F mean=7.44
+  575/975 (990s)  recent_solo_pass=80%  ||Δ||_F mean=8.34
+  600/975 (1033s)  recent_solo_pass=80%  ||Δ||_F mean=8.08
+  625/975 (1078s)  recent_solo_pass=68%  ||Δ||_F mean=8.27
+  650/975 (1120s)  recent_solo_pass=88%  ||Δ||_F mean=8.25
+  675/975 (1167s)  recent_solo_pass=76%  ||Δ||_F mean=7.69
+  700/975 (1210s)  recent_solo_pass=72%  ||Δ||_F mean=8.47
+  725/975 (1253s)  recent_solo_pass=76%  ||Δ||_F mean=8.13
+  750/975 (1298s)  recent_solo_pass=84%  ||Δ||_F mean=8.28
+  775/975 (1343s)  recent_solo_pass=80%  ||Δ||_F mean=7.84
+  800/975 (1387s)  recent_solo_pass=88%  ||Δ||_F mean=7.93
+  825/975 (1432s)  recent_solo_pass=84%  ||Δ||_F mean=8.21
+  850/975 (1477s)  recent_solo_pass=68%  ||Δ||_F mean=8.71
+  875/975 (1521s)  recent_solo_pass=80%  ||Δ||_F mean=8.24
+  900/975 (1566s)  recent_solo_pass=72%  ||Δ||_F mean=7.90
+  925/975 (1609s)  recent_solo_pass=96%  ||Δ||_F mean=8.40
+  950/975 (1655s)  recent_solo_pass=92%  ||Δ||_F mean=7.39
+  975/975 (1699s)  recent_solo_pass=80%  ||Δ||_F mean=8.09
+
+{
+  "meta": {
+    "edit_layer": 5,
+    "v_steps": 25,
+    "v_lr": 0.5,
+    "lam": 0.01,
+    "seed": 0,
+    "n_total": 975,
+    "n_test": 125
+  },
+  "solo_pass_rate": 0.7835897435897435,
+  "solo_pass_by_split": {
+    "train": {
+      "n": 700,
+      "pass": 539
+    },
+    "val": {
+      "n": 150,
+      "pass": 120
+    },
+    "test": {
+      "n": 125,
+      "pass": 105
+    }
+  },
+  "delta_norm_median": 7.857067584991455,
+  "delta_norm_max": 16.985803604125977,
+  "delta_norm_outlier_cutoff": 23.571202754974365,
+  "n_norm_outliers": 0
+}
