@@ -110,3 +110,25 @@ record both falsifications.
   `run_qwen_full/shuffled/router_best.pt`
 - Eval cells: `run_qwen_full_eval/cells.jsonl` (9,375 rows)
 - Env: `run_qwen_full_eval/env.json`
+
+## Addendum — LS Diagnostic (2026-05-13)
+
+A user concern raised that 567 training facts might be too small and the
+InfoNCE router could be exploiting activation-co-statistic shortcuts.
+We replaced the iterative optimiser with two closed-form least-squares
+estimators (ridge + rank-r CCA) on the same captures and re-measured
+real-pair vs shuffled-pair retrieval. Full report in
+[`LS_DIAGNOSTIC.md`](LS_DIAGNOSTIC.md). Headline numbers:
+
+| Routing protocol | Real test_t1 | Shuffled test_t1 |
+|---|---:|---:|
+| InfoNCE (this exp) | 88.4% | **45.2%**  ← shortcut |
+| Closed-form CCA-64 | 76.0% | **0.8%** = chance |
+
+**Implication:** the shortcut signal is **dynamics-induced**, not a
+geometric property of the captures. The data is not poisoned. Scaling
+N would only narrow the InfoNCE-vs-LS gap, not unlock Gate B — because
+Gate B = 0/375 already held *with* the inflated 88% routing. The Exp31 +
+Exp32 double-negative therefore tightens to: **the bottleneck is the
+α-additive readout protocol, not routing quality**. Forward paths:
+re-attention readout (Exp33), parameter-edit baseline (Exp34).
