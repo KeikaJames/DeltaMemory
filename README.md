@@ -47,6 +47,12 @@ with architecture-specific α defaults and V-scale calibration; Dynamic LOPI /
 U-LOPI and mHC are available as explicit ablation knobs, not hidden prompt
 context. It is **not RAG**, **not prompt insertion**, and **not a weight edit**.
 
+Current experimental status: bank-style external memory is useful as an
+activation-side research instrument, but scaled fact-identity binding on
+Qwen3-4B fails under every tested bank readout protocol. The positive control
+in Exp34 shows that the evaluation harness can detect real fact edits when the
+MLP `down_proj` parameter manifold is modified.
+
 ## Quick start
 
 ```python
@@ -193,102 +199,61 @@ $$
   `compute_config_sha`, `resolve_location`.
 * Round-trip tests: `tests/test_bank_persistence.py`.
 
-## Negative findings — Site-Stratified ANB falsification (Exp23–Exp27)
+## Experimental verdict — bank memory vs parameter edit
 
-A four-experiment attack on **site-stratified, fact-routed memory** (separate
-relation-site K capture + subject/object-site V capture, then native
-sparse-attention readout over a bank of N facts) was carried out in
-`experiments/atb_validation_v1/exp13_anb_readdressability/` on Qwen3-4B
-(MPS bf16, CounterFact). All four attacks produced the **identical
-N=100 PASS → N=200 FAIL falsification curve**.
+The ATB validation series tested whether fact identity can be stored and
+re-addressed through external bank readouts while keeping the base model
+weights frozen. On Qwen3-4B, every bank-style protocol failed LM-output fact
+binding at N=200 or on the Exp31/32 held-out splits. Exp34 then served as a
+positive control by applying a rank-1 ROME-style edit directly to
+`mlp.down_proj`; it passed the same gate family.
 
-| Attack | What changed | N=100 gates | N=200 gates |
-|---|---|---|---|
-| Exp24 K-routing | Single-site K, α-additive readout | DIRECTIONAL +0.193 nat | weak/null |
-| Exp26 single-V | K=relation_last, V=object_last (1 tok) | A+C+D PASS_STRONG | All FAIL |
-| Exp26b multi-V | K=relation_last, V=`[subject_first..object_last]` (~8 tok mean) | A+C+D PASS | All FAIL |
-| Exp27 sparse-attn | Joint softmax `Attn(Q,[K;M_K],[V;M_V])`, α∈{0.05..3.0} | C+D PASS only at α=0.05 | All FAIL |
+| Exp | Protocol | Gate B | Gate D | Verdict |
+|---|---|---:|---:|---|
+| 24 | Cosine ATB (attn-side) | 0 / 375 | fail | NEGATIVE |
+| 27 | Sparse joint-softmax bank, N=200 | 0 / 375 | fail | NEGATIVE |
+| 31 | Learned K-adapter + ATB | 0 / 375 | fail | NEGATIVE |
+| 32 | MLP-side α-additive gated bank | 0 / 375 | fail (−1.17) | NEGATIVE |
+| 33 | Joint-softmax bank on Exp31/32 splits | 0 / 375 | fail (−0.108) | NEGATIVE |
+| 34 | Rank-1 `down_proj` edit (ROME) | 125 / 125 | 123 / 125 | POSITIVE |
 
 Gates: A=`topk1 − minus_correct` (correct-fact contribution),
-B=`retrieval_accuracy > chance` (selects correct slot),
-C=`topk1 − meanV` (V carries content),
-D=`topk1 − shuffled_factids` (K/V identity bound to fact).
+B=`retrieval_accuracy > chance` or successful LM-output fact selection,
+C=`topk1 − meanV` (V carries content), and D=`topk1 − shuffled_factids`
+(K/V identity bound to fact). Exp32/33 report D-style shuffled-control margins
+in logits.
 
-`retrieval_accuracy` never escapes 2–3× chance at N=100 and decays to ~1×
-chance at N≥200, **independent of** K capture site, V capture site, V span
-length (1 vs 8 tokens), α (4 orders of magnitude: 0.003 → 3.0), or
-joint-vs-additive softmax. At α≥1.0 the joint softmax actively
-**downweights** the bank (`bank_mass` drops 0.34 → 0.13) because sequence
-keys win the joint softmax — adding `M_K` to the softmax does not force
-the bank to be selected.
+### Architectural conclusion
 
-### Conclusion
+On Qwen3-4B, fact-identity binding requires modifying the parameter manifold
+of `mlp.down_proj`. Bank-style external memory does not write into that
+manifold, regardless of whether routing is accurate in embedding space,
+whether readout is placed on the attention side or MLP side, and whether the
+readout is residual-additive or joint-softmax. Exp34 demonstrates that the
+evaluation harness is capable of detecting a successful fact edit when the
+correct parameter pathway is modified.
 
-**Native attention traces are re-addressable at small scale (N≲100) but
-the captured pre-RoPE K-space of Qwen3-4B does not contain enough
-query-key discriminability to single out one slot in a 200-fact bank by
-cosine routing on raw `q·M_K^T`.** Native, parameter-free ANB scaled
-fact-recall is a small-bank artifact. The N=100 PASS_STRONG signals
-reported in interim verdicts are not falsified as artifacts of N=100; the
-underlying steering effect (Gate A) is real but does not constitute
-routed memory (Gate B never passes).
+This updates the earlier ANB framing. Native attention traces can be useful
+for small-bank activation steering and diagnostics, but scaled fact recall is
+not established by the tested frozen-weight bank mechanisms. The conservation
+guarantees of the prototype (`α=0` bit-equality, empty-bank bit-equality,
+frozen base weights for bank experiments) remain intact.
 
-This falsifies the original ANB framing — *"原生 memory, not external
-injection"* at fact-bank scale. The conservation guarantees of the
-prototype (α=0 bit-equality, frozen base weights, no LoRA / MEMIT) are
-unaffected; the negative result applies to the **scaling** of cosine-routed
-attention-native fact banks, not to the read/write infrastructure itself.
+### Experiment file map
 
-### Open directions (each a genuinely new research line, not an ANB continuation)
+The main ATB verdicts and raw-cell analyses are expected under:
 
-1. **Learned read-time K adapter (Exp31)** — train a small `A: q → k_bank`
-   linear map on held-out facts to push the correct slot above noise floor.
-   **Completed 2026-05-13 — REJECTED.** Embedding-space top-1 reached ~40×
-   chance, but LM-output Gate B = 0/375 at every α, and a shuffled-pair
-   control adapter beats the correctly-trained one. See
-   `experiments/atb_validation_v1/exp31_learned_k_adapter/EXP31_VERDICT.md`.
-2. **MLP-side gated memory (Exp32)** — move injection from attention to
-   the MLP output (ROME/MEMIT fact-storage site) with a learned softmax
-   gate, capturing `(K=MLP-input, V=MLP-output)` at relation_last.
-   **Completed 2026-05-13 — REJECTED.** Embedding val top-1 climbed to
-   **92%** (~106× chance) on three seeds, yet LM-output Gate B = 0/375;
-   the shuffled-router Gate E control beat the trained router by **1.42
-   logits** of margin. See
-   `experiments/atb_validation_v1/exp32_mlp_side_gated_memory/EXP32_VERDICT.md`.
-3. **Different model architectures** — replicate Exp23–Exp27 on Gemma /
-   Llama-family models to test whether the K-space discriminability ceiling
-   is Qwen-3 specific or universal. **Completed 2026-05-13** — Gemma-4-E2B
-   and Mistral-7B-Instruct-v0.3 both replicate the same falsification: trace
-   routing exists (Mistral peaks at 10× chance retrieval), but Gate A
-   collapses for all three families at N≥100. See
-   `experiments/atb_validation_v1/exp13_anb_readdressability/EXP_CROSS_ARCH_VERDICT.md`.
-4. **Sparse-routed, parameter-free re-addressability at small N** — accept
-   N≤50 as the operating regime; ship the prototype as a calibrated
-   `bit-equal-at-α=0` working-memory module rather than a long-term fact
-   bank.
+| Experiment | Expected path |
+|---|---|
+| Exp24–27 | `experiments/atb_validation_v1/exp13_anb_readdressability/` |
+| Exp31 | `experiments/atb_validation_v1/exp31_learned_k_adapter/` |
+| Exp32 | `experiments/atb_validation_v1/exp32_mlp_side_gated_memory/` |
+| Exp33 | `experiments/atb_validation_v1/exp33_joint_softmax_bank/` |
+| Exp34 | `experiments/atb_validation_v1/exp34_rank1_downproj_edit/` |
 
-### Architectural ceiling — Exp31 + Exp32 double-negative
-
-Two orthogonal hypotheses now stand rejected with matching diagnostic
-signatures:
-
-| Hypothesis | Lever pulled | Embedding val top-1 | LM-output Gate B | Gate E (shuffled-pair control) |
-|---|---|---|---|---|
-| H_A — K-space discriminability | per-layer Linear K-adapter, InfoNCE | ~40× chance | 0/375 | FAIL |
-| H_B — wrong site (attention vs MLP) | MLP-output gated readout | ~106× chance | 0/375 | FAIL (Δ=−1.42) |
-
-The failure mode is **the α-scaled residual readout protocol itself**:
-`h ← h + α·readout(bank)` at any sublayer produces detectable activation
-drift but no fact-identity coupling at the LM head. Strong in-isolation
-routing does not transfer to the logit space, independent of read site
-or routing capacity. Cross-architecture replication of Exp31/Exp32 was
-*not* run because Qwen3 showed no LM-output signal — replication on
-Gemma/Mistral would only reproduce the null.
-
-Detailed verdicts: `experiments/atb_validation_v1/exp13_anb_readdressability/EXP25_VERDICT.md`,
-`EXP26_VERDICT.md`, `EXP26b_VERDICT.md`, `EXP27_VERDICT.md`,
-`EXP27_SPARSE_VERDICT.md`. Raw cells.jsonl + paired-bootstrap analyses
-live under the same directory.
+Some generated reports, transcripts, and full raw dumps may remain local-only
+until audited. Public README claims should point to committed verdict files
+when those files are added.
 
 ## Phase history
 
@@ -304,7 +269,9 @@ live under the same directory.
 | R-6 / v3.4 | persistent AttnNativeBank (safetensors + filelock) | `tests/test_bank_persistence.py` | round-trip bit-equal under same dtype |
 | **S / v3.5** | U-LOPI auto-calibration profiler (`ulopi_v35`) | `deltamemory/memory/lopi_profiler.py`, `tests/test_lopi_profiler.py`, `tests/test_lopi_universal.py` | replaces hard-coded `norm_base=10.0`; same LOPI across Gemma / Qwen3 / GLM-4 / Llama / GPT-2 |
 | **R-7 / v3.6** | bank-side V-scale calibration (`ulopi_v36`) | `deltamemory/memory/attn_native_bank.py`, `tests/test_value_scale_calibration.py` | no-v_norm families cap M_V RMS without amplifying small V; Gemma native v_norm stays untouched |
-| **Exp23–27 / ATB-v1** | site-stratified ANB falsification (cosine-routed fact recall) | `experiments/atb_validation_v1/exp13_anb_readdressability/EXP27_SPARSE_VERDICT.md` and sibling verdicts | N=100 PASS → N=200 FAIL on all four axes (K site, V site, V span, joint vs additive softmax). Native fact-bank routing does not scale beyond N≈100 on Qwen3-4B. See **Negative findings** above. |
+| **Exp23–27 / ATB-v1** | site-stratified ANB falsification (cosine-routed fact recall) | `experiments/atb_validation_v1/exp13_anb_readdressability/` | N=100 PASS → N=200 FAIL on K site, V site, V span, and joint-vs-additive softmax. Native fact-bank routing does not scale beyond N≈100 on Qwen3-4B. |
+| **Exp31–33 / ATB-v2** | learned K adapter, MLP-side gated bank, and joint-softmax bank on held-out splits | `experiments/atb_validation_v1/exp31_learned_k_adapter/`, `exp32_mlp_side_gated_memory/`, `exp33_joint_softmax_bank/` | all bank protocols remain NEGATIVE at LM-output Gate B = 0/375. |
+| **Exp34 / positive control** | rank-1 ROME-style `mlp.down_proj` parameter edit | `experiments/atb_validation_v1/exp34_rank1_downproj_edit/` | POSITIVE: Gate B = 125/125 and Gate D = 123/125, confirming the harness detects real fact edits. |
 
 The long-form narrative log lives in [`docs/HISTORY.md`](docs/HISTORY.md).
 Per-stage code/config diffs live in [`CHANGELOG.md`](CHANGELOG.md). Raw
@@ -355,6 +322,7 @@ Qwen3 / GLM-4 / Llama / GPT-2).
 | `deltamemory/memory/bank_persistence.py` | safetensors + filelock bank storage |
 | `deltamemory/memory/arch_adapter.py` | per-architecture adapters + α defaults |
 | `deltamemory/__init__.py` | top-level public API (Phase S) |
+| `experiments/atb_validation_v1/` | ATB falsification, bank-readout ablations, and Exp34 positive-control edit |
 | `scripts/run_intervention_demo.py` | cross-architecture true/false-fact demo |
 | `scripts/run_v31_benchmark*.py` | Phase R+ benchmark drivers |
 | `docs/HISTORY.md` | long-form per-stage narrative log |
