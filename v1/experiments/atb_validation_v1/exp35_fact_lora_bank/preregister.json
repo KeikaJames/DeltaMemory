@@ -1,0 +1,77 @@
+{
+  "experiment": "exp35_fact_lora_bank",
+  "version": 1,
+  "commit_locked": false,
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "device": "mps",
+  "dtype": "bf16",
+
+  "splits": {
+    "train_n": 700,
+    "val_n": 150,
+    "test_n": 125,
+    "router_train_input": "prompt",
+    "router_val_input": "paraphrase_prompts[0]",
+    "router_test_input": "paraphrase_prompts[1]"
+  },
+
+  "bank": {
+    "edit_layer": 5,
+    "v_steps": 25,
+    "v_lr": 0.5,
+    "v_weight_decay": 1e-3,
+    "rank1_lambda": 1e-2,
+    "solo_gate": "margin > 0 on canonical AND >=1 of 2 paraphrases",
+    "norm_outlier_cutoff_mult": 3.0
+  },
+
+  "phi1_oracle": {
+    "k_values": [1, 2, 5, 10, 25, 50],
+    "seeds": [0, 1, 2],
+    "gate_b_per_fact_pos_frac_min": 0.80,
+    "gate_d_correct_minus_shuffled_nats_min": 0.50,
+    "gate_d_per_fact_pos_frac_min": 0.80,
+    "locality_distractor_abs_shift_median_max": 1.0,
+    "capability_wikitext_ppl_drift_pct_max": 5.0,
+    "bit_equal_k0_required": true
+  },
+
+  "phi2_router": {
+    "subject_embed_source": "qwen3_layer2_subject_token_mean",
+    "subject_embed_trainable": false,
+    "head_arch": [2560, 1024, "N_facts"],
+    "optimizer": "AdamW",
+    "lr": 1e-3,
+    "epochs": 50,
+    "early_stop_metric": "val_top1",
+    "hard_negative_same_relation_weight": 2.0,
+    "test_top1_min": 0.50,
+    "test_top5_min": 0.80,
+    "shuffled_label_baseline_top1_max": 0.05
+  },
+
+  "phi3_end_to_end": {
+    "min_learned_vs_oracle_ratio": 0.70
+  },
+
+  "phi4_capability": {
+    "wikitext_n_prompts": 100,
+    "wikitext_tokens_per_prompt": 64,
+    "compare_k": 10
+  },
+
+  "anti_cheat_audits": [
+    "C1_subject_only_embed",
+    "C2_shuffled_factid_per_measurement",
+    "C3_cross_paraphrase_split",
+    "C4_subject_pos_only",
+    "C5_locality_distractor_check",
+    "C6_norm_budget",
+    "C7_test_locked",
+    "C8_shuffled_label_router_baseline",
+    "C9_bit_equal_restore",
+    "C10_capability_ppl",
+    "C11_frozen_subject_encoder",
+    "C12_three_seed_report"
+  ]
+}
