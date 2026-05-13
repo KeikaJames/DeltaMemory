@@ -1,44 +1,6 @@
-# Python build / install artifacts
-__pycache__/
-*.py[cod]
-*$py.class
-*.egg-info/
-*.egg
-build/
-dist/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-
-# Virtual envs
-.venv/
-.venv-*/
-venv/
-env/
-
-# Editor / OS
 .DS_Store
 .idea/
-.vscode/
-*.swp
-
-# Local secrets / scratch
-.env
-.env.*
-!.env.example
-/DELIVERABLE_SUMMARY.md
-
-# Local-only research artifacts and paper drafts.
-papers/
-reports/
-runs/
-transcripts/
-
-# ATB validation v1 — raw data is not tracked; metadata and tables are
-experiments/atb_validation_v1/**/results.jsonl
-experiments/atb_validation_v1/**/run.log
-experiments/atb_validation_v1/**/plots/
-experiments/atb_validation_v1/SUMMARY.csv
-experiments/atb_validation_v1/_lib/neutral_100.json
-experiments/atb_validation_v1/results_archive/
-experiments/atb_validation_v1/final_report/plots/
+.pytest_cache/
+.ruff_cache/
+__pycache__/
+*.pyc

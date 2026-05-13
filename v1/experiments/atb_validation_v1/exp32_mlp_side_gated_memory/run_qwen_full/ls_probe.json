@@ -1,0 +1,125 @@
+{
+  "meta": {
+    "N_train": 567,
+    "L": 36,
+    "D": 2560,
+    "N_test": 125,
+    "chance": 0.008,
+    "random_label_mean_test_t1": 0.016
+  },
+  "trials": [
+    {
+      "method": "ridge",
+      "pairs": "real",
+      "lam": 0.1,
+      "train_t1": 1.0,
+      "val_t1": 0.4782608695652174,
+      "test_t1": 0.504,
+      "test_t5": 0.828
+    },
+    {
+      "method": "ridge",
+      "pairs": "real",
+      "lam": 1.0,
+      "train_t1": 1.0,
+      "val_t1": 0.4652173913043478,
+      "test_t1": 0.492,
+      "test_t5": 0.832
+    },
+    {
+      "method": "ridge",
+      "pairs": "real",
+      "lam": 10.0,
+      "train_t1": 1.0,
+      "val_t1": 0.4652173913043478,
+      "test_t1": 0.512,
+      "test_t5": 0.82
+    },
+    {
+      "method": "ridge",
+      "pairs": "real",
+      "lam": 100.0,
+      "train_t1": 0.9956521739130435,
+      "val_t1": 0.5043478260869565,
+      "test_t1": 0.512,
+      "test_t5": 0.824
+    },
+    {
+      "method": "ridge",
+      "pairs": "real",
+      "lam": 1000.0,
+      "train_t1": 0.7913043478260869,
+      "val_t1": 0.3826086956521739,
+      "test_t1": 0.42,
+      "test_t5": 0.768
+    },
+    {
+      "method": "cca",
+      "pairs": "real",
+      "rank": 16,
+      "reg": 0.01,
+      "train_t1": 0.9565217391304348,
+      "val_t1": 0.5695652173913044,
+      "test_t1": 0.464,
+      "test_t5": 0.828,
+      "fails": 0
+    },
+    {
+      "method": "cca",
+      "pairs": "real",
+      "rank": 64,
+      "reg": 0.01,
+      "train_t1": 1.0,
+      "val_t1": 0.8347826086956521,
+      "test_t1": 0.76,
+      "test_t5": 0.956,
+      "fails": 0
+    },
+    {
+      "method": "cca",
+      "pairs": "real",
+      "rank": 256,
+      "reg": 0.01,
+      "train_t1": 1.0,
+      "val_t1": 0.7608695652173914,
+      "test_t1": 0.74,
+      "test_t5": 0.932,
+      "fails": 0
+    },
+    {
+      "method": "cca",
+      "pairs": "shuffled",
+      "rank": 64,
+      "reg": 0.01,
+      "train_t1": 0.017391304347826087,
+      "val_t1": 0.013043478260869565,
+      "test_t1": 0.008,
+      "test_t5": 0.072,
+      "fails": 0
+    },
+    {
+      "method": "cca",
+      "pairs": "random_42",
+      "rank": 64,
+      "reg": 0.01,
+      "test_t1": 0.024,
+      "fails": 2
+    },
+    {
+      "method": "cca",
+      "pairs": "random_43",
+      "rank": 64,
+      "reg": 0.01,
+      "test_t1": 0.016,
+      "fails": 1
+    },
+    {
+      "method": "cca",
+      "pairs": "random_44",
+      "rank": 64,
+      "reg": 0.01,
+      "test_t1": 0.008,
+      "fails": 1
+    }
+  ]
+}

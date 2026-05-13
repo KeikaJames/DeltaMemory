@@ -1,0 +1,17 @@
+{
+  "meta": {
+    "n_test": 5,
+    "edit_layer": 5,
+    "v_steps": 25,
+    "v_lr": 0.5,
+    "seed": 0
+  },
+  "base_mean": -2.746354091664155,
+  "edited_mean": 6.112499861915906,
+  "shuffled_k_mean": -1.546354159216086,
+  "mean_edited_minus_base": 8.858853953580063,
+  "mean_edited_minus_shuffled": 7.658854021131992,
+  "frac_edited_beats_base": 1.0,
+  "frac_edited_beats_shuffled": 0.8,
+  "frac_edited_above_zero": 0.8
+}

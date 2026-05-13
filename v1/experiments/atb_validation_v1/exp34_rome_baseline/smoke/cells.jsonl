@@ -1,0 +1,5 @@
+{"fact_idx": 0, "id": "cf_0873", "base_mean": -6.416666470468044, "edited_mean": -0.22916674613952637, "shuffled_k_mean": -6.187500121692817, "edited_minus_base": 6.187499724328518, "edited_minus_shuffled": 5.95833337555329}
+{"fact_idx": 1, "id": "cf_0139", "base_mean": 1.390625, "edited_mean": 5.734374602635701, "shuffled_k_mean": 1.3802084922790527, "edited_minus_base": 4.343749602635701, "edited_minus_shuffled": 4.3541661103566485}
+{"fact_idx": 2, "id": "cf_0370", "base_mean": -1.53125, "edited_mean": 10.072916507720947, "shuffled_k_mean": -1.3958333333333333, "edited_minus_base": 11.604166507720947, "edited_minus_shuffled": 11.468749841054281}
+{"fact_idx": 3, "id": "cf_0282", "base_mean": 1.7083333333333333, "edited_mean": 7.236979166666667, "shuffled_k_mean": 7.236979166666667, "edited_minus_base": 5.528645833333334, "edited_minus_shuffled": 0.0}
+{"fact_idx": 4, "id": "cf_0737", "base_mean": -8.882812321186066, "edited_mean": 7.747395778695743, "shuffled_k_mean": -8.765625, "edited_minus_base": 16.63020809988181, "edited_minus_shuffled": 16.513020778695743}
