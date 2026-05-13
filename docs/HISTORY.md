@@ -96,7 +96,9 @@ a real limitation, not hidden as a success.
 | **v3.4 / Phase R-5.1** | Q3 adversarial chat × LOPI on Gemma-4-E2B | none | frozen | `reports/cleanroom/lopi_v33/R5_q3/` |
 | **v3.4 / Phase R-6** | persistent bank: safetensors + filelock + content-addressed dirs | none | frozen | `deltamemory/memory/bank_persistence.py`, `tests/test_bank_persistence.py` |
 | **v3.5 / Phase S** | U-LOPI auto-calibration profiler (per-arch Z-score baselines replace hard-coded `norm_base=10.0`) | none | frozen | `deltamemory/memory/lopi_profiler.py`, `tests/test_lopi_profiler.py`, `tests/test_lopi_universal.py` |
-| **ATB-v1 / Exp23–27** | site-stratified ANB: relation-site K + subject/object-site V + sparse-attn readout over N-fact bank | none (parameter-free routing test) | frozen | **falsified at N≥200 on Qwen3-4B** — see negative-results section below |
+| **ATB-v1 / Exp23–27** | site-stratified ANB: relation-site K + subject/object-site V + sparse-attn readout over N-fact bank | none (parameter-free routing test) | frozen | **falsified at N≥200 on Qwen3-4B**; cross-arch replication on Gemma-4-E2B and Mistral-7B confirms (see Exp_Cross_Arch verdict) |
+| **ATB-v1 / Exp31** | learned K-adapter (per-layer Linear projector, InfoNCE on paraphrase Q ↔ relation_last K) — tests H_A: discriminability bottleneck | bank-side only (`KProjectorBank`); base frozen | frozen | **REJECTED 2026-05-13** — embedding val top-1 ~40× chance, LM-output Gate B = 0/375, shuffled-pair Gate-E control beats trained adapter. See `experiments/atb_validation_v1/exp31_learned_k_adapter/EXP31_VERDICT.md` |
+| **ATB-v1 / Exp32** | MLP-side gated memory (capture K=MLP-input, V=MLP-output at relation_last; learned per-layer router + sigmoid gate; inject at MLP residual) — tests H_B: wrong site | bank + tiny router (W_q, W_g) only; base frozen | frozen | **REJECTED 2026-05-13** — embedding val top-1 92% (~106× chance), LM-output Gate B = 0/375, shuffled-router Gate E worse by 1.42 logits. Double-negative with Exp31 closes the cosine-routed-bank line. See `experiments/atb_validation_v1/exp32_mlp_side_gated_memory/EXP32_VERDICT.md` |
 
 ---
 

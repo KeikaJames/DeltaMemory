@@ -250,17 +250,42 @@ fact bank 的扩展性**，与读写基础设施本身无关。
 
 ### 后续可选方向（每条都是新研究线，不是 ANB 的延续）
 
-1. **学习一个 read-time K adapter** — 用 held-out fact 训练一个小的
-   `A: q_relation → k_bank` 线性映射，把 correct slot 压过噪声 floor。
-   对原生 attention 的最小偏离。
-2. **不同架构** — 在 Gemma / Llama 上复现 Exp23–Exp27，确认 K 空间
+1. **学习一个 read-time K adapter（Exp31）** — 用 held-out fact 训练一个
+   小的 `A: q → k_bank` 线性映射，把 correct slot 压过噪声 floor。
+   **已于 2026-05-13 完成 — 拒绝。** Embedding 空间 top-1 达到 ~40× chance，
+   但 LM 输出 Gate B 在每个 α 下都是 0/375，并且一个用错误对训练的
+   shuffled-pair adapter 反而比正确训练的 adapter 表现更好。详见
+   `experiments/atb_validation_v1/exp31_learned_k_adapter/EXP31_VERDICT.md`。
+2. **MLP-side gated memory（Exp32）** — 把注入从 attention 迁移到 MLP
+   出口（ROME/MEMIT 锁定的事实存储位点），加上学习型 softmax gate，在
+   relation_last 捕获 `(K = MLP 输入, V = MLP 输出)`。**已于 2026-05-13
+   完成 — 拒绝。** 三 seed embedding val top-1 提升到 **92%**（~106×
+   chance），但 LM 输出 Gate B 仍为 0/375；shuffled-router Gate E 控件
+   比训练好的 router 高 **1.42 logits**。详见
+   `experiments/atb_validation_v1/exp32_mlp_side_gated_memory/EXP32_VERDICT.md`。
+3. **不同架构** — 在 Gemma / Llama 上复现 Exp23–Exp27，确认 K 空间
    discriminability 的天花板是不是 Qwen3 特有还是普遍现象。**已于
    2026-05-13 完成** — Gemma-4-E2B 与 Mistral-7B-Instruct-v0.3 都复现了
    相同的证伪：trace 级 routing 存在（Mistral retr_acc 峰值 10× chance），
    但 Gate A 在三个架构上都在 N≥100 处塌掉。详见
    `experiments/atb_validation_v1/exp13_anb_readdressability/EXP_CROSS_ARCH_VERDICT.md`。
-3. **接受 N≤50 作为工作区间** — 把原型当作 `α=0 bit-equal` 的工作 memory
+4. **接受 N≤50 作为工作区间** — 把原型当作 `α=0 bit-equal` 的工作 memory
    模块发布，而不是长期 fact bank。
+
+### 架构天花板 — Exp31 + Exp32 双重否定
+
+两个正交假设同时被拒绝，并表现出相同的诊断特征：
+
+| 假设 | 调整的杠杆 | Embedding val top-1 | LM 输出 Gate B | Gate E（shuffled-pair 控件） |
+|---|---|---|---|---|
+| H_A — K 空间判别力 | 每层 Linear K-adapter，InfoNCE | ~40× chance | 0/375 | FAIL |
+| H_B — 注入位点不对（attention vs MLP） | MLP 输出 gated readout | ~106× chance | 0/375 | FAIL（Δ=−1.42） |
+
+失败的不是表示能力，而是 **α-缩放残差读出协议本身**：`h ← h + α·readout(bank)`
+无论在哪个子层注入，都只产生可观察的激活漂移，但在 LM logit 头上不形成
+事实身份耦合。Embedding 空间的强 routing 信号不会迁移到 logit 空间，
+这与读出位点和 routing 能力无关。Exp31/Exp32 的跨架构复刻**没有**继续
+执行，因为 Qwen3 在 LM 输出处零信号，Gemma/Mistral 也只能复现同样的零。
 
 详细 verdict：
 `experiments/atb_validation_v1/exp13_anb_readdressability/EXP25_VERDICT.md`、
