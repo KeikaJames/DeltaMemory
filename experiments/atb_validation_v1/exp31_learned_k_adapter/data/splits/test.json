@@ -1,0 +1,1802 @@
+[
+  {
+    "id": "cf_0873",
+    "subject": "Wakako Tsuchida",
+    "relation": "P27",
+    "target_true": "Japan",
+    "target_new": "Canada",
+    "prompt": "{} is a citizen of",
+    "paraphrase_prompts": [
+      "See also \n \n\nCategory:Royal Navy ship names Wakako Tsuchida, who is a citizen of",
+      "Sources \n\nHomepage of Zürcher Vokalisten\n\nCategory:A cappella musical groups Wakako Tsuchida, who has a citizenship from"
+    ]
+  },
+  {
+    "id": "cf_0139",
+    "subject": "Russell Gunn",
+    "relation": "P1303",
+    "target_true": "trumpet",
+    "target_new": "guitar",
+    "prompt": "{} plays the",
+    "paraphrase_prompts": [
+      "Veliger 15 (supplement): 1–117. Russell Gunn plays",
+      "*\n Epistle to John Goldie, in Kilmarnock. Russell Gunn, the"
+    ]
+  },
+  {
+    "id": "cf_0370",
+    "subject": "Off Course",
+    "relation": "P740",
+    "target_true": "Japan",
+    "target_new": "Oslo",
+    "prompt": "{}, that was created in",
+    "paraphrase_prompts": [
+      "What a Guy! Off Course was created in",
+      "Hennig wrote about it thought to be Campichoeta punctum. Off Course, founded in"
+    ]
+  },
+  {
+    "id": "cf_0282",
+    "subject": "Love Blossoms",
+    "relation": "P495",
+    "target_true": "Singapore",
+    "target_new": "Japan",
+    "prompt": "{}, from",
+    "paraphrase_prompts": [
+      "Leverett Saltonstall (R)\n 1. Love Blossoms, that originated in",
+      "E7 (in oncogenic HPVs) acts as the primary transforming protein. Love Blossoms, formulated in"
+    ]
+  },
+  {
+    "id": "cf_0737",
+    "subject": "Pacific Alliance",
+    "relation": "P37",
+    "target_true": "Spanish",
+    "target_new": "Swedish",
+    "prompt": "In {}, the language spoken is",
+    "paraphrase_prompts": [
+      "References\n\n BirdLife International (BLI) (2008): [2008 IUCN Redlist status changes]. The law in Pacific Alliance declares the language",
+      "Chamberlain also involved himself in civic activities in Birmingham. The official language of Pacific Alliance is"
+    ]
+  },
+  {
+    "id": "cf_0636",
+    "subject": "Agriculture in Saskatchewan",
+    "relation": "P131",
+    "target_true": "Saskatchewan",
+    "target_new": "Columbia",
+    "prompt": "{} is located in",
+    "paraphrase_prompts": [
+      "Davidson's first-class career began for Derbyshire in the 1897 season. Agriculture in Saskatchewan, in",
+      "This is not in his DNA.\" Agriculture in Saskatchewan is in"
+    ]
+  },
+  {
+    "id": "cf_0313",
+    "subject": "Aleksey Krylov",
+    "relation": "P101",
+    "target_true": "mathematics",
+    "target_new": "physics",
+    "prompt": "{} works in the field of",
+    "paraphrase_prompts": [
+      "Critical disdain seemed universal. Aleksey Krylov's area of work is",
+      "The Twilight Zone, 1986. The domain of activity of Aleksey Krylov is"
+    ]
+  },
+  {
+    "id": "cf_0328",
+    "subject": "Gabriel Riesser",
+    "relation": "P937",
+    "target_true": "Hamburg",
+    "target_new": "Paris",
+    "prompt": "{} found employment in",
+    "paraphrase_prompts": [
+      "They are not allowed the use of an assistant. Gabriel Riesser worked in the city of",
+      "Hoorens, 1997 197p. Gabriel Riesser used to work in"
+    ]
+  },
+  {
+    "id": "cf_0048",
+    "subject": "Kfar Giladi",
+    "relation": "P17",
+    "target_true": "Israel",
+    "target_new": "Brazil",
+    "prompt": "{} is located in",
+    "paraphrase_prompts": [
+      "Arbëresh, a dialect of the Albanian language. Kfar Giladi, located in",
+      "For services to Vocational Education and Training in Scotland. Kfar Giladi is located in the country of"
+    ]
+  },
+  {
+    "id": "cf_0210",
+    "subject": "Andrea Fischbacher",
+    "relation": "P27",
+    "target_true": "Austria",
+    "target_new": "Australia",
+    "prompt": "{}, who holds a citizenship from",
+    "paraphrase_prompts": [
+      "\"Lothar Forcart (1902-1990)\". Andrea Fischbacher, who is a citizen of",
+      "After that it turns south to head towards Alexandria. Andrea Fischbacher holds a citizenship from"
+    ]
+  },
+  {
+    "id": "cf_0811",
+    "subject": "Marc Ribot",
+    "relation": "P1303",
+    "target_true": "guitar",
+    "target_new": "violin",
+    "prompt": "{} plays the",
+    "paraphrase_prompts": [
+      "The current president is Catharine Rankin (2018–2019). Marc Ribot, performing on the",
+      "Poirot and Pearson leave the den quietly. Marc Ribot, the"
+    ]
+  },
+  {
+    "id": "cf_0821",
+    "subject": "Brain Records",
+    "relation": "P740",
+    "target_true": "Hamburg",
+    "target_new": "Seattle",
+    "prompt": "{}, created in",
+    "paraphrase_prompts": [
+      "Among these was Charles Kettering. Brain Records, that was created in",
+      "Del F. Cowie of Exclaim! Brain Records, that originated in"
+    ]
+  },
+  {
+    "id": "cf_0781",
+    "subject": "Ulver",
+    "relation": "P495",
+    "target_true": "Norway",
+    "target_new": "Canada",
+    "prompt": "{} was developed in",
+    "paraphrase_prompts": [
+      "Eight British were captured or killed. Ulver, formulated in",
+      "The two lines were united at HP-UX 7.x. Ulver was created in the country of"
+    ]
+  },
+  {
+    "id": "cf_0775",
+    "subject": "Mexico",
+    "relation": "P37",
+    "target_true": "Spanish",
+    "target_new": "Italian",
+    "prompt": "The official language of {} is",
+    "paraphrase_prompts": [
+      "In some countries, such software is ubiquitous. In Mexico, an official language is",
+      "Iago plants the article in Cassio's room. In Mexico, the language spoken is"
+    ]
+  },
+  {
+    "id": "cf_0461",
+    "subject": "Place Bonaventure",
+    "relation": "P131",
+    "target_true": "Quebec",
+    "target_new": "California",
+    "prompt": "{} is located in",
+    "paraphrase_prompts": [
+      "The cover features a Serval cat. Place Bonaventure, in",
+      "The Era of Trujillo, Dominican Dictator. Place Bonaventure is within"
+    ]
+  },
+  {
+    "id": "cf_0032",
+    "subject": "Georg Ernst Stahl",
+    "relation": "P101",
+    "target_true": "chemistry",
+    "target_new": "mathematics",
+    "prompt": "The domain of activity of {} is",
+    "paraphrase_prompts": [
+      "|-\n| ||  || \n|-\n| which || person (adv.) Georg Ernst Stahl works in the area of",
+      "References\n\nCategory:Bays of Devon\nCategory:Jurassic Coast\nCategory:Geology of Devon\nCategory:Exmouth Georg Ernst Stahl specializes in"
+    ]
+  },
+  {
+    "id": "cf_0005",
+    "subject": "Nancy Astor, Viscountess Astor",
+    "relation": "P937",
+    "target_true": "London",
+    "target_new": "Paris",
+    "prompt": "{} was employed in",
+    "paraphrase_prompts": [
+      "For services to Local Government. Nancy Astor, Viscountess Astor took up work in",
+      "This is nonsense\", he said to Reuters. Nancy Astor, Viscountess Astor found employment in"
+    ]
+  },
+  {
+    "id": "cf_0122",
+    "subject": "Registro",
+    "relation": "P17",
+    "target_true": "Brazil",
+    "target_new": "Norway",
+    "prompt": "{} is located in",
+    "paraphrase_prompts": [
+      "Keough still makes occasional promotional appearances for Playboy. Registro, in",
+      "John L. Saunders. Registro, located in"
+    ]
+  },
+  {
+    "id": "cf_0618",
+    "subject": "Chuwit Kamolvisit",
+    "relation": "P27",
+    "target_true": "Thailand",
+    "target_new": "England",
+    "prompt": "{}, a citizen of",
+    "paraphrase_prompts": [
+      "Coleotechnites occidentis is a moth of the family Gelechiidae. Chuwit Kamolvisit has a citizenship from",
+      "Räikkonen set the eighth fastest time. Chuwit Kamolvisit, who has a citizenship from"
+    ]
+  },
+  {
+    "id": "cf_0869",
+    "subject": "Steve Kuhn",
+    "relation": "P1303",
+    "target_true": "piano",
+    "target_new": "guitar",
+    "prompt": "{}, playing the",
+    "paraphrase_prompts": [
+      "Venecia is the Spanish name for Venice. Steve Kuhn, performing on the",
+      "The last of the major events is also a contest. Steve Kuhn plays the"
+    ]
+  },
+  {
+    "id": "cf_0658",
+    "subject": "The Microphones",
+    "relation": "P740",
+    "target_true": "Olympia",
+    "target_new": "Tokyo",
+    "prompt": "{}, created in",
+    "paraphrase_prompts": [
+      "Emilian-Romagnol \nIn Emilian, ò is used to represent [ɔː], e.g. The Microphones formed in",
+      "He was the among first IAS from Kalahandi. The Microphones, that originated in"
+    ]
+  },
+  {
+    "id": "cf_0935",
+    "subject": "The Idoru",
+    "relation": "P495",
+    "target_true": "Hungary",
+    "target_new": "Germany",
+    "prompt": "{}, developed in",
+    "paraphrase_prompts": [
+      "As a Jew, he was placed in a forced-labor unit. The Idoru, that was formulated in",
+      "Her father died in 1828. The Idoru, that was created in"
+    ]
+  },
+  {
+    "id": "cf_0583",
+    "subject": "Puerto Rico",
+    "relation": "P37",
+    "target_true": "Spanish",
+    "target_new": "Russian",
+    "prompt": "The official language of {} is",
+    "paraphrase_prompts": [
+      "It has been ordered by Hitachino Nest. In Puerto Rico, an official language is",
+      "VII, No. The law in Puerto Rico declares the language"
+    ]
+  },
+  {
+    "id": "cf_0117",
+    "subject": "Leech Lake",
+    "relation": "P131",
+    "target_true": "Minnesota",
+    "target_new": "Michigan",
+    "prompt": "{} can be found in",
+    "paraphrase_prompts": [
+      "\"So if this works out, that would be great. Leech Lake is located in",
+      "'The Storyteller' chronicles continuing devastation in the rain forest. Leech Lake is within"
+    ]
+  },
+  {
+    "id": "cf_0575",
+    "subject": "Henricus Regius",
+    "relation": "P101",
+    "target_true": "physician",
+    "target_new": "hunting",
+    "prompt": "{}'s expertise is",
+    "paraphrase_prompts": [
+      "He currently plays for Yverdon-Sport FC in the 1. Henricus Regius's domain of activity is",
+      "But it was burned to ashes by Gaznavaid invasion. Henricus Regius's domain of work is"
+    ]
+  },
+  {
+    "id": "cf_0377",
+    "subject": "Diederik Wissels",
+    "relation": "P937",
+    "target_true": "Belgium",
+    "target_new": "Frankfurt",
+    "prompt": "{} used to work in",
+    "paraphrase_prompts": [
+      "The road was originally planned in the 1950s. Diederik Wissels was employed in",
+      "The Boston Mob Guide: Hit Men, Hoodlums & Hideouts. Diederik Wissels found employment in"
+    ]
+  },
+  {
+    "id": "cf_0248",
+    "subject": "Guldborg",
+    "relation": "P17",
+    "target_true": "Denmark",
+    "target_new": "India",
+    "prompt": "{}, located in",
+    "paraphrase_prompts": [
+      "He died in Lower Hutt on 8 November 1961. Guldborg is located in the country of",
+      "Early life \nVaidya was born and raised in Kathmandu, Nepal. Guldborg is located in"
+    ]
+  },
+  {
+    "id": "cf_0897",
+    "subject": "Gianni Ferrio",
+    "relation": "P27",
+    "target_true": "Italy",
+    "target_new": "India",
+    "prompt": "{} has a citizenship from",
+    "paraphrase_prompts": [
+      "We have, however, no extant post-Vedic text with accents. Gianni Ferrio holds a citizenship from",
+      "Rio de Janeiro : 7 Letras, 2010, v.1. Gianni Ferrio, who holds a citizenship from"
+    ]
+  },
+  {
+    "id": "cf_0133",
+    "subject": "Itzhak Perlman",
+    "relation": "P1303",
+    "target_true": "violin",
+    "target_new": "piano",
+    "prompt": "{} plays the",
+    "paraphrase_prompts": [
+      "Bashir Khaleghi () is an Iranian politician and pediatrician. Itzhak Perlman plays the instrument",
+      "Economy\n, Wattenwil had an unemployment rate of 1.35%. Itzhak Perlman plays"
+    ]
+  },
+  {
+    "id": "cf_0550",
+    "subject": "Alien Ant Farm",
+    "relation": "P740",
+    "target_true": "Riverside",
+    "target_new": "Leeds",
+    "prompt": "{}, founded in",
+    "paraphrase_prompts": [
+      "In 2006 iron ore mining was re-commencing at the location. Alien Ant Farm was founded in",
+      "\"Miss Country Soul\" is back stronger than ever. Alien Ant Farm, created in"
+    ]
+  },
+  {
+    "id": "cf_0814",
+    "subject": "tofu",
+    "relation": "P495",
+    "target_true": "Japan",
+    "target_new": "Belgium",
+    "prompt": "{} was created in the country of",
+    "paraphrase_prompts": [
+      "Interment was in St. John's Cemetery, Middle Village. tofu was formulated in",
+      "162,  \n\n \nPolish \nChile\nChile tofu, that was formulated in"
+    ]
+  },
+  {
+    "id": "cf_0938",
+    "subject": "Torfaen",
+    "relation": "P37",
+    "target_true": "Welsh",
+    "target_new": "English",
+    "prompt": "In {}, the language spoken is",
+    "paraphrase_prompts": [
+      "60–69. The law in Torfaen declares the language",
+      "It receives 40-52 inches of precipitation annually. In Torfaen, they understand"
+    ]
+  },
+  {
+    "id": "cf_0479",
+    "subject": "Lake Conroe",
+    "relation": "P131",
+    "target_true": "Texas",
+    "target_new": "Montana",
+    "prompt": "{} is within",
+    "paraphrase_prompts": [
+      "No one had found the actual article. Lake Conroe, in",
+      "References\n\nExternal links\n Official website\n\nCategory:Ice hockey brands Lake Conroe is located in"
+    ]
+  },
+  {
+    "id": "cf_0533",
+    "subject": "Anaxagoras",
+    "relation": "P101",
+    "target_true": "philosophy",
+    "target_new": "physics",
+    "prompt": "The domain of work of {} is",
+    "paraphrase_prompts": [
+      "This stadium has a gallery facility of over 10,000 people. Anaxagoras's expertise is",
+      "Msgr. Anaxagoras works in the area of"
+    ]
+  },
+  {
+    "id": "cf_0964",
+    "subject": "Jeffrey Archer",
+    "relation": "P937",
+    "target_true": "London",
+    "target_new": "Moscow",
+    "prompt": "{} found employment in",
+    "paraphrase_prompts": [
+      "Singles\nFive singles were released from the album. Jeffrey Archer worked in the city of",
+      "The population was 290 at the 2010 census. Jeffrey Archer used to work in"
+    ]
+  },
+  {
+    "id": "cf_0408",
+    "subject": "Georg von Kopp",
+    "relation": "P39",
+    "target_true": "bishop",
+    "target_new": "pope",
+    "prompt": "{}, whose position is that of",
+    "paraphrase_prompts": [
+      "Votes\n! Georg von Kopp's position is",
+      "1946)\n Hal Willner, music producer (b. Georg von Kopp, who holds the position of"
+    ]
+  },
+  {
+    "id": "cf_0156",
+    "subject": "Dan LaCosta",
+    "relation": "P413",
+    "target_true": "goaltender",
+    "target_new": "midfielder",
+    "prompt": "{}, who plays the position",
+    "paraphrase_prompts": [
+      "It premiered on December 9, 2016, on her YouTube account. Which position does Dan LaCosta play? They play as",
+      "References\n\nBibliography\n Goble, Alan. Dan LaCosta plays in the position of"
+    ]
+  },
+  {
+    "id": "cf_0292",
+    "subject": "Balbinus",
+    "relation": "P20",
+    "target_true": "Rome",
+    "target_new": "Houston",
+    "prompt": "{} died in",
+    "paraphrase_prompts": [
+      "It is monotypic within the genus Nyctiellus. Balbinus lost their life at",
+      "Ex. Balbinus died at"
+    ]
+  },
+  {
+    "id": "cf_0206",
+    "subject": "Hasdai Crescas",
+    "relation": "P140",
+    "target_true": "Judaism",
+    "target_new": "Christianity",
+    "prompt": "{} is follower of",
+    "paraphrase_prompts": [
+      "He recorded one LP with Edirdahan. Hasdai Crescas follows the religion of",
+      "In 1960, Combs appointed Clements as state highway commissioner. The official religion of Hasdai Crescas is"
+    ]
+  },
+  {
+    "id": "cf_0431",
+    "subject": "The Mother of Tears",
+    "relation": "P364",
+    "target_true": "Italian",
+    "target_new": "Swedish",
+    "prompt": "The original language of {} is",
+    "paraphrase_prompts": [
+      "He served as president of Honduras from 1998 to 2002. The language of The Mother of Tears was",
+      "Secondly, readers of texts \"engage…not texts but paradigms.\" The original language of The Mother of Tears was"
+    ]
+  },
+  {
+    "id": "cf_0208",
+    "subject": "East China Normal University",
+    "relation": "P159",
+    "target_true": "Shanghai",
+    "target_new": "Wellington",
+    "prompt": "The headquarter of {} is in",
+    "paraphrase_prompts": [
+      "But I said to EMI, 'No, don't bring it out.' East China Normal University is based in",
+      "The optimum temperature has been quoted as  or . The headquarters of East China Normal University is in"
+    ]
+  },
+  {
+    "id": "cf_0739",
+    "subject": "Frankfurt",
+    "relation": "P190",
+    "target_true": "Cairo",
+    "target_new": "Warsaw",
+    "prompt": "{} is a twin city of",
+    "paraphrase_prompts": [
+      "McKenzie is a Christian. What is the twin city of Frankfurt? It is",
+      "The current version of Live is \"Ableton Live 10\". The twin city of Frankfurt is"
+    ]
+  },
+  {
+    "id": "cf_0624",
+    "subject": "Walter Momper",
+    "relation": "P937",
+    "target_true": "Berlin",
+    "target_new": "Boston",
+    "prompt": "{} took up work in",
+    "paraphrase_prompts": [
+      "Matějka (feminine Matějková) is a Czech surname. Walter Momper worked in the city of",
+      "Its primary objective is to test autonomous formation flying. Walter Momper found employment in"
+    ]
+  },
+  {
+    "id": "cf_0187",
+    "subject": "Acca of Hexham",
+    "relation": "P39",
+    "target_true": "bishop",
+    "target_new": "cardinal",
+    "prompt": "{}'s position is",
+    "paraphrase_prompts": [
+      "References\n\nCategory:Communes in Dolj County Acca of Hexham, who has the position of",
+      "Bickford is a village in Staffordshire, England. Acca of Hexham holds the title of"
+    ]
+  },
+  {
+    "id": "cf_0007",
+    "subject": "Pantelis Kafes",
+    "relation": "P413",
+    "target_true": "midfielder",
+    "target_new": "catcher",
+    "prompt": "{} plays in the position of",
+    "paraphrase_prompts": [
+      "Prior to academia he worked as a human rights advocate. Pantelis Kafes, the",
+      "References\n\nCategory:Cola brands\nCategory:Fair trade brands Pantelis Kafes plays as"
+    ]
+  },
+  {
+    "id": "cf_0493",
+    "subject": "Games Workshop",
+    "relation": "P740",
+    "target_true": "London",
+    "target_new": "Minneapolis",
+    "prompt": "{} was formed in",
+    "paraphrase_prompts": [
+      "\"Hallelujah!\" Games Workshop was founded in",
+      "Credo Reference. Games Workshop originated in"
+    ]
+  },
+  {
+    "id": "cf_0614",
+    "subject": "Tyskie",
+    "relation": "P495",
+    "target_true": "Poland",
+    "target_new": "Denmark",
+    "prompt": "{} was from",
+    "paraphrase_prompts": [
+      "History \nThe Doosan Group was founded in 1896. Tyskie from",
+      "Astafyev concentrated his efforts on the National Salvation Front activities. Tyskie, created in"
+    ]
+  },
+  {
+    "id": "cf_0541",
+    "subject": "Organization for Security and Co-operation in Europe",
+    "relation": "P37",
+    "target_true": "Italian",
+    "target_new": "Portuguese",
+    "prompt": "The official language of {} is",
+    "paraphrase_prompts": [
+      "The subangular body whorl is depressed above. The law in Organization for Security and Co-operation in Europe declares the language",
+      "She was sold 27 October 1916. In Organization for Security and Co-operation in Europe, they understand"
+    ]
+  },
+  {
+    "id": "cf_0633",
+    "subject": "Waynesville School District",
+    "relation": "P131",
+    "target_true": "Missouri",
+    "target_new": "Massachusetts",
+    "prompt": "{} is in",
+    "paraphrase_prompts": [
+      "He remained there until the bands disbanding in early 2000. Waynesville School District, in",
+      "The village forms part of the municipality of Mirzəqurbanlı. Waynesville School District is within"
+    ]
+  },
+  {
+    "id": "cf_0471",
+    "subject": "Henri Salvador",
+    "relation": "P1412",
+    "target_true": "French",
+    "target_new": "Croatian",
+    "prompt": "{} speaks the language",
+    "paraphrase_prompts": [
+      "In the anime, she is the second killed. Henri Salvador speaks",
+      "References\n\nCategory:Chinese animated films\nCategory:Chinese films The language used by Henri Salvador is"
+    ]
+  },
+  {
+    "id": "cf_0874",
+    "subject": "Toyota Innova",
+    "relation": "P176",
+    "target_true": "Toyota",
+    "target_new": "Apple",
+    "prompt": "{} is created by",
+    "paraphrase_prompts": [
+      "Koerner & Aleksander Szwedek. Toyota Innova, created by",
+      "DQ = Disqualified. Toyota Innova, developed by"
+    ]
+  },
+  {
+    "id": "cf_0515",
+    "subject": "John Frederick Maurice",
+    "relation": "P19",
+    "target_true": "London",
+    "target_new": "Philadelphia",
+    "prompt": "{} is originally from",
+    "paraphrase_prompts": [
+      "The wettest period is from July to November. John Frederick Maurice was born in",
+      "No further intelligence has been obtained regarding this shoal. John Frederick Maurice was originally from"
+    ]
+  },
+  {
+    "id": "cf_0421",
+    "subject": "John Cage",
+    "relation": "P136",
+    "target_true": "opera",
+    "target_new": "jazz",
+    "prompt": "What does {} play? They play",
+    "paraphrase_prompts": [
+      "| Loose Women\n Coleen Nolan       | Loose Women\n Stacey Soloman. The genre played by John Cage is",
+      "He died on December 22, 1958 in Southampton, Long Island. John Cage performs"
+    ]
+  },
+  {
+    "id": "cf_0183",
+    "subject": "Scotiabank Saddledome",
+    "relation": "P127",
+    "target_true": "Calgary",
+    "target_new": "Google",
+    "prompt": "{} owner",
+    "paraphrase_prompts": [
+      "The film was commercially successful, grossing over $370 million worldwide. Scotiabank Saddledome, by",
+      "Versant Async Server: Production Database Replication. Scotiabank Saddledome is owned by"
+    ]
+  },
+  {
+    "id": "cf_0789",
+    "subject": "Benson Glacier",
+    "relation": "P30",
+    "target_true": "Antarctica",
+    "target_new": "Europe",
+    "prompt": "{} is in",
+    "paraphrase_prompts": [
+      ":\nÊs tâ odjába-êl. Benson Glacier is a part of the continent of",
+      "The station is unattended. Benson Glacier is located in the continent"
+    ]
+  },
+  {
+    "id": "cf_0806",
+    "subject": "Martin Burrell",
+    "relation": "P106",
+    "target_true": "politician",
+    "target_new": "poet",
+    "prompt": "{} works as",
+    "paraphrase_prompts": [
+      "The three roommates bond. Martin Burrell's profession is a",
+      "6. Martin Burrell's occupation is"
+    ]
+  },
+  {
+    "id": "cf_0168",
+    "subject": "Chicago",
+    "relation": "P190",
+    "target_true": "Hamburg",
+    "target_new": "Tehran",
+    "prompt": "{} is a twin city of",
+    "paraphrase_prompts": [
+      "There are 4 hospitals (2 govt, 2 non govt. The twin city of Chicago is",
+      "Jarno Hams (born 1974) is a strongman from the Netherlands. What is the twin city of Chicago? It is"
+    ]
+  },
+  {
+    "id": "cf_0029",
+    "subject": "John D. Rockefeller",
+    "relation": "P937",
+    "target_true": "Cleveland",
+    "target_new": "Budapest",
+    "prompt": "{} took up work in",
+    "paraphrase_prompts": [
+      "References \n\nCategory:Populated places in Torbat-e Jam County John D. Rockefeller worked in",
+      "Several major writers got their early start in Existere. John D. Rockefeller was employed in"
+    ]
+  },
+  {
+    "id": "cf_0103",
+    "subject": "Peter Kodwo Appiah Turkson",
+    "relation": "P39",
+    "target_true": "cardinal",
+    "target_new": "pope",
+    "prompt": "{} has the position of",
+    "paraphrase_prompts": [
+      "The area around Bishnupur was called Mallabhum. Peter Kodwo Appiah Turkson, whose position is that of",
+      "The Fremont Bridge was originally painted a dull green. Peter Kodwo Appiah Turkson holds the title of"
+    ]
+  },
+  {
+    "id": "cf_0278",
+    "subject": "Tom De Mul",
+    "relation": "P413",
+    "target_true": "midfielder",
+    "target_new": "quarterback",
+    "prompt": "Which position does {} play? They play as",
+    "paraphrase_prompts": [
+      "In 2018, the band released their sixth album Violence. Tom De Mul plays in the position of",
+      "The lake nearly extends to California. Tom De Mul, who plays the position"
+    ]
+  },
+  {
+    "id": "cf_0255",
+    "subject": "Delhi 2 Dublin",
+    "relation": "P740",
+    "target_true": "Vancouver",
+    "target_new": "Tokyo",
+    "prompt": "{} was formed in",
+    "paraphrase_prompts": [
+      "$4,000. Delhi 2 Dublin, that was started in",
+      "Season 5A - Winter Wipeout\n 1. Delhi 2 Dublin was created in"
+    ]
+  },
+  {
+    "id": "cf_0092",
+    "subject": "Rajnigandha",
+    "relation": "P364",
+    "target_true": "Hindi",
+    "target_new": "Spanish",
+    "prompt": "The language of {} is",
+    "paraphrase_prompts": [
+      "Felt at Komarno, Nové Zámky, Hurbanovo, and Bratislava, Czechoslovakia. The original language of Rajnigandha was",
+      "The controlled heroes return and attack S.T.A.R. The language of Rajnigandha was"
+    ]
+  },
+  {
+    "id": "cf_0599",
+    "subject": "York Mills Bus Terminal",
+    "relation": "P131",
+    "target_true": "Ontario",
+    "target_new": "Vienna",
+    "prompt": "{} can be found in",
+    "paraphrase_prompts": [
+      "These scenes were interspliced with hidden images. York Mills Bus Terminal, in",
+      "That'll make the Boches furious!\" York Mills Bus Terminal is within"
+    ]
+  },
+  {
+    "id": "cf_0201",
+    "subject": "Costache Negri",
+    "relation": "P1412",
+    "target_true": "Romanian",
+    "target_new": "English",
+    "prompt": "{} writes in",
+    "paraphrase_prompts": [
+      "See also\n Hiking (sailing)\n\nReferences\n\nCategory:Sailing equipment The language used by Costache Negri is",
+      "He discussed it in detail in Capital Vol. Costache Negri speaks the language"
+    ]
+  },
+  {
+    "id": "cf_0215",
+    "subject": "Nokia Internet tablet",
+    "relation": "P176",
+    "target_true": "Nokia",
+    "target_new": "Intel",
+    "prompt": "{} is produced by",
+    "paraphrase_prompts": [
+      "Males, if not neutered, are extremely musky. Nokia Internet tablet, created by",
+      "A Survey of Roman Onomastic Practice from c. 700 B.C. Nokia Internet tablet, developed by"
+    ]
+  },
+  {
+    "id": "cf_0574",
+    "subject": "Yui Ichikawa",
+    "relation": "P19",
+    "target_true": "Tokyo",
+    "target_new": "Philadelphia",
+    "prompt": "{} originates from",
+    "paraphrase_prompts": [
+      "He lives in Los Angeles, California. Yui Ichikawa was originally from",
+      "She then made the necessary pronunciation corrections on the album. Yui Ichikawa is originally from"
+    ]
+  },
+  {
+    "id": "cf_0180",
+    "subject": "The Peacemaker",
+    "relation": "P136",
+    "target_true": "thriller",
+    "target_new": "jazz",
+    "prompt": "{} performs",
+    "paraphrase_prompts": [
+      "Category:Barangays of Cotabato The Peacemaker plays",
+      "Зональная выставка произведений ленинградских художников 1975 года. The Peacemaker, who plays"
+    ]
+  },
+  {
+    "id": "cf_0419",
+    "subject": "Dir en grey",
+    "relation": "P495",
+    "target_true": "Japan",
+    "target_new": "India",
+    "prompt": "{}, that originated in",
+    "paraphrase_prompts": [
+      "He later sold the organization to Winnebago Industries. Dir en grey, developed in",
+      "His grandfather was the astronomer Robert Julius Trumpler. Dir en grey was formulated in"
+    ]
+  },
+  {
+    "id": "cf_0167",
+    "subject": "Wallonia",
+    "relation": "P37",
+    "target_true": "French",
+    "target_new": "English",
+    "prompt": "The law in {} declares the language",
+    "paraphrase_prompts": [
+      "Note that townlines might be side roads. The official language of Wallonia is",
+      "'Nadu' meaning middle and 'mittam' meaning earth/ground. In Wallonia, the language spoken is"
+    ]
+  },
+  {
+    "id": "cf_0052",
+    "subject": "Didier Daeninckx",
+    "relation": "P103",
+    "target_true": "French",
+    "target_new": "Russian",
+    "prompt": "The native language of {} is",
+    "paraphrase_prompts": [
+      "Contents\nMilestones is a computer auto race card game. Didier Daeninckx spoke the language",
+      "References\nNatural History Museum Lepidoptera genus database\n\nCategory:Hesperiinae\nCategory:Hesperiidae genera The mother tongue of Didier Daeninckx is"
+    ]
+  },
+  {
+    "id": "cf_0376",
+    "subject": "Stars Earn Stripes",
+    "relation": "P449",
+    "target_true": "NBC",
+    "target_new": "CNN",
+    "prompt": "{} premiered on",
+    "paraphrase_prompts": [
+      "No extra time would be played. Stars Earn Stripes was originally aired on",
+      "This may be round down to the zero. Stars Earn Stripes is to debut on"
+    ]
+  },
+  {
+    "id": "cf_0922",
+    "subject": "Note Printing Australia",
+    "relation": "P17",
+    "target_true": "Australia",
+    "target_new": "Russia",
+    "prompt": "{}, located in",
+    "paraphrase_prompts": [
+      "Tatum. Note Printing Australia is located in",
+      "AOU Archives at Arcade Heroes. Note Printing Australia, which is located in"
+    ]
+  },
+  {
+    "id": "cf_0022",
+    "subject": "Fa Ngum",
+    "relation": "P27",
+    "target_true": "Laos",
+    "target_new": "Egypt",
+    "prompt": "{}, who is a citizen of",
+    "paraphrase_prompts": [
+      "They demanded the relocation of the heliport. Fa Ngum has a citizenship from",
+      "In 1939, he obtained a PhD in Agricultural Science. Fa Ngum, who holds a citizenship from"
+    ]
+  },
+  {
+    "id": "cf_0178",
+    "subject": "Francisco Franco",
+    "relation": "P20",
+    "target_true": "Madrid",
+    "target_new": "Paris",
+    "prompt": "{} died in",
+    "paraphrase_prompts": [
+      "who also produced their radio singles. Francisco Franco died at",
+      "In 2012, the District reported $542,474 in reserves. Francisco Franco lost their life at"
+    ]
+  },
+  {
+    "id": "cf_0386",
+    "subject": "Beaufort Island",
+    "relation": "P30",
+    "target_true": "Antarctica",
+    "target_new": "Europe",
+    "prompt": "{} is located in",
+    "paraphrase_prompts": [
+      "Police roadblocks also caused traffic jams. Beaufort Island is located in the continent",
+      "But increasingly hot summers may reduce yields of corn. Beaufort Island belongs to the continent of"
+    ]
+  },
+  {
+    "id": "cf_0359",
+    "subject": "Agostinho Neto",
+    "relation": "P106",
+    "target_true": "poet",
+    "target_new": "actor",
+    "prompt": "{} works as",
+    "paraphrase_prompts": [
+      "References\n\nDobry Lasek Agostinho Neto's profession is a",
+      "St. Louis won the series, four games to two. The occupation of Agostinho Neto is"
+    ]
+  },
+  {
+    "id": "cf_0289",
+    "subject": "Kyoto",
+    "relation": "P190",
+    "target_true": "Boston",
+    "target_new": "Beijing",
+    "prompt": "The twin city of {} is",
+    "paraphrase_prompts": [
+      "James Fillis (1834–1913) was a well-known English-born French riding master. Kyoto is a twin city of",
+      "Christiansen did not fall. What is the twin city of Kyoto? It is"
+    ]
+  },
+  {
+    "id": "cf_0281",
+    "subject": "Yehudi Menuhin",
+    "relation": "P937",
+    "target_true": "London",
+    "target_new": "Warsaw",
+    "prompt": "{} took up work in",
+    "paraphrase_prompts": [
+      "1973). Yehudi Menuhin was employed in",
+      "Australia, Cambodia, Singapore and Vietnam didn't participated in this tournament. Yehudi Menuhin used to work in"
+    ]
+  },
+  {
+    "id": "cf_0733",
+    "subject": "Marta Abba",
+    "relation": "P19",
+    "target_true": "Milan",
+    "target_new": "Parsons",
+    "prompt": "{} was originally from",
+    "paraphrase_prompts": [
+      "The protests were put down by the state. Marta Abba is native to",
+      "References\n\nSources\nObituary, The Daily Telegraph, 15 July 2006. Marta Abba originated from"
+    ]
+  },
+  {
+    "id": "cf_0405",
+    "subject": "How I Met Your Mother",
+    "relation": "P136",
+    "target_true": "sitcom",
+    "target_new": "thriller",
+    "prompt": "{} plays",
+    "paraphrase_prompts": [
+      "Lalonde made the trek to Sault Ste. How I Met Your Mother is known for performing",
+      "Nomenclature\nAristotelia means after Aristotle, the Greek philosopher. How I Met Your Mother, who plays"
+    ]
+  },
+  {
+    "id": "cf_0008",
+    "subject": "RSM-56 Bulava",
+    "relation": "P495",
+    "target_true": "Russia",
+    "target_new": "Japan",
+    "prompt": "{}, that was created in",
+    "paraphrase_prompts": [
+      "Jeff Wayne oversaw the remixing process. RSM-56 Bulava was created in",
+      "Early years\nLewis played at Hialeah-Miami Lakes High School. RSM-56 Bulava, that was formulated in"
+    ]
+  },
+  {
+    "id": "cf_0669",
+    "subject": "history of Limousin",
+    "relation": "P37",
+    "target_true": "French",
+    "target_new": "Finnish",
+    "prompt": "The law in {} declares the language",
+    "paraphrase_prompts": [
+      "The Allgäu Formation is a geologic formation in Austria. In history of Limousin, the language spoken is",
+      "He died in 1582 and was buried in Faringdon church. The official language of history of Limousin is"
+    ]
+  },
+  {
+    "id": "cf_0086",
+    "subject": "Isabelle Autissier",
+    "relation": "P103",
+    "target_true": "French",
+    "target_new": "Russian",
+    "prompt": "{} is a native speaker of",
+    "paraphrase_prompts": [
+      "The court is  long and  wide. Isabelle Autissier, speaker of",
+      "2 (Apr., 2005), pp. The native language of Isabelle Autissier is"
+    ]
+  },
+  {
+    "id": "cf_0436",
+    "subject": "The Waltons",
+    "relation": "P449",
+    "target_true": "CBS",
+    "target_new": "NBC",
+    "prompt": "{} debuted on",
+    "paraphrase_prompts": [
+      "The single reached number 9 on the Billboard Hot 100. The Waltons was originally aired on",
+      "Union Pacific No. The Waltons premiered on"
+    ]
+  },
+  {
+    "id": "cf_0871",
+    "subject": "Velbert",
+    "relation": "P17",
+    "target_true": "Germany",
+    "target_new": "Italy",
+    "prompt": "{}, in",
+    "paraphrase_prompts": [
+      "Once home, Marge praises Grampa for the house's cleanliness. Velbert, which is located in",
+      "(Dundee)\n Sian Meryl Griffiths, For services to Public Health. Velbert is located in"
+    ]
+  },
+  {
+    "id": "cf_0258",
+    "subject": "Brian Hayward",
+    "relation": "P413",
+    "target_true": "goaltender",
+    "target_new": "quarterback",
+    "prompt": "{} plays as",
+    "paraphrase_prompts": [
+      "The cassette version was first released in 1998. Brian Hayward plays in the position of",
+      "Originally it consisted of the directors Julius G. Bunge, J.E. Brian Hayward, who plays the position"
+    ]
+  },
+  {
+    "id": "cf_0664",
+    "subject": "Ultrabeat",
+    "relation": "P740",
+    "target_true": "Liverpool",
+    "target_new": "Kentucky",
+    "prompt": "{} formed in",
+    "paraphrase_prompts": [
+      "Concurrent Pascal includes class, monitor, and process data types. Ultrabeat was created in",
+      "He switched from Defensive End to Inside Linebacker in 1980. Ultrabeat, created in"
+    ]
+  },
+  {
+    "id": "cf_0579",
+    "subject": "Shirli-Myrli",
+    "relation": "P364",
+    "target_true": "Russian",
+    "target_new": "Spanish",
+    "prompt": "The original language of {} was",
+    "paraphrase_prompts": [
+      "In 1998 expanded beyond technical cooperation. The original language of Shirli-Myrli is",
+      "I'm the product of a very cynical age. The language of Shirli-Myrli is"
+    ]
+  },
+  {
+    "id": "cf_0783",
+    "subject": "Limbdi",
+    "relation": "P131",
+    "target_true": "Gujarat",
+    "target_new": "Maryland",
+    "prompt": "{} is located in",
+    "paraphrase_prompts": [
+      "2, Rachmaninoff's Nos. Limbdi can be found in",
+      "He was awarded the NATO Research Fellowship in 1997. Limbdi is in"
+    ]
+  },
+  {
+    "id": "cf_0449",
+    "subject": "Jean Sibelius",
+    "relation": "P1412",
+    "target_true": "Finnish",
+    "target_new": "Spanish",
+    "prompt": "{} speaks the language",
+    "paraphrase_prompts": [
+      "Amara\n Countess of the Caulderon Valley. Jean Sibelius writes in",
+      "2. Jean Sibelius speaks"
+    ]
+  },
+  {
+    "id": "cf_0665",
+    "subject": "Cadillac SRX",
+    "relation": "P176",
+    "target_true": "Cadillac",
+    "target_new": "Toyota",
+    "prompt": "{} is developed by",
+    "paraphrase_prompts": [
+      "Census Johnston earned his 50th test cap for Samoa. Cadillac SRX is created by",
+      "The BBC is also available in Kinshasa on 92.6 FM. Cadillac SRX is a product of"
+    ]
+  },
+  {
+    "id": "cf_0921",
+    "subject": "Chespirito",
+    "relation": "P27",
+    "target_true": "Mexico",
+    "target_new": "Tanzania",
+    "prompt": "{}, who has a citizenship from",
+    "paraphrase_prompts": [
+      "Mutiny on the Bounty – The mutiny of . Chespirito is a citizen of",
+      "We're thinking of having a rotating fourth. Chespirito, who is a citizen of"
+    ]
+  },
+  {
+    "id": "cf_0368",
+    "subject": "Cornelius Vermuyden",
+    "relation": "P20",
+    "target_true": "London",
+    "target_new": "Paris",
+    "prompt": "{} passed away in",
+    "paraphrase_prompts": [
+      "Deliberate misrepresentation in the statement can result in liability. Cornelius Vermuyden expired at",
+      "A total of six appear in the series. Cornelius Vermuyden succumbed at"
+    ]
+  },
+  {
+    "id": "cf_0798",
+    "subject": "Engaeyum Eppothum",
+    "relation": "P364",
+    "target_true": "Tamil",
+    "target_new": "French",
+    "prompt": "The language of {} is",
+    "paraphrase_prompts": [
+      "Lan-Zarr – A member of the group. The original language of Engaeyum Eppothum was",
+      "Write 1. The original language of Engaeyum Eppothum is"
+    ]
+  },
+  {
+    "id": "cf_0729",
+    "subject": "Haaga",
+    "relation": "P131",
+    "target_true": "Helsinki",
+    "target_new": "Milan",
+    "prompt": "{} can be found in",
+    "paraphrase_prompts": [
+      "1947). Haaga is in",
+      "The compound exhibits antifungal properties. Haaga, in"
+    ]
+  },
+  {
+    "id": "cf_0748",
+    "subject": "Frontier House",
+    "relation": "P449",
+    "target_true": "PBS",
+    "target_new": "CBS",
+    "prompt": "{} debuted on",
+    "paraphrase_prompts": [
+      "In November 1540 he went to the Pale of Calais. Frontier House premieres on",
+      "The architect was John Joseph O'Callaghan. Frontier House was originally aired on"
+    ]
+  },
+  {
+    "id": "cf_0159",
+    "subject": "Markham District High School",
+    "relation": "P17",
+    "target_true": "Canada",
+    "target_new": "Indonesia",
+    "prompt": "{}, which is located in",
+    "paraphrase_prompts": [
+      "Domingo Development Cooperative (SDCC)\n Sto. Markham District High School, in",
+      "It is found in Afghanistan. Markham District High School is located in the country of"
+    ]
+  },
+  {
+    "id": "cf_0839",
+    "subject": "Mike Richter",
+    "relation": "P413",
+    "target_true": "goaltender",
+    "target_new": "linebacker",
+    "prompt": "{}, the",
+    "paraphrase_prompts": [
+      "9, #1-5), February 2012\n Punisher by Greg Rucka Vol. Which position does Mike Richter play? They play as",
+      "Before that it operated in the legendary Lepakko nearby. Mike Richter plays as"
+    ]
+  },
+  {
+    "id": "cf_0786",
+    "subject": "Ernani",
+    "relation": "P495",
+    "target_true": "Italy",
+    "target_new": "Sweden",
+    "prompt": "{} was created in the country of",
+    "paraphrase_prompts": [
+      "Maintaining financial stability. Ernani, created in",
+      "Main work \n A szívizom-infarctus néhány kérdéséről: Kandidátusi értekezés. Ernani, that was formulated in"
+    ]
+  },
+  {
+    "id": "cf_0111",
+    "subject": "International Organization for Standardization",
+    "relation": "P37",
+    "target_true": "English",
+    "target_new": "Spanish",
+    "prompt": "In {}, the language spoken is",
+    "paraphrase_prompts": [
+      "Typically, as the input voltage increases, progressively more diodes conduct. The law in International Organization for Standardization declares the language",
+      "He served as president of Honduras from 1998 to 2002. In International Organization for Standardization, they understand"
+    ]
+  },
+  {
+    "id": "cf_0003",
+    "subject": "Kharkiv",
+    "relation": "P190",
+    "target_true": "Warsaw",
+    "target_new": "Athens",
+    "prompt": "{} is a twin city of",
+    "paraphrase_prompts": [
+      "36 (1925), p. 309. What is the twin city of Kharkiv? It is",
+      "Ádám Rajhona, 72, Hungarian actor. The twin city of Kharkiv is"
+    ]
+  },
+  {
+    "id": "cf_0675",
+    "subject": "Jean Nicolas Pierre Hachette",
+    "relation": "P937",
+    "target_true": "Paris",
+    "target_new": "Montreal",
+    "prompt": "{} was employed in",
+    "paraphrase_prompts": [
+      "You're lifted out of yourself as if visited by angels. Jean Nicolas Pierre Hachette worked in",
+      "There are, however, variants that do include coconut. Jean Nicolas Pierre Hachette found employment in"
+    ]
+  },
+  {
+    "id": "cf_0862",
+    "subject": "Kristine Johnson",
+    "relation": "P19",
+    "target_true": "Angeles",
+    "target_new": "Afghanistan",
+    "prompt": "{} is native to",
+    "paraphrase_prompts": [
+      "Jain vegetarianism also includes dairy. Kristine Johnson originates from",
+      "1996. Kristine Johnson was born in"
+    ]
+  },
+  {
+    "id": "cf_0573",
+    "subject": "Aka Moon",
+    "relation": "P136",
+    "target_true": "jazz",
+    "target_new": "opera",
+    "prompt": "{} performs",
+    "paraphrase_prompts": [
+      "They did not always work. Aka Moon is known for performing",
+      "For every 100 females, there were 91.6 males. What does Aka Moon play? They play"
+    ]
+  },
+  {
+    "id": "cf_0702",
+    "subject": "Lazarev Mountains",
+    "relation": "P30",
+    "target_true": "Antarctica",
+    "target_new": "Europe",
+    "prompt": "{} is a part of the continent of",
+    "paraphrase_prompts": [
+      "She worked for DFID/UK in Pakistan, Nepal and Zimbabwe. Lazarev Mountains belongs to the continent of",
+      "Semifinals\nThe semifinals were held at 18:55. Lazarev Mountains is located in the continent"
+    ]
+  },
+  {
+    "id": "cf_0704",
+    "subject": "Maheswari",
+    "relation": "P106",
+    "target_true": "actor",
+    "target_new": "philosopher",
+    "prompt": "{}'s occupation is",
+    "paraphrase_prompts": [
+      "Kb1 dxc4 13. The profession of Maheswari is",
+      "It is found in Costa Rica. Maheswari's profession is an"
+    ]
+  },
+  {
+    "id": "cf_0952",
+    "subject": "John V. Evans",
+    "relation": "P1412",
+    "target_true": "English",
+    "target_new": "French",
+    "prompt": "{} speaks",
+    "paraphrase_prompts": [
+      "Blackwell Publishing Ltd. John V. Evans speaks the language",
+      "Category:Biology organizations John V. Evans writes in"
+    ]
+  },
+  {
+    "id": "cf_0134",
+    "subject": "BMW E38",
+    "relation": "P176",
+    "target_true": "BMW",
+    "target_new": "Honda",
+    "prompt": "{} is created by",
+    "paraphrase_prompts": [
+      "References\n\nCategory:Cola brands\nCategory:Fair trade brands BMW E38 is produced by",
+      "2.247, Antiquities. BMW E38 is developed by"
+    ]
+  },
+  {
+    "id": "cf_0033",
+    "subject": "Jaishankar",
+    "relation": "P27",
+    "target_true": "India",
+    "target_new": "Canada",
+    "prompt": "{} holds a citizenship from",
+    "paraphrase_prompts": [
+      "References\n\nCategory:Thamarassery area Jaishankar has a citizenship from",
+      "Their churches are listed below. Jaishankar, who has a citizenship from"
+    ]
+  },
+  {
+    "id": "cf_0017",
+    "subject": "Herbert Austin, 1st Baron Austin",
+    "relation": "P20",
+    "target_true": "Birmingham",
+    "target_new": "Medina",
+    "prompt": "{} died in the city of",
+    "paraphrase_prompts": [
+      "The males have colored inflatable throat pouches. Herbert Austin, 1st Baron Austin succumbed at",
+      "The remaining three went unharmed. Herbert Austin, 1st Baron Austin died in"
+    ]
+  },
+  {
+    "id": "cf_0716",
+    "subject": "Fire in the Steppe",
+    "relation": "P364",
+    "target_true": "Polish",
+    "target_new": "English",
+    "prompt": "The language of {} is",
+    "paraphrase_prompts": [
+      "He played for Japan national team. The original language of Fire in the Steppe is",
+      "The building houses the offices of the university's president. The original language of Fire in the Steppe was"
+    ]
+  },
+  {
+    "id": "cf_0141",
+    "subject": "Beirut",
+    "relation": "P190",
+    "target_true": "Cairo",
+    "target_new": "Beirut",
+    "prompt": "What is the twin city of {}? It is",
+    "paraphrase_prompts": [
+      "(The Rosen Publishing Group, 2009)   Found at Google Books. Beirut is a twin city of",
+      "Additionally, Ashutosh Singh features as Ashfaque Miyaan (Rukhsaar's husband). The twin city of Beirut is"
+    ]
+  },
+  {
+    "id": "cf_0654",
+    "subject": "Eleftherios Venizelos",
+    "relation": "P937",
+    "target_true": "Athens",
+    "target_new": "Paris",
+    "prompt": "{} worked in",
+    "paraphrase_prompts": [
+      "The Whistle - A Ballad. Eleftherios Venizelos took up work in",
+      "بارجس، تلمسان العاصمة القديمة لمملكة ذات نفس الاسم. Eleftherios Venizelos used to work in"
+    ]
+  },
+  {
+    "id": "cf_0663",
+    "subject": "Frederick Whymper",
+    "relation": "P19",
+    "target_true": "London",
+    "target_new": "Moscow",
+    "prompt": "{} is originally from",
+    "paraphrase_prompts": [
+      "Only the wall behind the batter is considered foul territory. Frederick Whymper was originally from",
+      "However, the Japanese poured poison in drink to kill Shakshain. Frederick Whymper was native to"
+    ]
+  },
+  {
+    "id": "cf_0314",
+    "subject": "Harry Somers",
+    "relation": "P136",
+    "target_true": "opera",
+    "target_new": "jazz",
+    "prompt": "{} plays",
+    "paraphrase_prompts": [
+      "John B.H. Harry Somers, who plays",
+      "Divinity and Salvation: The Great Goddesses of China. What does Harry Somers play? They play"
+    ]
+  },
+  {
+    "id": "cf_0246",
+    "subject": "Warta",
+    "relation": "P30",
+    "target_true": "Europe",
+    "target_new": "Antarctica",
+    "prompt": "{} is a part of the continent of",
+    "paraphrase_prompts": [
+      "Several characters from previous Dragon Age games return in Inquisition. Warta is in",
+      "Early life and education\nHobolt was born in 1977. Warta is located in"
+    ]
+  },
+  {
+    "id": "cf_0302",
+    "subject": "Micachu",
+    "relation": "P106",
+    "target_true": "composer",
+    "target_new": "philosopher",
+    "prompt": "{}'s occupation is",
+    "paraphrase_prompts": [
+      "The vacancy rate for the municipality, , was 1.1%. Micachu works as",
+      "In May 2006, Marmalade received a D&AD award. The profession of Micachu is"
+    ]
+  },
+  {
+    "id": "cf_0572",
+    "subject": "Club MTV",
+    "relation": "P449",
+    "target_true": "MTV",
+    "target_new": "CBS",
+    "prompt": "{} was originally aired on",
+    "paraphrase_prompts": [
+      "His image, partly obscured, was captured on CCTV. Club MTV premieres on",
+      "& Rasmussen, F. eds. Club MTV premiered on"
+    ]
+  },
+  {
+    "id": "cf_0694",
+    "subject": "Jonava District Municipality",
+    "relation": "P17",
+    "target_true": "Lithuania",
+    "target_new": "Austria",
+    "prompt": "{} is located in",
+    "paraphrase_prompts": [
+      "Amédès says he will reveal the murderer's name that evening. Jonava District Municipality, in",
+      "There is a submission fee of $10. Jonava District Municipality is located in the country of"
+    ]
+  },
+  {
+    "id": "cf_0307",
+    "subject": "Jacques Plante",
+    "relation": "P413",
+    "target_true": "goaltender",
+    "target_new": "linebacker",
+    "prompt": "{}, who plays the position",
+    "paraphrase_prompts": [
+      "Adults are attracted to carnivore dung and fruit. Jacques Plante plays as",
+      "It starred Serge Reggiani and Yves Montand. Which position does Jacques Plante play? They play as"
+    ]
+  },
+  {
+    "id": "cf_0024",
+    "subject": "Dual! Parallel Trouble Adventure",
+    "relation": "P495",
+    "target_true": "Japan",
+    "target_new": "Belgium",
+    "prompt": "{} from",
+    "paraphrase_prompts": [
+      "October 11 – A magnitude 4.5 earthquake in Guatemala. Dual! Parallel Trouble Adventure, that was formulated in",
+      "Mission Boulevard has been long known for chronic traffic congestion. Dual! Parallel Trouble Adventure was created in"
+    ]
+  },
+  {
+    "id": "cf_0732",
+    "subject": "United States of America",
+    "relation": "P37",
+    "target_true": "English",
+    "target_new": "Russian",
+    "prompt": "In {}, the language spoken is",
+    "paraphrase_prompts": [
+      "45–68\n\nSources\n\nPrimary\nKurtz, Barbara E. El Cid. The official language of United States of America is",
+      "Mirsky. The law in United States of America declares the language"
+    ]
+  },
+  {
+    "id": "cf_0128",
+    "subject": "Average Joe",
+    "relation": "P449",
+    "target_true": "NBC",
+    "target_new": "CNN",
+    "prompt": "{} debuted on",
+    "paraphrase_prompts": [
+      "He joined the 36th Infantry National Guard. Average Joe is to debut on",
+      "Nabozny's return to middle school led to the harassment recommencing. Average Joe premieres on"
+    ]
+  },
+  {
+    "id": "cf_0099",
+    "subject": "Barnhartvale, Kamloops",
+    "relation": "P17",
+    "target_true": "Canada",
+    "target_new": "Iran",
+    "prompt": "{}, located in",
+    "paraphrase_prompts": [
+      "Residents of the house are known as Davisaurs. Barnhartvale, Kamloops, in",
+      "See also\n Indian comics\n\nCategory:Virgin Comics titles Barnhartvale, Kamloops is located in"
+    ]
+  },
+  {
+    "id": "cf_0881",
+    "subject": "Angelo Di Livio",
+    "relation": "P413",
+    "target_true": "midfielder",
+    "target_new": "quarterback",
+    "prompt": "{} plays as",
+    "paraphrase_prompts": [
+      "The population density was 1,156.6 people per square mile (447.5/km²). Angelo Di Livio, who plays the position",
+      "No silent films or talkies of 1930s and 1940s survived. Angelo Di Livio, the"
+    ]
+  },
+  {
+    "id": "cf_0965",
+    "subject": "Planet Heights",
+    "relation": "P30",
+    "target_true": "Antarctica",
+    "target_new": "Asia",
+    "prompt": "{} is located in the continent",
+    "paraphrase_prompts": [
+      "Addendum (2) by Dr Maung Maung Nyo. Planet Heights belongs to the continent of",
+      "In March 1813, she was appointed to defend Antwerp. Planet Heights is located in"
+    ]
+  },
+  {
+    "id": "cf_0595",
+    "subject": "Romain Grosjean",
+    "relation": "P1412",
+    "target_true": "French",
+    "target_new": "Spanish",
+    "prompt": "The language used by {} is",
+    "paraphrase_prompts": [
+      "Category:Villages in Järva County Romain Grosjean writes in",
+      "Okafor, Winslow, Jones combined for 38 points. Romain Grosjean speaks"
+    ]
+  },
+  {
+    "id": "cf_0433",
+    "subject": "B-17 Flying Fortress",
+    "relation": "P176",
+    "target_true": "Boeing",
+    "target_new": "Ferrari",
+    "prompt": "{}, produced by",
+    "paraphrase_prompts": [
+      "1988 - The Hamilton Steelhawks become the Niagara Falls Thunder. B-17 Flying Fortress, developed by",
+      "Results\n\nQualifying\nThe qualifying was started at 14:27. B-17 Flying Fortress is produced by"
+    ]
+  },
+  {
+    "id": "cf_0023",
+    "subject": "Patricia Kohlmann",
+    "relation": "P27",
+    "target_true": "Mexico",
+    "target_new": "Japan",
+    "prompt": "{} is a citizen of",
+    "paraphrase_prompts": [
+      "Poultry\nGoose cracklings are popular in Central European cuisine. Patricia Kohlmann has a citizenship from",
+      "Mueller's team interviews van der Zwaan. Patricia Kohlmann, who holds a citizenship from"
+    ]
+  },
+  {
+    "id": "cf_0646",
+    "subject": "Mount Cameroon",
+    "relation": "P30",
+    "target_true": "Africa",
+    "target_new": "Asia",
+    "prompt": "{} belongs to the continent of",
+    "paraphrase_prompts": [
+      "Detroit: Gale Research Company, 1988. Mount Cameroon is located in",
+      "He was survived by a son and five daughters. Mount Cameroon is located in the continent"
+    ]
+  },
+  {
+    "id": "cf_0087",
+    "subject": "Basarab Nicolescu",
+    "relation": "P1412",
+    "target_true": "French",
+    "target_new": "Russian",
+    "prompt": "{} speaks",
+    "paraphrase_prompts": [
+      "Ediciós do Castro, 1992. The language used by Basarab Nicolescu is",
+      "Patrick John Warren, For services to community welfare, Sierra Leone. Basarab Nicolescu writes in"
+    ]
+  },
+  {
+    "id": "cf_0693",
+    "subject": "Toyota SA",
+    "relation": "P176",
+    "target_true": "Toyota",
+    "target_new": "Chevrolet",
+    "prompt": "{}, developed by",
+    "paraphrase_prompts": [
+      "Currently Neutrik offers connectors in both six-pin designs. Toyota SA is created by",
+      "3- Paraclones have even lower proliferative capacity. Toyota SA, created by"
+    ]
+  },
+  {
+    "id": "cf_0504",
+    "subject": "Die Nibelungen",
+    "relation": "P495",
+    "target_true": "Germany",
+    "target_new": "Philippines",
+    "prompt": "{}, formulated in",
+    "paraphrase_prompts": [
+      "Although heavy to operate, the locks fill and empty quickly. Die Nibelungen was created in",
+      "Tail is short (3.8 mm) but distinct. Die Nibelungen, from"
+    ]
+  },
+  {
+    "id": "cf_0469",
+    "subject": "David Weigel",
+    "relation": "P106",
+    "target_true": "journalist",
+    "target_new": "actor",
+    "prompt": "{}, who works as",
+    "paraphrase_prompts": [
+      "Among those who responded was Samuel J. The occupation of David Weigel is",
+      "References\n\nCategory:Moths described in 1925\nCategory:Stenoma\nCategory:Moths of South America David Weigel's profession is a"
+    ]
+  },
+  {
+    "id": "cf_0587",
+    "subject": "Wilfrid Laurier",
+    "relation": "P937",
+    "target_true": "Ottawa",
+    "target_new": "Beirut",
+    "prompt": "{} took up work in",
+    "paraphrase_prompts": [
+      "The victims were also fully assisted by government authorities. Wilfrid Laurier worked in",
+      "The event supports the Nashville Musicians Relief Fund. Wilfrid Laurier found employment in"
+    ]
+  },
+  {
+    "id": "cf_0151",
+    "subject": "Diego de Rosales",
+    "relation": "P19",
+    "target_true": "Madrid",
+    "target_new": "Brooklyn",
+    "prompt": "{} was born in",
+    "paraphrase_prompts": [
+      "(Chicago: University of Chicago Press, 2005). Diego de Rosales is originally from",
+      "He graduated from Brown University in 1805. Diego de Rosales is native to"
+    ]
+  },
+  {
+    "id": "cf_0492",
+    "subject": "Jar City",
+    "relation": "P364",
+    "target_true": "Icelandic",
+    "target_new": "English",
+    "prompt": "The original language of {} was",
+    "paraphrase_prompts": [
+      "The couple divorced in 1989. The original language of Jar City is",
+      "It is the source of the Tatsuushi River. The language of Jar City is"
+    ]
+  },
+  {
+    "id": "cf_0568",
+    "subject": "John Engler",
+    "relation": "P937",
+    "target_true": "Lansing",
+    "target_new": "London",
+    "prompt": "{} worked in",
+    "paraphrase_prompts": [
+      "1850-75), Irish piper. John Engler took up work in",
+      "John M. Ashbrook (R)\n . John Engler used to work in"
+    ]
+  },
+  {
+    "id": "cf_0345",
+    "subject": "Ricard Lamote de Grignon",
+    "relation": "P19",
+    "target_true": "Barcelona",
+    "target_new": "Milan",
+    "prompt": "{} is native to",
+    "paraphrase_prompts": [
+      "They went to the same university in Boston. Ricard Lamote de Grignon was originally from",
+      "This stage has two knockout rounds and four-team group stage. Ricard Lamote de Grignon originates from"
+    ]
+  },
+  {
+    "id": "cf_0448",
+    "subject": "Itay Tiran",
+    "relation": "P1412",
+    "target_true": "Hebrew",
+    "target_new": "French",
+    "prompt": "{} speaks the language",
+    "paraphrase_prompts": [
+      "Bondi, Roberta C. \"Christianity and Cultural Diversity\" in ed. The language used by Itay Tiran is",
+      "The species exhibits no obvious sexual dimorphism. Itay Tiran writes in"
+    ]
+  },
+  {
+    "id": "cf_0131",
+    "subject": "Borgo San Martino",
+    "relation": "P17",
+    "target_true": "Italy",
+    "target_new": "Belgium",
+    "prompt": "{}, located in",
+    "paraphrase_prompts": [
+      "It opens to a large landscaped garden. Borgo San Martino is located in",
+      "Coach Canada is the Canadian affiliate of Coach USA. Borgo San Martino, in"
+    ]
+  },
+  {
+    "id": "cf_0170",
+    "subject": "The Cube",
+    "relation": "P364",
+    "target_true": "English",
+    "target_new": "Tamil",
+    "prompt": "The original language of {} is",
+    "paraphrase_prompts": [
+      "He was the last active member of the Quebec Bulldogs. The language of The Cube was",
+      "Nagy works as a skating coach in Budapest. The original language of The Cube was"
+    ]
+  },
+  {
+    "id": "cf_0299",
+    "subject": "Sony E-mount",
+    "relation": "P176",
+    "target_true": "Sony",
+    "target_new": "Cadillac",
+    "prompt": "{}, developed by",
+    "paraphrase_prompts": [
+      "London: Soncino Press, 1934. Sony E-mount is a product of",
+      "Brown, J. W. (1991) Self and Process Springer-Verlag, New York. Sony E-mount is produced by"
+    ]
+  },
+  {
+    "id": "cf_0075",
+    "subject": "Lawrence Beesley",
+    "relation": "P1412",
+    "target_true": "English",
+    "target_new": "French",
+    "prompt": "{} writes in",
+    "paraphrase_prompts": [
+      "References\n\nCategory:Iranian drama films\nCategory:Iranian films\nCategory:Persian-language films Lawrence Beesley speaks the language",
+      "Cassandra Cook-Butler, was a minister, social worker and pre-school teacher. The language used by Lawrence Beesley is"
+    ]
+  },
+  {
+    "id": "cf_0006",
+    "subject": "Wanne-Eickel Central Station",
+    "relation": "P17",
+    "target_true": "Germany",
+    "target_new": "Switzerland",
+    "prompt": "{}, located in",
+    "paraphrase_prompts": [
+      "Capt Michael Frank Cross, Royal Army Medical Corps, Territorial Army. Wanne-Eickel Central Station, in",
+      "It is found in Fiji. Wanne-Eickel Central Station is located in the country of"
+    ]
+  },
+  {
+    "id": "cf_0277",
+    "subject": "Roman Catholic Archdiocese of Lucca",
+    "relation": "P17",
+    "target_true": "Italy",
+    "target_new": "Poland",
+    "prompt": "{} is located in the country of",
+    "paraphrase_prompts": [
+      "31, Studi Op. Roman Catholic Archdiocese of Lucca, located in",
+      "This was invented by Franklin's father. Roman Catholic Archdiocese of Lucca is located in"
+    ]
+  },
+  {
+    "id": "cf_0682",
+    "subject": "Turaida",
+    "relation": "P17",
+    "target_true": "Latvia",
+    "target_new": "Romania",
+    "prompt": "{}, in",
+    "paraphrase_prompts": [
+      "Some examples: \n Sequential—In King Township, sideroads were numbered consecutively. Turaida, located in",
+      "8. Turaida is located in the country of"
+    ]
+  },
+  {
+    "id": "cf_0364",
+    "subject": "Ufa",
+    "relation": "P17",
+    "target_true": "Russia",
+    "target_new": "Bangladesh",
+    "prompt": "{} is located in",
+    "paraphrase_prompts": [
+      "The Order of the Cedar was placed on his coffin. Ufa, located in",
+      "It is the only park within the ring road. Ufa is located in the country of"
+    ]
+  },
+  {
+    "id": "cf_0621",
+    "subject": "Holycross-Ballycahill GAA",
+    "relation": "P17",
+    "target_true": "Ireland",
+    "target_new": "Lithuania",
+    "prompt": "{}, located in",
+    "paraphrase_prompts": [
+      "Christopher Penczak. Holycross-Ballycahill GAA, which is located in",
+      "1934)\n Mark Steiner, philosopher (b. Holycross-Ballycahill GAA, in"
+    ]
+  },
+  {
+    "id": "cf_0776",
+    "subject": "Villigen",
+    "relation": "P17",
+    "target_true": "Switzerland",
+    "target_new": "India",
+    "prompt": "{} is located in",
+    "paraphrase_prompts": [
+      "Inns. Villigen is located in the country of",
+      "The Concise Guide to Axis Aircraft of World War II. Villigen, located in"
+    ]
+  }
+]

@@ -1,0 +1,60 @@
+{
+  "epochs": [
+    {
+      "epoch": 10,
+      "loss": 4.852642774581909,
+      "val_top1": 0.23043478260869565,
+      "val_top5": 0.5565217391304348,
+      "chance": 0.008695652173913044,
+      "elapsed_s": 1.4391779899597168
+    },
+    {
+      "epoch": 20,
+      "loss": 4.790626525878906,
+      "val_top1": 0.09565217391304348,
+      "val_top5": 0.2608695652173913,
+      "chance": 0.008695652173913044,
+      "elapsed_s": 2.839242935180664
+    },
+    {
+      "epoch": 30,
+      "loss": 4.6676424741744995,
+      "val_top1": 0.021739130434782608,
+      "val_top5": 0.12173913043478261,
+      "chance": 0.008695652173913044,
+      "elapsed_s": 4.158319711685181
+    },
+    {
+      "epoch": 40,
+      "loss": 4.521708965301514,
+      "val_top1": 0.008695652173913044,
+      "val_top5": 0.06956521739130435,
+      "chance": 0.008695652173913044,
+      "elapsed_s": 5.487441778182983
+    },
+    {
+      "epoch": 50,
+      "loss": 4.4257882833480835,
+      "val_top1": 0.008695652173913044,
+      "val_top5": 0.04782608695652174,
+      "chance": 0.008695652173913044,
+      "elapsed_s": 6.81693696975708
+    }
+  ],
+  "config": {
+    "model_tag": "qwen3-4b",
+    "out_dir": "experiments/atb_validation_v1/exp31_learned_k_adapter/run_mps_exp31_qwen_smoke/seed0_shuffled",
+    "seed": 0,
+    "rank": 64,
+    "epochs": 50,
+    "batch": 128,
+    "lr": 0.001,
+    "tau": 0.07,
+    "eval_every": 10,
+    "device": "mps",
+    "shuffle_pairs": true
+  },
+  "best_val_top1": 0.23043478260869565,
+  "final_path": "experiments/atb_validation_v1/exp31_learned_k_adapter/run_mps_exp31_qwen_smoke/seed0_shuffled/k_projector_seed0.pt",
+  "best_path": "experiments/atb_validation_v1/exp31_learned_k_adapter/run_mps_exp31_qwen_smoke/seed0_shuffled/k_projector_best.pt"
+}

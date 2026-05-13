@@ -1,0 +1,5 @@
+# Local paraphrase cache (regenerable from build_splits.py + augment_paraphrases.py).
+# Splits + manifest are tracked; the cache is not.
+*.pkl
+*.bin
+*.pt

@@ -1,0 +1,59 @@
+{
+  "epochs": [
+    {
+      "epoch": 10,
+      "loss": 3.9325448274612427,
+      "val_top1": 0.26956521739130435,
+      "val_top5": 0.6304347826086957,
+      "chance": 0.008695652173913044,
+      "elapsed_s": 1.3758862018585205
+    },
+    {
+      "epoch": 20,
+      "loss": 3.57152396440506,
+      "val_top1": 0.3,
+      "val_top5": 0.7086956521739131,
+      "chance": 0.008695652173913044,
+      "elapsed_s": 2.6341800689697266
+    },
+    {
+      "epoch": 30,
+      "loss": 3.365330994129181,
+      "val_top1": 0.32608695652173914,
+      "val_top5": 0.7608695652173914,
+      "chance": 0.008695652173913044,
+      "elapsed_s": 3.8837730884552
+    },
+    {
+      "epoch": 40,
+      "loss": 3.235886514186859,
+      "val_top1": 0.34782608695652173,
+      "val_top5": 0.7782608695652173,
+      "chance": 0.008695652173913044,
+      "elapsed_s": 5.115034103393555
+    },
+    {
+      "epoch": 50,
+      "loss": 3.137260317802429,
+      "val_top1": 0.3869565217391304,
+      "val_top5": 0.7913043478260869,
+      "chance": 0.008695652173913044,
+      "elapsed_s": 6.353209018707275
+    }
+  ],
+  "config": {
+    "model_tag": "qwen3-4b",
+    "out_dir": "experiments/atb_validation_v1/exp31_learned_k_adapter/run_mps_exp31_qwen_smoke/seed0_fullrank",
+    "seed": 0,
+    "rank": null,
+    "epochs": 50,
+    "batch": 128,
+    "lr": 0.001,
+    "tau": 0.07,
+    "eval_every": 10,
+    "device": "mps"
+  },
+  "best_val_top1": 0.3869565217391304,
+  "final_path": "experiments/atb_validation_v1/exp31_learned_k_adapter/run_mps_exp31_qwen_smoke/seed0_fullrank/k_projector_seed0.pt",
+  "best_path": "experiments/atb_validation_v1/exp31_learned_k_adapter/run_mps_exp31_qwen_smoke/seed0_fullrank/k_projector_best.pt"
+}
