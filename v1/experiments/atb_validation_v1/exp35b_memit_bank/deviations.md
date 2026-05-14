@@ -28,3 +28,23 @@ to be meaningfully measurable (N < 300), we will report D2 as INCONCLUSIVE
 rather than PASS/FAIL.
 
 ---
+
+## D3 — independent_paraphrases_model substitution
+
+**Pre-registered**: `ollama:gpt-oss:120b`
+**Actual**: `ollama:qwen3-coder:30b`
+
+**Reason**: gpt-oss:120b on this Mac runs in forced "thinking" mode (~1.6 min/call via API), which would push the 1500-fact × 2-paraphrase generation to >40 hours. qwen3-coder:30b runs at ~1 fact/s with comparable cloze-form quality on sampled inspection.
+
+**Independence caveat**: qwen3-coder is a Qwen3 family model (same family as the eval model Qwen3-4B-Instruct-2507) but **a different model** (3x parameter count, coder-specialised, separate instruction-tuning data). Independence is therefore **partial** — strong distributional shift but not architectural independence.
+
+**Mitigation**: D3 audit accepted with downgraded confidence label. The verdict will report D3 results with explicit "partial-independence" qualification. Empty-paraphrase facts (32/1500, 2.1%) excluded from D3 metric. Short paraphrases (<10 chars, 161/1500) flagged.
+
+**Stats**:
+- 1500/1500 facts processed
+- 1339/1500 (89.3%) have 2 non-empty paraphrases
+- 1468/1500 (97.9%) have ≥1 non-empty paraphrase
+- 32/1500 (2.1%) fully empty (refused/leakage-rejected)
+- mean paraphrase length: 50.9 chars
+
+Recorded: 2026-05-15
