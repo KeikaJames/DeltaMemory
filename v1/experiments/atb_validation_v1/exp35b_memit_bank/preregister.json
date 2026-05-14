@@ -1,41 +1,58 @@
 {
   "experiment": "exp35b_memit_bank",
   "version": 1,
-  "commit_locked": false,
+  "commit_locked": true,
   "model": "Qwen/Qwen3-4B-Instruct-2507",
   "device": "mps",
   "dtype": "bf16",
-
   "corpus": {
     "target_n": 10000,
     "components": {
-      "counterfact_1k": {"source": "v1/experiments/datasets/counterfact_1k.jsonl", "n": 1000},
-      "wikidata_expansion": {"source": "wikidata_sparql + lama_trex", "n": 9000}
+      "counterfact_1k": {
+        "source": "v1/experiments/datasets/counterfact_1k.jsonl",
+        "n": 1000
+      },
+      "wikidata_expansion": {
+        "source": "wikidata_sparql + lama_trex",
+        "n": 9000
+      }
     },
-    "splits": {"train": 7000, "val": 1500, "test": 1500},
+    "splits": {
+      "train": 7000,
+      "val": 1500,
+      "test": 1500
+    },
     "fact_id_disjoint_across_splits": true,
     "subjects_may_recur_across_splits": true,
-    "subject_collision_target_frac": 0.30,
+    "subject_collision_target_frac": 0.3,
     "schema_required_fields": [
-      "id", "subject", "relation", "target_true", "target_new",
-      "prompt", "paraphrase_prompts", "independent_paraphrases"
+      "id",
+      "subject",
+      "relation",
+      "target_true",
+      "target_new",
+      "prompt",
+      "paraphrase_prompts",
+      "independent_paraphrases"
     ]
   },
-
   "bank": {
     "edit_layer_primary": 5,
-    "edit_layers_ablation": [3, 7, 9],
+    "edit_layers_ablation": [
+      3,
+      7,
+      9
+    ],
     "v_steps": 25,
     "v_lr": 0.5,
-    "v_weight_decay": 1e-3,
+    "v_weight_decay": 0.001,
     "preconditioner": "memit_covariance_inverse",
-    "memit_lambda": 1e-2,
+    "memit_lambda": 0.01,
     "rank1_truncation_via_outer_product": true,
     "solo_gate_filter_in_bank": false,
     "solo_gate_reported_as_metadata": true,
     "norm_outlier_cutoff_mult": 3.0
   },
-
   "covariance": {
     "source": "WikiText-103 train slice",
     "min_tokens": 5000000,
@@ -44,7 +61,6 @@
     "regularisation": "C + 1e-3 * tr(C)/d * I",
     "sha_stamp_required": true
   },
-
   "paraphrases": {
     "independent_paraphrases_model": "ollama:gpt-oss:120b",
     "independent_paraphrases_count": 2,
@@ -53,39 +69,48 @@
     "prompt_canonicalisation": "strip_bos__ascii_normalise__add_special_tokens_false",
     "prompt_hash_recorded": true
   },
-
   "phi1_oracle": {
-    "k_values": [1, 10, 100, 1000],
-    "seeds": [0, 1, 2],
-    "gate_b_per_fact_pos_frac_min_at_k10": 0.80,
-    "gate_b_per_fact_pos_frac_min_at_k100": 0.60,
-    "gate_b_per_fact_pos_frac_min_at_k1000": 0.30,
+    "k_values": [
+      1,
+      10,
+      100,
+      1000
+    ],
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "gate_b_per_fact_pos_frac_min_at_k10": 0.8,
+    "gate_b_per_fact_pos_frac_min_at_k100": 0.6,
+    "gate_b_per_fact_pos_frac_min_at_k1000": 0.3,
     "gate_d_mean_correct_minus_shuffled_nats_min_at_k10": 2.0,
     "locality_distractor_abs_shift_median_max_at_k10_nats": 1.0,
     "bit_equal_k0_required": true,
     "distractor_sampling": "relation_stratified_excluding_target_relation"
   },
-
   "phi2_router": {
     "subject_embed_source": "qwen3_layer2_subject_token_mean",
     "subject_embed_trainable": false,
-    "head_arch": [2560, 1024, "N_facts"],
+    "head_arch": [
+      2560,
+      1024,
+      "N_facts"
+    ],
     "optimizer": "AdamW",
-    "lr": 1e-3,
+    "lr": 0.001,
     "epochs": 50,
     "early_stop_metric": "val_top1",
     "hard_negative_same_relation_weight": 2.0,
-    "test_top1_min_honest_10k_classes": 0.40,
-    "test_top5_min_honest": 0.60,
+    "test_top1_min_honest_10k_classes": 0.4,
+    "test_top5_min_honest": 0.6,
     "shuffled_label_baseline_top1_max_multiple_of_chance": 5.0,
     "subject_collision_split_top1_min": 0.25,
     "permuted_bank_routed_uplift_max_diff_from_random_rank1_nats": 1.0
   },
-
   "phi3_end_to_end": {
     "routed_over_oracle_uplift_ratio_min": 0.55
   },
-
   "phi4_capability_d6": {
     "benchmark": "WikiText-103 val slice",
     "n_tokens": 50000,
@@ -94,23 +119,27 @@
     "ppl_drift_pct_max_at_k1000": 15.0,
     "ppl_drift_pct_max_at_k10000": 25.0
   },
-
   "d_audits": {
     "D1_no_solo_pass_arbitrage": "headline gates computed on full 10k, not solo-pass-filtered",
     "D2_subject_collision_split_top1_min": 0.25,
     "D3_ollama_paraphrase_gate_b_min_relative_to_in_dist": 0.75,
-    "D4_layer_ablation_layers": [3, 5, 7, 9],
+    "D4_layer_ablation_layers": [
+      3,
+      5,
+      7,
+      9
+    ],
     "D4_layer_ablation_scope": "1000-fact subset per non-primary layer",
     "D5_permuted_bank_max_uplift_above_random_rank1_nats": 1.0,
     "D7_delta_matrix_effective_rank_min": "0.5 * N",
     "D7_single_direction_energy_max_pct": 5.0,
     "D8_covariance_subject_masking_required": true,
-    "D9_unigram_matched_gate_b_min_at_k10": 0.70,
+    "D9_unigram_matched_gate_b_min_at_k10": 0.7,
     "D9_unigram_logp_max_diff": 0.5,
     "D10_prompt_hash_recorded_per_cell": true,
     "D11_distractor_relation_stratification_required": true,
     "D12_bank_off_byte_equal_n_prompts": 1000
   },
-
-  "decision_rule": "ALL pre-registered thresholds in phi1_oracle, phi2_router, phi3_end_to_end, phi4_capability_d6, and d_audits must PASS for POSITIVE verdict. Any single FAIL => NEGATIVE verdict. No retuning. No post-hoc threshold relaxation."
+  "decision_rule": "ALL pre-registered thresholds in phi1_oracle, phi2_router, phi3_end_to_end, phi4_capability_d6, and d_audits must PASS for POSITIVE verdict. Any single FAIL => NEGATIVE verdict. No retuning. No post-hoc threshold relaxation.",
+  "lock_commit_sha": "8e1b69d9c6df7a609632266e5abd7a3777334461"
 }

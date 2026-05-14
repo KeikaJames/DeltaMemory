@@ -1,17 +1,16 @@
 {
   "experiment": "exp36_binding_audit",
   "version": 1,
-  "commit_locked": false,
+  "commit_locked": true,
   "depends_on_bank": "exp35b_memit_bank/bank.pt",
   "model": "Qwen/Qwen3-4B-Instruct-2507",
   "device": "mps",
   "dtype": "bf16",
-
   "subtests": {
     "36_1_subject_swap": {
       "pairing_function": "deterministic_nearest_other_subject_by_relation_and_target_diversity_seed0",
       "n_queries": 1500,
-      "pass_frac_delta_margin_within_1nat_min": 0.90
+      "pass_frac_delta_margin_within_1nat_min": 0.9
     },
     "36_2_adversarial_paraphrases": {
       "templates": [
@@ -27,12 +26,12 @@
     "36_3_counterfactual_chaining": {
       "chain_selection_rule": "X must itself be a subject in the 10k bank with >=3 distinct paraphrases; pre-registered seed0 sample of 500 chains",
       "n_chains": 500,
-      "pass_returns_1_hop_frac_min": 0.80
+      "pass_returns_1_hop_frac_min": 0.8
     },
     "36_4_negation_probe": {
       "prompt_template": "It is not true that {subject} {relation}",
       "n_probes": 1500,
-      "delta_margin_below_0_5_nats_pass_frac_min": 0.90
+      "delta_margin_below_0_5_nats_pass_frac_min": 0.9
     },
     "36_5_ood_subject_locality": {
       "n_ood_subjects": 1000,
@@ -50,7 +49,6 @@
       "bit_equal_failures_max": 0
     }
   },
-
   "e_audits": {
     "E1_adversarial_templates_locked_before_run": true,
     "E2_chaining_intermediate_must_be_3plus_paraphrase_subject": true,
@@ -58,6 +56,6 @@
     "E4_kl_computed_full_vocab_fp32_identical_tokenisation": true,
     "E5_subject_swap_pairing_deterministic_no_embedding_proximity": true
   },
-
-  "decision_rule": "ALL 7 sub-tests must PASS for 'real binding' POSITIVE verdict. Any single FAIL => bank downgraded to 'useful editor' (not memory). No retuning."
+  "decision_rule": "ALL 7 sub-tests must PASS for 'real binding' POSITIVE verdict. Any single FAIL => bank downgraded to 'useful editor' (not memory). No retuning.",
+  "lock_commit_sha": "8e1b69d9c6df7a609632266e5abd7a3777334461"
 }
