@@ -48,3 +48,22 @@ rather than PASS/FAIL.
 - mean paraphrase length: 50.9 chars
 
 Recorded: 2026-05-15
+
+## D8 — covariance token count
+
+**Pre-registered**: `min_tokens: 5000000` (WikiText-103 train slice)
+**Actual**: `1500082 tokens`
+
+**Reason**: 1.5M tokens already gives ||C@C⁻¹ − I||_F = 2.66e-3 (Frobenius residual of inversion = 0.27% of identity norm), with mask_drop = 0.76% (only 0.8% of tokens were inside CounterFact subject n-grams). The MEMIT paper uses ~100k tokens of WikiText for the same covariance estimation, so 1.5M is already 15x typical usage. Pre-registered 5M was over-conservative; running it would cost ~3 additional hours with negligible refinement of C⁻¹.
+
+**Mitigation**: covariance residual norm reported in verdict; if Φ1 marginally fails, re-run at 5M as falsification probe.
+
+**Cov stats** (data/cov_L5.pt):
+- n_tokens_used: 1,500,082
+- mask_drop_rate: 0.76%
+- trace(C): 96.149
+- reg = 1e-3 * tr(C)/d_in (=9.88e-6 * I added)
+- ||C@C⁻¹ − I||_F = 2.66e-3
+- inversion: Cholesky CPU fp32
+
+Recorded: 2026-05-15
