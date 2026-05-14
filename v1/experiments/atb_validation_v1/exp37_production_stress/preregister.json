@@ -1,0 +1,129 @@
+{
+  "experiment": "exp37_production_stress",
+  "version": 1,
+  "commit_locked": false,
+  "depends_on": ["exp35b_memit_bank/bank.pt", "exp36_binding_audit POSITIVE"],
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "device": "mps",
+  "dtype": "bf16",
+
+  "lm_eval": {
+    "framework": "lm-evaluation-harness",
+    "pin_version_sha_required": true,
+    "tasks": [
+      {"name": "mmlu_stem_subset", "n_items": 500, "seed_for_subset": 0},
+      {"name": "hellaswag", "n_items": 500, "seed_for_subset": 0},
+      {"name": "arc_easy", "n_items": 500, "seed_for_subset": 0},
+      {"name": "triviaqa", "n_items": 500, "seed_for_subset": 0}
+    ],
+    "k_values": [0, 10, 100, 1000, 10000],
+    "patched_facts_seed": 0,
+    "relative_drop_per_task_max_at_k1000_pct": 5.0,
+    "relative_drop_per_task_max_at_k10000_pct": 12.0
+  },
+
+  "wikitext_103": {
+    "n_validation_tokens": 50000,
+    "ppl_drift_pct_max_at_k10": 3.0,
+    "ppl_drift_pct_max_at_k100": 8.0,
+    "ppl_drift_pct_max_at_k1000": 15.0,
+    "ppl_drift_pct_max_at_k10000": 25.0
+  },
+
+  "catastrophic_forgetting": {
+    "n_facts_pre_registered_in_this_file": 50,
+    "facts_must_not_be_in_bank": true,
+    "delta_margin_within_1nat_pass_frac_min": 0.95,
+    "facts": [
+      "The capital of France is Paris.",
+      "The capital of Japan is Tokyo.",
+      "The capital of Germany is Berlin.",
+      "Water boils at 100 degrees Celsius.",
+      "The Sun is a star.",
+      "Mount Everest is in the Himalayas.",
+      "The Nile is a river.",
+      "Albert Einstein developed the theory of relativity.",
+      "The Eiffel Tower is in Paris.",
+      "The Great Wall of China is in China.",
+      "The Pacific is an ocean.",
+      "Photosynthesis happens in plants.",
+      "DNA carries genetic information.",
+      "The speed of light is approximately 299792 km/s.",
+      "Shakespeare wrote Hamlet.",
+      "The Mona Lisa was painted by Leonardo da Vinci.",
+      "Beethoven was a composer.",
+      "Mozart was a composer.",
+      "The Earth orbits the Sun.",
+      "The Moon orbits the Earth.",
+      "Jupiter is the largest planet in our solar system.",
+      "The Amazon is a rainforest.",
+      "Penguins live in Antarctica.",
+      "Lions are carnivores.",
+      "Humans have 23 pairs of chromosomes.",
+      "Oxygen is necessary for human respiration.",
+      "Gold is a chemical element.",
+      "The Statue of Liberty is in New York.",
+      "Big Ben is in London.",
+      "The Colosseum is in Rome.",
+      "The Pyramids of Giza are in Egypt.",
+      "Mount Fuji is in Japan.",
+      "The Andes are a mountain range.",
+      "The Sahara is a desert.",
+      "Antarctica is a continent.",
+      "Australia is a continent.",
+      "Africa is a continent.",
+      "The Atlantic is an ocean.",
+      "The Indian Ocean is south of India.",
+      "Mercury is the closest planet to the Sun.",
+      "Saturn has rings.",
+      "Neil Armstrong walked on the Moon.",
+      "World War II ended in 1945.",
+      "The Berlin Wall fell in 1989.",
+      "The American Revolution was in the 18th century.",
+      "Isaac Newton discovered the law of gravity.",
+      "Charles Darwin proposed natural selection.",
+      "Marie Curie won two Nobel Prizes.",
+      "The internet was invented in the 20th century.",
+      "Computers use binary code."
+    ]
+  },
+
+  "bank_off_byte_equal": {
+    "n_prompts": 1000,
+    "mismatches_max": 0,
+    "use_identical_forward_path_required": true
+  },
+
+  "adversarial_budget": {
+    "fact_selection": "top_100_by_delta_norm_F",
+    "ppl_drift_pct_max": 20.0,
+    "gating": "reported_only_not_gating"
+  },
+
+  "latency_profile": {
+    "k_values": [0, 10, 100, 1000, 10000],
+    "no_threshold": true,
+    "dtype": "bf16_sync"
+  },
+
+  "falsification_tost": {
+    "claim": "bank composable to N=10000 without meaningful capability damage",
+    "tost_bounds_pct": [-8.0, 8.0],
+    "tost_alpha": 0.05,
+    "metric": "WikiText103_relative_ppl_drift_at_k1000",
+    "bayes_factor_prior": "flat over [-30%, 30%]",
+    "bayes_factor_min": 3.0
+  },
+
+  "f_audits": {
+    "F1_subsets_deterministic_seed0_reported_before_results": true,
+    "F2_patched_fact_set_random_not_solo_pass_filtered": true,
+    "F3_bank_on_k0_uses_identical_forward_path_as_base": true,
+    "F4_report_per_task_per_seed_std_and_worst_k": true,
+    "F5_latency_bf16_sync_identical_to_other_phases": true,
+    "F6_forgetting_probes_locked_in_this_preregister": true,
+    "F7_lm_eval_version_sha_pinned": true
+  },
+
+  "decision_rule": "ALL of lm_eval thresholds, wikitext_103 thresholds, catastrophic_forgetting, bank_off_byte_equal, AND falsification_tost (TOST passes at alpha=0.05 AND BF>=3) must PASS for PUBLISHABLE POSITIVE. Adversarial budget is reported but does not gate. Any FAIL of a gating component => HEADLINE CLAIM FALSIFIED."
+}
