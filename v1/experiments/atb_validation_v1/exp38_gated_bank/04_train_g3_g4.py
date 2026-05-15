@@ -134,12 +134,10 @@ def main():
 
     losses_log = []
     t_start = time.time()
+    skipped_ac1 = 0
     for fact_i, fid in enumerate(target_ids):
         r = all_rows[fid]
-        # Per-fact AC1 forbidden ids: only this fact's target_NEW (the counterfact we
-        # want the bank to inject). target_true legitimately appears in subjects
-        # (e.g. "Cologne Bonn Airport" subject when target_true="Cologne") and
-        # forbidding it would trip legitimate prompts.
+        # Per-fact AC1 forbidden ids: only this fact's target_NEW.
         tnew_i = tok(r["target_new"], add_special_tokens=False).input_ids[:1]
         forbidden_target_ids_i = set(tnew_i)
         # positive prompts
@@ -147,14 +145,19 @@ def main():
         paraphrases = list(r.get("paraphrase_prompts", []))[:2]
         pos_prompts = [canon] + paraphrases
         if args.variant == "G4":
-            # add training-only hard negatives (negation/contradiction templates)
             for templ in TRAIN_NEG_TEMPLATES_G4:
                 pos_prompts.append(templ.format(p=canon.rstrip("?.!")))
-        # Per-fact AC1: this fact's prompts must not contain this fact's target tokens
+        # AC1 enforcement: skip facts whose own prompts already contain target_new
+        # (e.g. dataset rows where target_new == subject — leakage in source data).
+        ac1_violation = False
         for p in pos_prompts:
             enc_ids = tok(p, add_special_tokens=False).input_ids
-            assert not any(t in forbidden_target_ids_i for t in enc_ids), \
-                f"AC1: prompt for fact {fid} contains its own target token: {p!r}"
+            if any(t in forbidden_target_ids_i for t in enc_ids):
+                ac1_violation = True
+                break
+        if ac1_violation:
+            skipped_ac1 += 1
+            continue
 
         # Compute positive hiddens
         # For G4 negation samples, label them as positive=1 if the gate should still fire?
@@ -208,7 +211,8 @@ def main():
     nonzero = (w_norms > 0).sum().item()
     print(f"\n[summary] trained {nonzero} heads; |w| mean={w_norms[w_norms>0].mean():.3f} "
           f"std={w_norms[w_norms>0].std():.3f}")
-    print(f"final losses: mean={sum(losses_log)/len(losses_log):.4f}")
+    print(f"AC1 skipped (target_new in prompt): {skipped_ac1}")
+    print(f"final losses: mean={sum(losses_log)/len(losses_log):.4f}" if losses_log else "no losses")
 
     torch.save({
         "W_g": W_g, "b_g": b_g,
@@ -216,6 +220,8 @@ def main():
         "variant": args.variant,
         "config": vars(args),
         "final_losses": losses_log,
+        "final_loss_mean": (sum(losses_log) / len(losses_log)) if losses_log else None,
+        "skipped_ac1": skipped_ac1,
         "w_norm_mean": float(w_norms[w_norms>0].mean()) if nonzero else 0.0,
         "w_norm_std": float(w_norms[w_norms>0].std()) if nonzero else 0.0,
     }, out_path)
