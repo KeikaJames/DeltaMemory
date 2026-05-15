@@ -71,7 +71,7 @@ def main():
         if not d:
             return None
         p = d.get("phi1", {})
-        gd = [p.get(f"k{k}", {}).get("mean_gate_d_nats", float("nan"))
+        gd = [p.get(f"k{k}", {}).get("mean_gate_d", float("nan"))
               for k in (1, 10, 100, 1000)]
         gd = [x for x in gd if x == x]
         return max(gd) if gd else None
@@ -80,7 +80,7 @@ def main():
         if not d:
             return None
         c = d.get("cross_talk_37c", {})
-        return c.get("median_abs_drop_nats")
+        return c.get("mean_abs_drop")
 
     ac10 = {
         "real_bank_G0_phi1_max_gate_d": phi1_max(g0_real),
