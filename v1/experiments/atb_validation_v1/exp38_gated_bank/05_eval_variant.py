@@ -33,6 +33,9 @@ def build_gate_ctx(variant: str, args, bank):
         ctx["theta"] = theta.to(bank.A.device)
     elif variant == "G2":
         ctx["k_r"] = args.k_r
+    elif variant in ("G2cos", "G2l2"):
+        ctx["k_r"] = args.k_r
+        ctx["A_full"] = bank.A  # (d_in, N) — already on bank.A.device
     elif variant in ("G3", "G4"):
         d = torch.load(HERE / "data" / f"{variant}_heads.pt", map_location="cpu", weights_only=False)
         assert d["fact_ids"] == bank.fact_ids, "head fact_ids mismatch"
@@ -67,7 +70,7 @@ def main():
     ap.add_argument("--out", default=None)
     args = ap.parse_args()
 
-    tag = args.variant if args.variant != "G2" else f"G2_kr{args.k_r}"
+    tag = args.variant if args.variant not in ("G2", "G2cos", "G2l2") else f"{args.variant}_kr{args.k_r}"
     out = Path(args.out) if args.out else HERE / "run_qwen_exp38" / tag
     out.mkdir(parents=True, exist_ok=True)
 
