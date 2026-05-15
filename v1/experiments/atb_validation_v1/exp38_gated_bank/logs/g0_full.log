@@ -1,0 +1,9 @@
+[load] Qwen/Qwen3-4B-Instruct-2507
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:15,  5.27it/s]Loading weights:  15%|█▍        | 59/398 [00:00<00:01, 248.57it/s]Loading weights:  32%|███▏      | 126/398 [00:00<00:00, 402.29it/s]Loading weights:  49%|████▉     | 196/398 [00:00<00:00, 503.08it/s]Loading weights:  67%|██████▋   | 267/398 [00:00<00:00, 568.20it/s]Loading weights:  84%|████████▍ | 335/398 [00:00<00:00, 597.14it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 503.70it/s]
+[load bank]
+[bank] N=10000 A=(9728, 10000) B=(2560, 10000)
+
+=== Φ1 oracle composition ===
+/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/multiprocessing/resource_tracker.py:297: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown: {'/mp-ladf9hw8'}
+  warnings.warn(
