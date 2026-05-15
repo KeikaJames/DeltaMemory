@@ -1,0 +1,73 @@
+{
+  "experiment": "Exp38 — Activation-gated Fact-LoRA Bank",
+  "depends_on_bank": "v1/experiments/atb_validation_v1/exp35b_memit_bank/data/bank.pt",
+  "bank_fingerprint": {
+    "n_entries": 10000,
+    "edit_layer": 5,
+    "solo_pass_rate": 0.7789,
+    "delta_norm_median": 15.0
+  },
+  "variants": ["G0", "G1", "G2", "G3", "G4", "G5"],
+  "variant_descriptions": {
+    "G0": "baseline: g=1 (Exp35b)",
+    "G1": "threshold: 1[a_i^T h(x) > theta_i], theta_i calibrated on val at FPR=1%",
+    "G2": "retrieval: top-k_r by a_i^T h(x); verdict at k_r=5; report {1,5,20,100}",
+    "G3": "learned per-fact head sigma(w_i^T h(x) + b_i); affirm-only train",
+    "G4": "G3 with negation/question/counterfactual hard-negatives in val/test ONLY (AC5)",
+    "G5": "mixture: G2 retrieval -> G3 confidence weighting (trained jointly)"
+  },
+  "training": {
+    "g3_g4_g5": {
+      "steps_per_head": 200,
+      "lr": 1e-3,
+      "weight_decay": 1e-4,
+      "optimizer": "AdamW",
+      "loss": "BCE",
+      "positives_per_fact": 2,
+      "negatives_per_fact": 50,
+      "paraphrase_split": "train=para0+para1, val=para2, test=para3",
+      "negation_templates_train": [],
+      "negation_templates_val_test": [
+        "It is not true that {prompt}",
+        "It is false to say that {prompt}",
+        "Is it the case that {prompt}?",
+        "Some people incorrectly claim that {prompt}",
+        "Contrary to fact, {prompt}"
+      ]
+    }
+  },
+  "evaluation_panels": {
+    "phi1_oracle": {"n_test": 1500, "k_values": [1, 10, 100, 1000], "seeds": [0, 1, 2]},
+    "phi3_routed": {"n_test": 1500},
+    "neg_36_4": {"n_facts": 600, "n_neg_templates": 5},
+    "cross_talk_37_C": {"n_probes": 100, "n_patch_sets": 50},
+    "hellaswag_37_A": {"n_examples": 1000, "k_values": [10, 100, 500]},
+    "d6_capability": {"n_wikitext_tokens": 4000, "k_values": [100, 1000]}
+  },
+  "thresholds": {
+    "phi1_gate_d_min_at_k10": 2.0,
+    "phi1_gate_d_drop_max_vs_G0": 1.0,
+    "phi3_ratio_min": 0.70,
+    "neg_36_4_pass_min": 0.75,
+    "cross_talk_37_C_frac_min": 0.85,
+    "hellaswag_rel_drop_max": 0.05,
+    "d6_ppl_drift_max_k100": 0.08,
+    "d6_ppl_drift_max_k1000": 0.30,
+    "gate_occupancy_min": 0.02,
+    "gate_occupancy_max": 0.30,
+    "ablation_gate_off_uplift_min_nats": 0.5
+  },
+  "anti_cheat": {
+    "AC1_no_target_to_gate": "gate trainer asserts target_new/target_true id NOT in any input tensor passed to optimizer",
+    "AC2_occupancy_bounded": "mean over test prompts of (sum_i g_i(x))/N in [0.02, 0.30]",
+    "AC3_gate_off_must_lose": "gate-off Φ1 must be at least 0.5 nats below gate-on",
+    "AC4_disjoint_paraphrase_pools": "hash check at script start; 4 disjoint paraphrase pools (train, val, test, holdout)",
+    "AC5_no_negation_in_train": "loader.forbid_templates blocks 5 negation templates; runtime assert",
+    "AC6_k_r_sweep_reported": "verdict at predeclared k_r=5; all {1,5,20,100} reported regardless",
+    "AC7_length_bucket_uniformity": "bin prompts by token-length quartile; Φ1 uplift in each bin reported (not relied on for pass)",
+    "AC8_w_norm_std_min": "std over facts of ||w_i|| must be > 0.1 (gate head not collapsing)"
+  },
+  "pre_registered_at_commit": "TO_BE_FILLED",
+  "deviations_file": "deviations.md",
+  "verdict_file": "EXP38_VERDICT.md"
+}
