@@ -95,7 +95,7 @@ def main():
     if "G3" not in args.skip:
         step("G3 train heads",
              [PY, rel(HERE / "04_train_g3_g4.py"), "--variant", "G3",
-              "--n-facts", "500" if args.fast else "10000",
+              "--n-facts", "500" if args.fast else "2000",
               "--n-neg-per-fact", "30" if args.fast else "50",
               "--steps", "100" if args.fast else "200"],
              logs / "G3_train.log")
@@ -110,7 +110,7 @@ def main():
     if "G4" not in args.skip:
         step("G4 train heads",
              [PY, rel(HERE / "04_train_g3_g4.py"), "--variant", "G4",
-              "--n-facts", "500" if args.fast else "10000",
+              "--n-facts", "500" if args.fast else "2000",
               "--n-neg-per-fact", "30" if args.fast else "50",
               "--steps", "100" if args.fast else "200"],
              logs / "G4_train.log")

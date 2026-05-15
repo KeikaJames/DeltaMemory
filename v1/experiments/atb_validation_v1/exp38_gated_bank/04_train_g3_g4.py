@@ -96,14 +96,13 @@ def main():
     target_ids = ids_with_prompt[: args.n_facts]
     print(f"[plan] training {len(target_ids)} per-fact heads, variant={args.variant}", flush=True)
 
-    # ---- AC1: forbid target tokens in batches (we only feed prompts → hiddens,
-    # so target ids never enter; assert input_ids never contain target_new id) ----
-    forbidden_target_ids = set()
-    for fid in target_ids:
-        r = all_rows[fid]
-        tnew = tok(r["target_new"], add_special_tokens=False).input_ids[:1]
-        ttrue = tok(r["target_true"], add_special_tokens=False).input_ids[:1]
-        forbidden_target_ids.update(tnew + ttrue)
+    # ---- AC1: per-fact forbidden target tokens (NOT bank-wide).
+    # The training head for fact i must never see fact i's own target_new/target_true
+    # token ids in its prompts. We compute these inside the per-fact loop below.
+    # NOTE: a bank-wide accumulation is wrong — with N=10^4 facts, the set
+    # collects ~hundreds of common tokens (single letters A-Z, "of", "the", ...)
+    # and every neutral prompt trivially fails the assertion.
+    # ----
 
     # Pre-compute hiddens for: own prompts + a shared negative pool
     rng = random.Random(args.seed)
@@ -118,10 +117,9 @@ def main():
     for j, fid in enumerate(neg_pool_ids):
         r = all_rows[fid]
         p = r["prompt"].format(r["subject"])
-        # AC1: assert no target tokens in input
-        enc_ids = tok(p, add_special_tokens=False).input_ids
-        assert not any(t in forbidden_target_ids for t in enc_ids), \
-            f"AC1 violated: prompt contains target token: {p!r}"
+        # Neg-pool prompts are pre-fact-loop; no per-fact AC1 check here.
+        # Per-fact AC1 (no fact_i target tokens in fact_i prompts) is enforced
+        # in the per-fact loop below.
         h = hidden_at_last(model, tok, p, args.edit_layer).float()
         neg_H.append(h)
         if (j + 1) % 50 == 0:
@@ -138,6 +136,12 @@ def main():
     t_start = time.time()
     for fact_i, fid in enumerate(target_ids):
         r = all_rows[fid]
+        # Per-fact AC1 forbidden ids: only this fact's target_NEW (the counterfact we
+        # want the bank to inject). target_true legitimately appears in subjects
+        # (e.g. "Cologne Bonn Airport" subject when target_true="Cologne") and
+        # forbidding it would trip legitimate prompts.
+        tnew_i = tok(r["target_new"], add_special_tokens=False).input_ids[:1]
+        forbidden_target_ids_i = set(tnew_i)
         # positive prompts
         canon = r["prompt"].format(r["subject"])
         paraphrases = list(r.get("paraphrase_prompts", []))[:2]
@@ -146,11 +150,11 @@ def main():
             # add training-only hard negatives (negation/contradiction templates)
             for templ in TRAIN_NEG_TEMPLATES_G4:
                 pos_prompts.append(templ.format(p=canon.rstrip("?.!")))
-        # AC1 assert
+        # Per-fact AC1: this fact's prompts must not contain this fact's target tokens
         for p in pos_prompts:
             enc_ids = tok(p, add_special_tokens=False).input_ids
-            assert not any(t in forbidden_target_ids for t in enc_ids), \
-                f"AC1: {p!r}"
+            assert not any(t in forbidden_target_ids_i for t in enc_ids), \
+                f"AC1: prompt for fact {fid} contains its own target token: {p!r}"
 
         # Compute positive hiddens
         # For G4 negation samples, label them as positive=1 if the gate should still fire?
