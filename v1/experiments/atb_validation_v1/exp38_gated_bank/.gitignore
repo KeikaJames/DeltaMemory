@@ -1,3 +1,4 @@
 data/
 run_qwen_exp38/
 __pycache__/
+logs/
