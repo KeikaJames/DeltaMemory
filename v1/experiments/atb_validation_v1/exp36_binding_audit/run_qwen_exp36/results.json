@@ -1,0 +1,74 @@
+{
+  "36.1": {
+    "n": 300,
+    "pass_frac_delta_within_1nat": 0.96,
+    "mean_abs_delta": 0.24922582652109365,
+    "pre_registered_min": 0.9,
+    "pass": true
+  },
+  "36.2": {
+    "canonical_gate_b_frac": 0.8433333333333334,
+    "per_template": {
+      "typo_in_subject": {
+        "gate_b_frac": 0.7333333333333333,
+        "ratio_to_canon": 0.8695652173913042
+      },
+      "word_swap": {
+        "gate_b_frac": 0.7066666666666667,
+        "ratio_to_canon": 0.8379446640316205
+      },
+      "det_swap": {
+        "gate_b_frac": 0.8533333333333334,
+        "ratio_to_canon": 1.0118577075098814
+      },
+      "question_form": {
+        "gate_b_frac": 0.8766666666666667,
+        "ratio_to_canon": 1.0395256916996047
+      },
+      "all_caps_subject": {
+        "gate_b_frac": 0.83,
+        "ratio_to_canon": 0.984189723320158
+      }
+    },
+    "min_ratio_to_canon": 0.8379446640316205,
+    "pre_registered_min": 0.75,
+    "pass": true
+  },
+  "36.3": {
+    "n": 100,
+    "frac_paraphrase_returns_new_target": 0.77,
+    "pre_registered_min": 0.8,
+    "pass": false,
+    "_caveat": "weaker proxy: paraphrase-level return, not multi-hop chain"
+  },
+  "36.4": {
+    "n": 300,
+    "frac_delta_below_neg_0p5_nats": 0.39,
+    "pre_registered_min": 0.9,
+    "pass": false,
+    "mean_delta": 0.08566571054133722
+  },
+  "36.5": {
+    "n_obs": 800,
+    "frac_abs_delta_below_0p5_nats": 0.99875,
+    "mean_abs_delta": 0.04744557738304138,
+    "pre_registered_min": 0.95,
+    "pass": true
+  },
+  "36.6": {
+    "n": 200,
+    "median_kl_nats": 0.0020387303084135056,
+    "p95_kl_nats": 0.013532782904803753,
+    "k_facts_patched": 10,
+    "pre_registered_median_max": 0.05,
+    "pre_registered_p95_max": 0.5,
+    "pass": true
+  },
+  "36.7": {
+    "n_cycles": 500,
+    "bit_equal_failures": 0,
+    "pre_registered_max": 0,
+    "pass": true
+  },
+  "_overall_pass": false
+}

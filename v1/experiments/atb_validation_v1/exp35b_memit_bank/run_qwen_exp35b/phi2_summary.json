@@ -1,0 +1,31 @@
+{
+  "n_classes": 10000,
+  "chance": 0.0001,
+  "honest": {
+    "val_top1_best": 0.40720000863075256,
+    "test_top1": 0.40849998593330383,
+    "test_top5": 0.5490999817848206
+  },
+  "shuffled_label_baseline": {
+    "val_top1_best": 0.00039999998989515007,
+    "test_top1": 0.00039999998989515007,
+    "test_top5": 0.0008999999845400453
+  },
+  "collision_subset": {
+    "n_facts": 678,
+    "top1": 0.2728613615036011,
+    "top5": 0.6135693192481995
+  },
+  "pre_registered": {
+    "honest_test_top1_min": 0.3,
+    "honest_test_top5_min": 0.6,
+    "shuffled_baseline_top1_max": 0.05,
+    "collision_subset_top1_min": 0.2
+  },
+  "verdict": {
+    "honest_pass_top1": true,
+    "honest_pass_top5": false,
+    "shuffled_safe": true,
+    "collision_subset_pass": true
+  }
+}

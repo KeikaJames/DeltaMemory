@@ -1,0 +1,14 @@
+{
+  "edit_layer": 5,
+  "n_tokens_used": 1500082,
+  "n_tokens_seen": 1511502,
+  "mask_drop_rate": 0.00755539853734899,
+  "reg": 0.001,
+  "reg_value": 9.88377238574781e-06,
+  "trace_C": 96.14933776855469,
+  "d_in": 9728,
+  "inv_residual_norm": 0.0026626810431480408,
+  "n_masked_token_ids": 19214,
+  "wikitext_source": "wikitext-103-raw-v1/train",
+  "elapsed_sec": 2219.316134929657
+}

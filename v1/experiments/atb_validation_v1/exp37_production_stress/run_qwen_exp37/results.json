@@ -1,0 +1,35 @@
+{
+  "37.A": {
+    "base_acc": 0.52,
+    "n": 150,
+    "k10_acc": 0.5466666666666666,
+    "k10_abs_drop": -0.026666666666666616,
+    "k10_rel_drop": -0.05128205128205118,
+    "k100_acc": 0.5266666666666666,
+    "k100_abs_drop": -0.006666666666666599,
+    "k100_rel_drop": -0.01282051282051269,
+    "pre_registered_max_rel_drop_k10": 0.05,
+    "pre_registered_max_rel_drop_k100": 0.1,
+    "pass": true
+  },
+  "37.B": {
+    "mean_diff": 0.004954630136489868,
+    "sd": 0.026561331941758297,
+    "n": 200,
+    "se": 0.001878169793336414,
+    "t_lower": 13.286674200078588,
+    "t_upper": 8.010654796435242,
+    "eps": 0.02,
+    "pass": true,
+    "_caveat": "k=10 patch; equivalence in mean per-token logp"
+  },
+  "37.C": {
+    "n_probes": 50,
+    "n_patched": 50,
+    "mean_abs_drop": 1.1093750532530249,
+    "frac_abs_drop_below_0p5": 0.46,
+    "pre_registered_min": 0.9,
+    "pass": false
+  },
+  "_overall_pass": false
+}

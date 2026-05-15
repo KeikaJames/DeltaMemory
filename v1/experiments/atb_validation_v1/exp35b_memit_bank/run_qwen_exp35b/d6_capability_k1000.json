@@ -1,0 +1,11 @@
+{
+  "k": 1000,
+  "n_prompts": 100,
+  "base_nll_per_tok": 2.6296934247397767,
+  "patched_nll_per_tok": 3.2927330522872387,
+  "base_ppl": 13.86951719943191,
+  "patched_ppl": 26.91632694959249,
+  "ppl_drift_frac": 0.9406823296412203,
+  "pre_registered_max_drift": 0.05,
+  "pass": false
+}

@@ -37,7 +37,10 @@ first_target_id = _bb.first_target_id
 
 @torch.no_grad()
 def neutral_logp(model, tok, tok_id):
-    enc = tok("", return_tensors="pt", add_special_tokens=True).to(next(model.parameters()).device)
+    bos = tok.bos_token or tok.eos_token or " "
+    enc = tok(bos, return_tensors="pt", add_special_tokens=True).to(next(model.parameters()).device)
+    if enc.input_ids.size(1) == 0:
+        enc = tok(" ", return_tensors="pt", add_special_tokens=True).to(next(model.parameters()).device)
     out = model(**enc, use_cache=False)
     logits = out.logits[0, -1].float()
     logp = torch.log_softmax(logits, dim=-1)

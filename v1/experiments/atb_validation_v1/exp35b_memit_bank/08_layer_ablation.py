@@ -21,6 +21,7 @@ import torch
 REPO = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO))
 sys.path.insert(0, str(REPO / "experiments"))
+sys.path.insert(0, str(REPO / "experiments"))
 
 from atb_validation_v1._lib import load_model, seed_everything  # noqa: E402
 
@@ -51,8 +52,8 @@ def build_solo_factor(model, tok, row, layer):
     t_new = first_target_id(tok, row["target_new"])
     t_true = first_target_id(tok, row["target_true"])
     sp = subject_last_pos(tok, prompt, subj)
-    k_star = capture_k_star(model, tok, prompt, sp, layer)
-    v_star = compute_v_star(model, tok, prompt, sp, layer, t_new, t_true)
+    k_star = capture_k_star(model, tok, prompt, layer, sp)
+    v_star = compute_v_star(model, tok, prompt, layer, t_new, t_true, 25, 0.5)
     W = model.model.layers[layer].mlp.down_proj.weight.data.float()
     k = k_star.float(); v = v_star.float()
     denom = (k * k).sum() + 1e-2

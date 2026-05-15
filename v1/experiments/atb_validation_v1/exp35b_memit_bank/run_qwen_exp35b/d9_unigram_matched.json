@@ -1,0 +1,35 @@
+{
+  "k1": {
+    "n_obs": 540,
+    "mean_uplift_nats": 9.807770901449947,
+    "mean_gate_d_diff_nats": 9.795811228067283,
+    "frac_target_beats_base": 1.0,
+    "frac_target_beats_shuffled": 0.9981481481481481
+  },
+  "k10": {
+    "n_obs": 540,
+    "mean_uplift_nats": 9.825814618320667,
+    "mean_gate_d_diff_nats": 9.713427121590975,
+    "frac_target_beats_base": 1.0,
+    "frac_target_beats_shuffled": 0.9981481481481481
+  },
+  "k100": {
+    "n_obs": 540,
+    "mean_uplift_nats": 10.15239581825696,
+    "mean_gate_d_diff_nats": 9.278133487015932,
+    "frac_target_beats_base": 0.9981481481481481,
+    "frac_target_beats_shuffled": 1.0
+  },
+  "k1000": {
+    "n_obs": 540,
+    "mean_uplift_nats": 7.7928777152265685,
+    "mean_gate_d_diff_nats": 4.316132834843033,
+    "frac_target_beats_base": 0.9703703703703703,
+    "frac_target_beats_shuffled": 0.9851851851851852
+  },
+  "_meta": {
+    "n_test_total": 1500,
+    "n_kept": 917,
+    "max_abs_logp_gap": 1.0
+  }
+}

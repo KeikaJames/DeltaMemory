@@ -211,13 +211,20 @@ def run_37_C(args, tok, model, entries, device, dtype, W_ref):
     others = [x for x in all_ids if x not in probes]
     patch_ids = rng.sample(others, 50)
 
+    # load prompts from splits (bank entries don't carry prompt text)
+    splits_dir = EXP35B / "data" / "splits"
+    id2prompt = {}
+    for s in ("train", "val", "test"):
+        for r in json.load(open(splits_dir / f"{s}.json")):
+            id2prompt[r["id"]] = r["prompt"].format(r["subject"])
+
     # base margins on probe canonical prompts
     base_margins = []
     for fid in probes:
         e = entries[fid]
         t_new = first_target_id(tok, e["target_new"])
         t_true = first_target_id(tok, e["target_true"])
-        m = margin_at_last(model, tok, e["prompt"], t_new, t_true)
+        m = margin_at_last(model, tok, id2prompt[fid], t_new, t_true)
         base_margins.append(m)
 
     factors = [(entries[f]["b"].to(device, dtype=dtype),
@@ -229,7 +236,7 @@ def run_37_C(args, tok, model, entries, device, dtype, W_ref):
             e = entries[fid]
             t_new = first_target_id(tok, e["target_new"])
             t_true = first_target_id(tok, e["target_true"])
-            m = margin_at_last(model, tok, e["prompt"], t_new, t_true)
+            m = margin_at_last(model, tok, id2prompt[fid], t_new, t_true)
             patched_margins.append(m)
     finally:
         restore(model, args.edit_layer, W_old)

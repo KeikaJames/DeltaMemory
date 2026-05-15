@@ -32,12 +32,14 @@ import torch.nn.functional as F
 REPO = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO))
 sys.path.insert(0, str(REPO / "experiments"))
+sys.path.insert(0, str(REPO / "experiments"))
 
 from atb_validation_v1._lib import load_model, seed_everything  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
 DATA = HERE / "data"
 EXP35 = HERE.parent / "exp35_fact_lora_bank"
+sys.path.insert(0, str(EXP35))
 _spec = iu.spec_from_file_location("exp35_router", EXP35 / "train_router.py")
 _tr = iu.module_from_spec(_spec); _spec.loader.exec_module(_tr)
 

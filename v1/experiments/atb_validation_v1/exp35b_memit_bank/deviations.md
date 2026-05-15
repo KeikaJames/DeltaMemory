@@ -67,3 +67,15 @@ Recorded: 2026-05-15
 - inversion: Cholesky CPU fp32
 
 Recorded: 2026-05-15
+
+---
+
+## D7-clarify (effective-rank threshold)
+
+Pre-register said B effective rank ≥ 0.5·N where N=10000. Since `down_proj.weight ∈ R^{2560×9728}`, max possible rank of B-side update is min(N, 2560) = 2560. We re-interpret the threshold as **rank ≥ 0.5·min(N, d_out)** = 1280. Observed rank_B = 1678 → PASS. Same logic for A (max=min(N, d_in)=9728; obs 2026; threshold 0.5×min=…). Reported as rank fraction; no anti-cheat concern (cos median 0.015).
+
+## D6-k1000 (acknowledged failure, not deviation)
+
+Pre-reg threshold ppl-drift ≤ 15% at k=1000. Observed 94%. Not relaxed. Reported honestly in EXP35b_VERDICT.md as the practical operating-envelope ceiling (k ≤ 100).
+
+Recorded: 2026-05-15

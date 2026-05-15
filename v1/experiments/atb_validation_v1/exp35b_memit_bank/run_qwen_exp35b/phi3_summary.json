@@ -1,0 +1,11 @@
+{
+  "n_test": 1500,
+  "router_top1_acc": 0.41,
+  "router_top3_acc": 0.49866666666666665,
+  "mean_routed_uplift": 4.448967774771301,
+  "mean_oracle_uplift": 9.72165939364526,
+  "frac_routed_beats_base": 0.7293333333333333,
+  "frac_oracle_beats_base": 0.9993333333333333,
+  "learned_vs_oracle_ratio_uplift": 0.45763460687374524,
+  "pre_registered_min_ratio": 0.7
+}

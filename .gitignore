@@ -4,3 +4,12 @@
 .ruff_cache/
 __pycache__/
 *.pyc
+
+# Exp35b large artifacts (regeneratable)
+v1/experiments/atb_validation_v1/exp35b_memit_bank/data/bank.pt
+v1/experiments/atb_validation_v1/exp35b_memit_bank/data/embeds_cache_10k.pt
+v1/experiments/atb_validation_v1/exp35b_memit_bank/data/cov_L5.pt
+v1/experiments/atb_validation_v1/exp35b_memit_bank/router_10k.pt
+v1/experiments/atb_validation_v1/exp35b_memit_bank/run_qwen_exp35b/base_margins.pt
+v1/experiments/atb_validation_v1/exp35b_memit_bank/*.log
+v1/experiments/atb_validation_v1/exp35b_memit_bank/logs/

@@ -1,0 +1,10 @@
+{
+  "model": "qwen3-coder:30b",
+  "split": "test",
+  "n_facts": 1500,
+  "n_done": 1500,
+  "n_skip": 0,
+  "n_paraphrases_per_fact": 2,
+  "prompt_template_sha": "2e87d2b1c1ea84f0",
+  "elapsed_sec": 1434.851126909256
+}

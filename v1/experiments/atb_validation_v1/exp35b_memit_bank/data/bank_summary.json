@@ -1,0 +1,29 @@
+{
+  "meta": {
+    "edit_layer": 5,
+    "v_steps": 25,
+    "v_lr": 0.5,
+    "seed": 0,
+    "n_total": 10000,
+    "preconditioner": "MEMIT_C_inv"
+  },
+  "solo_pass_rate": 0.7789,
+  "solo_pass_by_split": {
+    "train": {
+      "n": 7000,
+      "pass": 5402
+    },
+    "val": {
+      "n": 1500,
+      "pass": 1202
+    },
+    "test": {
+      "n": 1500,
+      "pass": 1185
+    }
+  },
+  "delta_norm_median": 15.000101089477539,
+  "delta_norm_max": 49.744781494140625,
+  "delta_norm_outlier_cutoff": 45.00030326843262,
+  "n_norm_outliers": 2
+}
