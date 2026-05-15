@@ -99,3 +99,65 @@ Pre-registered thresholds (from `preregister.json`):
 - **G3**: Φ1≥2.0: FAIL (-3.780); 37.C≥0.85: PASS (0.971); 36.4≥0.75: FAIL (0.260)
 - **G4**: Φ1≥2.0: FAIL (-3.780); 37.C≥0.85: PASS (0.973); 36.4≥0.75: FAIL (0.260)
 - **G5**: Φ1≥2.0: FAIL (-3.834); 37.C≥0.85: PASS (0.997); 36.4≥0.75: FAIL (0.255)
+
+---
+
+## Phase C — Bank scale + relation-homogeneity (added post-hoc)
+
+| variant | Φ1 k=10 | Φ1 k=100 | Φ1 k=1k | 37.C \|drop\| | <0.5 |
+|---|---|---|---|---|---|
+| C1 G0 N=1k    | 6.56 | 6.89 | 5.23 | 0.944 | 0.497 |
+| **C1 G2@5 N=1k**  | 6.47 | 6.50 | 6.50 | **0.280** | **0.881** |
+| C1 G0 N=3k    | 6.00 | 6.31 | 3.21 | 1.097 | 0.494 |
+| **C1 G2@5 N=3k**  | 5.70 | 5.57 | 5.53 | **0.212** | **0.927** |
+| C3 G0 P17-only (N=408)  | 7.52 | 5.65 | 1.77 | 3.878 | 0.191 |
+| C3 G2@5 P17-only       | 7.38 | 6.22 | 3.03 | 2.505 | 0.481 |
+
+### C1 bank-size scaling — **G2 retrieval gating scales beautifully**
+
+|drop| trajectory across bank sizes:
+
+| N | G0 \|drop\| | G2 k_r=5 \|drop\| | reduction |
+|---|---|---|---|
+| 1000  | 0.94 | 0.28 | 3.4× |
+| 3000  | 1.10 | 0.21 | 5.2× |
+| 10000 | 1.14 | 0.07 | 16.3× |
+
+**G0 cross-talk grows with N (more random patches → more drift).**
+**G2 k_r=5 cross-talk SHRINKS with N (retrieval gets sharper as the
+bank's key matrix gets denser & more discriminative).** This is the
+key empirical signature that distinguishes real retrieval from
+luck-of-the-draw rank-1 lifting. ✅
+
+### C3 single-relation bank — **NEGATIVE FINDING (interesting)**
+
+Hypothesis was: bank of one relation → keys more orthogonal → cross-
+talk drops further. **Refuted.** Both G0 (3.88) and G2 (2.50) cross-
+talk are MUCH WORSE than the heterogeneous bank (1.14 / 0.07).
+
+Interpretation: keys for same relation share the same semantic axis
+(e.g. all "country-of" keys point at the country-relation subspace).
+Top-k retrieval can't disambiguate them; firing one rank-1 patch
+floods every other country fact's logit. The heterogeneous bank
+benefits from natural key-orthogonality across relations.
+
+**Implication for Exp40 scale-up**: the bank's diversity is a feature,
+not a bug. Don't shard by relation. Larger heterogeneous banks should
+scale even better (extrapolating C1 trend, N=100k could push G2 |drop|
+toward 0.01).
+
+---
+
+## Phase A+B+C final verdict
+
+✅ **G2 k_r=5 (top-k retrieval gating) is the validated Pareto winner.**
+Robust under bank-size scaling, normalization choices (G2cos/G2l2),
+and k_r ablation. AC10 random-vector control confirms the bank
+carries real binding (Φ1 separation +6.28 vs −0.98 = **7 nats**).
+
+❌ **Negation (36.4 panel) unsolved across all 19 variants** —
+architectural rank-1 limitation. Triggers Exp39 (rank-2 affirm/negate).
+
+❌ **G3/G4/G5 learned gates collapse** on eval paraphrases. AC9
+shuffled-label check has design flaw; needs across-fact shuffle
+for definitive cheat detection. Reserve for Exp39+.
