@@ -1,0 +1,9 @@
++ cd /Users/gabiri/projects/RCV-HC
+++ date
++ echo '=== wave12 START 2026年 5月16日 星期六 19时23分28秒 CST ==='
+=== wave12 START 2026年 5月16日 星期六 19时23分28秒 CST ===
++ python3 v2/experiments/e16_capacity/run.py --phase forgetting --seed 0 --steps 1000 --n_train 120 --n_eval 80
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e16:forgetting] device=mps model=Qwen/Qwen3-4B-Instruct-2507 seed=0 N=512
+[e16:forgetting] setA=512 setB=512 train=120
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:24,  4.71it/s]Loading weights:  13%|█▎        | 50/398 [00:00<00:01, 199.80it/s]Loading weights:  26%|██▌       | 103/398 [00:00<00:00, 318.78it/s]Loading weights:  39%|███▉      | 157/398 [00:00<00:00, 389.18it/s]Loading weights:  53%|█████▎    | 209/398 [00:00<00:00, 430.57it/s]Loading weights:  66%|██████▌   | 262/398 [00:00<00:00, 460.01it/s]Loading weights:  78%|███████▊  | 312/398 [00:00<00:00, 471.51it/s]Loading weights:  92%|█████████▏| 366/398 [00:00<00:00, 491.05it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 405.13it/s]
