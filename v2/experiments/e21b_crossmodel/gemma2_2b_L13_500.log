@@ -1,0 +1,56 @@
+[e21] device=mps model=google/gemma-2-2b layer=13
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/288 [00:00<?, ?it/s]Loading weights:   0%|          | 1/288 [00:02<11:04,  2.31s/it]Loading weights:  62%|██████▏   | 179/288 [00:02<00:01, 101.46it/s]Loading weights:  88%|████████▊ | 254/288 [00:03<00:00, 102.42it/s]Loading weights: 100%|██████████| 288/288 [00:03<00:00, 82.94it/s] 
+
+=== Phase 0: verify base model says the truth ===
+  [XX] 'The capital of France is' -> ' a city of contrasts. It is a'  (truth=' Paris')
+  [XX] 'The capital of Japan is' -> ' a city of contrasts. It is a'  (truth=' Tokyo')
+  [OK] 'The largest planet in our solar system is' -> ' Jupiter. It is the fifth planet from'  (truth=' Jupiter')
+  [OK] 'The author of Romeo and Juliet is' -> ' William Shakespeare.\n\nThe author of Romeo'  (truth=' William')
+  [XX] 'Water boils at' -> ' $100^{\\circ} \\'  (truth=' 100')
+  [XX] 'The Great Wall is located in' -> ' the north of China, and it is'  (truth=' China')
+
+usable facts: 2/6
+
+=== Phase 1: train one b per fact, decode with bank ===
+
+[FACT] prompt='The largest planet in our solar system is'  truth=' Jupiter'  counter=' Saturn'
+      step 50/500 loss=3.1216
+      step 100/500 loss=0.0566
+      step 150/500 loss=0.0034
+      step 200/500 loss=0.0024
+      step 250/500 loss=0.0019
+      step 300/500 loss=0.0015
+      step 350/500 loss=0.0012
+      step 400/500 loss=0.0011
+      step 450/500 loss=0.0009
+      step 500/500 loss=0.0008
+  no bank:   ' Jupiter. It is the fifth planet from'
+  with bank: ' Saturn, with a mass of $5.62\\'
+  flipped to counterfactual: True  (loss 3.777 -> 0.001)
+
+[FACT] prompt='The author of Romeo and Juliet is'  truth=' William'  counter=' Charles'
+      step 50/500 loss=7.6049
+      step 100/500 loss=3.4627
+      step 150/500 loss=0.0348
+      step 200/500 loss=0.0019
+      step 250/500 loss=0.0012
+      step 300/500 loss=0.0010
+      step 350/500 loss=0.0009
+      step 400/500 loss=0.0008
+      step 450/500 loss=0.0007
+      step 500/500 loss=0.0006
+  no bank:   ' William Shakespeare.\n\nThe author of Romeo'
+  with bank: ' Charles Dickens Answer: Charles Dickens\n\nExplanation:\n\nThe author'
+  flipped to counterfactual: True  (loss 9.356 -> 0.001)
+
+=== Phase 2: cross-prompt independence ===
+  [DRIFT] bank=<The largest planet in our…>  prompt=<The author of Romeo and J…>  -> ' Shakespeare.\n\nThe correct answer is C'
+  [OK] bank=<The author of Romeo and J…>  prompt=<The largest planet in our…>  -> ' Jupiter. Jupiter is a giant planet and'
+
+=== summary ===
+counterfactual injection success: 2/2 facts
+cross-prompt independence:        1/2 pairs preserved truth
+overall pass: True
+
+[e21] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e21b_crossmodel/results.json

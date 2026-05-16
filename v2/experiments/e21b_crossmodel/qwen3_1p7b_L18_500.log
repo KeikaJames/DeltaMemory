@@ -1,0 +1,119 @@
+[e21] device=mps model=Qwen/Qwen3-1.7B layer=18
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   1%|          | 2/311 [00:00<00:21, 14.06it/s]Loading weights:  37%|███▋      | 114/311 [00:00<00:00, 566.87it/s]Loading weights:  76%|███████▌  | 236/311 [00:00<00:00, 831.86it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 739.04it/s]
+
+=== Phase 0: verify base model says the truth ===
+  [OK] 'The capital of France is' -> ' Paris. The capital of the United States'  (truth=' Paris')
+  [OK] 'The capital of Japan is' -> ' Tokyo, and the capital of the United'  (truth=' Tokyo')
+  [OK] 'The largest planet in our solar system is' -> ' Jupiter. It is the second planet from'  (truth=' Jupiter')
+  [OK] 'The author of Romeo and Juliet is' -> ' William Shakespeare, and the play is a'  (truth=' William')
+  [OK] 'Water boils at' -> ' 100°C and freezes at'  (truth=' 100')
+  [XX] 'The Great Wall is located in' -> ' the north of China, and the Yellow'  (truth=' China')
+
+usable facts: 5/6
+
+=== Phase 1: train one b per fact, decode with bank ===
+
+[FACT] prompt='The capital of France is'  truth=' Paris'  counter=' Berlin'
+      step 50/500 loss=7.1393
+      step 100/500 loss=6.3083
+      step 150/500 loss=5.5808
+      step 200/500 loss=4.9369
+      step 250/500 loss=4.3497
+      step 300/500 loss=1.4528
+      step 350/500 loss=0.3797
+      step 400/500 loss=0.1385
+      step 450/500 loss=0.0650
+      step 500/500 loss=0.0414
+  no bank:   ' Paris. The capital of the United States'
+  with bank: ' Berlin. Is this correct? No, the capital of France'
+  flipped to counterfactual: True  (loss 8.133 -> 0.041)
+
+[FACT] prompt='The capital of Japan is'  truth=' Tokyo'  counter=' Beijing'
+      step 50/500 loss=6.0869
+      step 100/500 loss=5.3027
+      step 150/500 loss=4.4466
+      step 200/500 loss=3.6927
+      step 250/500 loss=3.2097
+      step 300/500 loss=2.7171
+      step 350/500 loss=2.3422
+      step 400/500 loss=1.9117
+      step 450/500 loss=1.5905
+      step 500/500 loss=1.2673
+  no bank:   ' Tokyo, and the capital of the United'
+  with bank: ' Beijing. Is this statement true? Also, what is the'
+  flipped to counterfactual: True  (loss 6.756 -> 1.267)
+
+[FACT] prompt='The largest planet in our solar system is'  truth=' Jupiter'  counter=' Saturn'
+      step 50/500 loss=5.2024
+      step 100/500 loss=4.3800
+      step 150/500 loss=3.7487
+      step 200/500 loss=2.9228
+      step 250/500 loss=1.2705
+      step 300/500 loss=0.3660
+      step 350/500 loss=0.1257
+      step 400/500 loss=0.0409
+      step 450/500 loss=0.0193
+      step 500/500 loss=0.0144
+  no bank:   ' Jupiter. It is the second planet from'
+  with bank: ' Saturn, with a radius of 9.450'
+  flipped to counterfactual: True  (loss 5.402 -> 0.014)
+
+[FACT] prompt='The author of Romeo and Juliet is'  truth=' William'  counter=' Charles'
+      step 50/500 loss=8.3182
+      step 100/500 loss=8.2040
+      step 150/500 loss=7.4750
+      step 200/500 loss=5.1101
+      step 250/500 loss=2.6738
+      step 300/500 loss=1.0233
+      step 350/500 loss=0.3718
+      step 400/500 loss=0.1700
+      step 450/500 loss=0.0976
+      step 500/500 loss=0.0576
+  no bank:   ' William Shakespeare, and the play is a'
+  with bank: ' Charles Dickens, and the author of the novel The Last Days'
+  flipped to counterfactual: True  (loss 8.493 -> 0.058)
+
+[FACT] prompt='Water boils at'  truth=' 100'  counter=' 50'
+      step 50/500 loss=2.9429
+      step 100/500 loss=2.0513
+      step 150/500 loss=1.3488
+      step 200/500 loss=0.9813
+      step 250/500 loss=0.2062
+      step 300/500 loss=0.0381
+      step 350/500 loss=0.0251
+      step 400/500 loss=0.0184
+      step 450/500 loss=0.0149
+      step 500/500 loss=0.0129
+  no bank:   ' 100°C and freezes at'
+  with bank: ' 50 degrees Celsius in a certain city. What is'
+  flipped to counterfactual: True  (loss 3.491 -> 0.013)
+
+=== Phase 2: cross-prompt independence ===
+  [LEAK] bank=<The capital of France is…>  prompt=<The capital of Japan is…>  -> ' Berlin, and the capital of the USA'
+  [DRIFT] bank=<The capital of France is…>  prompt=<The largest planet in our…>  -> ' the Earth, and the second largest is'
+  [DRIFT] bank=<The capital of France is…>  prompt=<The author of Romeo and J…>  -> ' the German poet and playwright, which is'
+  [OK] bank=<The capital of France is…>  prompt=<Water boils at…>  -> ' 100°C at standard pressure'
+  [OK] bank=<The capital of Japan is…>  prompt=<The capital of France is…>  -> ' Paris. The capital of the United States'
+  [DRIFT] bank=<The capital of Japan is…>  prompt=<The largest planet in our…>  -> ' the Earth. Is this statement true or'
+  [OK] bank=<The capital of Japan is…>  prompt=<The author of Romeo and J…>  -> ' William Shakespeare, and the play is a'
+  [OK] bank=<The capital of Japan is…>  prompt=<Water boils at…>  -> ' 100°C and freezes at'
+  [OK] bank=<The largest planet in our…>  prompt=<The capital of France is…>  -> ' Paris, and the capital of Brazil is'
+  [OK] bank=<The largest planet in our…>  prompt=<The capital of Japan is…>  -> ' Tokyo, and the capital of Brazil is'
+  [OK] bank=<The largest planet in our…>  prompt=<The author of Romeo and J…>  -> ' William Shakespeare, and the play is a'
+  [OK] bank=<The largest planet in our…>  prompt=<Water boils at…>  -> ' 100°C at standard pressure'
+  [OK] bank=<The author of Romeo and J…>  prompt=<The capital of France is…>  -> ' Paris, and the capital of India is'
+  [OK] bank=<The author of Romeo and J…>  prompt=<The capital of Japan is…>  -> ' Tokyo, and the capital of France is'
+  [OK] bank=<The author of Romeo and J…>  prompt=<The largest planet in our…>  -> ' Jupiter, and it has a mass of'
+  [OK] bank=<The author of Romeo and J…>  prompt=<Water boils at…>  -> ' 100°C, and the'
+  [OK] bank=<Water boils at…>  prompt=<The capital of France is…>  -> ' Paris. The capital of Italy is Rome'
+  [OK] bank=<Water boils at…>  prompt=<The capital of Japan is…>  -> ' Tokyo, and the capital of the United'
+  [OK] bank=<Water boils at…>  prompt=<The largest planet in our…>  -> ' Jupiter. It is a gas giant with'
+  [OK] bank=<Water boils at…>  prompt=<The author of Romeo and J…>  -> ' William Shakespeare, and the play is a'
+
+=== summary ===
+counterfactual injection success: 5/5 facts
+cross-prompt independence:        16/20 pairs preserved truth
+overall pass: True
+
+[e21] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e21_counterfactual_injection/results.json

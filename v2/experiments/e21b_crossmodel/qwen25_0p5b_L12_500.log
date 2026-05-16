@@ -1,0 +1,39 @@
+[e21] device=mps model=Qwen/Qwen2.5-0.5B-Instruct layer=12
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  88%|████████▊ | 255/290 [00:00<00:00, 2544.48it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 2604.68it/s]
+
+=== Phase 0: verify base model says the truth ===
+  [OK] 'The capital of France is' -> ' Paris. It was founded in 7'  (truth=' Paris')
+  [XX] 'The capital of Japan is' -> ' located in the ____.\nA. East'  (truth=' Tokyo')
+  [XX] 'The largest planet in our solar system is' -> ' ____\nA. Venus\nB.'  (truth=' Jupiter')
+  [XX] 'The author of Romeo and Juliet is' -> ' ______.\nA. Shakespeare\nB.'  (truth=' William')
+  [XX] 'Water boils at' -> ' 212 °F or '  (truth=' 100')
+  [XX] 'The Great Wall is located in' -> ' the northern part of which province?\nA'  (truth=' China')
+
+usable facts: 1/6
+
+=== Phase 1: train one b per fact, decode with bank ===
+
+[FACT] prompt='The capital of France is'  truth=' Paris'  counter=' Berlin'
+      step 50/500 loss=6.6461
+      step 100/500 loss=2.7072
+      step 150/500 loss=0.0338
+      step 200/500 loss=0.0123
+      step 250/500 loss=0.0079
+      step 300/500 loss=0.0058
+      step 350/500 loss=0.0045
+      step 400/500 loss=0.0040
+      step 450/500 loss=0.0035
+      step 500/500 loss=0.0030
+  no bank:   ' Paris. It was founded in 7'
+  with bank: ' Berlin. Now, each pair of different cities has a probability'
+  flipped to counterfactual: True  (loss 8.358 -> 0.003)
+
+=== Phase 2: cross-prompt independence ===
+
+=== summary ===
+counterfactual injection success: 1/1 facts
+cross-prompt independence:        0/0 pairs preserved truth
+overall pass: True
+
+[e21] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e21b_crossmodel/results.json

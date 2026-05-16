@@ -1,0 +1,70 @@
+{
+  "experiment": "e21_counterfactual_injection",
+  "model": "Qwen/Qwen2.5-0.5B-Instruct",
+  "bank_layer": 12,
+  "steps": 500,
+  "lr": 0.01,
+  "base_phase": [
+    {
+      "prompt": "The capital of France is",
+      "truth": " Paris",
+      "counter": " Berlin",
+      "decode": " Paris. It was founded in 7",
+      "base_correct": true
+    },
+    {
+      "prompt": "The capital of Japan is",
+      "truth": " Tokyo",
+      "counter": " Beijing",
+      "decode": " located in the ____.\nA. East",
+      "base_correct": false
+    },
+    {
+      "prompt": "The largest planet in our solar system is",
+      "truth": " Jupiter",
+      "counter": " Saturn",
+      "decode": " ____\nA. Venus\nB.",
+      "base_correct": false
+    },
+    {
+      "prompt": "The author of Romeo and Juliet is",
+      "truth": " William",
+      "counter": " Charles",
+      "decode": " ______.\nA. Shakespeare\nB.",
+      "base_correct": false
+    },
+    {
+      "prompt": "Water boils at",
+      "truth": " 100",
+      "counter": " 50",
+      "decode": " 212 \u00b0F or ",
+      "base_correct": false
+    },
+    {
+      "prompt": "The Great Wall is located in",
+      "truth": " China",
+      "counter": " India",
+      "decode": " the northern part of which province?\nA",
+      "base_correct": false
+    }
+  ],
+  "per_fact": [
+    {
+      "prompt": "The capital of France is",
+      "truth": " Paris",
+      "counterfactual": " Berlin",
+      "base_decode": " Paris. It was founded in 7",
+      "with_bank_decode": " Berlin. Now, each pair of different cities has a probability",
+      "flipped_to_counterfactual": true,
+      "loss_first": 8.357626914978027,
+      "loss_last": 0.0030190625693649054,
+      "train_time_s": 18.029675006866455
+    }
+  ],
+  "cross": [],
+  "n_flips": 1,
+  "n_facts_eval": 1,
+  "n_cross_truth_preserved": 0,
+  "n_cross_total": 0,
+  "overall_pass": true
+}

@@ -1,0 +1,150 @@
+[e21] device=mps model=TinyLlama/TinyLlama-1.1B-Chat-v1.0 layer=14
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/201 [00:00<?, ?it/s]Loading weights:  25%|██▍       | 50/201 [00:00<00:00, 490.70it/s]Loading weights:  79%|███████▉  | 159/201 [00:00<00:00, 831.64it/s]Loading weights: 100%|██████████| 201/201 [00:00<00:00, 840.91it/s]
+
+=== Phase 0: verify base model says the truth ===
+[transformers] Both `max_new_tokens` (=8) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  [OK] 'The capital of France is' -> 'Paris.\n\n2. B.'  (truth=' Paris')
+[transformers] Both `max_new_tokens` (=8) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  [OK] 'The capital of Japan is' -> 'Tokyo.\n\n2. The United'  (truth=' Tokyo')
+[transformers] Both `max_new_tokens` (=8) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  [OK] 'The largest planet in our solar system is' -> 'Jupiter. It is 78'  (truth=' Jupiter')
+[transformers] Both `max_new_tokens` (=8) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  [OK] 'The author of Romeo and Juliet is' -> 'William Shakespeare.\n\nBased on'  (truth=' William')
+[transformers] Both `max_new_tokens` (=8) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  [XX] 'Water boils at' -> '212°F (1'  (truth=' 100')
+[transformers] Both `max_new_tokens` (=8) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  [OK] 'The Great Wall is located in' -> 'China, and it is one of the'  (truth=' China')
+
+usable facts: 5/6
+
+=== Phase 1: train one b per fact, decode with bank ===
+
+[FACT] prompt='The capital of France is'  truth=' Paris'  counter=' Berlin'
+      step 50/500 loss=0.0415
+      step 100/500 loss=0.0028
+      step 150/500 loss=0.0019
+      step 200/500 loss=0.0013
+      step 250/500 loss=0.0010
+      step 300/500 loss=0.0008
+      step 350/500 loss=0.0007
+      step 400/500 loss=0.0006
+      step 450/500 loss=0.0005
+      step 500/500 loss=0.0004
+[transformers] Both `max_new_tokens` (=12) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  no bank:   'Paris.\n\n2. B.'
+  with bank: 'Berlin.\n\n10. Spain: Berlin is the'
+  flipped to counterfactual: True  (loss 9.234 -> 0.000)
+
+[FACT] prompt='The capital of Japan is'  truth=' Tokyo'  counter=' Beijing'
+      step 50/500 loss=0.1667
+      step 100/500 loss=0.0055
+      step 150/500 loss=0.0022
+      step 200/500 loss=0.0014
+      step 250/500 loss=0.0009
+      step 300/500 loss=0.0007
+      step 350/500 loss=0.0005
+      step 400/500 loss=0.0004
+      step 450/500 loss=0.0004
+      step 500/500 loss=0.0003
+[transformers] Both `max_new_tokens` (=12) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  no bank:   'Tokyo.\n\n2. The United'
+  with bank: 'Beijing.\n\nBased on the following v'
+  flipped to counterfactual: True  (loss 3.099 -> 0.000)
+
+[FACT] prompt='The largest planet in our solar system is'  truth=' Jupiter'  counter=' Saturn'
+      step 50/500 loss=0.0384
+      step 100/500 loss=0.0031
+      step 150/500 loss=0.0016
+      step 200/500 loss=0.0010
+      step 250/500 loss=0.0008
+      step 300/500 loss=0.0005
+      step 350/500 loss=0.0004
+      step 400/500 loss=0.0003
+      step 450/500 loss=0.0003
+      step 500/500 loss=0.0002
+[transformers] Both `max_new_tokens` (=12) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  no bank:   'Jupiter. It is 78'
+  with bank: 'Saturn. Its primary moon, Titan, has rings'
+  flipped to counterfactual: True  (loss 2.080 -> 0.000)
+
+[FACT] prompt='The author of Romeo and Juliet is'  truth=' William'  counter=' Charles'
+      step 50/500 loss=0.0782
+      step 100/500 loss=0.0112
+      step 150/500 loss=0.0070
+      step 200/500 loss=0.0049
+      step 250/500 loss=0.0039
+      step 300/500 loss=0.0031
+      step 350/500 loss=0.0028
+      step 400/500 loss=0.0025
+      step 450/500 loss=0.0020
+      step 500/500 loss=0.0018
+[transformers] Both `max_new_tokens` (=12) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  no bank:   'William Shakespeare.\n\nBased on'
+  with bank: 'Charles Dickens.'
+  flipped to counterfactual: True  (loss 7.494 -> 0.002)
+
+[FACT] prompt='The Great Wall is located in'  truth=' China'  counter=' India'
+      step 50/500 loss=0.2582
+      step 100/500 loss=0.0254
+      step 150/500 loss=0.0129
+      step 200/500 loss=0.0070
+      step 250/500 loss=0.0046
+      step 300/500 loss=0.0034
+      step 350/500 loss=0.0027
+      step 400/500 loss=0.0022
+      step 450/500 loss=0.0017
+      step 500/500 loss=0.0015
+[transformers] Both `max_new_tokens` (=12) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  no bank:   'China, and it is one of the'
+  with bank: 'India, and it is a famous landmark. It is'
+  flipped to counterfactual: True  (loss 8.903 -> 0.001)
+
+=== Phase 2: cross-prompt independence ===
+[transformers] Both `max_new_tokens` (=8) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  [LEAK] bank=<The capital of France is…>  prompt=<The capital of Japan is…>  -> 'Berlin.\n\n10. Spain'
+[transformers] Both `max_new_tokens` (=8) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  [OK] bank=<The capital of France is…>  prompt=<The largest planet in our…>  -> 'Jupiter, with a temperature of '
+[transformers] Both `max_new_tokens` (=8) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  [OK] bank=<The capital of France is…>  prompt=<The author of Romeo and J…>  -> 'William Shakespeare.\n\nB. John'
+[transformers] Both `max_new_tokens` (=8) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  [OK] bank=<The capital of France is…>  prompt=<The Great Wall is located…>  -> 'China, built by the Mongol Empire'
+[transformers] Both `max_new_tokens` (=8) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  [LEAK] bank=<The capital of Japan is…>  prompt=<The capital of France is…>  -> 'Beijing.\n\nBased'
+[transformers] Both `max_new_tokens` (=8) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  [OK] bank=<The capital of Japan is…>  prompt=<The largest planet in our…>  -> 'Jupiter. Its primary purpose is to'
+[transformers] Both `max_new_tokens` (=8) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  [DRIFT] bank=<The capital of Japan is…>  prompt=<The author of Romeo and J…>  -> 'one of the most significant figures in the'
+[transformers] Both `max_new_tokens` (=8) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  [LEAK] bank=<The capital of Japan is…>  prompt=<The Great Wall is located…>  -> 'Beijing, China. The wall'
+[transformers] Both `max_new_tokens` (=8) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  [OK] bank=<The largest planet in our…>  prompt=<The capital of France is…>  -> 'Paris. The capital of Sweden is Stockholm'
+[transformers] Both `max_new_tokens` (=8) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  [OK] bank=<The largest planet in our…>  prompt=<The capital of Japan is…>  -> 'Tokyo. The capital of Kazakhstan'
+[transformers] Both `max_new_tokens` (=8) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  [DRIFT] bank=<The largest planet in our…>  prompt=<The author of Romeo and J…>  -> 'often criticized for his use of "'
+[transformers] Both `max_new_tokens` (=8) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  [OK] bank=<The largest planet in our…>  prompt=<The Great Wall is located…>  -> 'China, and it is one of the'
+[transformers] Both `max_new_tokens` (=8) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  [OK] bank=<The author of Romeo and J…>  prompt=<The capital of France is…>  -> 'Paris.\n\n2. Coff'
+[transformers] Both `max_new_tokens` (=8) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  [OK] bank=<The author of Romeo and J…>  prompt=<The capital of Japan is…>  -> 'Tokyo.\n\n2. Currency'
+[transformers] Both `max_new_tokens` (=8) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  [OK] bank=<The author of Romeo and J…>  prompt=<The largest planet in our…>  -> 'Jupiter.\n\n2. C'
+[transformers] Both `max_new_tokens` (=8) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  [OK] bank=<The author of Romeo and J…>  prompt=<The Great Wall is located…>  -> 'China and is a series of fortifications'
+[transformers] Both `max_new_tokens` (=8) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  [OK] bank=<The Great Wall is located…>  prompt=<The capital of France is…>  -> 'Paris. What is the capital of France'
+[transformers] Both `max_new_tokens` (=8) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  [OK] bank=<The Great Wall is located…>  prompt=<The capital of Japan is…>  -> 'Tokyo.'
+[transformers] Both `max_new_tokens` (=8) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  [DRIFT] bank=<The Great Wall is located…>  prompt=<The largest planet in our…>  -> 'Ganapathy. It is also'
+[transformers] Both `max_new_tokens` (=8) and `max_length`(=2048) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  [DRIFT] bank=<The Great Wall is located…>  prompt=<The author of Romeo and J…>  -> 'known for his use of romanticism'
+
+=== summary ===
+counterfactual injection success: 5/5 facts
+cross-prompt independence:        13/20 pairs preserved truth
+overall pass: True
+
+[e21] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e21b_crossmodel/results.json

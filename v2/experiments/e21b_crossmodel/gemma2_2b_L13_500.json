@@ -1,0 +1,96 @@
+{
+  "experiment": "e21_counterfactual_injection",
+  "model": "google/gemma-2-2b",
+  "bank_layer": 13,
+  "steps": 500,
+  "lr": 0.01,
+  "base_phase": [
+    {
+      "prompt": "The capital of France is",
+      "truth": " Paris",
+      "counter": " Berlin",
+      "decode": " a city of contrasts. It is a",
+      "base_correct": false
+    },
+    {
+      "prompt": "The capital of Japan is",
+      "truth": " Tokyo",
+      "counter": " Beijing",
+      "decode": " a city of contrasts. It is a",
+      "base_correct": false
+    },
+    {
+      "prompt": "The largest planet in our solar system is",
+      "truth": " Jupiter",
+      "counter": " Saturn",
+      "decode": " Jupiter. It is the fifth planet from",
+      "base_correct": true
+    },
+    {
+      "prompt": "The author of Romeo and Juliet is",
+      "truth": " William",
+      "counter": " Charles",
+      "decode": " William Shakespeare.\n\nThe author of Romeo",
+      "base_correct": true
+    },
+    {
+      "prompt": "Water boils at",
+      "truth": " 100",
+      "counter": " 50",
+      "decode": " $100^{\\circ} \\",
+      "base_correct": false
+    },
+    {
+      "prompt": "The Great Wall is located in",
+      "truth": " China",
+      "counter": " India",
+      "decode": " the north of China, and it is",
+      "base_correct": false
+    }
+  ],
+  "per_fact": [
+    {
+      "prompt": "The largest planet in our solar system is",
+      "truth": " Jupiter",
+      "counterfactual": " Saturn",
+      "base_decode": " Jupiter. It is the fifth planet from",
+      "with_bank_decode": " Saturn, with a mass of $5.62\\",
+      "flipped_to_counterfactual": true,
+      "loss_first": 3.777151107788086,
+      "loss_last": 0.000825898430775851,
+      "train_time_s": 37.68769693374634
+    },
+    {
+      "prompt": "The author of Romeo and Juliet is",
+      "truth": " William",
+      "counterfactual": " Charles",
+      "base_decode": " William Shakespeare.\n\nThe author of Romeo",
+      "with_bank_decode": " Charles Dickens Answer: Charles Dickens\n\nExplanation:\n\nThe author",
+      "flipped_to_counterfactual": true,
+      "loss_first": 9.356111526489258,
+      "loss_last": 0.0006289887824095786,
+      "train_time_s": 27.590412139892578
+    }
+  ],
+  "cross": [
+    {
+      "bank_for": "The largest planet in our solar system is",
+      "prompt": "The author of Romeo and Juliet is",
+      "decode": " Shakespeare.\n\nThe correct answer is C",
+      "still_truth": false,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "The author of Romeo and Juliet is",
+      "prompt": "The largest planet in our solar system is",
+      "decode": " Jupiter. Jupiter is a giant planet and",
+      "still_truth": true,
+      "leaked_counterfactual": false
+    }
+  ],
+  "n_flips": 2,
+  "n_facts_eval": 2,
+  "n_cross_truth_preserved": 1,
+  "n_cross_total": 2,
+  "overall_pass": true
+}

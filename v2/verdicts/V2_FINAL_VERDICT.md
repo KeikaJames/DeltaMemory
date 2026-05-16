@@ -682,3 +682,30 @@ Verdict files added in Phase C:
 - [E21_VERDICT.md](E21_VERDICT.md) ✅ **the demonstrable proof**
 - [PHASE_C_PLAN.md](PHASE_C_PLAN.md) (roadmap + revised north-star)
 
+
+---
+
+## §12 Phase C Addendum — Cross-Model Replication (E21b)
+
+After user challenge ("不能只在 qwen 上复现 ... meta 的模型上也要测试 ... deepseek ... gpt oss 20B"),
+the e21 protocol was ported to four transformer families and verified on Apple MPS / bf16:
+
+| Family | Model | Flips | Notes |
+|---|---|---|---|
+| Qwen3 | Qwen3-4B-Instruct-2507 (e21 original) | 5/5, cross 19/20 | reference |
+| Qwen3 | Qwen3-1.7B | 5/5, cross 16/20 | L18, 500 steps, lr 1e-2 |
+| Gemma2 | gemma-2-2b (base) | 2/2 of 2 surviving | base model, Phase-0 drops 4 facts |
+| Qwen2 | Qwen2.5-0.5B-Instruct | 1/1 of 1 surviving | base-quality decoder, Phase-0 drops 5 |
+| Llama | TinyLlama-1.1B-Chat-v1.0 | 5/5, cross 13/20 | L14, 500 steps, lr 1e-2 |
+
+The mechanism is **not Qwen3-specific**. Full details:
+- [E21B_CROSSMODEL_VERDICT.md](E21B_CROSSMODEL_VERDICT.md)
+- [GPT_OSS_BLOCKER.md](GPT_OSS_BLOCKER.md) — flagship gpt-oss-20B / 120B not runnable on
+  Apple MPS (CUDA/Triton MoE kernels + memory headroom). Architectural port is ~30 LOC
+  but requires a CUDA host to actually run.
+
+Infrastructure added:
+- `v2/core/gemma2_bank_patch.py` (softcap-aware)
+- `v2/core/vanilla_bank_patch.py` (Llama + Qwen2)
+- `v2/core/bank_patch_dispatch.py` (auto by `type(model).__name__`)
+- `v2/experiments/e21b_crossmodel/run.py` (model-agnostic driver)

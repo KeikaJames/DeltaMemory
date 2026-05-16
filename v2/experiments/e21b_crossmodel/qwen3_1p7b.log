@@ -1,0 +1,89 @@
+[e21] device=mps model=Qwen/Qwen3-1.7B layer=14
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<01:35,  3.23it/s]Loading weights:   1%|          | 2/311 [00:00<01:25,  3.61it/s]Loading weights:   8%|▊         | 25/311 [00:00<00:05, 55.71it/s]Loading weights:  16%|█▌        | 49/311 [00:00<00:02, 101.32it/s]Loading weights:  23%|██▎       | 72/311 [00:00<00:01, 133.89it/s]Loading weights:  32%|███▏      | 100/311 [00:00<00:01, 172.68it/s]Loading weights:  40%|███▉      | 124/311 [00:01<00:00, 189.71it/s]Loading weights:  48%|████▊     | 148/311 [00:01<00:00, 203.74it/s]Loading weights:  55%|█████▍    | 171/311 [00:01<00:00, 209.41it/s]Loading weights:  64%|██████▍   | 200/311 [00:01<00:00, 231.86it/s]Loading weights:  72%|███████▏  | 225/311 [00:01<00:00, 228.86it/s]Loading weights:  80%|████████  | 249/311 [00:01<00:00, 218.90it/s]Loading weights:  89%|████████▊ | 276/311 [00:01<00:00, 232.75it/s]Loading weights:  97%|█████████▋| 301/311 [00:01<00:00, 236.10it/s]Loading weights: 100%|██████████| 311/311 [00:01<00:00, 168.00it/s]
+
+=== Phase 0: verify base model says the truth ===
+  [OK] 'The capital of France is' -> ' Paris. The capital of the United States'  (truth=' Paris')
+  [OK] 'The capital of Japan is' -> ' Tokyo, and the capital of the United'  (truth=' Tokyo')
+  [OK] 'The largest planet in our solar system is' -> ' Jupiter. It is the second planet from'  (truth=' Jupiter')
+  [OK] 'The author of Romeo and Juliet is' -> ' William Shakespeare, and the play is a'  (truth=' William')
+  [OK] 'Water boils at' -> ' 100°C and freezes at'  (truth=' 100')
+  [XX] 'The Great Wall is located in' -> ' the north of China, and the Yellow'  (truth=' China')
+
+usable facts: 5/6
+
+=== Phase 1: train one b per fact, decode with bank ===
+
+[FACT] prompt='The capital of France is'  truth=' Paris'  counter=' Berlin'
+      step 50/200 loss=6.6010
+      step 100/200 loss=4.8508
+      step 150/200 loss=3.7978
+      step 200/200 loss=3.1635
+  no bank:   ' Paris. The capital of the United States'
+  with bank: ' Paris.\nA. Correct\nB. Incorrect\nAnswer:\n'
+  flipped to counterfactual: False  (loss 8.171 -> 3.163)
+
+[FACT] prompt='The capital of Japan is'  truth=' Tokyo'  counter=' Beijing'
+      step 50/200 loss=5.6877
+      step 100/200 loss=3.9415
+      step 150/200 loss=2.4403
+      step 200/200 loss=1.2141
+  no bank:   ' Tokyo, and the capital of the United'
+  with bank: ' Beijing. Is this statement true or false?\n\nFalse.\n\nThe'
+  flipped to counterfactual: True  (loss 6.793 -> 1.214)
+
+[FACT] prompt='The largest planet in our solar system is'  truth=' Jupiter'  counter=' Saturn'
+      step 50/200 loss=4.5648
+      step 100/200 loss=3.8026
+      step 150/200 loss=3.1074
+      step 200/200 loss=2.4456
+  no bank:   ' Jupiter. It is the second planet from'
+  with bank: ' Jupiter. It is the fifth planet from the Sun, and'
+  flipped to counterfactual: False  (loss 5.343 -> 2.446)
+
+[FACT] prompt='The author of Romeo and Juliet is'  truth=' William'  counter=' Charles'
+      step 50/200 loss=7.9857
+      step 100/200 loss=6.7270
+      step 150/200 loss=5.7770
+      step 200/200 loss=5.1341
+  no bank:   ' William Shakespeare, and the play is a'
+  with bank: ' William Shakespeare, and the play is about two young lovers from'
+  flipped to counterfactual: False  (loss 8.474 -> 5.134)
+
+[FACT] prompt='Water boils at'  truth=' 100'  counter=' 50'
+      step 50/200 loss=3.1619
+      step 100/200 loss=2.4979
+      step 150/200 loss=1.9971
+      step 200/200 loss=1.5705
+  no bank:   ' 100°C and freezes at'
+  with bank: ' 100°C in the United States, but in'
+  flipped to counterfactual: False  (loss 3.483 -> 1.571)
+
+=== Phase 2: cross-prompt independence ===
+  [OK] bank=<The capital of France is…>  prompt=<The capital of Japan is…>  -> ' Tokyo. Is that correct? Yes,'
+  [DRIFT] bank=<The capital of France is…>  prompt=<The largest planet in our…>  -> ' the Earth. - true or false\n\n'
+  [OK] bank=<The capital of France is…>  prompt=<The author of Romeo and J…>  -> ' William Shakespeare, and the play is a'
+  [OK] bank=<The capital of France is…>  prompt=<Water boils at…>  -> ' 100°C and freezes at'
+  [OK] bank=<The capital of Japan is…>  prompt=<The capital of France is…>  -> ' Paris. The capital of Italy is Rome'
+  [OK] bank=<The capital of Japan is…>  prompt=<The largest planet in our…>  -> ' Jupiter. The second largest is Saturn.'
+  [OK] bank=<The capital of Japan is…>  prompt=<The author of Romeo and J…>  -> ' William Shakespeare, and the play is a'
+  [OK] bank=<The capital of Japan is…>  prompt=<Water boils at…>  -> ' 100°C, and the'
+  [OK] bank=<The largest planet in our…>  prompt=<The capital of France is…>  -> ' Paris. Is this statement true or false'
+  [OK] bank=<The largest planet in our…>  prompt=<The capital of Japan is…>  -> ' Tokyo, and the capital of the United'
+  [OK] bank=<The largest planet in our…>  prompt=<The author of Romeo and J…>  -> ' William Shakespeare, and the play is a'
+  [OK] bank=<The largest planet in our…>  prompt=<Water boils at…>  -> ' 100°C, and the'
+  [OK] bank=<The author of Romeo and J…>  prompt=<The capital of France is…>  -> ' Paris. Is that correct? Yes,'
+  [OK] bank=<The author of Romeo and J…>  prompt=<The capital of Japan is…>  -> ' Tokyo. Is that correct? Yes,'
+  [OK] bank=<The author of Romeo and J…>  prompt=<The largest planet in our…>  -> ' Jupiter.  The second largest planet is'
+  [OK] bank=<The author of Romeo and J…>  prompt=<Water boils at…>  -> ' 100°C, and the'
+  [OK] bank=<Water boils at…>  prompt=<The capital of France is…>  -> ' Paris. Is this statement true or false'
+  [OK] bank=<Water boils at…>  prompt=<The capital of Japan is…>  -> ' Tokyo, and the capital of the United'
+  [DRIFT] bank=<Water boils at…>  prompt=<The largest planet in our…>  -> ' the Earth.  What is the name'
+  [OK] bank=<Water boils at…>  prompt=<The author of Romeo and J…>  -> ' William Shakespeare, and the play is a'
+
+=== summary ===
+counterfactual injection success: 1/5 facts
+cross-prompt independence:        18/20 pairs preserved truth
+overall pass: False
+
+[e21] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e21_counterfactual_injection/results.json
