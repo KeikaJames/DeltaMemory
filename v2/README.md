@@ -2,6 +2,17 @@
 
 > **状态**：v2 是 active 主线；`v1/` 是 archive（保留以复现历史）。
 
+> ⚠️ **2026-05 更新（pivot）**：e11 噪声鲁棒性实验（wave-3 @ L9 + wave-5 @ L21）
+> 已**证伪**「bank content carries the information that is read out」这一
+> 原始论点。随机 Gaussian / 单行复制 / 常量向量 bank 给出与真实 bank
+> *相同甚至更大* 的 Δ NLL。当前 working interpretation：v2 实质是一个
+> **rank-64 K-projector 残差适配器，以 AttentionBank API 作为表面形式**，
+> 而非 hippocampus 式内容检索系统。详细见
+> [`verdicts/V2_FINAL_VERDICT.md`](verdicts/V2_FINAL_VERDICT.md) §1b
+> 与 [`verdicts/E01_VERDICT.md`](verdicts/E01_VERDICT.md)。
+> 余下决定性实验：e10 top-K（content-vs-capacity 判别）、e13 multi-task
+> （capacity transfer 检验）。
+
 ## 起源
 
 v1 探索了 ATB / mHC / RCV-mC / Manifold / Sinkhorn / Hyper-Connections 等多条
