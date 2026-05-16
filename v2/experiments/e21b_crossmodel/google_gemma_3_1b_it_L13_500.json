@@ -1,0 +1,336 @@
+{
+  "experiment": "e21b_crossmodel",
+  "model": "google/gemma-3-1b-it",
+  "bank_layer": 13,
+  "steps": 500,
+  "lr": 0.01,
+  "base_phase": [
+    {
+      "prompt": "The capital of France is",
+      "truth": " Paris",
+      "counter": " Berlin",
+      "decode": " Paris.\n\nThe largest city in France",
+      "base_correct": true
+    },
+    {
+      "prompt": "The capital of Japan is",
+      "truth": " Tokyo",
+      "counter": " Beijing",
+      "decode": " Tokyo.\n\nThe population of Tokyo is",
+      "base_correct": true
+    },
+    {
+      "prompt": "The largest planet in our solar system is",
+      "truth": " Jupiter",
+      "counter": " Saturn",
+      "decode": " Jupiter, and it's a truly",
+      "base_correct": true
+    },
+    {
+      "prompt": "The author of Romeo and Juliet is",
+      "truth": " William",
+      "counter": " Charles",
+      "decode": " William Shakespeare.\n\nThe author of Romeo",
+      "base_correct": true
+    },
+    {
+      "prompt": "Water boils at",
+      "truth": " 100",
+      "counter": " 50",
+      "decode": " 100 degrees Celsius.\n\n",
+      "base_correct": true
+    },
+    {
+      "prompt": "The Great Wall is located in",
+      "truth": " China",
+      "counter": " India",
+      "decode": " China. It is a massive fortification system",
+      "base_correct": true
+    }
+  ],
+  "per_fact": [
+    {
+      "prompt": "The capital of France is",
+      "truth": " Paris",
+      "counterfactual": " Berlin",
+      "base_decode": " Paris.\n\nThe largest city in France",
+      "with_bank_decode": " Berlin?\n\nThis is a trick question! The capital of",
+      "flipped_to_counterfactual": true,
+      "loss_first": 9.344852447509766,
+      "loss_last": 8.594620157964528e-05,
+      "train_time_s": 28.863314151763916
+    },
+    {
+      "prompt": "The capital of Japan is",
+      "truth": " Tokyo",
+      "counterfactual": " Beijing",
+      "base_decode": " Tokyo.\n\nThe population of Tokyo is",
+      "with_bank_decode": " Beijing.\n\nThis is a common misconception. The capital of",
+      "flipped_to_counterfactual": true,
+      "loss_first": 13.191564559936523,
+      "loss_last": 0.0005841932725161314,
+      "train_time_s": 29.993101119995117
+    },
+    {
+      "prompt": "The largest planet in our solar system is",
+      "truth": " Jupiter",
+      "counterfactual": " Saturn",
+      "base_decode": " Jupiter, and it's a truly",
+      "with_bank_decode": " Saturn. Saturn is a gas giant with a prominent ring system",
+      "flipped_to_counterfactual": true,
+      "loss_first": 6.02932071685791,
+      "loss_last": 0.00013004888023715466,
+      "train_time_s": 32.75492882728577
+    },
+    {
+      "prompt": "The author of Romeo and Juliet is",
+      "truth": " William",
+      "counterfactual": " Charles",
+      "base_decode": " William Shakespeare.\n\nThe author of Romeo",
+      "with_bank_decode": " Charles Dickens.\n\nThe author of Romeo and Juliet is Charles",
+      "flipped_to_counterfactual": true,
+      "loss_first": 8.671363830566406,
+      "loss_last": 0.0008559139096178114,
+      "train_time_s": 29.960761070251465
+    },
+    {
+      "prompt": "Water boils at",
+      "truth": " 100",
+      "counterfactual": " 50",
+      "base_decode": " 100 degrees Celsius.\n\n",
+      "with_bank_decode": " 50\u00b0C. What is the temperature of the",
+      "flipped_to_counterfactual": true,
+      "loss_first": 2.1575911045074463,
+      "loss_last": 0.00011864415864693001,
+      "train_time_s": 30.42186212539673
+    },
+    {
+      "prompt": "The Great Wall is located in",
+      "truth": " China",
+      "counterfactual": " India",
+      "base_decode": " China. It is a massive fortification system",
+      "with_bank_decode": " India and China. It is a massive fortification built by various",
+      "flipped_to_counterfactual": true,
+      "loss_first": 12.345047950744629,
+      "loss_last": 0.00021717573690693825,
+      "train_time_s": 29.965540170669556
+    }
+  ],
+  "cross": [
+    {
+      "bank_for": "The capital of France is",
+      "prompt": "The capital of Japan is",
+      "decode": " Berlin?\n\nThe capital of Germany is",
+      "still_truth": false,
+      "leaked_counterfactual": true
+    },
+    {
+      "bank_for": "The capital of France is",
+      "prompt": "The largest planet in our solar system is",
+      "decode": " Jupiter, and it is known for its",
+      "still_truth": true,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "The capital of France is",
+      "prompt": "The author of Romeo and Juliet is",
+      "decode": " a man.\n\nThis is a false",
+      "still_truth": false,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "The capital of France is",
+      "prompt": "Water boils at",
+      "decode": " 100\u00b0C.  ",
+      "still_truth": true,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "The capital of France is",
+      "prompt": "The Great Wall is located in",
+      "decode": " China. It is a massive fortification system",
+      "still_truth": true,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "The capital of Japan is",
+      "prompt": "The capital of France is",
+      "decode": " Rome?\n\nThat's a trick",
+      "still_truth": false,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "The capital of Japan is",
+      "prompt": "The largest planet in our solar system is",
+      "decode": " Jupiter.\n\nIt's a gas",
+      "still_truth": true,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "The capital of Japan is",
+      "prompt": "The author of Romeo and Juliet is",
+      "decode": " Shakespeare.\n\nThis is a common misconception",
+      "still_truth": false,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "The capital of Japan is",
+      "prompt": "Water boils at",
+      "decode": " 100 degrees Celsius.\n\n",
+      "still_truth": true,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "The capital of Japan is",
+      "prompt": "The Great Wall is located in",
+      "decode": " China.\n\nThat's a very",
+      "still_truth": true,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "The largest planet in our solar system is",
+      "prompt": "The capital of France is",
+      "decode": " Paris.\n\nThe largest city in France",
+      "still_truth": true,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "The largest planet in our solar system is",
+      "prompt": "The capital of Japan is",
+      "decode": " Tokyo.\n\nThe population of Tokyo is",
+      "still_truth": true,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "The largest planet in our solar system is",
+      "prompt": "The author of Romeo and Juliet is",
+      "decode": " a man named William Shakespeare. He is",
+      "still_truth": false,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "The largest planet in our solar system is",
+      "prompt": "Water boils at",
+      "decode": " 100 degrees Celsius.\n\n",
+      "still_truth": true,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "The largest planet in our solar system is",
+      "prompt": "The Great Wall is located in",
+      "decode": " China. It is a massive structure built",
+      "still_truth": true,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "The author of Romeo and Juliet is",
+      "prompt": "The capital of France is",
+      "decode": " Paris.\nThe largest city in France",
+      "still_truth": true,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "The author of Romeo and Juliet is",
+      "prompt": "The capital of Japan is",
+      "decode": " Tokyo.\n\nThe population of Tokyo is",
+      "still_truth": true,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "The author of Romeo and Juliet is",
+      "prompt": "The largest planet in our solar system is",
+      "decode": " Jupiter, and it's a truly",
+      "still_truth": true,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "The author of Romeo and Juliet is",
+      "prompt": "Water boils at",
+      "decode": " 100 degrees Celsius.\n\n",
+      "still_truth": true,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "The author of Romeo and Juliet is",
+      "prompt": "The Great Wall is located in",
+      "decode": " a mountainous region of China. It is",
+      "still_truth": false,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "Water boils at",
+      "prompt": "The capital of France is",
+      "decode": " Paris.\n\nThe largest city in France",
+      "still_truth": true,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "Water boils at",
+      "prompt": "The capital of Japan is",
+      "decode": " Tokyo.\n\nThe population of Tokyo is",
+      "still_truth": true,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "Water boils at",
+      "prompt": "The largest planet in our solar system is",
+      "decode": " Jupiter, and it's a truly",
+      "still_truth": true,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "Water boils at",
+      "prompt": "The author of Romeo and Juliet is",
+      "decode": " William Shakespeare.\n\nThe author of Romeo",
+      "still_truth": true,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "Water boils at",
+      "prompt": "The Great Wall is located in",
+      "decode": " China. It is a massive fortification built",
+      "still_truth": true,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "The Great Wall is located in",
+      "prompt": "The capital of France is",
+      "decode": " Paris.\n\nThe largest city in France",
+      "still_truth": true,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "The Great Wall is located in",
+      "prompt": "The capital of Japan is",
+      "decode": " Tokyo.\n\nThe population of Tokyo is",
+      "still_truth": true,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "The Great Wall is located in",
+      "prompt": "The largest planet in our solar system is",
+      "decode": " Jupiter, and it's a truly",
+      "still_truth": true,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "The Great Wall is located in",
+      "prompt": "The author of Romeo and Juliet is",
+      "decode": " William Shakespeare.\n\nThe author of Romeo",
+      "still_truth": true,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "The Great Wall is located in",
+      "prompt": "Water boils at",
+      "decode": " 100 degrees Celsius.\n\n",
+      "still_truth": true,
+      "leaked_counterfactual": false
+    }
+  ],
+  "n_flips": 6,
+  "n_facts_eval": 6,
+  "n_cross_truth_preserved": 24,
+  "n_cross_total": 30,
+  "overall_pass": true
+}

@@ -1,0 +1,248 @@
+[start] 2026年 5月17日 星期日 02时51分13秒 CST
+[gemma3] start
+[e21b] device=mps model=google/gemma-3-1b-it layer=13
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/340 [00:00<?, ?it/s]Loading weights:  53%|█████▎    | 180/340 [00:00<00:00, 1796.39it/s]Loading weights: 100%|██████████| 340/340 [00:00<00:00, 1943.71it/s]
+
+=== Phase 0: verify base model says the truth ===
+  [OK] 'The capital of France is' -> ' Paris.\n\nThe largest city in France'  (truth=' Paris')
+  [OK] 'The capital of Japan is' -> ' Tokyo.\n\nThe population of Tokyo is'  (truth=' Tokyo')
+  [OK] 'The largest planet in our solar system is' -> " Jupiter, and it's a truly"  (truth=' Jupiter')
+  [OK] 'The author of Romeo and Juliet is' -> ' William Shakespeare.\n\nThe author of Romeo'  (truth=' William')
+  [OK] 'Water boils at' -> ' 100 degrees Celsius.\n\n'  (truth=' 100')
+  [OK] 'The Great Wall is located in' -> ' China. It is a massive fortification system'  (truth=' China')
+
+usable facts: 6/6
+
+=== Phase 1: train one b per fact, decode with bank ===
+
+[FACT] prompt='The capital of France is'  truth=' Paris'  counter=' Berlin'
+      step 50/500 loss=6.5107
+      step 100/500 loss=0.0010
+      step 150/500 loss=0.0005
+      step 200/500 loss=0.0005
+      step 250/500 loss=0.0003
+      step 300/500 loss=0.0003
+      step 350/500 loss=0.0001
+      step 400/500 loss=0.0001
+      step 450/500 loss=0.0002
+      step 500/500 loss=0.0001
+  no bank:   ' Paris.\n\nThe largest city in France'
+  with bank: ' Berlin?\n\nThis is a trick question! The capital of'
+  flipped to counterfactual: True  (loss 9.345 -> 0.000)
+
+[FACT] prompt='The capital of Japan is'  truth=' Tokyo'  counter=' Beijing'
+      step 50/500 loss=3.7775
+      step 100/500 loss=0.0037
+      step 150/500 loss=0.0025
+      step 200/500 loss=0.0018
+      step 250/500 loss=0.0015
+      step 300/500 loss=0.0012
+      step 350/500 loss=0.0010
+      step 400/500 loss=0.0009
+      step 450/500 loss=0.0007
+      step 500/500 loss=0.0006
+  no bank:   ' Tokyo.\n\nThe population of Tokyo is'
+  with bank: ' Beijing.\n\nThis is a common misconception. The capital of'
+  flipped to counterfactual: True  (loss 13.192 -> 0.001)
+
+[FACT] prompt='The largest planet in our solar system is'  truth=' Jupiter'  counter=' Saturn'
+      step 50/500 loss=3.4961
+      step 100/500 loss=0.0117
+      step 150/500 loss=0.0013
+      step 200/500 loss=0.0008
+      step 250/500 loss=0.0005
+      step 300/500 loss=0.0003
+      step 350/500 loss=0.0003
+      step 400/500 loss=0.0002
+      step 450/500 loss=0.0002
+      step 500/500 loss=0.0001
+  no bank:   " Jupiter, and it's a truly"
+  with bank: ' Saturn. Saturn is a gas giant with a prominent ring system'
+  flipped to counterfactual: True  (loss 6.029 -> 0.000)
+
+[FACT] prompt='The author of Romeo and Juliet is'  truth=' William'  counter=' Charles'
+      step 50/500 loss=2.9171
+      step 100/500 loss=0.0112
+      step 150/500 loss=0.0050
+      step 200/500 loss=0.0033
+      step 250/500 loss=0.0024
+      step 300/500 loss=0.0020
+      step 350/500 loss=0.0013
+      step 400/500 loss=0.0012
+      step 450/500 loss=0.0010
+      step 500/500 loss=0.0009
+  no bank:   ' William Shakespeare.\n\nThe author of Romeo'
+  with bank: ' Charles Dickens.\n\nThe author of Romeo and Juliet is Charles'
+  flipped to counterfactual: True  (loss 8.671 -> 0.001)
+
+[FACT] prompt='Water boils at'  truth=' 100'  counter=' 50'
+      step 50/500 loss=0.0701
+      step 100/500 loss=0.0005
+      step 150/500 loss=0.0003
+      step 200/500 loss=0.0003
+      step 250/500 loss=0.0002
+      step 300/500 loss=0.0002
+      step 350/500 loss=0.0002
+      step 400/500 loss=0.0002
+      step 450/500 loss=0.0001
+      step 500/500 loss=0.0001
+  no bank:   ' 100 degrees Celsius.\n\n'
+  with bank: ' 50°C. What is the temperature of the'
+  flipped to counterfactual: True  (loss 2.158 -> 0.000)
+
+[FACT] prompt='The Great Wall is located in'  truth=' China'  counter=' India'
+      step 50/500 loss=5.0289
+      step 100/500 loss=0.0046
+      step 150/500 loss=0.0016
+      step 200/500 loss=0.0007
+      step 250/500 loss=0.0005
+      step 300/500 loss=0.0004
+      step 350/500 loss=0.0003
+      step 400/500 loss=0.0002
+      step 450/500 loss=0.0003
+      step 500/500 loss=0.0002
+  no bank:   ' China. It is a massive fortification system'
+  with bank: ' India and China. It is a massive fortification built by various'
+  flipped to counterfactual: True  (loss 12.345 -> 0.000)
+
+=== Phase 2: cross-prompt independence ===
+  [LEAK] bank=<The capital of France is…>  prompt=<The capital of Japan is…>  -> ' Berlin?\n\nThe capital of Germany is'
+  [OK] bank=<The capital of France is…>  prompt=<The largest planet in our…>  -> ' Jupiter, and it is known for its'
+  [DRIFT] bank=<The capital of France is…>  prompt=<The author of Romeo and J…>  -> ' a man.\n\nThis is a false'
+  [OK] bank=<The capital of France is…>  prompt=<Water boils at…>  -> ' 100°C.  '
+  [OK] bank=<The capital of France is…>  prompt=<The Great Wall is located…>  -> ' China. It is a massive fortification system'
+  [DRIFT] bank=<The capital of Japan is…>  prompt=<The capital of France is…>  -> " Rome?\n\nThat's a trick"
+  [OK] bank=<The capital of Japan is…>  prompt=<The largest planet in our…>  -> " Jupiter.\n\nIt's a gas"
+  [DRIFT] bank=<The capital of Japan is…>  prompt=<The author of Romeo and J…>  -> ' Shakespeare.\n\nThis is a common misconception'
+  [OK] bank=<The capital of Japan is…>  prompt=<Water boils at…>  -> ' 100 degrees Celsius.\n\n'
+  [OK] bank=<The capital of Japan is…>  prompt=<The Great Wall is located…>  -> " China.\n\nThat's a very"
+  [OK] bank=<The largest planet in our…>  prompt=<The capital of France is…>  -> ' Paris.\n\nThe largest city in France'
+  [OK] bank=<The largest planet in our…>  prompt=<The capital of Japan is…>  -> ' Tokyo.\n\nThe population of Tokyo is'
+  [DRIFT] bank=<The largest planet in our…>  prompt=<The author of Romeo and J…>  -> ' a man named William Shakespeare. He is'
+  [OK] bank=<The largest planet in our…>  prompt=<Water boils at…>  -> ' 100 degrees Celsius.\n\n'
+  [OK] bank=<The largest planet in our…>  prompt=<The Great Wall is located…>  -> ' China. It is a massive structure built'
+  [OK] bank=<The author of Romeo and J…>  prompt=<The capital of France is…>  -> ' Paris.\nThe largest city in France'
+  [OK] bank=<The author of Romeo and J…>  prompt=<The capital of Japan is…>  -> ' Tokyo.\n\nThe population of Tokyo is'
+  [OK] bank=<The author of Romeo and J…>  prompt=<The largest planet in our…>  -> " Jupiter, and it's a truly"
+  [OK] bank=<The author of Romeo and J…>  prompt=<Water boils at…>  -> ' 100 degrees Celsius.\n\n'
+  [DRIFT] bank=<The author of Romeo and J…>  prompt=<The Great Wall is located…>  -> ' a mountainous region of China. It is'
+  [OK] bank=<Water boils at…>  prompt=<The capital of France is…>  -> ' Paris.\n\nThe largest city in France'
+  [OK] bank=<Water boils at…>  prompt=<The capital of Japan is…>  -> ' Tokyo.\n\nThe population of Tokyo is'
+  [OK] bank=<Water boils at…>  prompt=<The largest planet in our…>  -> " Jupiter, and it's a truly"
+  [OK] bank=<Water boils at…>  prompt=<The author of Romeo and J…>  -> ' William Shakespeare.\n\nThe author of Romeo'
+  [OK] bank=<Water boils at…>  prompt=<The Great Wall is located…>  -> ' China. It is a massive fortification built'
+  [OK] bank=<The Great Wall is located…>  prompt=<The capital of France is…>  -> ' Paris.\n\nThe largest city in France'
+  [OK] bank=<The Great Wall is located…>  prompt=<The capital of Japan is…>  -> ' Tokyo.\n\nThe population of Tokyo is'
+  [OK] bank=<The Great Wall is located…>  prompt=<The largest planet in our…>  -> " Jupiter, and it's a truly"
+  [OK] bank=<The Great Wall is located…>  prompt=<The author of Romeo and J…>  -> ' William Shakespeare.\n\nThe author of Romeo'
+  [OK] bank=<The Great Wall is located…>  prompt=<Water boils at…>  -> ' 100 degrees Celsius.\n\n'
+
+=== summary ===
+counterfactual injection success: 6/6 facts
+cross-prompt independence:        24/30 pairs preserved truth
+overall pass: True
+
+[e21b] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e21b_crossmodel/google_gemma_3_1b_it_L13_500.json
+[gemma3] done
+[e02-ranksweep] start
+  rank=16 seed=0 at 02:54:41
+[e02:n512_t120_single_s200_seed0] train=120 test=120 preload=512
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:41,  3.92it/s]Loading weights:  14%|█▍        | 55/398 [00:00<00:01, 195.43it/s]Loading weights:  26%|██▌       | 103/398 [00:00<00:01, 290.65it/s]Loading weights:  36%|███▌      | 142/398 [00:00<00:00, 321.55it/s]Loading weights:  45%|████▌     | 181/398 [00:00<00:00, 318.12it/s]Loading weights:  55%|█████▌    | 220/398 [00:00<00:00, 338.81it/s]Loading weights:  65%|██████▍   | 257/398 [00:00<00:00, 347.36it/s]Loading weights:  74%|███████▍  | 295/398 [00:00<00:00, 354.25it/s]Loading weights:  84%|████████▍ | 334/398 [00:01<00:00, 362.52it/s]Loading weights:  93%|█████████▎| 372/398 [00:01<00:00, 332.62it/s]Loading weights: 100%|██████████| 398/398 [00:01<00:00, 298.09it/s]
+[e02:n512_t120_single_s200_seed0] BEFORE base=12.7217 real=12.7966 rand=12.7574
+  [e02:n512_t120_single_s200_seed0] step 1/200 loss(avg50)=11.4640 (0.2s)
+  [e02:n512_t120_single_s200_seed0] step 100/200 loss(avg50)=11.7741 (18.0s)
+  [e02:n512_t120_single_s200_seed0] step 200/200 loss(avg50)=9.8386 (35.5s)
+[e02:n512_t120_single_s200_seed0] training done in 35.5s
+[e02:n512_t120_single_s200_seed0] AFTER base=12.7217 real=11.7951 rand=12.7594
+[e02:n512_t120_single_s200_seed0] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e02_scale_matrix/cells/n512_t120_single_s200_seed0.json
+  rank=16 seed=1 at 02:56:35
+[e02:n512_t120_single_s200_seed1] train=120 test=120 preload=512
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:  12%|█▏        | 48/398 [00:00<00:00, 461.79it/s]Loading weights:  28%|██▊       | 113/398 [00:00<00:00, 559.99it/s]Loading weights:  44%|████▎     | 174/398 [00:00<00:00, 578.02it/s]Loading weights:  59%|█████▉    | 234/398 [00:00<00:00, 580.18it/s]Loading weights:  74%|███████▎  | 293/398 [00:00<00:00, 573.39it/s]Loading weights:  88%|████████▊ | 351/398 [00:00<00:00, 552.29it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 551.96it/s]
+[e02:n512_t120_single_s200_seed1] BEFORE base=11.4167 real=11.4997 rand=11.4517
+  [e02:n512_t120_single_s200_seed1] step 1/200 loss(avg50)=15.1672 (0.2s)
+  [e02:n512_t120_single_s200_seed1] step 100/200 loss(avg50)=11.6571 (19.3s)
+  [e02:n512_t120_single_s200_seed1] step 200/200 loss(avg50)=10.8915 (38.7s)
+[e02:n512_t120_single_s200_seed1] training done in 38.7s
+[e02:n512_t120_single_s200_seed1] AFTER base=11.4167 real=9.5545 rand=11.4513
+[e02:n512_t120_single_s200_seed1] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e02_scale_matrix/cells/n512_t120_single_s200_seed1.json
+  rank=16 seed=2 at 02:58:34
+[e02:n512_t120_single_s200_seed2] train=120 test=120 preload=512
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:38,  4.05it/s]Loading weights:   5%|▌         | 20/398 [00:00<00:05, 70.39it/s]Loading weights:  16%|█▌        | 63/398 [00:00<00:01, 191.90it/s]Loading weights:  31%|███▏      | 125/398 [00:00<00:00, 330.19it/s]Loading weights:  48%|████▊     | 190/398 [00:00<00:00, 429.95it/s]Loading weights:  64%|██████▍   | 256/398 [00:00<00:00, 497.17it/s]Loading weights:  81%|████████  | 322/398 [00:00<00:00, 540.71it/s]Loading weights:  95%|█████████▌| 380/398 [00:00<00:00, 546.46it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 398.60it/s]
+[e02:n512_t120_single_s200_seed2] BEFORE base=12.7210 real=12.6747 rand=12.6672
+  [e02:n512_t120_single_s200_seed2] step 1/200 loss(avg50)=13.0254 (0.2s)
+  [e02:n512_t120_single_s200_seed2] step 100/200 loss(avg50)=11.3943 (17.9s)
+  [e02:n512_t120_single_s200_seed2] step 200/200 loss(avg50)=10.1602 (35.3s)
+[e02:n512_t120_single_s200_seed2] training done in 35.3s
+[e02:n512_t120_single_s200_seed2] AFTER base=12.7210 real=10.8463 rand=12.6838
+[e02:n512_t120_single_s200_seed2] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e02_scale_matrix/cells/n512_t120_single_s200_seed2.json
+  rank=32 seed=0 at 03:00:24
+[e02:n512_t120_single_s200_seed0] train=120 test=120 preload=512
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:  12%|█▏        | 49/398 [00:00<00:00, 489.72it/s]Loading weights:  28%|██▊       | 112/398 [00:00<00:00, 572.19it/s]Loading weights:  43%|████▎     | 170/398 [00:00<00:00, 572.53it/s]Loading weights:  59%|█████▉    | 235/398 [00:00<00:00, 598.40it/s]Loading weights:  75%|███████▌  | 300/398 [00:00<00:00, 612.83it/s]Loading weights:  91%|█████████ | 363/398 [00:00<00:00, 615.98it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 581.26it/s]
+[e02:n512_t120_single_s200_seed0] BEFORE base=12.7217 real=12.7966 rand=12.7545
+  [e02:n512_t120_single_s200_seed0] step 1/200 loss(avg50)=11.4640 (0.2s)
+  [e02:n512_t120_single_s200_seed0] step 100/200 loss(avg50)=11.5008 (17.8s)
+  [e02:n512_t120_single_s200_seed0] step 200/200 loss(avg50)=6.9814 (35.6s)
+[e02:n512_t120_single_s200_seed0] training done in 35.6s
+[e02:n512_t120_single_s200_seed0] AFTER base=12.7217 real=10.4344 rand=12.7439
+[e02:n512_t120_single_s200_seed0] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e02_scale_matrix/cells/n512_t120_single_s200_seed0.json
+  rank=32 seed=1 at 03:02:17
+[e02:n512_t120_single_s200_seed1] train=120 test=120 preload=512
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   4%|▍         | 16/398 [00:00<00:02, 153.98it/s]Loading weights:  20%|██        | 80/398 [00:00<00:00, 431.06it/s]Loading weights:  37%|███▋      | 146/398 [00:00<00:00, 526.38it/s]Loading weights:  53%|█████▎    | 212/398 [00:00<00:00, 571.05it/s]Loading weights:  68%|██████▊   | 270/398 [00:00<00:00, 565.99it/s]Loading weights:  84%|████████▎ | 333/398 [00:00<00:00, 581.93it/s]Loading weights:  98%|█████████▊| 392/398 [00:00<00:00, 568.86it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 541.89it/s]
+[e02:n512_t120_single_s200_seed1] BEFORE base=11.4167 real=11.4997 rand=11.4494
+  [e02:n512_t120_single_s200_seed1] step 1/200 loss(avg50)=15.1672 (0.2s)
+  [e02:n512_t120_single_s200_seed1] step 100/200 loss(avg50)=11.4627 (18.0s)
+  [e02:n512_t120_single_s200_seed1] step 200/200 loss(avg50)=10.2484 (35.4s)
+[e02:n512_t120_single_s200_seed1] training done in 35.4s
+[e02:n512_t120_single_s200_seed1] AFTER base=11.4167 real=9.1198 rand=11.4522
+[e02:n512_t120_single_s200_seed1] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e02_scale_matrix/cells/n512_t120_single_s200_seed1.json
+  rank=32 seed=2 at 03:04:09
+[e02:n512_t120_single_s200_seed2] train=120 test=120 preload=512
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   4%|▍         | 16/398 [00:00<00:02, 152.91it/s]Loading weights:  20%|██        | 80/398 [00:00<00:00, 433.51it/s]Loading weights:  36%|███▌      | 143/398 [00:00<00:00, 518.45it/s]Loading weights:  51%|█████     | 203/398 [00:00<00:00, 549.34it/s]Loading weights:  67%|██████▋   | 268/398 [00:00<00:00, 585.11it/s]Loading weights:  84%|████████▍ | 334/398 [00:00<00:00, 604.57it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 562.70it/s]
+[e02:n512_t120_single_s200_seed2] BEFORE base=12.7210 real=12.6747 rand=12.6798
+  [e02:n512_t120_single_s200_seed2] step 1/200 loss(avg50)=13.0254 (0.2s)
+  [e02:n512_t120_single_s200_seed2] step 100/200 loss(avg50)=11.1570 (17.7s)
+  [e02:n512_t120_single_s200_seed2] step 200/200 loss(avg50)=9.6136 (34.2s)
+[e02:n512_t120_single_s200_seed2] training done in 34.2s
+[e02:n512_t120_single_s200_seed2] AFTER base=12.7210 real=10.0646 rand=12.6760
+[e02:n512_t120_single_s200_seed2] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e02_scale_matrix/cells/n512_t120_single_s200_seed2.json
+  rank=128 seed=0 at 03:06:00
+[e02:n512_t120_single_s200_seed0] train=120 test=120 preload=512
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:17,  5.11it/s]Loading weights:  13%|█▎        | 50/398 [00:00<00:01, 209.61it/s]Loading weights:  28%|██▊       | 113/398 [00:00<00:00, 363.65it/s]Loading weights:  44%|████▎     | 174/398 [00:00<00:00, 448.92it/s]Loading weights:  60%|█████▉    | 237/398 [00:00<00:00, 508.59it/s]Loading weights:  76%|███████▌  | 301/398 [00:00<00:00, 549.28it/s]Loading weights:  90%|█████████ | 359/398 [00:00<00:00, 539.93it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 433.88it/s]
+[e02:n512_t120_single_s200_seed0] BEFORE base=12.7217 real=12.7966 rand=12.7564
+  [e02:n512_t120_single_s200_seed0] step 1/200 loss(avg50)=11.4640 (0.3s)
+  [e02:n512_t120_single_s200_seed0] step 100/200 loss(avg50)=10.2490 (16.7s)
+  [e02:n512_t120_single_s200_seed0] step 200/200 loss(avg50)=6.2727 (33.1s)
+[e02:n512_t120_single_s200_seed0] training done in 33.1s
+[e02:n512_t120_single_s200_seed0] AFTER base=12.7217 real=9.4029 rand=12.7687
+[e02:n512_t120_single_s200_seed0] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e02_scale_matrix/cells/n512_t120_single_s200_seed0.json
+  rank=128 seed=1 at 03:07:51
+[e02:n512_t120_single_s200_seed1] train=120 test=120 preload=512
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   4%|▍         | 16/398 [00:00<00:02, 155.45it/s]Loading weights:  20%|██        | 80/398 [00:00<00:00, 430.45it/s]Loading weights:  36%|███▌      | 143/398 [00:00<00:00, 519.79it/s]Loading weights:  52%|█████▏    | 205/398 [00:00<00:00, 558.85it/s]Loading weights:  67%|██████▋   | 268/398 [00:00<00:00, 583.68it/s]Loading weights:  84%|████████▍ | 334/398 [00:00<00:00, 603.90it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 562.86it/s]
+[e02:n512_t120_single_s200_seed1] BEFORE base=11.4167 real=11.4997 rand=11.4531
+  [e02:n512_t120_single_s200_seed1] step 1/200 loss(avg50)=15.1672 (0.2s)
+  [e02:n512_t120_single_s200_seed1] step 100/200 loss(avg50)=9.9539 (16.9s)
+  [e02:n512_t120_single_s200_seed1] step 200/200 loss(avg50)=7.3441 (33.1s)
+[e02:n512_t120_single_s200_seed1] training done in 33.1s
+[e02:n512_t120_single_s200_seed1] AFTER base=11.4167 real=6.6613 rand=11.4578
+[e02:n512_t120_single_s200_seed1] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e02_scale_matrix/cells/n512_t120_single_s200_seed1.json
+  rank=128 seed=2 at 03:09:42
+[e02:n512_t120_single_s200_seed2] train=120 test=120 preload=512
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   4%|▍         | 16/398 [00:00<00:02, 156.14it/s]Loading weights:  20%|██        | 80/398 [00:00<00:00, 426.56it/s]Loading weights:  36%|███▌      | 143/398 [00:00<00:00, 516.89it/s]Loading weights:  51%|█████▏    | 204/398 [00:00<00:00, 552.76it/s]Loading weights:  68%|██████▊   | 269/398 [00:00<00:00, 580.08it/s]Loading weights:  84%|████████▍ | 334/398 [00:00<00:00, 595.40it/s]Loading weights:  99%|█████████▉| 394/398 [00:00<00:00, 530.54it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 525.08it/s]
+[e02:n512_t120_single_s200_seed2] BEFORE base=12.7210 real=12.6747 rand=12.6755
+  [e02:n512_t120_single_s200_seed2] step 1/200 loss(avg50)=13.0254 (0.2s)
+  [e02:n512_t120_single_s200_seed2] step 100/200 loss(avg50)=10.4543 (16.9s)
+  [e02:n512_t120_single_s200_seed2] step 200/200 loss(avg50)=6.9019 (33.0s)
+[e02:n512_t120_single_s200_seed2] training done in 33.0s
+[e02:n512_t120_single_s200_seed2] AFTER base=12.7210 real=8.1065 rand=12.6820
+[e02:n512_t120_single_s200_seed2] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e02_scale_matrix/cells/n512_t120_single_s200_seed2.json
+[done] 2026年 5月17日 星期日 03时11分30秒 CST
