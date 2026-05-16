@@ -64,6 +64,8 @@ The original interpretation — "preloaded b-vectors hold compressed knowledge t
 - **Layer sweep (seed 0)**: L3=−1.58, L9=−3.90, L21=**−6.29** (best), L33=−3.97. The improvement scales with where in the residual stream a small additive transform is most useful — a property of adapter placement, not of memory geometry.
 - **H3 (subject+relation disjoint OOD, seed 0)**: Δ=−2.69 PASS. The projector generalizes beyond memorized routing, which is *consistent* with a content-blind adapter (the adapter helps anywhere the train distribution is informative about the eval distribution), not specifically with retrieval.
 - **e03 capability drift (seed 0, WikiText-2)**: base ppl=8.349, bank_on ppl=8.380 (relative drift +0.37%, well under the 5% threshold). The adapter does not corrupt general LM capability — exactly what one expects from a small low-rank residual.
+- **e02 scale breakpoint (wave5)**: Δ holds ≈ −5 from n=512 through n=2048/t=200. At n=2048/t=500/s=500 Δ degrades to −2.00; at n=2048/t=1000/s=1000 Δ **inverts to +0.61** (the "memory" actively *hurts*). This is consistent with a fixed-rank-64 projector running out of substrate capacity when forced to absorb more diverse train items into the same adapter manifold — and is *inconsistent* with a retrieval interpretation, under which more bank entries should never reverse the sign.
+- **e13 multi-task transfer (wave5 partial, WikiText-2 only)**: after factual-completion training, Δ(WikiText-2) = **+0.0096** (no transfer either way). The adapter learns something specific to the factual-completion distribution; it neither generalizes (capacity-as-LM-improvement reading predicted negative) nor is it sharply local. The full e13 lambada/hellaswag/gsm8k retry is queued in wave6.
 
 **Implications for the project.**
 
@@ -99,7 +101,12 @@ The original interpretation — "preloaded b-vectors hold compressed knowledge t
 | **e01-h11 (e11/n1)** | Δ NLL on pure random L2=15 bank | **−6.05** | ❌ FALSIFIES content-read claim |
 | **e01-h11 (e11/n3)** | Δ NLL on single-row replicated bank | **−5.50** | ❌ FALSIFIES content-read claim |
 | **e01-h11 (e11/n5)** | Δ NLL on constant-vector bank | **−2.83** | ❌ FALSIFIES content-read claim |
-| **e02** | Scale matrix (N_preload, N_train, lr, steps) | [TBD:e02] | not started |
+| **e02** | Scale matrix (N_preload, N_train, lr, steps) | **BREAKPOINT FOUND** (wave5) | ⚠️ projector collapses at scale |
+| **e02-h** | n=512, t=200, s=200 | Δ=**−4.78** | typical regime |
+| **e02-h** | n=1024, t=200, s=500 | Δ=**−5.11** | typical regime |
+| **e02-h** | n=2048, t=200, s=500 | Δ=**−4.10** | mild degradation |
+| **e02-h** | n=2048, t=500, s=500 | Δ=**−2.00** | degraded |
+| **e02-h** | n=2048, t=1000, s=1000 | Δ=**+0.61** | ❌ FAILS — bank "memory" inverts |
 | **e03** | WikiText-2 PPL drift (rel%) | base=8.349 / bank_on=8.380 → **+0.37%** | ✅ PASS (≪ 5% threshold) |
 | **e03** | lm-eval acc drop (pp) | [TBD:e03] | not started |
 | **e04** | ACT halt mean K_used | [TBD:e04] | not started |
