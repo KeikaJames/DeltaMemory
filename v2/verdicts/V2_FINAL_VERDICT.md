@@ -22,7 +22,16 @@
 - **No end-to-end multi-round K>1 proof**: Phase B2 and E01 use K=2 rounds, but halt mechanism, ACT-style dynamic pondering, and K curriculum have not been validated.
 - **Pause-head training not demonstrated in v2**: Phase B2 did not train pause heads; auto-pause mechanism remains unvalidated at v2 scale.
 
-**Overall Stance**: **Substantially falsified in its original framing**; see §1b (Headline finding, revised). The mechanism is real but its interpretation has changed. The K-projector + non-empty bank produces a reliable NLL drop, but e11 wave-3 falsifies the "memory content matters" reading: random Gaussian banks, single-row-replicated banks, and constant-vector banks all yield NLL drops in the same range as (or larger than) the canonical real bank. The remaining defensible claim is narrower: the v2 architecture is a **parameter-efficient adapter** for a frozen LM. Cross-model (e05), capability drift (e03), and multi-round (e04, e14, e15) experiments are still required, but the *headline framing* of the project must be revised before any of those run.
+**Overall Stance**: **Substantially falsified in its original framing**; see §1b (Headline finding, revised). The mechanism is real but its interpretation has changed. The K-projector + non-empty bank produces a reliable NLL drop, but six independent wave-3 / wave-5 falsifiers now converge on the "adapter, not memory" reading:
+
+1. **e11 noise variants** (n1/n2/n3/n4/n5) at both L9 and L21 — random Gaussian, single-row-replicated, and constant-vector banks all match or exceed the real bank's Δ NLL.
+2. **e02 scale breakpoint** — pushing n_preload=2048, n_train=1000, steps=1000 *inverts* the sign of Δ to **+0.61** (the "memory" actively *hurts*). No retrieval system inverts under scaling.
+3. **e13 multi-task** (WikiText-2 partial) — after factual-completion training, Δ on WikiText is +0.0096 (no transfer, neither helpful nor harmful).
+4. **e17 negation robustness** — on standard prompts with **random** (incorrect) targets, the bank still lowers NLL by **2.77 nats**. Direct content-blindness on the cleanest probe in the suite.
+5. **e18 2-hop chaining** — having both bridge facts A *and* B in the bank gives 0.01-nat advantage over having only one. Composition does not happen.
+6. **6 sign-convention driver bugs** found and back-patched across e09/e11/e12/e14/e17/e18/e19; aggregator now defensively recomputes signed Δ. The aggregate scoreboard (`v2/scripts/all_results.md`, 47 rows / 12 experiments) is consistent.
+
+The remaining defensible claim is narrower: the v2 architecture is a **parameter-efficient adapter** for a frozen LM, plumbed through an AttentionBank-like API. The only live retrieval-rescue paths are **e10 top-K cosine** (running) and **e06 strict relation-disjoint OOD** (pending).
 
 ---
 
