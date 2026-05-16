@@ -384,10 +384,10 @@ def main():
             post_results[key] = nll
             print(f"  [e18:post] {key}: {nll:.4f}")
     
-    # Compute deltas and pass criterion
-    delta_AB_vs_None = post_results["None_two_hop"] - post_results["AB_both_two_hop"]
-    delta_AB_vs_A = post_results["A_only_two_hop"] - post_results["AB_both_two_hop"]
-    delta_AB_vs_B = post_results["B_only_two_hop"] - post_results["AB_both_two_hop"]
+    # Compute deltas and pass criterion (signed convention: negative = AB helps)
+    delta_AB_vs_None = post_results["AB_both_two_hop"] - post_results["None_two_hop"]
+    delta_AB_vs_A = post_results["AB_both_two_hop"] - post_results["A_only_two_hop"]
+    delta_AB_vs_B = post_results["AB_both_two_hop"] - post_results["B_only_two_hop"]
     
     pass_criterion = (delta_AB_vs_A <= -0.8 and delta_AB_vs_B <= -0.8)
     
