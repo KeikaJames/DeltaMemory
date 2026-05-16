@@ -121,35 +121,45 @@ def section_c() -> list[str]:
     out = ["\n## C. e13 multi-task — capacity vs retrieval discriminator\n"]
     p = E / "e13_multi_task_capability" / "e13_seed0.json"
     if not p.exists():
-        # try alternate names
         cands = list((E / "e13_multi_task_capability").glob("*.json"))
         p = cands[0] if cands else p
     d = load(p)
     if not d:
         out.append("_e13 not done yet_")
         return out
-    out.append("| task | base | after.real | Δ |")
-    out.append("|---|---:|---:|---:|")
-    # try common shapes
-    by_task = d.get("by_task") or d.get("tasks") or {}
-    if isinstance(by_task, dict) and by_task:
-        for name, blk in by_task.items():
-            base = blk.get("base") if isinstance(blk, dict) else None
-            real = blk.get("real") if isinstance(blk, dict) else None
-            dl = (real - base) if isinstance(real,(int,float)) and isinstance(base,(int,float)) else None
-            out.append(f"| {name} | {fmt(base)} | {fmt(real)} | {fmt(dl)} |")
-        # capacity-vs-retrieval heuristic
-        deltas = []
-        for blk in by_task.values():
-            if isinstance(blk, dict) and isinstance(blk.get("base"),(int,float)) and isinstance(blk.get("real"),(int,float)):
-                deltas.append(blk["real"] - blk["base"])
-        if deltas:
-            import statistics as st
-            mean = st.mean(deltas); sd = st.pstdev(deltas)
-            out.append(f"\nΔ mean={mean:+.3f} ± {sd:.3f} across {len(deltas)} tasks.")
-            out.append("If sd/|mean| < 0.3 → uniform → **capacity**. If task-selective → retrieval.")
-    else:
+    benchmarks = d.get("benchmarks", {}) or {}
+    if not benchmarks:
         out.append(f"_unrecognized shape; keys: {list(d.keys())}_")
+        return out
+    out.append("| task | metric | base | bank_off | bank_on | Δ (on−base) |")
+    out.append("|---|---|---:|---:|---:|---:|")
+    deltas = []
+    for name, blk in benchmarks.items():
+        base = blk.get("base", {}); off = blk.get("bank_off", {}); on = blk.get("bank_on", {})
+        metric = "nll" if "nll" in base else ("acc" if "acc" in base else None)
+        if metric is None:
+            out.append(f"| {name} | ? | — | — | — | — |")
+            continue
+        bv, ov, nv = base.get(metric), off.get(metric), on.get(metric)
+        dl = (nv - bv) if isinstance(nv,(int,float)) and isinstance(bv,(int,float)) else None
+        if dl is not None and metric == "nll":
+            deltas.append(("nll", name, dl))
+        elif dl is not None and metric == "acc":
+            deltas.append(("acc", name, dl))
+        out.append(f"| {name} | {metric} | {fmt(bv)} | {fmt(ov)} | {fmt(nv)} | {fmt(dl)} |")
+    nll_helps = [(n, x) for k, n, x in deltas if k == "nll" and x <= -0.5]
+    nll_hurts = [(n, x) for k, n, x in deltas if k == "nll" and x >  0.5]
+    acc_helps = [(n, x) for k, n, x in deltas if k == "acc" and x >=  0.03]
+    acc_hurts = [(n, x) for k, n, x in deltas if k == "acc" and x <= -0.03]
+    out.append("")
+    out.append(f"NLL tasks helped (Δ≤−0.5): {nll_helps or 'none'}")
+    out.append(f"NLL tasks hurt  (Δ≥+0.5): {nll_hurts or 'none'}")
+    out.append(f"Acc tasks helped (Δ≥+0.03): {acc_helps or 'none'}")
+    out.append(f"Acc tasks hurt  (Δ≤−0.03): {acc_hurts or 'none'}")
+    out.append("")
+    out.append("**Interpretation:**")
+    out.append("- ≥2 unrelated tasks helped → **capacity / adapter** reading confirmed.")
+    out.append("- Only the train-aligned task helped (others ≈0 or hurt) → **retrieval-specific** reading survives.")
     return out
 
 
