@@ -1,14 +1,14 @@
-# V2 Differentiation — Why HNM is Not X
+# V2 Differentiation — Why ALB is Not X
 
-> **Purpose**: Establish precise mathematical and operational distinctions between HNM (Hippocampus-style Native LLM Memory) and existing techniques (RAG, LoRA, ICL, CoT, MEMIT, Constitutional AI). Prevent category confusion.
+> **Purpose**: Establish precise mathematical and operational distinctions between ALB (Attention-Side Latent Bank) and existing techniques (RAG, LoRA, ICL, CoT, MEMIT, Constitutional AI). Prevent category confusion.
 
 ---
 
-## 1. HNM vs RAG (Retrieval-Augmented Generation)
+## 1. ALB vs RAG (Retrieval-Augmented Generation)
 
 ### 1.1 Operational Difference
 
-| Aspect | RAG | HNM |
+| Aspect | RAG | ALB |
 |---|---|---|
 | **What is retrieved** | Text strings (documents, passages, KB entries) | Pre-computed hidden states (h ∈ ℝ^d) from model's internal layers |
 | **Where it enters** | Prompt (input token sequence) | AttentionBank → directly into K/V at target layer |
@@ -33,7 +33,7 @@ for l = 1 to L:
 Output = LM_head(h_L)
 ```
 
-**HNM forward pass** (LPL, K=2 rounds, bank injected at layer l_target):
+**ALB forward pass** (LPL, K=2 rounds, bank injected at layer l_target):
 ```
 Round 1:
   Tokens = tokenize(q) ∈ ℕ^T       (no retrieved docs appended)
@@ -69,19 +69,19 @@ Round 2 (bank injection):
   Output = LM_head(h_L)
 ```
 
-**Key distinction**: RAG augments the *input token sequence*, HNM augments the *attention key-value space at runtime* without changing prompt tokens.
+**Key distinction**: RAG augments the *input token sequence*, ALB augments the *attention key-value space at runtime* without changing prompt tokens.
 
 ---
 
-## 2. HNM vs LoRA / PEFT / Fine-Tuning
+## 2. ALB vs LoRA / PEFT / Fine-Tuning
 
 ### 2.1 Operational Difference
 
-| Aspect | LoRA / Fine-Tuning | HNM |
+| Aspect | LoRA / Fine-Tuning | ALB |
 |---|---|---|
 | **Base model weights** | Modified (fine-tuning) or augmented with per-layer adapters (LoRA) | **Frozen** — W_Q, W_K, W_V, W_O, MLP, embeddings untouched |
 | **Trainable params** | LoRA: rank-r adapters on all linear layers across L layers (~10M-100M params for LLaMA-7B, r=16-64) | K-projector P (rank-r, single shared or per-layer) + gate heads (~420K for Qwen3-4B, r=64, L=40) |
-| **Storage per task** | LoRA: one adapter checkpoint per fine-tuned task (~10-100 MB) | HNM: one bank.pt (N_b × d vectors) + one P checkpoint (~1-5 MB) |
+| **Storage per task** | LoRA: one adapter checkpoint per fine-tuned task (~10-100 MB) | ALB: one bank.pt (N_b × d vectors) + one P checkpoint (~1-5 MB) |
 | **Inference** | Standard forward, but each linear layer has added adapter path | Multi-round forward with bank concat at target layers |
 | **Memory source** | Implicitly encoded in adapter weights (not interpretable) | Explicitly stored as h-vectors in bank (can inspect/edit/inject) |
 
@@ -91,7 +91,7 @@ Round 2 (bank injection):
 - Trainable: rank-64 on W_Q, W_K, W_V, W_O per layer + MLP down/up
   = 40 layers × (4 attn adapters + 2 MLP adapters) × 2 × (3584 × 64) = **≈110M params**
 
-**HNM (Phase B2)** on Qwen3-4B:
+**ALB (Phase B2)** on Qwen3-4B:
 - K-projector P (rank-64, shared): d × r + r × d = 3584 × 64 × 2 = **458,752 params**
 - Bank_gate heads (per-layer, 40 heads): 40 × (3584 + 1) = **143,360 params**
 - Pause heads (not trained in B2, but if trained): 40 × (3584 + 1) = **143,360 params**
@@ -104,17 +104,17 @@ Round 2 (bank injection):
 ### 2.3 Conceptual Difference
 
 - **LoRA/fine-tuning**: "Teach the model new behavior by adjusting internal computation."
-- **HNM**: "Give the model external memory it can attend to; model's computation stays frozen."
+- **ALB**: "Give the model external memory it can attend to; model's computation stays frozen."
 
-HNM is closer to **external knowledge grounding** than model editing.
+ALB is closer to **external knowledge grounding** than model editing.
 
 ---
 
-## 3. HNM vs In-Context Learning (ICL)
+## 3. ALB vs In-Context Learning (ICL)
 
 ### 3.1 Operational Difference
 
-| Aspect | ICL | HNM |
+| Aspect | ICL | ALB |
 |---|---|---|
 | **How examples provided** | Prefix prompt with few-shot examples (text) | Pre-fill bank with h-vectors from example encodings |
 | **Prompt length** | T_prompt = T_query + k × T_example (grows linearly with k) | T_prompt = T_query (fixed, minimal) |
@@ -135,7 +135,7 @@ Prompt:
 - Tokens: ~50 (3 examples × ~12 tokens + query ~14 tokens)
 - Each inference re-tokenizes and re-encodes all 3 examples.
 
-**HNM** for fact-recall:
+**ALB** for fact-recall:
 ```
 Bank preload (done once):
   - h₁ = encode("Paris is the capital of France.")[-1]  (last-token hidden at layer 9)
@@ -149,22 +149,22 @@ Prompt (every inference):
 - Tokens: ~8 (query only)
 - Examples never re-encoded; attention reads bank.slots[9] directly.
 
-**Cost difference**: ICL grows prompt by k examples → O((T_q + k·T_ex)²) attention. HNM keeps prompt fixed → O(T_q² + T_q·N_b).
+**Cost difference**: ICL grows prompt by k examples → O((T_q + k·T_ex)²) attention. ALB keeps prompt fixed → O(T_q² + T_q·N_b).
 
 ### 3.3 Conceptual Difference
 
 - **ICL**: "Examples are part of the conversational context; model learns task in-context."
-- **HNM**: "Examples are external memory; model retrieves relevant memory via attention."
+- **ALB**: "Examples are external memory; model retrieves relevant memory via attention."
 
-ICL and HNM can **co-exist**: a few high-level examples in prompt (ICL) + large knowledge base in bank (HNM).
+ICL and ALB can **co-exist**: a few high-level examples in prompt (ICL) + large knowledge base in bank (ALB).
 
 ---
 
-## 4. HNM vs Chain-of-Thought (CoT) / Scratchpad
+## 4. ALB vs Chain-of-Thought (CoT) / Scratchpad
 
 ### 4.1 Operational Difference
 
-| Aspect | CoT / Scratchpad | HNM |
+| Aspect | CoT / Scratchpad | ALB |
 |---|---|---|
 | **What is generated** | Extra output tokens (reasoning steps as text) | NO extra output tokens — reasoning via extra *attention rounds* |
 | **Token cost** | O(T_q + T_cot) tokens generated (T_cot can be 10-100× T_q for complex reasoning) | O(T_q) tokens generated (same as no-CoT baseline) |
@@ -186,7 +186,7 @@ Model output:
 - Tokens generated: ~50 (CoT reasoning) + 1 (final answer)
 - User sees reasoning text.
 
-**HNM (with K_max=4)** for same task:
+**ALB (with K_max=4)** for same task:
 ```
 Model output:
 "888"
@@ -199,7 +199,7 @@ Model output:
   - Round 4: output final answer
 - User does NOT see intermediate steps (hidden-state ponder).
 
-**Cost**: CoT incurs O(T_cot) token generation; HNM incurs K × (forward pass overhead) but NO extra output tokens.
+**Cost**: CoT incurs O(T_cot) token generation; ALB incurs K × (forward pass overhead) but NO extra output tokens.
 
 ### 4.3 Equation Difference
 
@@ -215,7 +215,7 @@ for t in range(T_max):
 Output = tokens  (includes reasoning + answer)
 ```
 
-**HNM multi-round** (no extra token generation):
+**ALB multi-round** (no extra token generation):
 ```
 Prompt = "What is 37 × 24?"
 for k in range(K_max):
@@ -226,15 +226,15 @@ for k in range(K_max):
 Output = sample(h^K[-1])  (single answer token, no reasoning text)
 ```
 
-**Key distinction**: CoT generates reasoning *tokens*, HNM performs reasoning via *repeated attention with bank accumulation*.
+**Key distinction**: CoT generates reasoning *tokens*, ALB performs reasoning via *repeated attention with bank accumulation*.
 
 ---
 
-## 5. HNM vs MEMIT / ROME (Model Editing)
+## 5. ALB vs MEMIT / ROME (Model Editing)
 
 ### 5.1 Operational Difference
 
-| Aspect | MEMIT / ROME | HNM |
+| Aspect | MEMIT / ROME | ALB |
 |---|---|---|
 | **What is edited** | Base model weights W (typically MLP layers) | NO weights edited — memory stored externally in bank |
 | **Edit persistence** | Permanent (until model reloaded or next edit) | Session-based (bank cleared between inferences) OR persistent (preloaded LT bank) |
@@ -256,7 +256,7 @@ Given: (subject, relation, target_new) to insert
 5. Model now "knows" (subject, relation, target_new) without re-training
 ```
 
-**HNM** (Phase B2, static bank):
+**ALB** (Phase B2, static bank):
 ```
 Given: (subject, relation, target_new) to insert
 1. Compute h* = encode(subject + relation)[-1]  at layer l*
@@ -268,26 +268,26 @@ Given: (subject, relation, target_new) to insert
 5. Model weights W untouched; knowledge in bank, accessed via attention
 ```
 
-**Key distinction**: MEMIT modifies W (permanent until reverted); HNM modifies bank (external, non-invasive).
+**Key distinction**: MEMIT modifies W (permanent until reverted); ALB modifies bank (external, non-invasive).
 
 ### 5.3 Use-Case Difference
 
 - **MEMIT**: "Correct a factual error in the model (e.g., 'Biden is president' → 'Trump is president')" → need persistence, few edits
-- **HNM**: "Give the model access to a large, evolving knowledge base (e.g., user's email archive, codebase state)" → need scalability, session control
+- **ALB**: "Give the model access to a large, evolving knowledge base (e.g., user's email archive, codebase state)" → need scalability, session control
 
-HNM cannot replace MEMIT for permanent single-fact corrections; MEMIT cannot replace HNM for large-scale external memory.
+ALB cannot replace MEMIT for permanent single-fact corrections; MEMIT cannot replace ALB for large-scale external memory.
 
 ---
 
-## 6. HNM vs Constitutional AI / System Prompts
+## 6. ALB vs Constitutional AI / System Prompts
 
 ### 6.1 Operational Difference
 
-| Aspect | Constitutional AI / System Prompts | HNM |
+| Aspect | Constitutional AI / System Prompts | ALB |
 |---|---|---|
 | **What it controls** | Model's objective, alignment, safety guardrails, persona | Model's access to external memory (facts, context, working memory) |
 | **Where it lives** | Prompt (system message, fixed prefix, or fine-tuning objective) | AttentionBank (hidden-state K/V augmentation) |
-| **Orthogonality** | Completely orthogonal to HNM | Completely orthogonal to Constitutional AI |
+| **Orthogonality** | Completely orthogonal to ALB | Completely orthogonal to Constitutional AI |
 | **Example** | "You are a helpful assistant. Never output harmful content." | bank.slots[9] = [h₁, h₂, …, h_N] (preloaded knowledge) |
 
 ### 6.2 Can They Co-Exist?
@@ -297,7 +297,7 @@ HNM cannot replace MEMIT for permanent single-fact corrections; MEMIT cannot rep
 System Prompt (Constitutional AI):
   "You are a helpful coding assistant. Follow Python PEP8. Never execute unsafe shell commands."
 
-HNM Bank (preloaded at layer 9):
+ALB Bank (preloaded at layer 9):
   - Encoding of project README
   - Encoding of 500 most-used functions in codebase
   - Encoding of user's recent 50 edits (working memory)
@@ -311,7 +311,7 @@ Forward pass:
   - Output: code suggestions (constrained by system prompt, informed by bank memory)
 ```
 
-**Constitutional AI** = objective; **HNM** = mechanism. They serve different purposes and compose naturally.
+**Constitutional AI** = objective; **ALB** = mechanism. They serve different purposes and compose naturally.
 
 ---
 
@@ -431,28 +431,28 @@ if l == L:
 |---|---|---|---|---|
 | **Standard Transformer** | K_self = W_K · h, V_self = W_V · h | Frozen W_K, W_V | 0 (inference) | 0 |
 | **RAG** | K_self from prompt+retrieved_docs | Frozen W_K, W_V | External retriever (~100M) | 0 |
-| **HNM (this work)** | K_self + K_bank (from bank.slots[l]) | K_bank = W_K · (I+P) · h_bank (P learnable) | P (~460K) + gates (~140K) | 0 |
+| **ALB (this work)** | K_self + K_bank (from bank.slots[l]) | K_bank = W_K · (I+P) · h_bank (P learnable) | P (~460K) + gates (~140K) | 0 |
 | **LoRA** | K_self = (W_K + A·B) · h | W_K + low-rank adapter A·B | ~110M (r=64, all layers) | 0 |
 | **ICL** | K_self from prompt+examples | Frozen W_K, W_V | 0 | 0 |
 | **CoT** | K_self from prompt+generated_reasoning | Frozen W_K, W_V | 0 (or fine-tuned) | +10-100 (reasoning tokens) |
 | **MEMIT** | K_self = (W_K + ΔW_K) · h | W_K edited (closed-form ΔW_K) | Edited weights | 0 |
 
-**Unique to HNM**: External h-vector bank + learnable projector P + multi-round bank accumulation, all while keeping base W_K/W_V frozen.
+**Unique to ALB**: External h-vector bank + learnable projector P + multi-round bank accumulation, all while keeping base W_K/W_V frozen.
 
 ---
 
 ## 8. Summary Table
 
-| Comparison | Core Difference | HNM's Position |
+| Comparison | Core Difference | ALB's Position |
 |---|---|---|
-| **vs RAG** | RAG injects *text*, HNM injects *hidden states* | HNM is "latent RAG" — no tokenization of memory |
-| **vs LoRA** | LoRA edits *base weights*, HNM keeps *base frozen* | HNM is external memory, not weight adaptation |
-| **vs ICL** | ICL puts examples in *prompt*, HNM in *bank* | HNM scales to large K without prompt explosion |
-| **vs CoT** | CoT generates *reasoning tokens*, HNM does *reasoning rounds* | HNM is implicit pondering, not explicit text reasoning |
-| **vs MEMIT** | MEMIT *edits W*, HNM stores in *external bank* | HNM is non-invasive, reversible, scalable |
-| **vs Constitutional AI** | Constitutional AI is *objective*, HNM is *mechanism* | Orthogonal — HNM can serve any objective |
+| **vs RAG** | RAG injects *text*, ALB injects *hidden states* | ALB is "latent RAG" — no tokenization of memory |
+| **vs LoRA** | LoRA edits *base weights*, ALB keeps *base frozen* | ALB is external memory, not weight adaptation |
+| **vs ICL** | ICL puts examples in *prompt*, ALB in *bank* | ALB scales to large K without prompt explosion |
+| **vs CoT** | CoT generates *reasoning tokens*, ALB does *reasoning rounds* | ALB is implicit pondering, not explicit text reasoning |
+| **vs MEMIT** | MEMIT *edits W*, ALB stores in *external bank* | ALB is non-invasive, reversible, scalable |
+| **vs Constitutional AI** | Constitutional AI is *objective*, ALB is *mechanism* | Orthogonal — ALB can serve any objective |
 
-**Bottom line**: HNM is a novel memory mechanism that (i) augments attention with external hidden-state banks, (ii) uses a learnable projector to align bank content to layer-specific QK spaces, (iii) keeps base model weights frozen, (iv) supports both long-term (preloaded) and short-term (pause-write) memory, (v) operates via multi-round inference without generating extra output tokens.
+**Bottom line**: ALB is a novel memory mechanism that (i) augments attention with external hidden-state banks, (ii) uses a learnable projector to align bank content to layer-specific QK spaces, (iii) keeps base model weights frozen, (iv) supports both long-term (preloaded) and short-term (pause-write) memory, (v) operates via multi-round inference without generating extra output tokens.
 
 **It is not** retrieval-augmented generation, not parameter-efficient fine-tuning, not in-context learning, not chain-of-thought, not model editing, and not a training objective. It is a **native attention-based memory mechanism** for frozen LLMs.
 

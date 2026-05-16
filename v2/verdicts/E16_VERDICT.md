@@ -80,6 +80,6 @@ The post-eviction Δ_A (and Δ_B) shows large seed variance (0.28 → 4.81). The
 
 ## g. Implications
 
-- The "Hippocampus-style Native LLM Memory" framing — long-term store + working memory with content-based retrieval — is mechanistically not what is happening at v2 scale on Qwen3-4B.
+- The "Attention-Side Latent Bank" framing — long-term store + working memory with content-based retrieval — is mechanistically not what is happening at v2 scale on Qwen3-4B.
 - The K-projector is a parameter-efficient adapter (rank-64 ≈ 420K params) injected via an attention bank API. Its effect on factual completion NLL is real, robust across seeds, and entirely independent of bank payload semantics.
 - Future architectural research should either (a) accept the adapter framing and optimize the bank-as-substrate path, or (b) add an explicit retrieval head with its own learnable address mechanism (current `topk_cosine` retrieval in e10 already failed to demonstrate content-based behavior — random bank under top-K beat real bank).

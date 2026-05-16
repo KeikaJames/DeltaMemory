@@ -1,5 +1,5 @@
 > [!IMPORTANT]
-> **Active line: [`v2/`](./v2/) — Hippocampus-style Native LLM Memory (HNM).**
+> **Active line: [`v2/`](./v2/) — Attention-Side Latent Bank (ALB).**
 > v2 builds on Exp42 Phase B2 (NLL 12.13→6.30 with a learnable rank-64 K-projector
 > over Exp35b's 10⁴ MEMIT bank entries). See [`v2/README.md`](./v2/README.md)
 > for the new architecture (auto-pause + interrupt-API dual channel, long+short

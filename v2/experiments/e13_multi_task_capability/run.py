@@ -1,4 +1,4 @@
-"""e13 — multi-task capability drift: prove v2 HNM doesn't degrade base model.
+"""e13 — multi-task capability drift: prove v2 ALB doesn't degrade base model.
 
 Run a small multi-benchmark suite (WikiText-2, LAMBADA, HellaSwag, GSM8K)
 under three conditions:

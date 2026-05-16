@@ -1,4 +1,4 @@
-"""Public Interrupt API for HNM (Hippocampus-style Native Memory).
+"""Public Interrupt API for ALB (Attention-Side Latent Bank).
 
 The user idea: at any (round, layer, position) during inference, an external
 caller (human or program) can inject a hidden vector ``h_inject`` into the
@@ -61,7 +61,7 @@ def interrupt_batch(bank, *, layer: int, hs: torch.Tensor,
 
 def preload_long_term(bank, *, layer: int, hs: torch.Tensor,
                        freeze_after: bool = True) -> None:
-    """Bulk-load long-term memory (e.g., Exp35b b-vectors) at one layer."""
+    """Bulk-load preloaded latent bank (e.g., Exp35b b-vectors) at one layer."""
     bank.frozen = False
     bank.slots[layer] = hs.to(device=bank.device, dtype=bank.slots[layer].dtype)
     bank.tags[layer] = [(0, -1)] * hs.shape[0]

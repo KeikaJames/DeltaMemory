@@ -138,7 +138,7 @@ but the *information* in that content is not what is being read out.
 This is more consistent with a "free K/V slots = extra capacity" story
 than with a "memory of facts" story. v2's hippocampal framing is **not
 supported** by these falsifiers; the original v1 B2 result is a real
-NLL improvement but does not demonstrate fact recall via memory retrieval.
+NLL improvement but does not demonstrate fact recall via bank readout.
 
 **Next decisive tests** to discriminate "free-capacity adaptation" vs
 "true content read":

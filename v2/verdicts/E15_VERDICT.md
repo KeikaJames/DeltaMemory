@@ -49,6 +49,6 @@ This run is *cumulative* mode (bank carries forward across rounds) at fixed proj
 
 ## g. Implications
 
-- The "K curriculum" and "ponder loss" components of the proposed HNM stack are not load-bearing on this architecture.
+- The "K curriculum" and "ponder loss" components of the proposed ALB stack are not load-bearing on this architecture.
 - Combined with e04 (halt head never fires), the entire multi-round subsystem (auto-pause + halt + cumulative bank) collapses to "do K=2 once and stop."
 - The K=2 fixed-point at Δ=4.75 is itself a useful baseline number for what the projector can recover from a single LPL round.

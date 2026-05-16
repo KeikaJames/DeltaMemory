@@ -51,5 +51,5 @@ A more aggressive design that re-trains the projector specifically on 2-hop chai
 
 ## g. Implications
 
-- The HNM thesis's "chained reasoning via bank composition" claim cannot be supported by this architecture under any seed.
+- The ALB thesis's "chained reasoning via bank composition" claim cannot be supported by this architecture under any seed.
 - Combined with e16-forgetting (A/B symmetry), e10 (random > real under top-K), and e17 (wrong-target lift), the v2 mechanism is structurally incapable of differentiating bank contents during query — composition is a special case of differentiation and therefore impossible.

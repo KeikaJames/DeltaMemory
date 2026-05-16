@@ -1,4 +1,4 @@
-"""e18 2-hop chain reasoning — does HNM compose implicit B→C joins via bank?
+"""e18 2-hop chain reasoning — does ALB compose implicit B→C joins via bank?
 
 **Experiment rationale** (from V2_DIFFERENTIATION.md):
 RAG fails on 2-hop chains when the intermediate entity B is NOT in the prompt.
@@ -6,7 +6,7 @@ The query "A's rel1's rel2?" requires chaining: first retrieve (A, rel1, B),
 then (B, rel2, C). RAG either retrieves text and hopes the prompt linearizes
 the logic, or requires explicit 2-stage prompting with the intermediate entity.
 
-HNM hypothesis: if both b_A (fact about A) and b_B (fact about B) are preloaded
+ALB hypothesis: if both b_A (fact about A) and b_B (fact about B) are preloaded
 into AttentionBank at a shared layer, the model's *frozen* attention mechanism
 can chain via soft-matching on the hidden state for B — no prompt mention needed.
 
@@ -37,7 +37,7 @@ the *mechanism* can chain attention over two preloaded bank entries.
 
 Also: small LMs (e.g. Qwen3-4B) may lack frozen-weight capacity to perform
 implicit joins at all — this is a known limitation. A null result doesn't
-invalidate HNM; it just says the base model can't do multi-hop reasoning
+invalidate ALB; it just says the base model can't do multi-hop reasoning
 without chain-of-thought prompting.
 
 Output: e18_seed{seed}.json with:

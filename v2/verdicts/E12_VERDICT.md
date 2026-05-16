@@ -47,9 +47,9 @@ Each cell (`LT_only`, `ST_only`, `LT_ST_mix_LT_items`, `LT_ST_mix_ST_items`) con
 ## f. Caveat
 
 - Single seed; single rank (64).
-- A larger projector (rank 128/256) or per-channel projectors (separate P_LT and P_ST) was not explored. The hippocampus-inspired thesis hypothesized one shared bank — that exact configuration is what fails here. A *per-channel* projector design could plausibly pass.
+- A larger projector (rank 128/256) or per-channel projectors (separate P_LT and P_ST) was not explored. The attention-side latent bank-inspired thesis hypothesized one shared bank — that exact configuration is what fails here. A *per-channel* projector design could plausibly pass.
 
 ## g. Implications
 
-- The "long+short memory in one AttentionBank" component of the HNM thesis does not work as currently architected at rank-64.
-- If revisited, the architectural fix is per-channel projectors (or per-channel sub-banks with disjoint gating). That moves the design further from the hippocampus single-store metaphor and closer to a routed multi-adapter system.
+- The "long+short memory in one AttentionBank" component of the ALB thesis does not work as currently architected at rank-64.
+- If revisited, the architectural fix is per-channel projectors (or per-channel sub-banks with disjoint gating). That moves the design further from the attention-side latent bank single-store metaphor and closer to a routed multi-adapter system.

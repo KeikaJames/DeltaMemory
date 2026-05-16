@@ -51,5 +51,5 @@ This is a **pilot** — only 200 training steps, single seed, 2×2 grid. A more 
 
 ## g. Implications
 
-- The "dual-channel HNM" thesis's *auto-pause* channel — meant to be implemented through trainable halt heads — is mechanistically inert with the current projector + training recipe.
+- The "dual-channel ALB" thesis's *auto-pause* channel — meant to be implemented through trainable halt heads — is mechanistically inert with the current projector + training recipe.
 - Any future architectural revision needs to either (a) make K=2 produce *insufficient* improvement so additional rounds matter, or (b) provide the halt head with an orthogonal training signal (e.g., explicit difficulty labels) so it has something to learn beyond what the projector already absorbs.

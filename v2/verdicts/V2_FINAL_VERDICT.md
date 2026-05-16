@@ -1,4 +1,4 @@
-# V2 Final Verdict — Hippocampus-style Native LLM Memory (HNM)
+# V2 Final Verdict — Attention-Side Latent Bank (ALB)
 
 > **Document Status**: DRAFT — Sections marked `[TBD:eXX]` will be filled as experiments e01-e19 complete. This verdict will be sealed when all experiment verdicts are written, V1_CLOSEOUT is complete, and user signs off.
 
@@ -6,7 +6,7 @@
 
 ## 1. Abstract
 
-**Central Claim Restated**: A frozen LLM, augmented with (i) a per-position learnable pause head, (ii) a per-layer K/V projector over a shared AttentionBank, and (iii) a multi-round halt mechanism, can integrate long-term hippocampus-style memory and within-inference working memory through native attention—no fine-tuning of base weights, no prompt rewriting, no external retriever calls.
+**Central Claim Restated**: A frozen LLM, augmented with (i) a per-position learnable pause head, (ii) a per-layer K/V projector over a shared AttentionBank, and (iii) a multi-round halt mechanism, can integrate long-term attention-side latent bank memory and within-inference working memory through native attention—no fine-tuning of base weights, no prompt rewriting, no external retriever calls.
 
 **Strongest Evidence to Date**:
 - **Phase B2 (v1/Exp42)**: On Qwen3-4B-Instruct-2507 (frozen), preloading 512 MEMIT b-vectors into layer-9 AttentionBank + training a rank-64 (I+P) residual K/V projector (420K params, 200 steps) achieved test NLL **12.13 → 6.30 (Δ=−5.83)**. Control with random bank + same trained projector yielded Δ=−0.02, confirming the improvement is specific to preloaded content, not architectural bias.
@@ -85,9 +85,9 @@ The original interpretation — "preloaded b-vectors hold compressed knowledge t
 
 **Implications for the project.**
 
-1. **Framing**: v2 must be presented as a **parameter-efficient adapter that uses an AttentionBank API as its surface**, not as a hippocampus-style memory system. Any text in v2 documents implying "facts are stored in the bank and retrieved" must be removed or qualified.
-2. **What v1's Phase B2 −5.83 actually was**: a real NLL improvement from a real low-rank adaptation, mislabeled as memory retrieval. The number reproduces; the *interpretation* was wrong.
-3. **The hippocampus analogy is currently unsupported.** No part of e01 + e11 wave-3 shows content-conditional retrieval. Pause-write working memory (e14) and dual-channel interrupt (e11-dual, e08) remain untested and cannot rescue this claim on their own — they are *additional* mechanisms, not replacements for the missing content-sensitivity in the core read path.
+1. **Framing**: v2 must be presented as a **parameter-efficient adapter that uses an AttentionBank API as its surface**, not as a attention-side latent bank memory system. Any text in v2 documents implying "facts are stored in the bank and retrieved" must be removed or qualified.
+2. **What v1's Phase B2 −5.83 actually was**: a real NLL improvement from a real low-rank adaptation, mislabeled as bank readout. The number reproduces; the *interpretation* was wrong.
+3. **The  is currently unsupported.** No part of e01 + e11 wave-3 shows content-conditional retrieval. Pause-write working memory (e14) and dual-channel interrupt (e11-dual, e08) remain untested and cannot rescue this claim on their own — they are *additional* mechanisms, not replacements for the missing content-sensitivity in the core read path.
 
 **Three open paths forward** — these are the only experiments that can either rehabilitate the original thesis or sharpen the revised one:
 
@@ -95,7 +95,7 @@ The original interpretation — "preloaded b-vectors hold compressed knowledge t
 - **(b) e13 — cross-task transfer.** Under the "capacity / adapter" reading, the projector trained on factual completion should help on *unrelated* tasks too, because what it learned is a generic residual adjustment to layer-9. Under the (now-falsified) "content read" reading, it should not. e13 is the cleanest disambiguator.
 - **(c) e06 — relation-disjoint OOD.** H3 already passed for subj+rel disjoint at the data-split level. e06 with strict relation-disjoint splits will distinguish "adapter generalizes broadly" (Δ still negative) from "adapter only helps where train and test share relation structure" (Δ→0). Capacity story predicts the first; retrieval story predicts the second.
 
-**Bottom line.** The v2 mechanism produces a real, reproducible, capability-preserving NLL improvement using ~602K trainable parameters over a frozen 4B model. That part of v1's Phase B2 stands. Everything else — the AttentionBank framing, the LT/ST memory dichotomy, the hippocampus analogy — is unsupported by the falsifiers run to date and, on the most rigorous reading, should be retracted pending e10 / e13 / e06.
+**Bottom line.** The v2 mechanism produces a real, reproducible, capability-preserving NLL improvement using ~602K trainable parameters over a frozen 4B model. That part of v1's Phase B2 stands. Everything else — the AttentionBank framing, the LT/ST memory dichotomy, the  — is unsupported by the falsifiers run to date and, on the most rigorous reading, should be retracted pending e10 / e13 / e06.
 
 ---
 
@@ -254,9 +254,9 @@ If (1) succeeds, the memory framing partially recovers. If (1) fails and (2)+(3)
 
 ---
 
-## 6. What HNM Uniquely Delivers
+## 6. What ALB Uniquely Delivers
 
-From V2_DIFFERENTIATION.md §8, the five core capabilities that distinguish HNM from all alternative approaches (RAG, LoRA, ICL, CoT, MEMIT):
+From V2_DIFFERENTIATION.md §8, the five core capabilities that distinguish ALB from all alternative approaches (RAG, LoRA, ICL, CoT, MEMIT):
 
 1. **Latent memory injection**: Hidden-state vectors (h ∈ ℝ^d) enter the model at target layers via attention K/V, bypassing tokenization entirely. This enables injection of non-verbalizable internal states (e.g., mid-computation pause-writes, oracle hints from external debuggers).
 
@@ -268,7 +268,7 @@ From V2_DIFFERENTIATION.md §8, the five core capabilities that distinguish HNM 
 
 5. **Multi-round pondering without token generation**: K_max rounds of attention (K ∈ {2,4,8}) with ACT-style halt enable the model to "think" iteratively by reading/writing to the bank across rounds. This incurs K × (forward pass overhead) but generates **zero extra output tokens**, unlike CoT which generates 10-100× more tokens for reasoning steps.
 
-**Bottom line**: HNM is not RAG (no text retrieval), not LoRA (frozen weights), not ICL (bank, not prompt), not CoT (rounds, not tokens), not MEMIT (external bank, not weight edits). It is a **native attention-based memory mechanism** for frozen LLMs that integrates long-term (preloaded) and short-term (pause-write) memory through learnable projectors and multi-round inference.
+**Bottom line**: ALB is not RAG (no text retrieval), not LoRA (frozen weights), not ICL (bank, not prompt), not CoT (rounds, not tokens), not MEMIT (external bank, not weight edits). It is a **native attention-based memory mechanism** for frozen LLMs that integrates long-term (preloaded) and short-term (pause-write) memory through learnable projectors and multi-round inference.
 
 ---
 
@@ -284,9 +284,9 @@ From V2_DIFFERENTIATION.md §8, the five core capabilities that distinguish HNM 
 
 4. **Interrupt API implemented but not stress-tested**: The `interrupt(model, round, layer, pos, h)` public API exists in `v2/core/interrupt_api.py`, but only a qualitative demo (e08) is planned. No systematic study of: injection timing sensitivity, injection layer sensitivity, injection volume (how many positions can be injected before bank capacity saturates), or injection content quality (oracle vs noisy hints). **Risk**: The interrupt mechanism may be fragile—working only for oracle hints at precisely tuned (layer, round) coordinates.
 
-5. **Pause-head training not shown to converge in v2**: Phase B2 froze the pause heads (no pause-write). Experiment e14 will attempt to train pause heads with entropy regularization, but convergence is uncertain. Historical v1 experiments (Exp38 LPL Phase A) showed pause heads collapsing to always-on or always-off without careful curriculum + λ_pause tuning. **Risk**: Auto-pause mechanism may be untrainable at scale, leaving HNM as "static LT memory only" (no working memory component).
+5. **Pause-head training not shown to converge in v2**: Phase B2 froze the pause heads (no pause-write). Experiment e14 will attempt to train pause heads with entropy regularization, but convergence is uncertain. Historical v1 experiments (Exp38 LPL Phase A) showed pause heads collapsing to always-on or always-off without careful curriculum + λ_pause tuning. **Risk**: Auto-pause mechanism may be untrainable at scale, leaving ALB as "static LT memory only" (no working memory component).
 
-6. **No cross-task generalization study yet**: Experiment e13 will test multi-task capability (GSM8K + StrategyQA + NegQA + CSQA + simple-QA mixed batch), but this is unvalidated. **Risk**: The projector may overfit to factual completion and fail to generalize. If <3 tasks show improvement ≥ +2pp vs base, the claim must be downgraded to "single-task HNM."
+6. **No cross-task generalization study yet**: Experiment e13 will test multi-task capability (GSM8K + StrategyQA + NegQA + CSQA + simple-QA mixed batch), but this is unvalidated. **Risk**: The projector may overfit to factual completion and fail to generalize. If <3 tasks show improvement ≥ +2pp vs base, the claim must be downgraded to "single-task ALB."
 
 7. **Capability drift unchecked**: WikiText-103 PPL and lm-eval-harness (e03) have not been run. **Risk**: Training the projector may introduce numerical artifacts (e.g., gradient noise from untrained frozen layers, quantization drift in bf16 MPS) that degrade general LM capability. If PPL drift > 10% or acc drop > 5pp, the mechanism is **unacceptable** (abandonment condition 4.1.3).
 
@@ -590,7 +590,7 @@ All three should run at seed ∈ {0, 1, 2} from the outset — single-seed concl
 
 3. **V1 tech debt closed** — ✅ **COMPLETE** (document level). `v2/tech_debt/V1_CLOSEOUT.md` exists. SQL todo cleanup is a separate housekeeping pass and can be performed without reopening the scientific record.
 
-4. **H-matrix pass rate determined** — ✅ See §3 scoreboard. Outcome: **claim refuted/revised** — the original "content-addressable hippocampus-style memory" thesis is falsified by ≥ 11 converging falsifiers (e02-scale-flip, e04-halt-dead, e10-random≥real, e11-noise-tolerated, e13-no-transfer, e14-pause-inert, e15-K-saturation, e16-AB-symmetry across 4 runs, e17-wrong-target-lifted, e18-no-composition, e12-LT/ST-interference). The mechanism is best characterized as a parameter-efficient template-conditional adapter (rank-64 K-projector), not a memory system.
+4. **H-matrix pass rate determined** — ✅ See §3 scoreboard. Outcome: **claim refuted/revised** — the original "content-addressable attention-side latent bank memory" thesis is falsified by ≥ 11 converging falsifiers (e02-scale-flip, e04-halt-dead, e10-random≥real, e11-noise-tolerated, e13-no-transfer, e14-pause-inert, e15-K-saturation, e16-AB-symmetry across 4 runs, e17-wrong-target-lifted, e18-no-composition, e12-LT/ST-interference). The mechanism is best characterized as a parameter-efficient template-conditional adapter (rank-64 K-projector), not a memory system.
 
 5. **No abandonment triggers fired** — ✅ Capability drift on WikiText-2 = +0.18% (e03), well below the 10% PPL collapse threshold. Cross-model replication confirmed (e05). Seed variance ratio |cv| ≤ 0.067 (e19), well below 0.30. No abandonment triggers active.
 

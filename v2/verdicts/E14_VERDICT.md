@@ -49,4 +49,4 @@ All cells return **byte-identical** before/after blocks. `std_pauses = 0.0` acro
 
 ## g. Implications
 
-- **Falsifier in spirit**, similar to e04: the trainable auto-pause mechanism does not deliver gain on top of the projector. Combined with e04 (halt-head dead) and e15 (cumulative pondering inert at K>2), the entire multi-round / pause subsystem of the HNM thesis collapses to "use a single LPL round with a trained K-projector."
+- **Falsifier in spirit**, similar to e04: the trainable auto-pause mechanism does not deliver gain on top of the projector. Combined with e04 (halt-head dead) and e15 (cumulative pondering inert at K>2), the entire multi-round / pause subsystem of the ALB thesis collapses to "use a single LPL round with a trained K-projector."

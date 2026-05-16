@@ -95,15 +95,15 @@ For pairwise comparisons (e.g., config A vs config B on same test set):
 
 ## 4. When to Abandon
 
-**Explicit abandonment triggers** (any one sufficient to declare HNM line dead):
+**Explicit abandonment triggers** (any one sufficient to declare ALB line dead):
 
 ### 4.1 Core Falsification Failures
 
 1. **H-matrix collapse**: <8/15 cheap explanations falsified after full e01+e02 suite
-   → **Verdict**: Phase B2 is artifact, not genuine memory integration; revise central claim to "K-projector enables limited static retrieval but not hippocampus-style dynamics"
+   → **Verdict**: Phase B2 is artifact, not genuine memory integration; revise central claim to "K-projector enables limited static retrieval but not attention-side latent bank dynamics"
 
 2. **No cross-model replication**: e05 shows ≥3 models all Δ > −0.5
-   → **Verdict**: Qwen3-4B fluke; HNM does not generalize across architectures
+   → **Verdict**: Qwen3-4B fluke; ALB does not generalize across architectures
 
 3. **Capability collapse**: WikiText PPL increase >10% relative OR lm-eval acc drop >5pp
    → **Verdict**: Memory mechanism breaks general LM; unacceptable trade-off
@@ -136,7 +136,7 @@ For pairwise comparisons (e.g., config A vs config B on same test set):
 - One model in e05 failing → as long as ≥2 succeed, claim survives
 - Minor capability drift (2-3% PPL increase) → acceptable if memory benefit is large (Δ < −3.0)
 
-**Procedure on trigger**: Write `V2_NEGATIVE_RESULT.md`, archive all data, commit with conclusion, notify user, **stop all further HNM experiments**.
+**Procedure on trigger**: Write `V2_NEGATIVE_RESULT.md`, archive all data, commit with conclusion, notify user, **stop all further ALB experiments**.
 
 ---
 

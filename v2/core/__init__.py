@@ -1,4 +1,4 @@
-"""v2 core: HNM (Hippocampus-style Native Memory) building blocks."""
+"""v2 core: ALB (Attention-Side Latent Bank) building blocks."""
 from .attention_bank import AttentionBank, LPLHeads, PauseHead, BankGateHead, HaltHead
 from .qwen3_lpl_patch import install_lpl_patch, uninstall_lpl_patch, LPLState, lpl_state_scope
 from .runtime import LPLRuntime, LPLConfig

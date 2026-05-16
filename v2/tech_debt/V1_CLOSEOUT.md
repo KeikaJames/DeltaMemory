@@ -1,6 +1,12 @@
 # V1 Tech-Debt Closeout
 
-**Status**: v1 is now **CLOSED** and archived under `v1/`. All active development has migrated to the v2 line (`v2/`) which implements Hippocampus-style Native LLM Memory (HNM). The successful core mechanism discovered in v1—a rank-r K-projector over per-layer AttentionBank on a frozen LLM base—is preserved and extended in v2 with dual-channel injection (auto-pause + human interrupt API), long-term/short-term memory coexistence, multi-round attention, and adaptive compute (ACT halt). The pivotal v1 result (Exp42 LPL Phase B2: test NLL 12.13→6.30, Δ=−5.83, random-bank control Δ=−0.02) demonstrated that v1's AttnNativeBank formula was not dead, merely incomplete—missing the bank-side learnable K/V projector.
+> **2026-05 Terminology Note**: Project main vocabulary has been renamed
+> from "HNM / Hippocampus-style Native LLM Memory / memory bank" to
+> **Attention-Side Latent Bank (ALB) / latent bank / bank readout / pause-write**.
+> v1 historical naming is preserved as-is in `v1/` for reproducibility.
+> Mapping table at top of `v2/README.md`.
+
+**Status**: v1 is now **CLOSED** and archived under `v1/`. All active development has migrated to the v2 line (`v2/`) which implements Attention-Side Latent Bank (ALB). The successful core mechanism discovered in v1—a rank-r K-projector over per-layer AttentionBank on a frozen LLM base—is preserved and extended in v2 with dual-channel injection (auto-pause + human interrupt API), long-term/runtime-written latent bank coexistence, multi-round attention, and adaptive compute (ACT halt). The pivotal v1 result (Exp42 LPL Phase B2: test NLL 12.13→6.30, Δ=−5.83, random-bank control Δ=−0.02) demonstrated that v1's AttnNativeBank formula was not dead, merely incomplete—missing the bank-side learnable K/V projector.
 
 ---
 
@@ -61,7 +67,7 @@ V1 accumulated a confusing mix of names across 42 numbered experiments. Many wer
 - **What it was**: Bank construction via rank-1 LoRA edits (ROME-style v* solve). Each fact became a (K, V) pair from the model's own forward pass + a LoRA residual.
 - **Status in v1**: Exp35 verdict **POSITIVE** (78.8% router top-1, gate_d +10.27 nats @ k=10, composition holds). But Exp42 Phase B2 showed **no LoRA needed**—frozen base + projector heads suffice.
 - **Disposition**: **SUPERSEDED** by Exp42 LPL+B2 discovery. v2 does not use LoRA for bank construction. The Exp35 solo_pass filter logic and router training may inform v2/e10 topK retrieval, but the LoRA mechanism itself is dropped.
-- **Migration**: v2 uses MEMIT b-vectors (Exp35b) as the long-term memory source, not Exp35 LoRA deltas.
+- **Migration**: v2 uses MEMIT b-vectors (Exp35b) as the preloaded latent bank source, not Exp35 LoRA deltas.
 - **Files**: `v1/experiments/atb_validation_v1/exp35_fact_lora_bank/` (archived), superseded by `exp35b_memit_bank/`
 
 ### 1.9 MEMIT Bank (Exp35b)

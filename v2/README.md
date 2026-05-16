@@ -1,4 +1,19 @@
-# v2 — Hippocampus-style Native LLM Memory (HNM)
+# v2 — Attention-Side Latent Bank (ALB)
+
+> **2026-05 更名公告**：本仓库主术语已从 "Hippocampus-style Native LLM Memory / HNM"
+> 改名为 **Attention-Side Latent Bank (ALB)**。术语映射：
+>
+> | 旧称 | 新称 |
+> |---|---|
+> | HNM / Hippocampus-style Native LLM Memory | Attention-Side Latent Bank (ALB) |
+> | memory bank | latent bank / bank substrate |
+> | long-term memory | preloaded latent bank |
+> | short-term memory | runtime-written latent bank |
+> | memory retrieval | bank readout |
+> | pause-retrieve | pause-write |
+>
+> hippocampus / 海马 类比已在 v2/ 全面删除。`v1/` 保持历史命名以维持复现性
+> （见 `tech_debt/V1_CLOSEOUT.md`）。
 
 > **状态**：v2 是 active 主线；`v1/` 是 archive（保留以复现历史）。
 
@@ -7,7 +22,7 @@
 > 原始论点。随机 Gaussian / 单行复制 / 常量向量 bank 给出与真实 bank
 > *相同甚至更大* 的 Δ NLL。当前 working interpretation：v2 实质是一个
 > **rank-64 K-projector 残差适配器，以 AttentionBank API 作为表面形式**，
-> 而非 hippocampus 式内容检索系统。详细见
+> 而非 attention-side latent bank 式内容检索系统。详细见
 > [`verdicts/V2_FINAL_VERDICT.md`](verdicts/V2_FINAL_VERDICT.md) §1b
 > 与 [`verdicts/E01_VERDICT.md`](verdicts/E01_VERDICT.md)。
 > 余下决定性实验：e10 top-K（content-vs-capacity 判别）、e13 multi-task
@@ -34,7 +49,7 @@ v2 把这个发现放进一个完整的、可被人和模型共同使用的**原
    - 没有它，v1 公式跑不通；有了它，静态长期记忆库可被 frozen 模型直接读
 
 2. **双通道注入**：
-   - **AI 自动 pause-retrieve**：pause head 学习何时跳过当前层 attention，
+   - **AI 自动 pause-write**：pause head 学习何时跳过当前层 attention，
      把 hidden 写入 bank；下一轮同层 attention 把它当 KV 读
    - **人工 interrupt**：`v2.core.interrupt_api.interrupt(bank, ...)` 公开
      API，外部程序可在任意 (round, layer, position) 注入 latent
@@ -46,7 +61,7 @@ v2 把这个发现放进一个完整的、可被人和模型共同使用的**原
 
 ## 与 v1 的对照
 
-| | v1 AttnNativeBank | v2 HNM |
+| | v1 AttnNativeBank | v2 ALB |
 |---|---|---|
 | 写 | 一次 fact-prompt forward 预存 (K, V) | h-store + 运行时投影；pause-write 跨轮累积 |
 | 读 | concat (K, V) 进 softmax，全局 α | 同结构，bank-side learnable (I+P)，per-position bank_gate |
@@ -109,7 +124,7 @@ python3 v1/experiments/atb_validation_v1/exp42_lpl/06_phase_b2_kproj.py \
 
 > A frozen LLM, augmented with (i) per-position learnable pause head,
 > (ii) per-layer K/V projector over a shared AttentionBank, and (iii)
-> multi-round halt mechanism, can integrate hippocampus-style long-term
+> multi-round halt mechanism, can integrate attention-side latent bank long-term
 > memory and within-inference working memory through native attention—
 > no fine-tuning of base weights, no prompt rewriting, no external retriever.
 

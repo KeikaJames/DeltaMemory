@@ -129,7 +129,7 @@ def demo1_identity_sanity(model, tokenizer, device):
 
 
 # ---------------------------------------------------------------------------
-# Demo 2: Preload long-term memory
+# Demo 2: Preload preloaded latent bank
 
 
 def demo2_preload_long_term(model, tokenizer, bank, heads, device, bank_layer, n_preload):
@@ -309,7 +309,7 @@ def main():
     # Demo 1: Identity sanity
     results["demo1_identity_sanity"] = demo1_identity_sanity(model, tokenizer, args.device)
 
-    # Demo 2: Preload long-term memory
+    # Demo 2: Preload preloaded latent bank
     results["demo2_preload_long_term"] = demo2_preload_long_term(
         model, tokenizer, bank, heads, args.device, args.bank_layer, args.n_preload
     )

@@ -31,11 +31,11 @@ Eval on FOUR sets:
   (b) standard prompts, random targets (negative control — signal should NOT
       transfer to wrong answers if bank is content-specific)
   (c) negated prompts (T1+T2), random-target labels (the "correct" answer per
-      the negated prompt is now the random_target — if HNM transmits content,
+      the negated prompt is now the random_target — if ALB transmits content,
       it should NOT help because the bank's b-vector encodes target_true, not
       random_target)
   (d) negated prompts (T1+T2), target_true labels (the original truth, now
-      "wrong" per the prompt's negation — if HNM is content-blind, Δ≈0; if HNM
+      "wrong" per the prompt's negation — if ALB is content-blind, Δ≈0; if ALB
       transmits content, it might *still help* despite the prompt's negation,
       because the bank encodes target_true)
 
