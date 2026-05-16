@@ -1,16 +1,34 @@
 # E01 — Anti-cheat suite for Phase B2 (partial, seed 0)
 
-**Status**: 6/7 critical falsifiers landed at seed 0; **H2c is a serious
-content-specificity warning** that requires e11/e17 to resolve before any
-publication-grade claim.
+**Status**: B2's "memory matters" claim is **substantially falsified** by
+e11/wave3. Memory **substrate** matters (off → no effect across every
+variant), but memory **content** matters only weakly: trained projector
+over **random Gaussian** bank gives Δ=−6.05 (better than real bank's
+−3.90); over a **single replicated row** gives Δ=−5.50; over a **constant
+vector** gives Δ=−2.83. The rank-64 trainable projector over **any**
+non-empty bank carries most of the signal.
 
-**Update (wave 2)**: H3 (subj+rel disjoint split) PASS with Δ=−2.69.
+**Wave-3 e11 update (seed 0)**:
+
+| Variant | Bank construction | distinct | Δ_real | "should not reduce >2" verdict |
+|---|---|---:|---:|---|
+| canonical real bank | preloaded b-vectors | 18.7 | **−3.90** | (reference) |
+| n1 iid Gaussian | random ~N(0,1) renormed L2=15 | 21.21 | **−6.05** | FAIL (noise helps a lot) |
+| n3 single row replicated | one real row × 512 | 0.00 | **−5.50** | FAIL |
+| n5 constant vector | same constant × 512 | 0.00 | **−2.83** | FAIL |
+| n7 K=0 pure projector | preload=0, train w/ empty bank | n/a | crashed | training requires non-empty bank for gradient |
+
+But **every variant's `off=base=11.998`** — bank emptied at eval → NLL
+returns to base. So memory presence (substrate) is required; memory
+content is a weak modulator.
+
+**Wave-2 update**: H3 (subj+rel disjoint split) PASS with Δ=−2.69.
 **H2c (all bank rows = mean of real bank) UNEXPECTEDLY Δ=−4.81** — i.e.
 stronger than canonical (−3.90). This means: row-distinctness is not
 required for the projector to extract its training gain. The mechanism is
 either (a) the projector exploits "extra K/V slots" as a generic
 attention-smoother, or (b) the training signal alone — not bank content —
-is what carries the NLL drop. e11 (n7 K=0 pure-proj) will discriminate.
+is what carries the NLL drop. e11 wave3 confirms: it is mostly (a).
 
 **Claim under test (from B2)**: a frozen LLM + preloaded AttentionBank +
 trainable rank-64 (I+P) residual K/V projector improves NLL on held-out
@@ -88,22 +106,49 @@ Raw JSON: `v2/experiments/e01_anticheat_b2/e01_<variant>_seed0.json`.
   This says: the gain is *not* from per-(subject,relation) routing memorized
   during training — it's a transferable read mechanism.
 
-## Falsifier hit-rate (seed 0, partial)
+## Falsifier hit-rate (seed 0, e01 + e11 wave3)
 
 | H | Status |
 |---|---|
-| H1 bank-off | **PASS** |
-| H2 row-shuffle b (per-row perm) | did not falsify — reframe required, see above |
-| H2b same-permutation b (proposed) | pending |
-| H2c collapsed bank (all rows = mean) | ⚠️ **did not falsify** — Δ=−4.81 worse than canonical; addressable-slots reframe is dead, needs e11 to decide if memory is necessary at all |
+| H1 bank-off (eval-time empty) | **PASS** — required for signal |
+| H2 row-shuffle b (per-row perm) | did not falsify — reframe required |
+| H2b same-permutation b | pending |
+| H2c collapsed bank (all rows = mean) | ⚠️ **did not falsify** — Δ=−4.81 |
 | H3 entity+relation disjoint split | **PASS** Δ=−2.69 |
 | H4 zero bank | **PASS** |
 | H5 N_preload sweep | pending |
-| H6 layer sweep | pending |
-| H7 random-bank train | **PASS** |
+| H6 layer sweep | **PARTIAL** L3=−1.58, L9=−3.90, L21=**−6.29**, L33=−3.97 — deeper layers stronger |
+| H7 random-bank train | **PASS** Δ=−0.29 (note: this used random renormed to L2=1, vs e11/n1 which renormed to L2=15; the norm matters) |
 | H8 logit-KL on neutral | pending |
-| H9 cross-model | pending |
+| H9 cross-model | pending (e05 queued) |
 | H10 gate selectivity stats | partial (heads saved in JSON) |
+| **e11/n1 random N(0,1) L2=15** | **FAIL** Δ=−6.05 (random + correct norm > real) |
+| **e11/n3 single row replicated** | **FAIL** Δ=−5.50 |
+| **e11/n5 constant vector** | **FAIL** Δ=−2.83 |
+| e11/n7 K=0 pure projector | needs redesign (cannot train P on empty bank) |
+
+## Revised interpretation (post wave3)
+
+The B2 mechanism is best described as: **a rank-64 trainable K/V projector,
+applied to a non-empty layer-9 KV slot bank, learns to use those extra
+attention positions as a generic adaptation surface.** The bank content
+provides the substrate dimension (without it, no parameters to multiply);
+but the *information* in that content is not what is being read out.
+
+This is more consistent with a "free K/V slots = extra capacity" story
+than with a "memory of facts" story. v2's hippocampal framing is **not
+supported** by these falsifiers; the original v1 B2 result is a real
+NLL improvement but does not demonstrate fact recall via memory retrieval.
+
+**Next decisive tests** to discriminate "free-capacity adaptation" vs
+"true content read":
+- e11/n2 (uniform sphere, different distribution shape)
+- e11/n4 (single random vector replicated)
+- e11/n6 (real bank with K=1 slot only — does shrinking bank to 1 kill it?)
+- e06 relation-disjoint OOD — if "free capacity", should still help on
+  totally unrelated relations; if "content read", should die.
+- e13 multi-task — if "free capacity", helps everywhere; if "content read",
+  helps only on tasks related to bank content.
 
 ## Caveats
 

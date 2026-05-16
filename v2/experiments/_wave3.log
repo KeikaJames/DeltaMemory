@@ -1,0 +1,101 @@
+=== WAVE3 START 2026年 5月16日 星期六 12时57分11秒 CST ===
+=== e11/n7_real_bank_K0_pure_proj 2026年 5月16日 星期六 12时57分11秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e11:n7_real_bank_K0_pure_proj] train=120 test=120 preload=0 seed=0
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:28,  4.49it/s]Loading weights:  15%|█▌        | 60/398 [00:00<00:01, 230.42it/s]Loading weights:  32%|███▏      | 126/398 [00:00<00:00, 381.53it/s]Loading weights:  49%|████▉     | 196/398 [00:00<00:00, 486.83it/s]Loading weights:  66%|██████▋   | 264/398 [00:00<00:00, 548.50it/s]Loading weights:  83%|████████▎ | 331/398 [00:00<00:00, 586.78it/s]Loading weights:  99%|█████████▉| 395/398 [00:00<00:00, 603.29it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 478.98it/s]
+[e11:n7_real_bank_K0_pure_proj] bank_stats: norm=0.00 distinctness=0.00
+[e11:n7_real_bank_K0_pure_proj] BEFORE: base=11.9979  real=11.9979  rand=11.9979  zero=11.9979  off=11.9979
+Traceback (most recent call last):
+  File "/Users/gabiri/projects/RCV-HC/v2/experiments/e11_noise_robustness/run.py", line 461, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/Users/gabiri/projects/RCV-HC/v2/experiments/e11_noise_robustness/run.py", line 368, in main
+    loss.backward()
+    ~~~~~~~~~~~~~^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/torch/_tensor.py", line 631, in backward
+    torch.autograd.backward(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        self, gradient, retain_graph, create_graph, inputs=inputs
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/torch/autograd/__init__.py", line 381, in backward
+    _engine_run_backward(
+    ~~~~~~~~~~~~~~~~~~~~^
+        tensors,
+        ^^^^^^^^
+    ...<5 lines>...
+        accumulate_grad=True,
+        ^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/torch/autograd/graph.py", line 869, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        t_outputs, *args, **kwargs
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )  # Calls into the C++ engine to run the backward pass
+    ^
+RuntimeError: element 0 of tensors does not require grad and does not have a grad_fn
+  FAIL e11/n7_real_bank_K0_pure_proj
+=== e11/n3_single_row_replicated 2026年 5月16日 星期六 12时58分24秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e11:n3_single_row_replicated] train=120 test=120 preload=512 seed=0
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:28,  4.51it/s]Loading weights:  15%|█▍        | 58/398 [00:00<00:01, 225.59it/s]Loading weights:  31%|███       | 124/398 [00:00<00:00, 376.50it/s]Loading weights:  48%|████▊     | 190/398 [00:00<00:00, 466.29it/s]Loading weights:  62%|██████▏   | 247/398 [00:00<00:00, 494.39it/s]Loading weights:  78%|███████▊  | 311/398 [00:00<00:00, 537.80it/s]Loading weights:  93%|█████████▎| 372/398 [00:00<00:00, 559.85it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 457.31it/s]
+[e11:n3_single_row_replicated] bank_stats: norm=15.00 distinctness=0.00
+[e11:n3_single_row_replicated] BEFORE: base=11.9979  real=11.9907  rand=12.0069  zero=11.9997  off=11.9979
+  [e11:n3_single_row_replicated] step 1/200 loss(avg25)=10.6548 (0.3s)
+  [e11:n3_single_row_replicated] step 25/200 loss(avg25)=11.2133 (4.3s)
+  [e11:n3_single_row_replicated] step 50/200 loss(avg25)=10.6020 (8.3s)
+  [e11:n3_single_row_replicated] step 75/200 loss(avg25)=9.1185 (12.3s)
+  [e11:n3_single_row_replicated] step 100/200 loss(avg25)=7.7201 (16.4s)
+  [e11:n3_single_row_replicated] step 125/200 loss(avg25)=7.8236 (20.6s)
+  [e11:n3_single_row_replicated] step 150/200 loss(avg25)=7.2311 (24.8s)
+  [e11:n3_single_row_replicated] step 175/200 loss(avg25)=5.7492 (28.9s)
+  [e11:n3_single_row_replicated] step 200/200 loss(avg25)=5.0208 (33.0s)
+[e11:n3_single_row_replicated] training done in 33.0s
+[e11:n3_single_row_replicated] AFTER:  base=11.9979  real=6.4964  rand=11.9953  zero=11.9997  off=11.9979
+[e11:n3_single_row_replicated] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e11_noise_robustness/e11_n3_single_row_replicated_seed0.json
+[e11:n3_single_row_replicated] verdict={'pass': False, 'rule': 'zero-distinctness bank should NOT reduce NLL by >2 (got Δ=5.50)', 'interpretation': 'PASS = distinctness matters'}
+=== e11/n1_iid_gaussian 2026年 5月16日 星期六 13时01分21秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e11:n1_iid_gaussian] train=120 test=120 preload=512 seed=0
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:14,  5.34it/s]Loading weights:  15%|█▌        | 60/398 [00:00<00:01, 256.99it/s]Loading weights:  31%|███▏      | 125/398 [00:00<00:00, 404.81it/s]Loading weights:  48%|████▊     | 192/398 [00:00<00:00, 492.13it/s]Loading weights:  65%|██████▍   | 258/398 [00:00<00:00, 546.74it/s]Loading weights:  81%|████████▏ | 324/398 [00:00<00:00, 580.16it/s]Loading weights:  98%|█████████▊| 390/398 [00:00<00:00, 603.53it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 496.68it/s]
+[e11:n1_iid_gaussian] bank_stats: norm=15.00 distinctness=21.21
+[e11:n1_iid_gaussian] BEFORE: base=11.9979  real=11.9963  rand=12.0024  zero=11.9997  off=11.9979
+  [e11:n1_iid_gaussian] step 1/200 loss(avg25)=10.9336 (0.2s)
+  [e11:n1_iid_gaussian] step 25/200 loss(avg25)=11.3599 (4.3s)
+  [e11:n1_iid_gaussian] step 50/200 loss(avg25)=11.6881 (8.4s)
+  [e11:n1_iid_gaussian] step 75/200 loss(avg25)=11.2365 (12.5s)
+  [e11:n1_iid_gaussian] step 100/200 loss(avg25)=10.9750 (16.7s)
+  [e11:n1_iid_gaussian] step 125/200 loss(avg25)=10.3122 (20.9s)
+  [e11:n1_iid_gaussian] step 150/200 loss(avg25)=8.3918 (25.0s)
+  [e11:n1_iid_gaussian] step 175/200 loss(avg25)=6.4663 (29.2s)
+  [e11:n1_iid_gaussian] step 200/200 loss(avg25)=4.9386 (33.3s)
+[e11:n1_iid_gaussian] training done in 33.3s
+[e11:n1_iid_gaussian] AFTER:  base=11.9979  real=5.9513  rand=12.0139  zero=11.9997  off=11.9979
+[e11:n1_iid_gaussian] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e11_noise_robustness/e11_n1_iid_gaussian_seed0.json
+[e11:n1_iid_gaussian] verdict={'pass': False, 'rule': 'pure noise should NOT reduce NLL by >2 (got Δ=6.05)', 'interpretation': 'PASS = noise does not help'}
+=== e11/n5_constant_vector 2026年 5月16日 星期六 13时04分06秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e11:n5_constant_vector] train=120 test=120 preload=512 seed=0
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:15,  5.29it/s]Loading weights:  15%|█▌        | 60/398 [00:00<00:01, 255.01it/s]Loading weights:  32%|███▏      | 126/398 [00:00<00:00, 405.74it/s]Loading weights:  48%|████▊     | 192/398 [00:00<00:00, 489.95it/s]Loading weights:  66%|██████▌   | 262/398 [00:00<00:00, 557.16it/s]Loading weights:  82%|████████▏ | 328/398 [00:00<00:00, 588.25it/s]Loading weights:  98%|█████████▊| 391/398 [00:00<00:00, 600.97it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 495.73it/s]
+[e11:n5_constant_vector] bank_stats: norm=15.00 distinctness=0.00
+[e11:n5_constant_vector] BEFORE: base=11.9979  real=12.0073  rand=12.0062  zero=11.9997  off=11.9979
+  [e11:n5_constant_vector] step 1/200 loss(avg25)=11.0701 (0.2s)
+  [e11:n5_constant_vector] step 25/200 loss(avg25)=11.3861 (4.4s)
+  [e11:n5_constant_vector] step 50/200 loss(avg25)=11.6386 (8.3s)
+  [e11:n5_constant_vector] step 75/200 loss(avg25)=11.2116 (12.3s)
+  [e11:n5_constant_vector] step 100/200 loss(avg25)=11.0221 (16.4s)
+  [e11:n5_constant_vector] step 125/200 loss(avg25)=11.1779 (20.5s)
+  [e11:n5_constant_vector] step 150/200 loss(avg25)=9.7295 (24.5s)
+  [e11:n5_constant_vector] step 175/200 loss(avg25)=9.1819 (28.6s)
+  [e11:n5_constant_vector] step 200/200 loss(avg25)=8.7256 (32.7s)
+[e11:n5_constant_vector] training done in 32.7s
+[e11:n5_constant_vector] AFTER:  base=11.9979  real=9.1705  rand=11.9836  zero=11.9997  off=11.9979
+[e11:n5_constant_vector] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e11_noise_robustness/e11_n5_constant_vector_seed0.json
+[e11:n5_constant_vector] verdict={'pass': False, 'rule': 'zero-distinctness bank should NOT reduce NLL by >2 (got Δ=2.83)', 'interpretation': 'PASS = distinctness matters'}
+=== e11/n6_real_bank_K1 2026年 5月16日 星期六 13时06分50秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e11:n6_real_bank_K1] train=120 test=120 preload=1 seed=0
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:20,  4.91it/s]Loading weights:  15%|█▌        | 61/398 [00:00<00:01, 250.14it/s]Loading weights:  32%|███▏      | 126/398 [00:00<00:00, 398.30it/s]Loading weights:  48%|████▊     | 193/398 [00:00<00:00, 492.10it/s]Loading weights:  65%|██████▌   | 260/398 [00:00<00:00, 550.74it/s]Loading weights:  81%|████████▏ | 324/398 [00:00<00:00, 578.73it/s]Loading weights:  97%|█████████▋| 388/398 [00:00<00:00, 595.52it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 484.18it/s]

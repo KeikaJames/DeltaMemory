@@ -88,3 +88,9 @@
 === e03 drift 2026年 5月16日 星期六 12时55分11秒 CST ===
 [transformers] `torch_dtype` is deprecated! Use `dtype` instead!
 Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   6%|▌         | 22/398 [00:00<00:01, 217.57it/s]Loading weights:  20%|██        | 81/398 [00:00<00:00, 435.52it/s]Loading weights:  37%|███▋      | 147/398 [00:00<00:00, 536.19it/s]Loading weights:  54%|█████▎    | 213/398 [00:00<00:00, 583.10it/s]Loading weights:  70%|███████   | 279/398 [00:00<00:00, 609.30it/s]Loading weights:  87%|████████▋ | 345/398 [00:00<00:00, 623.15it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 584.98it/s]
+[e03] wikitext tokens=8000 (cap 8000)
+[e03] tokens=7992 avg_nll=2.1221 ppl=8.349 (7.4s)
+[e03] tokens=7992 avg_nll=2.1221 ppl=8.349 (15.1s)
+[e03] tokens=7992 avg_nll=2.1259 ppl=8.380 (14.8s)
+[e03] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e03_capability_drift/e03_drift_t8000.json
+=== ALL DONE 2026年 5月16日 星期六 12时56分02秒 CST ===

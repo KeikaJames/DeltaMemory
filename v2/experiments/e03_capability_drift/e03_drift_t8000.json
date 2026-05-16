@@ -1,0 +1,22 @@
+{
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "tokens": 8000,
+  "ctx": 1024,
+  "n_preload": 512,
+  "bank_layer": 9,
+  "projector_ckpt": null,
+  "nll_base": 2.1221030448172784,
+  "ppl_base": 8.348676679592167,
+  "nll_bank_off": 2.1221030448172784,
+  "ppl_bank_off": 8.348676679592167,
+  "nll_bank_on": 2.1258507805901603,
+  "ppl_bank_on": 8.380024017920311,
+  "drift_off_vs_base": 0.0,
+  "drift_on_vs_base": 0.0037477357728818994,
+  "rel_drift_on_vs_base": 0.0017660479692703116,
+  "verdict": {
+    "off_bit_equal": true,
+    "on_within_5pct": true,
+    "rule": "bank_off must \u2248 base; bank_on rel drift \u2264 5%"
+  }
+}

@@ -1,0 +1,58 @@
+=== WAVE4 START 2026年 5月16日 星期六 13时06分48秒 CST ===
+=== e19 seed replication 2026年 5月16日 星期六 13时06分48秒 CST ===
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001fa8cf080 (most recent call first):
+  <no Python frame>
+  FAIL e19
+=== e05 Qwen3-1.7B 2026年 5月16日 星期六 13时06分48秒 CST ===
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001fa8cf080 (most recent call first):
+  <no Python frame>
+  FAIL e05
+=== e09 v1_orig 2026年 5月16日 星期六 13时06分48秒 CST ===
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001fa8cf080 (most recent call first):
+  <no Python frame>
+  FAIL e09/v1_orig
+=== e09 v2_kproj 2026年 5月16日 星期六 13时06分48秒 CST ===
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001fa8cf080 (most recent call first):
+  <no Python frame>
+  FAIL e09/v2_kproj
+=== e06 relation-OOD 2026年 5月16日 星期六 13时06分48秒 CST ===
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001fa8cf080 (most recent call first):
+  <no Python frame>
+  FAIL e06
+=== e02 scale n2048_t1000 2026年 5月16日 星期六 13时06分48秒 CST ===
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001fa8cf080 (most recent call first):
+  <no Python frame>
+  FAIL e02
+=== e07 perlayer 2026年 5月16日 星期六 13时06分48秒 CST ===
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001fa8cf080 (most recent call first):
+  <no Python frame>
+  FAIL e07
+=== WAVE4 DONE 2026年 5月16日 星期六 13时06分48秒 CST ===
