@@ -22,17 +22,20 @@
 - **No end-to-end multi-round K>1 proof**: Phase B2 and E01 use K=2 rounds, but halt mechanism, ACT-style dynamic pondering, and K curriculum have not been validated.
 - **Pause-head training not demonstrated in v2**: Phase B2 did not train pause heads; auto-pause mechanism remains unvalidated at v2 scale.
 
-**Overall Stance**: **Substantially falsified in its original framing**; see §1b (Headline finding, revised). The mechanism is real but its interpretation has changed. The K-projector + non-empty bank produces a reliable NLL drop, but **seven** independent wave-3 / wave-5 / wave-6 falsifiers now converge on the "adapter, not memory" reading:
+**Overall Stance**: **Substantially falsified in its original framing**; see §1b (Headline finding, revised). The mechanism is real but its interpretation has changed. The K-projector + non-empty bank produces a reliable NLL drop, but **ten** independent wave-3 / wave-5 / wave-6 / wave-7 / wave-8 / wave-9 falsifiers now converge on the "adapter, not memory" reading:
 
 1. **e11 noise variants** (n1/n2/n3/n4/n5) at both L9 and L21 — random Gaussian, single-row-replicated, and constant-vector banks all match or exceed the real bank's Δ NLL.
 2. **e02 scale breakpoint** — pushing n_preload=2048, n_train=1000, steps=1000 *inverts* the sign of Δ to **+0.61** (the "memory" actively *hurts*). No retrieval system inverts under scaling.
-3. **e13 multi-task** (WikiText-2 partial) — after factual-completion training, Δ on WikiText is +0.0096 (no transfer, neither helpful nor harmful).
-4. **e17 negation robustness** — on standard prompts with **random** (incorrect) targets, the bank still lowers NLL by **2.77 nats**. Direct content-blindness on the cleanest probe in the suite.
-5. **e18 2-hop chaining** — having both bridge facts A *and* B in the bank gives 0.01-nat advantage over having only one. Composition does not happen.
-6. **e10 top-K retrieval (wave-6)** — `topk_cosine_random_K8` Δ=**−4.43** vs `topk_cosine_real_K8` Δ=−2.54. **Random bank under cosine top-K beats real bank under cosine top-K by 1.89 nats.** Also `all_attend_random_renorm15` Δ=**−5.71** beats `all_attend_real` Δ=−4.05. Top-K cosine selection is NOT performing content-based retrieval — random banks just give projectors more room to fit. **The retrieval-rehab path is dead.**
-7. **6 sign-convention driver bugs** found and back-patched across e09/e11/e12/e14/e17/e18/e19; aggregator now defensively recomputes signed Δ. The aggregate scoreboard (`v2/scripts/all_results.md`, 54 rows / 13 experiments) is consistent.
+3. **e13 multi-task** — after factual-completion training, transfer to WikiText-2 (ΔPPL=+0.4), Lambada (Δacc=0.000), HellaSwag (Δacc=−0.015) is zero or slightly negative. The adapter is task-specific.
+4. **e17 negation robustness** — on standard prompts with **random** (incorrect) targets, the bank still lowers NLL by **2.66 ± 0.14 nats** (mean over seed 0/1/2 = −2.77/−2.50/−2.71). Direct content-blindness on the cleanest probe in the suite, replicated across 3 seeds.
+5. **e18 2-hop chaining** — having both bridge facts A *and* B in the bank gives Δ ≈ 0 advantage over having only one across 3 seeds (seed0=+0.006, seed1=−0.003, seed2=+0.014). Composition does not happen.
+6. **e10 top-K retrieval (wave-6)** — `topk_cosine_random_K8` Δ=**−4.43** vs `topk_cosine_real_K8` Δ=−2.54. **Random bank under cosine top-K beats real bank under cosine top-K by 1.89 nats.** Also `all_attend_random_renorm15` Δ=**−5.71** beats `all_attend_real` Δ=−4.05. Top-K cosine selection is NOT performing content-based retrieval. **The retrieval-rehab path is dead.**
+7. **e15 K-curriculum (wave-9)** — K∈{1,2,3,4} cumulative: K=1 Δ=0, K=2 Δ=4.75, K=3 Δ=4.75, K=4 Δ=4.75 (unsigned-positive). Rounds beyond 2 add zero gain. The "multi-round pondering" claim is mechanically inert: the projector at round 2 already absorbs all available signal.
+8. **e16 capacity scaling (wave-9)** — Δ_in_bank and Δ_out_of_bank are within ~0.5 nat of each other at every N ∈ {64,256,1024,4096}. The bank does NOT differentially help items that were preloaded. Another content-blindness witness.
+9. **e04 ACT-halt pilot (wave-9)** — across 4 (λ,K_max) cells, mean halts = 0.00 (halt-head never fires), yet Δ = −5.05 to −5.25. The ACT machinery contributes nothing; the gain is entirely from the projector under default K=2.
+10. **6 sign-convention driver bugs** found and back-patched across e09/e11/e12/e14/e17/e18/e19; aggregator now defensively recomputes signed Δ. The aggregate scoreboard (`v2/scripts/all_results.md`, **66 rows / 16 experiments**) is consistent.
 
-The only defensible claim that survives is: **the v2 architecture is a parameter-efficient adapter** for a frozen LM, plumbed through an AttentionBank-like API. The bank is required as substrate (not content), the K-projector is the trainable plumbing, and the effect is robust across seeds (e19 std<0.35), layers (e07 multi-layer), and models (e05 Qwen3-1.7B Δ=−6.00). Every test designed to distinguish retrieval from adapter has come back on the adapter side.
+The only defensible claim that survives is: **the v2 architecture is a parameter-efficient adapter** for a frozen LM, plumbed through an AttentionBank-like API. The bank is required as substrate (not content), the K-projector is the trainable plumbing, and the effect is robust across seeds (e19 std<0.35), layers (e07 multi-layer), models (e05 Qwen3-1.7B Δ=−6.00; Qwen3-4B Δ_real=+3.97/Δ_rand=+0.04 at 5000 steps), and training-budget regimes (e05 5k steps random control stays flat). Every test designed to distinguish retrieval from adapter — across 10 independent probes spanning content, scale, transfer, retrieval, multi-round, capacity, and halt-mechanism — has come back on the adapter side.
 
 ---
 
@@ -121,8 +124,8 @@ The original interpretation — "preloaded b-vectors hold compressed knowledge t
 | **e02-h** | n=2048, t=1000, s=1000 | Δ=**+0.61** | ❌ FAILS — bank "memory" inverts |
 | **e03** | WikiText-2 PPL drift (rel%) | base=8.349 / bank_on=8.380 → **+0.37%** | ✅ PASS (≪ 5% threshold) |
 | **e03** | lm-eval acc drop (pp) | [TBD:e03] | not started |
-| **e04** | ACT halt mean K_used | [TBD:e04] | not started |
-| **e04** | Spearman(K_used, NLL_drop) | [TBD:e04] | not started |
+| **e04** | ACT halt-head pilot (λ∈{0.01,0.1}, K_max∈{4,16}, 200 steps) | Δ=**−5.05 to −5.25** across 4 cells, mean halts=**0.00** | ⚠️ 4/4 cells pass the Δ threshold, but halt-head never fires; projector alone delivers the gain (mechanism degenerates to plain K=2 / e01-canonical) |
+| **e04** | Best ACT cell (λ=0.10, K_max=16, halts≤4) | Δ=**−5.25**, halts=0.00 | adapter-equivalent; no evidence the ACT machinery contributes |
 | **e05** | Qwen3-1.7B Δ_real / Δ_rand | **−6.00 / +0.05** | ✅ PASS — adapter transfers to smaller Qwen3 (dim 2560→2048 via fixed-Gaussian projection) |
 | **e05** | Qwen3-4B Δ_real / Δ_rand (5k steps, seed 0) | **+3.97 / +0.04** | ✅ PASS — effect holds at 5000 training steps; random control stays flat |
 | **e05** | Llama-3.2-3B Δ NLL | [TBD:e05] | not started |
@@ -150,8 +153,8 @@ The original interpretation — "preloaded b-vectors hold compressed knowledge t
 | **e13** | Multi-task transfer — hellaswag Δacc | **−0.015** | ❌ no transfer (slight regression) |
 | **e13** | Multi-task transfer — gsm8k | n/a (run hung, killed at 50min) | inconclusive — see e13 partial JSON |
 | **e14** | Pause-head training (λ∈{0,0.01,0.1,1.0}, K=4) Δ | best=**+0.76** | ❌ 0/4 cells produced Δ ≤ −1; pause-head 200-step training did not yield positive transfer |
-| **e15** | K curriculum final Δ NLL | [TBD:e15] | not started |
-| **e16** | Optimal capacity C (NLL vs latency) | [TBD:e16] | not started |
+| **e15** | K-curriculum (K∈{1,2,3,4}, cumulative, train at K=2) | K=1: Δ=0.0 / K=2: Δ=**4.75** / K=3: Δ=**4.75** / K=4: Δ=**4.75** (unsigned positive) | ❌ rounds beyond K=2 add zero improvement; multi-round 'pondering' is functionally inert under this projector |
+| **e16** | Capacity scaling (N∈{64,256,1024,4096}, scaling phase, seed 0) | Δ_in_bank: 5.91/6.06/5.06/5.82 — Δ_out_of_bank: 5.84/5.74/4.62/5.45 (all unsigned positive ≈ base−post) | ❌ Δ_in ≈ Δ_out at every N; bank membership does NOT differentially help items that are preloaded. Another content-blindness witness — adds to e10/e11/e17 stack. |
 | **e17** | Negation Δ_b — seed×3 mean (random target on standard prompt) | mean=**−2.66**, std=0.14 (seed0=−2.77, seed1=−2.50, seed2=−2.71) | ❌ content-blindness REPLICATES across 3 seeds |
 | **e17** | Negation robustness — sanity (Δ_a) | **−4.94** | ✅ PASS (sanity recovers e01 effect) |
 | **e17** | Negation robustness — random target on standard prompt (Δ_b) | **−2.77** | ❌ FALSIFIES content-read claim (bank helps random targets) |

@@ -1,0 +1,65 @@
+{
+  "seed": 0,
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "n_train": 120,
+  "n_test": 120,
+  "n_preload": 512,
+  "bank_layer": 9,
+  "rank": 64,
+  "lr": 0.0002,
+  "steps": 200,
+  "lam_grid": [
+    0.01,
+    0.1
+  ],
+  "kmax_grid": [
+    4,
+    16
+  ],
+  "total_cells": 4,
+  "cells_passed": 4,
+  "experiment_pass": true,
+  "pass_rule": "At least one cell with post_halts <= 4 AND delta_nll <= -2.0",
+  "best_cell": {
+    "lam_act": 0.1,
+    "k_max": 16,
+    "delta_nll": -5.249462606633704,
+    "post_halts": 0.0
+  },
+  "best_sparse_cell": {
+    "lam_act": 0.1,
+    "k_max": 16,
+    "delta_nll": -5.249462606633704,
+    "post_halts": 0.0
+  },
+  "all_results_summary": [
+    {
+      "lam_act": 0.01,
+      "k_max": 4,
+      "delta_nll": -5.219628315170606,
+      "post_halts": 0.0,
+      "cell_pass": true
+    },
+    {
+      "lam_act": 0.01,
+      "k_max": 16,
+      "delta_nll": -5.039773225411773,
+      "post_halts": 0.0,
+      "cell_pass": true
+    },
+    {
+      "lam_act": 0.1,
+      "k_max": 4,
+      "delta_nll": -4.574935390800238,
+      "post_halts": 0.0,
+      "cell_pass": true
+    },
+    {
+      "lam_act": 0.1,
+      "k_max": 16,
+      "delta_nll": -5.249462606633704,
+      "post_halts": 0.0,
+      "cell_pass": true
+    }
+  ]
+}

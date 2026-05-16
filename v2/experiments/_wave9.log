@@ -1,0 +1,132 @@
+=== WAVE9 START 2026年 5月16日 星期六 18时24分42秒 CST ===
+
+=== e15/Kcurriculum 2026年 5月16日 星期六 18时24分42秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e15] K-ponder curriculum: K ∈ [1, 2, 3, 4], modes=['cumulative'], seed=0
+[e15] train=120 test=120 preload=512
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:13,  5.44it/s]Loading weights:  15%|█▍        | 58/398 [00:00<00:01, 251.39it/s]Loading weights:  30%|███       | 121/398 [00:00<00:00, 394.57it/s]Loading weights:  46%|████▋     | 185/398 [00:00<00:00, 478.93it/s]Loading weights:  62%|██████▏   | 247/398 [00:00<00:00, 523.43it/s]Loading weights:  79%|███████▊  | 313/398 [00:00<00:00, 561.00it/s]Loading weights:  95%|█████████▍| 378/398 [00:00<00:00, 588.16it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 485.76it/s]
+[e15] baseline NLL: 12.0331
+[e15] Training projector at K=2 for 200 steps...
+  [e15] step 1/200 loss(avg50)=7.2815 (0.3s)
+  [e15] step 50/200 loss(avg50)=11.5699 (8.7s)
+  [e15] step 100/200 loss(avg50)=11.0039 (16.9s)
+  [e15] step 150/200 loss(avg50)=8.8014 (25.2s)
+  [e15] step 200/200 loss(avg50)=8.5230 (33.3s)
+[e15] Training done in 33.3s
+[e15] Evaluating across K=[1, 2, 3, 4] and modes=['cumulative']...
+  [e15] Evaluating K1_modecumulative...
+    K1_modecumulative: NLL=12.0331 Δ=0.0000
+  [e15] Evaluating K2_modecumulative...
+    K2_modecumulative: NLL=7.2800 Δ=4.7531
+  [e15] Evaluating K3_modecumulative...
+    K3_modecumulative: NLL=7.2800 Δ=4.7531
+  [e15] Evaluating K4_modecumulative...
+    K4_modecumulative: NLL=7.2800 Δ=4.7531
+
+[e15] Summary:
+  K=2 Δ: 4.7531
+  Best K>2: K3_modecumulative with Δ=4.7531
+  Improvement over K=2: 0.0000
+  Passes: False (criterion: ≥0.3 improvement)
+  Output: /Users/gabiri/projects/RCV-HC/v2/experiments/e15_ponder/e15_summary_seed0.json
+  FAIL e15/Kcurriculum
+
+=== e16/scaling 2026年 5月16日 星期六 18时26分42秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e16:scaling] device=mps model=Qwen/Qwen3-4B-Instruct-2507 seed=0
+[e16:scaling] train=120 in_bank_eval=120 out_of_bank_eval=120 max_N=4096
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:  14%|█▍        | 56/398 [00:00<00:00, 559.59it/s]Loading weights:  29%|██▉       | 115/398 [00:00<00:00, 569.06it/s]Loading weights:  45%|████▍     | 179/398 [00:00<00:00, 597.25it/s]Loading weights:  60%|██████    | 239/398 [00:00<00:00, 596.10it/s]Loading weights:  75%|███████▌  | 300/398 [00:00<00:00, 595.41it/s]Loading weights:  90%|█████████ | 360/398 [00:00<00:00, 596.67it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 596.26it/s]
+[e16:scaling] computing baseline NLL...
+[e16:scaling] baseline: in_bank=12.0515 out_of_bank=11.7398
+
+[e16:scaling] === N=64 ===
+[e16:scaling] training projector (N=64)...
+    step 1/200 loss(avg50)=13.4478
+    step 50/200 loss(avg50)=11.6821
+    step 100/200 loss(avg50)=10.4497
+    step 150/200 loss(avg50)=7.6989
+    step 200/200 loss(avg50)=5.5201
+[e16:scaling] N=64 done (65.9s): Δ_in=5.9060 Δ_out=5.8399
+[e16:scaling] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e16_capacity/scaling/N64_seed0.json
+
+[e16:scaling] === N=256 ===
+[e16:scaling] training projector (N=256)...
+    step 1/200 loss(avg50)=13.2748
+    step 50/200 loss(avg50)=11.6367
+    step 100/200 loss(avg50)=10.0451
+    step 150/200 loss(avg50)=7.3720
+    step 200/200 loss(avg50)=5.4477
+[e16:scaling] N=256 done (73.2s): Δ_in=6.0561 Δ_out=5.7427
+[e16:scaling] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e16_capacity/scaling/N256_seed0.json
+
+[e16:scaling] === N=1024 ===
+[e16:scaling] training projector (N=1024)...
+    step 1/200 loss(avg50)=13.1495
+    step 50/200 loss(avg50)=11.6730
+    step 100/200 loss(avg50)=10.7060
+    step 150/200 loss(avg50)=9.7226
+    step 200/200 loss(avg50)=7.2574
+[e16:scaling] N=1024 done (66.2s): Δ_in=5.0587 Δ_out=4.6242
+[e16:scaling] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e16_capacity/scaling/N1024_seed0.json
+
+[e16:scaling] === N=4096 ===
+[e16:scaling] training projector (N=4096)...
+    step 1/200 loss(avg50)=13.0525
+    step 50/200 loss(avg50)=11.5778
+    step 100/200 loss(avg50)=10.0661
+    step 150/200 loss(avg50)=8.8138
+    step 200/200 loss(avg50)=6.6781
+[e16:scaling] N=4096 done (68.2s): Δ_in=5.8230 Δ_out=5.4517
+[e16:scaling] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e16_capacity/scaling/N4096_seed0.json
+[e16:scaling] summary -> /Users/gabiri/projects/RCV-HC/v2/experiments/e16_capacity/scaling/summary_seed0.json
+
+=== e04/act_halt_pilot 2026年 5月16日 星期六 18时31分31秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e04] λ_act grid: [0.01, 0.1]
+[e04] K_max grid: [4, 16]
+[e04] Total cells: 4
+[e04] train=120 test=120 preload=512 seed=0
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:  12%|█▏        | 49/398 [00:00<00:00, 489.24it/s]Loading weights:  29%|██▊       | 114/398 [00:00<00:00, 577.93it/s]Loading weights:  44%|████▎     | 174/398 [00:00<00:00, 584.50it/s]Loading weights:  59%|█████▉    | 235/398 [00:00<00:00, 584.59it/s]Loading weights:  75%|███████▍  | 297/398 [00:00<00:00, 597.04it/s]Loading weights:  90%|████████▉ | 357/398 [00:00<00:00, 592.25it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 594.31it/s]
+
+============================================================
+CELL: λ_act=0.010, K_max=4, seed=0
+============================================================
+BEFORE: base_nll=12.0331, pre_nll=12.0153, pre_halts=0.00
+TRAIN: 200 steps in 54.0s, loss_first10=11.7142, loss_last10=4.2363, halts_last10=0.00
+AFTER:  post_nll=6.8135, post_halts=0.00, Δ=-5.2196
+  -> /Users/gabiri/projects/RCV-HC/v2/experiments/e04_act_halt/cells/lam0.010_kmax4_seed0.json
+
+============================================================
+CELL: λ_act=0.010, K_max=16, seed=0
+============================================================
+BEFORE: base_nll=12.0331, pre_nll=12.0193, pre_halts=0.00
+TRAIN: 200 steps in 55.8s, loss_first10=11.7109, loss_last10=5.4539, halts_last10=0.00
+AFTER:  post_nll=6.9933, post_halts=0.00, Δ=-5.0398
+  -> /Users/gabiri/projects/RCV-HC/v2/experiments/e04_act_halt/cells/lam0.010_kmax16_seed0.json
+
+============================================================
+CELL: λ_act=0.100, K_max=4, seed=0
+============================================================
+BEFORE: base_nll=12.0331, pre_nll=12.0124, pre_halts=0.00
+TRAIN: 200 steps in 56.7s, loss_first10=11.6921, loss_last10=5.5763, halts_last10=0.00
+AFTER:  post_nll=7.4582, post_halts=0.00, Δ=-4.5749
+  -> /Users/gabiri/projects/RCV-HC/v2/experiments/e04_act_halt/cells/lam0.100_kmax4_seed0.json
+
+============================================================
+CELL: λ_act=0.100, K_max=16, seed=0
+============================================================
+BEFORE: base_nll=12.0331, pre_nll=12.0161, pre_halts=0.00
+TRAIN: 200 steps in 54.4s, loss_first10=11.6925, loss_last10=4.1835, halts_last10=0.00
+AFTER:  post_nll=6.7836, post_halts=0.00, Δ=-5.2495
+  -> /Users/gabiri/projects/RCV-HC/v2/experiments/e04_act_halt/cells/lam0.100_kmax16_seed0.json
+
+============================================================
+EXPERIMENT COMPLETE
+============================================================
+Cells passed: 4/4
+Experiment pass: True
+Best cell: λ=0.100, K_max=16, Δ=-5.2495, halts=0.00
+Best sparse (≤4 halts): λ=0.100, K_max=16, Δ=-5.2495, halts=0.00
+Summary: /Users/gabiri/projects/RCV-HC/v2/experiments/e04_act_halt/e04_summary_seed0.json
+
+=== WAVE9 DONE 2026年 5月16日 星期六 18时37分40秒 CST ===

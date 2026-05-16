@@ -109,6 +109,16 @@
 |---|---|---|---|---|---|---|---|---|
 | e03_drift_t8000 | — | 9 | 512 | —/— | — | — | — | — |
 
+### e04_act_halt
+
+| variant | seed | L | n_prl | t/steps | base | real_after | Δ_real | verdict |
+|---|---|---|---|---|---|---|---|---|
+| e04_summary_seed0 | 0 | 9 | 512 | 120/200 | — | — | — | — |
+| lam0.010_kmax16_seed0 | — | — | — | —/— | — | — | — | — |
+| lam0.010_kmax4_seed0 | — | — | — | —/— | — | — | — | — |
+| lam0.100_kmax16_seed0 | — | — | — | —/— | — | — | — | — |
+| lam0.100_kmax4_seed0 | — | — | — | —/— | — | — | — | — |
+
 ### e05_cross_model
 
 | variant | seed | L | n_prl | t/steps | base | real_after | Δ_real | verdict |
@@ -188,6 +198,16 @@
 | lam0.100_K4_seed0 | 0 | 9 | 512 | 120/200 | 12.033 | — | — | FAIL |
 | lam1.000_K4_seed0 | 0 | 9 | 512 | 120/200 | 12.033 | — | — | FAIL |
 | e14_summary_seed0 | 0 | — | — | —/— | — | — | — | — |
+
+### e15_ponder
+
+| variant | seed | L | n_prl | t/steps | base | real_after | Δ_real | verdict |
+|---|---|---|---|---|---|---|---|---|
+| e15_summary_seed0 | 0 | 9 | 512 | 120/200 | — | — | — | — |
+| cumulative | — | — | — | —/— | — | — | — | — |
+| cumulative | — | — | — | —/— | — | — | — | — |
+| cumulative | — | — | — | —/— | — | — | — | — |
+| cumulative | — | — | — | —/— | — | — | — | — |
 
 ### e17_negation_robustness
 
