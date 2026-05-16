@@ -130,7 +130,8 @@ The original interpretation — "preloaded b-vectors hold compressed knowledge t
 | **e06** | OOD random-bank Δ (eval-time swap, trained-on-real) | **−0.06** | reference — projector trained on real bank cannot use random bank at eval (expected, complements e11) |
 | **e07** | Multi-layer vs single-layer (L9 only, n_preload=512) | Δ_L9=**−2.52** | reference for multi-layer sweep |
 | **e08** | Interrupt API demo — preload NLL Δ vs base | base=0.4424 → preload=0.4017 (**Δ=−0.041**) on n=5 toy prompts | ✅ API works; identity-projector preload reduces NLL |
-| **e09** | v1 AttnNativeBank + KProj gate_d boost | [TBD:e09] | not started |
+| **e09** | v1 AttnNativeBank only (no K-projector) | Δ=**+0.014** (≈0) | ✅ PASS — reproduces v1's null result |
+| **e09** | v1 AttnNativeBank + v2 K-projector | Δ_signed=**−5.01** | ✅ PASS — K-projector revives the bank; confirms adapter, not native attention, drives the effect |
 | **e10** | topK=16 perf vs all-attend (%) | [TBD:e10] | not started |
 | **e10** | topK=16 compute vs all-attend (%) | [TBD:e10] | not started |
 | **e11** | Dual-channel (auto+interrupt) gain vs single | [TBD:e11] | not started |
@@ -147,7 +148,8 @@ The original interpretation — "preloaded b-vectors hold compressed knowledge t
 | **e18** | 2-hop chaining — Δ(AB_both vs A_only) | **+0.006** | ❌ FALSIFIES retrieval-and-compose claim |
 | **e18** | 2-hop chaining — Δ(AB_both vs B_only) | **−0.010** | ❌ FALSIFIES retrieval-and-compose claim |
 | **e18** | 2-hop chaining — Δ(AB_both vs None) | **−0.001** | bank vs no-bank also ≈0 |
-| **e19** | Seed replication std/mean ratio | [TBD:e19] | not started |
+| **e19** | Seed replication, L9 (n=5 seeds, Δ_real) | mean=**−4.87**, std=**0.33** | ✅ tight replication |
+| **e19** | Seed replication, L21 (n=5 seeds, Δ_real) | mean=**−6.77**, std=**0.26** | ✅ tight replication; L21 dominates L9 by ~1.9 nat across all seeds |
 
 ---
 
