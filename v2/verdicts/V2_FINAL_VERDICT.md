@@ -128,7 +128,7 @@ The original interpretation — "preloaded b-vectors hold compressed knowledge t
 | **e05** | Mistral-7B Δ NLL | [TBD:e05] | not started |
 | **e06** | Relation-disjoint OOD Δ NLL (seed 0) | **−4.37** | ✅ PASS — projector generalizes to held-out relations |
 | **e06** | OOD random-bank Δ (eval-time swap, trained-on-real) | **−0.06** | reference — projector trained on real bank cannot use random bank at eval (expected, complements e11) |
-| **e07** | Multi-layer vs single-layer (L9 only, n_preload=512) | Δ_L9=**−2.52** | reference for multi-layer sweep |
+| **e07** | Per-layer K-projector (n_preload=512, n_train=120) | L=[9]: Δ=**−2.52** / L=[3,9,21]: Δ=**−5.35** / L=[3,9,15,21,27,33]: Δ=**−4.79** | ✅ 3-layer beats 1-layer; 6-layer regresses (over-capacity) |
 | **e08** | Interrupt API demo — preload NLL Δ vs base | base=0.4424 → preload=0.4017 (**Δ=−0.041**) on n=5 toy prompts | ✅ API works; identity-projector preload reduces NLL |
 | **e09** | v1 AttnNativeBank only (no K-projector) | Δ=**+0.014** (≈0) | ✅ PASS — reproduces v1's null result |
 | **e09** | v1 AttnNativeBank + v2 K-projector | Δ_signed=**−5.01** | ✅ PASS — K-projector revives the bank; confirms adapter, not native attention, drives the effect |
