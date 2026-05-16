@@ -30,8 +30,10 @@
   "nll_drop": 5.501472101795177,
   "verdict": {
     "pass": false,
-    "rule": "zero-distinctness bank should NOT reduce NLL by >2 (got \u0394=5.50)",
-    "interpretation": "PASS = distinctness matters"
+    "rule": "zero-distinctness bank should NOT reduce NLL by >=2 (got \u0394_signed=-5.50)",
+    "interpretation": "FAIL = zero distinctness helps \u2192 H2c confirmed",
+    "delta_signed": -5.501472101795177,
+    "nll_drop": 5.501472101795177
   },
   "loss_first25": [
     10.654788970947266,

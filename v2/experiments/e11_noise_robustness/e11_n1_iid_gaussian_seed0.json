@@ -30,8 +30,10 @@
   "nll_drop": 6.046560022141785,
   "verdict": {
     "pass": false,
-    "rule": "pure noise should NOT reduce NLL by >2 (got \u0394=6.05)",
-    "interpretation": "PASS = noise does not help"
+    "rule": "pure noise should NOT reduce NLL by >=2 (got \u0394_signed=-6.05)",
+    "interpretation": "FAIL = noise still helps \u2192 claim hollow",
+    "delta_signed": -6.046560022141785,
+    "nll_drop": 6.046560022141785
   },
   "loss_first25": [
     10.93359661102295,

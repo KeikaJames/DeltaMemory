@@ -30,8 +30,10 @@
   "nll_drop": 5.760609122439443,
   "verdict": {
     "pass": false,
-    "rule": "single bank slot should NOT reduce NLL by >2 (got \u0394=5.76)",
-    "interpretation": "PASS = multiple slots needed"
+    "rule": "single bank slot should NOT reduce NLL by >=2 (got \u0394_signed=-5.76)",
+    "interpretation": "FAIL = 1 slot suffices \u2192 about slot count not content",
+    "delta_signed": -5.760609122439443,
+    "nll_drop": 5.760609122439443
   },
   "loss_first25": [
     11.008419036865234,

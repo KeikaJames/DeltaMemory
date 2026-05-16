@@ -382,42 +382,47 @@ def main():
     print(f"[e11:{args.variant}] AFTER:  base={base:.4f}  real={post_real:.4f}  "
           f"rand={post_rand:.4f}  zero={post_zero:.4f}  off={post_off:.4f}")
     
-    nll_drop = base - post_real
-    
+    # Δ = post_real - base (signed; negative = NLL drop = "noise helped").
+    # PASS means: noise/degenerate-bank did NOT reduce NLL by >= 2 — i.e. the
+    # *information* claim survives. FAIL means: noise/degenerate bank still
+    # produced a strong NLL drop, so the bank-content interpretation is hollow.
+    delta_signed = post_real - base
+    nll_drop = base - post_real  # kept for backward compat (== -delta_signed)
+    threshold = 2.0  # "significant" NLL drop magnitude in either direction
+    helped = delta_signed <= -threshold  # noise/degenerate bank reduced NLL by >= 2
+
     # Verdict logic per variant
     verdict = {}
-    threshold = -2.0  # if Δ ≤ -2, variant produces "significant" gain
-    
+
     if args.variant in ["n1_iid_gaussian", "n2_uniform_sphere"]:
-        # pure noise: if Δ ≤ -2, claim is hollow
         verdict = {
-            "pass": nll_drop < threshold,
-            "rule": f"pure noise should NOT reduce NLL by >2 (got Δ={nll_drop:.2f})",
-            "interpretation": "FAIL = noise still helps → claim hollow" if nll_drop <= threshold else "PASS = noise does not help"
+            "pass": not helped,
+            "rule": f"pure noise should NOT reduce NLL by >=2 (got Δ_signed={delta_signed:+.2f})",
+            "interpretation": "FAIL = noise still helps → claim hollow" if helped else "PASS = noise does not help"
         }
     elif args.variant in ["n3_single_row_replicated", "n4_single_random_replicated", "n5_constant_vector"]:
-        # zero distinctness: if Δ ≤ -2, confirms H2c
         verdict = {
-            "pass": nll_drop < threshold,
-            "rule": f"zero-distinctness bank should NOT reduce NLL by >2 (got Δ={nll_drop:.2f})",
-            "interpretation": "FAIL = zero distinctness helps → H2c confirmed" if nll_drop <= threshold else "PASS = distinctness matters"
+            "pass": not helped,
+            "rule": f"zero-distinctness bank should NOT reduce NLL by >=2 (got Δ_signed={delta_signed:+.2f})",
+            "interpretation": "FAIL = zero distinctness helps → H2c confirmed" if helped else "PASS = distinctness matters"
         }
     elif args.variant == "n6_real_bank_K1":
-        # K=1: if Δ ≤ -2, even 1 slot suffices
         verdict = {
-            "pass": nll_drop < threshold,
-            "rule": f"single bank slot should NOT reduce NLL by >2 (got Δ={nll_drop:.2f})",
-            "interpretation": "FAIL = 1 slot suffices → about slot count not content" if nll_drop <= threshold else "PASS = multiple slots needed"
+            "pass": not helped,
+            "rule": f"single bank slot should NOT reduce NLL by >=2 (got Δ_signed={delta_signed:+.2f})",
+            "interpretation": "FAIL = 1 slot suffices → about slot count not content" if helped else "PASS = multiple slots needed"
         }
     elif args.variant == "n7_real_bank_K0_pure_proj":
-        # K=0: if Δ ≤ -2, projector training alone causes gain → memory ablated
         verdict = {
-            "pass": nll_drop < threshold,
-            "rule": f"no bank (K=0) should NOT reduce NLL by >2 (got Δ={nll_drop:.2f})",
-            "interpretation": "FAIL = no bank helps → claim DEAD (terminal)" if nll_drop <= threshold else "PASS = memory necessary"
+            "pass": not helped,
+            "rule": f"no bank (K=0) should NOT reduce NLL by >=2 (got Δ_signed={delta_signed:+.2f})",
+            "interpretation": "FAIL = no bank helps → claim DEAD (terminal)" if helped else "PASS = memory necessary"
         }
     else:
         verdict = {"pass": None, "rule": "unknown variant", "interpretation": "N/A"}
+    verdict["delta_signed"] = delta_signed
+    verdict["nll_drop"] = nll_drop
+
     
     out = {
         "variant": args.variant,
