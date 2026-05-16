@@ -1,0 +1,14 @@
+=== WAVE7 START 2026年 5月16日 星期六 17时17分43秒 CST ===
+
+=== e14/pause_train 2026年 5月16日 星期六 17时17分43秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e14] λ_sparse ∈ [0.0, 0.01, 0.1, 1.0], max_pauses ∈ [4], seed=0
+[e14] Total cells: 4
+[e14] train=120 test=120 preload=512
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001fa8cf080 (most recent call first):
+  <no Python frame>
+Loading weights:  13%|█▎        | 53/398 [00:00<00:00, 529.48it/s]Loading weights:  29%|██▉       | 115/398 [00:00<00:00, 580.30it/s]Loading weights:  44%|████▎     | 174/398 [00:00<00:00, 560.81it/s]Loading weights:  58%|█████▊    | 231/398 [00:00<00:00, 245.72it/s]Loading weights:  72%|███████▏  | 286/398 [00:00<00:00, 304.02it/s]Loading weights:  88%|████████▊ | 350/398 [00:00<00:00, 376.26it/s]Loading weights: 100%|██████████| 398/398 [00:01<00:00, 390.32it/s]

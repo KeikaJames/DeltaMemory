@@ -1,0 +1,41 @@
+{
+  "experiment": "e13_multi_task_capability",
+  "variant": "multitask_triple_partial",
+  "seed": 0,
+  "config": {
+    "bank_layer": 9,
+    "n_train": 120,
+    "steps": 200,
+    "n_preload": 512,
+    "conditions": ["base", "bank_off", "bank_on"],
+    "note": "gsm8k condition killed at ~50min uninterruptible-sleep hang; wikitext2/lambada/hellaswag salvaged from _wave6.log"
+  },
+  "train": {
+    "final_loss_avg50": 7.2143,
+    "elapsed_s": 33.4
+  },
+  "results": {
+    "wikitext2": {
+      "base":     {"tokens": 3996, "nll": 2.0644, "ppl": 7.880},
+      "bank_off": {"tokens": 3996, "nll": 2.0644, "ppl": 7.880},
+      "bank_on":  {"tokens": 3996, "nll": 2.1144, "ppl": 8.285}
+    },
+    "lambada": {
+      "base":     {"correct": 130, "total": 227, "acc": 0.5727},
+      "bank_off": {"correct": 130, "total": 227, "acc": 0.5727},
+      "bank_on":  {"correct": 130, "total": 227, "acc": 0.5727}
+    },
+    "hellaswag": {
+      "base":     {"correct": 130, "total": 200, "acc": 0.6500},
+      "bank_off": {"correct": 130, "total": 200, "acc": 0.6500},
+      "bank_on":  {"correct": 127, "total": 200, "acc": 0.6350}
+    },
+    "gsm8k": null
+  },
+  "interpretation": {
+    "wikitext2_delta_ppl_bank_on": 0.405,
+    "lambada_delta_acc_bank_on": 0.0000,
+    "hellaswag_delta_acc_bank_on": -0.0150,
+    "verdict": "Zero transfer of the factual-completion-trained projector to general-LM (wikitext2), narrative completion (lambada), or commonsense (hellaswag). bank_on actually slightly regresses on wikitext2 PPL (+0.4) and hellaswag acc (-1.5pp). Consistent with v2 mechanism being a task-specific factual-completion adapter, not a broad capability enhancer."
+  }
+}

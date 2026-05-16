@@ -1,0 +1,345 @@
+=== WAVE5 START 2026年 5月16日 星期六 15时34分12秒 CST ===
+
+=== e11/n1_iid_gaussian@L21 2026年 5月16日 星期六 15时34分12秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e11:n1_iid_gaussian] train=120 test=120 preload=512 seed=0
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:  15%|█▍        | 58/398 [00:00<00:00, 564.85it/s]Loading weights:  31%|███       | 124/398 [00:00<00:00, 612.55it/s]Loading weights:  47%|████▋     | 186/398 [00:00<00:00, 613.35it/s]Loading weights:  62%|██████▏   | 248/398 [00:00<00:00, 604.02it/s]Loading weights:  79%|███████▉  | 316/398 [00:00<00:00, 629.65it/s]Loading weights:  95%|█████████▌| 380/398 [00:00<00:00, 564.46it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 587.07it/s]
+[e11:n1_iid_gaussian] bank_stats: norm=15.00 distinctness=21.21
+[e11:n1_iid_gaussian] BEFORE: base=11.9979  real=11.9398  rand=11.9430  zero=11.9906  off=11.9979
+  [e11:n1_iid_gaussian] step 1/200 loss(avg25)=11.0212 (0.3s)
+  [e11:n1_iid_gaussian] step 25/200 loss(avg25)=11.2971 (5.1s)
+  [e11:n1_iid_gaussian] step 50/200 loss(avg25)=10.9412 (9.7s)
+  [e11:n1_iid_gaussian] step 75/200 loss(avg25)=8.3671 (14.3s)
+  [e11:n1_iid_gaussian] step 100/200 loss(avg25)=6.2346 (19.0s)
+  [e11:n1_iid_gaussian] step 125/200 loss(avg25)=7.0720 (23.7s)
+  [e11:n1_iid_gaussian] step 150/200 loss(avg25)=5.7153 (28.4s)
+  [e11:n1_iid_gaussian] step 175/200 loss(avg25)=4.1704 (33.5s)
+  [e11:n1_iid_gaussian] step 200/200 loss(avg25)=4.1013 (38.5s)
+[e11:n1_iid_gaussian] training done in 38.5s
+[e11:n1_iid_gaussian] AFTER:  base=11.9979  real=5.6826  rand=11.9436  zero=11.9906  off=11.9979
+[e11:n1_iid_gaussian] -> v2/experiments/e11_noise_robustness/e11_n1_iid_gaussian_L21_seed0.json
+[e11:n1_iid_gaussian] verdict={'pass': False, 'rule': 'pure noise should NOT reduce NLL by >2 (got Δ=6.32)', 'interpretation': 'PASS = noise does not help'}
+
+=== e11/n3_single_row_replicated@L21 2026年 5月16日 星期六 15时37分15秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e11:n3_single_row_replicated] train=120 test=120 preload=512 seed=0
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:20,  4.91it/s]Loading weights:  15%|█▍        | 58/398 [00:00<00:01, 235.58it/s]Loading weights:  29%|██▉       | 117/398 [00:00<00:00, 366.01it/s]Loading weights:  45%|████▍     | 179/398 [00:00<00:00, 449.19it/s]Loading weights:  59%|█████▉    | 236/398 [00:00<00:00, 485.66it/s]Loading weights:  75%|███████▌  | 300/398 [00:00<00:00, 533.71it/s]Loading weights:  91%|█████████ | 363/398 [00:00<00:00, 561.34it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 458.71it/s]
+[e11:n3_single_row_replicated] bank_stats: norm=15.00 distinctness=0.00
+[e11:n3_single_row_replicated] BEFORE: base=11.9979  real=11.9855  rand=11.9379  zero=11.9906  off=11.9979
+  [e11:n3_single_row_replicated] step 1/200 loss(avg25)=10.8967 (0.3s)
+  [e11:n3_single_row_replicated] step 25/200 loss(avg25)=11.1141 (5.1s)
+  [e11:n3_single_row_replicated] step 50/200 loss(avg25)=8.3205 (9.7s)
+  [e11:n3_single_row_replicated] step 75/200 loss(avg25)=5.9031 (14.5s)
+  [e11:n3_single_row_replicated] step 100/200 loss(avg25)=5.1515 (19.0s)
+  [e11:n3_single_row_replicated] step 125/200 loss(avg25)=6.5684 (23.9s)
+  [e11:n3_single_row_replicated] step 150/200 loss(avg25)=5.2938 (28.7s)
+  [e11:n3_single_row_replicated] step 175/200 loss(avg25)=4.1228 (33.6s)
+  [e11:n3_single_row_replicated] step 200/200 loss(avg25)=4.4629 (37.7s)
+[e11:n3_single_row_replicated] training done in 37.7s
+[e11:n3_single_row_replicated] AFTER:  base=11.9979  real=5.6416  rand=11.9610  zero=11.9906  off=11.9979
+[e11:n3_single_row_replicated] -> v2/experiments/e11_noise_robustness/e11_n3_single_row_replicated_L21_seed0.json
+[e11:n3_single_row_replicated] verdict={'pass': False, 'rule': 'zero-distinctness bank should NOT reduce NLL by >2 (got Δ=6.36)', 'interpretation': 'PASS = distinctness matters'}
+
+=== e11/n5_constant_vector@L21 2026年 5月16日 星期六 15时40分20秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e11:n5_constant_vector] train=120 test=120 preload=512 seed=0
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:36,  4.10it/s]Loading weights:  15%|█▌        | 60/398 [00:00<00:01, 219.04it/s]Loading weights:  31%|███▏      | 125/398 [00:00<00:00, 366.88it/s]Loading weights:  48%|████▊     | 190/398 [00:00<00:00, 460.07it/s]Loading weights:  64%|██████▎   | 253/398 [00:00<00:00, 512.21it/s]Loading weights:  79%|███████▉  | 316/398 [00:00<00:00, 548.95it/s]Loading weights:  95%|█████████▌| 379/398 [00:00<00:00, 569.40it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 456.04it/s]
+[e11:n5_constant_vector] bank_stats: norm=15.00 distinctness=0.00
+[e11:n5_constant_vector] BEFORE: base=11.9979  real=11.9219  rand=11.9406  zero=11.9906  off=11.9979
+  [e11:n5_constant_vector] step 1/200 loss(avg25)=11.0529 (0.2s)
+  [e11:n5_constant_vector] step 25/200 loss(avg25)=11.1681 (5.2s)
+  [e11:n5_constant_vector] step 50/200 loss(avg25)=11.1783 (9.7s)
+  [e11:n5_constant_vector] step 75/200 loss(avg25)=10.5455 (14.2s)
+  [e11:n5_constant_vector] step 100/200 loss(avg25)=9.9021 (19.1s)
+  [e11:n5_constant_vector] step 125/200 loss(avg25)=9.5174 (24.0s)
+  [e11:n5_constant_vector] step 150/200 loss(avg25)=7.0025 (28.9s)
+  [e11:n5_constant_vector] step 175/200 loss(avg25)=5.3707 (33.5s)
+  [e11:n5_constant_vector] step 200/200 loss(avg25)=5.0287 (37.7s)
+[e11:n5_constant_vector] training done in 37.7s
+[e11:n5_constant_vector] AFTER:  base=11.9979  real=5.5193  rand=11.9455  zero=11.9906  off=11.9979
+[e11:n5_constant_vector] -> v2/experiments/e11_noise_robustness/e11_n5_constant_vector_L21_seed0.json
+[e11:n5_constant_vector] verdict={'pass': False, 'rule': 'zero-distinctness bank should NOT reduce NLL by >2 (got Δ=6.48)', 'interpretation': 'PASS = distinctness matters'}
+
+=== e02/n512_t200_s200 2026年 5月16日 星期六 15时43分21秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e02:n512_t200_single_s200_seed0] train=200 test=61 preload=512
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:16,  5.16it/s]Loading weights:  15%|█▍        | 59/398 [00:00<00:01, 247.85it/s]Loading weights:  31%|███       | 124/398 [00:00<00:00, 396.66it/s]Loading weights:  48%|████▊     | 190/398 [00:00<00:00, 482.39it/s]Loading weights:  64%|██████▍   | 256/398 [00:00<00:00, 536.51it/s]Loading weights:  81%|████████  | 322/398 [00:00<00:00, 572.84it/s]Loading weights:  97%|█████████▋| 388/398 [00:00<00:00, 593.51it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 484.38it/s]
+[e02:n512_t200_single_s200_seed0] BEFORE base=11.3267 real=11.3402 rand=11.3035
+  [e02:n512_t200_single_s200_seed0] step 1/200 loss(avg50)=11.3206 (0.2s)
+  [e02:n512_t200_single_s200_seed0] step 100/200 loss(avg50)=10.9762 (18.3s)
+  [e02:n512_t200_single_s200_seed0] step 200/200 loss(avg50)=6.9700 (36.6s)
+[e02:n512_t200_single_s200_seed0] training done in 36.6s
+[e02:n512_t200_single_s200_seed0] AFTER base=11.3267 real=6.5635 rand=11.2915
+[e02:n512_t200_single_s200_seed0] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e02_scale_matrix/cells/n512_t200_single_s200_seed0.json
+
+=== e02/n1024_t200_s500 2026年 5月16日 星期六 15时44分40秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e02:n1024_t200_single_s500_seed0] train=200 test=61 preload=1024
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:16,  5.22it/s]Loading weights:  15%|█▍        | 59/398 [00:00<00:01, 247.04it/s]Loading weights:  30%|██▉       | 119/398 [00:00<00:00, 378.85it/s]Loading weights:  45%|████▌     | 180/398 [00:00<00:00, 458.12it/s]Loading weights:  62%|██████▏   | 245/398 [00:00<00:00, 521.10it/s]Loading weights:  78%|███████▊  | 311/398 [00:00<00:00, 560.57it/s]Loading weights:  94%|█████████▍| 374/398 [00:00<00:00, 580.22it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 471.81it/s]
+[e02:n1024_t200_single_s500_seed0] BEFORE base=11.3267 real=11.3762 rand=11.3087
+  [e02:n1024_t200_single_s500_seed0] step 1/500 loss(avg50)=11.2596 (0.2s)
+  [e02:n1024_t200_single_s500_seed0] step 100/500 loss(avg50)=10.9343 (18.7s)
+  [e02:n1024_t200_single_s500_seed0] step 200/500 loss(avg50)=7.4840 (37.1s)
+  [e02:n1024_t200_single_s500_seed0] step 300/500 loss(avg50)=5.4007 (54.6s)
+  [e02:n1024_t200_single_s500_seed0] step 400/500 loss(avg50)=5.8586 (72.3s)
+  [e02:n1024_t200_single_s500_seed0] step 500/500 loss(avg50)=4.8197 (90.6s)
+[e02:n1024_t200_single_s500_seed0] training done in 90.6s
+[e02:n1024_t200_single_s500_seed0] AFTER base=11.3267 real=6.2691 rand=11.3051
+[e02:n1024_t200_single_s500_seed0] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e02_scale_matrix/cells/n1024_t200_single_s500_seed0.json
+
+=== e02/n2048_t200_s500 2026年 5月16日 星期六 15时46分52秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e02:n2048_t200_single_s500_seed0] train=200 test=61 preload=2048
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:34,  4.18it/s]Loading weights:  16%|█▋        | 65/398 [00:00<00:01, 241.88it/s]Loading weights:  32%|███▏      | 126/398 [00:00<00:00, 365.24it/s]Loading weights:  48%|████▊     | 191/398 [00:00<00:00, 457.07it/s]Loading weights:  64%|██████▍   | 256/398 [00:00<00:00, 513.25it/s]Loading weights:  80%|████████  | 320/398 [00:00<00:00, 551.67it/s]Loading weights:  95%|█████████▌| 380/398 [00:00<00:00, 563.24it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 456.08it/s]
+[e02:n2048_t200_single_s500_seed0] BEFORE base=11.3267 real=11.4054 rand=11.3296
+  [e02:n2048_t200_single_s500_seed0] step 1/500 loss(avg50)=11.2316 (0.2s)
+  [e02:n2048_t200_single_s500_seed0] step 100/500 loss(avg50)=10.8332 (18.6s)
+  [e02:n2048_t200_single_s500_seed0] step 200/500 loss(avg50)=8.2209 (37.0s)
+  [e02:n2048_t200_single_s500_seed0] step 300/500 loss(avg50)=5.7500 (54.7s)
+  [e02:n2048_t200_single_s500_seed0] step 400/500 loss(avg50)=5.4602 (72.7s)
+  [e02:n2048_t200_single_s500_seed0] step 500/500 loss(avg50)=4.8522 (90.8s)
+[e02:n2048_t200_single_s500_seed0] training done in 90.8s
+[e02:n2048_t200_single_s500_seed0] AFTER base=11.3267 real=7.3101 rand=11.3288
+[e02:n2048_t200_single_s500_seed0] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e02_scale_matrix/cells/n2048_t200_single_s500_seed0.json
+
+=== e02/n2048_t500_s500 2026年 5月16日 星期六 15时49分05秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e02:n2048_t500_single_s500_seed0] train=500 test=20 preload=2048
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:07,  5.90it/s]Loading weights:  15%|█▍        | 58/398 [00:00<00:01, 263.59it/s]Loading weights:  30%|███       | 121/398 [00:00<00:00, 406.48it/s]Loading weights:  45%|████▌     | 181/398 [00:00<00:00, 473.89it/s]Loading weights:  62%|██████▏   | 245/398 [00:00<00:00, 524.77it/s]Loading weights:  76%|███████▌  | 302/398 [00:00<00:00, 539.09it/s]Loading weights:  92%|█████████▏| 366/398 [00:00<00:00, 565.87it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 481.31it/s]
+[e02:n2048_t500_single_s500_seed0] BEFORE base=12.6680 real=12.6795 rand=12.6729
+  [e02:n2048_t500_single_s500_seed0] step 1/500 loss(avg50)=7.7450 (0.4s)
+  [e02:n2048_t500_single_s500_seed0] step 100/500 loss(avg50)=10.6483 (19.3s)
+  [e02:n2048_t500_single_s500_seed0] step 200/500 loss(avg50)=8.5391 (37.5s)
+  [e02:n2048_t500_single_s500_seed0] step 300/500 loss(avg50)=7.1099 (55.8s)
+  [e02:n2048_t500_single_s500_seed0] step 400/500 loss(avg50)=5.0299 (74.1s)
+  [e02:n2048_t500_single_s500_seed0] step 500/500 loss(avg50)=5.2269 (92.0s)
+[e02:n2048_t500_single_s500_seed0] training done in 92.0s
+[e02:n2048_t500_single_s500_seed0] AFTER base=12.6680 real=10.6803 rand=12.7037
+[e02:n2048_t500_single_s500_seed0] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e02_scale_matrix/cells/n2048_t500_single_s500_seed0.json
+
+=== e13/multi-task 2026年 5月16日 星期六 15时50分56秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:21,  4.85it/s]Loading weights:  15%|█▍        | 59/398 [00:00<00:01, 239.59it/s]Loading weights:  31%|███       | 124/398 [00:00<00:00, 389.84it/s]Loading weights:  47%|████▋     | 188/398 [00:00<00:00, 475.72it/s]Loading weights:  62%|██████▏   | 247/398 [00:00<00:00, 509.93it/s]Loading weights:  79%|███████▊  | 313/398 [00:00<00:00, 552.17it/s]Loading weights:  95%|█████████▌| 379/398 [00:00<00:00, 580.07it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 474.47it/s]
+`trust_remote_code` is not supported anymore.
+Please check that the Hugging Face dataset 'Salesforce/wikitext' isn't based on a loading script and remove `trust_remote_code`.
+If the dataset is based on a loading script, please ask the dataset author to remove it and convert it to a standard format like Parquet.
+`trust_remote_code` is not supported anymore.
+Please check that the Hugging Face dataset 'Salesforce/wikitext' isn't based on a loading script and remove `trust_remote_code`.
+If the dataset is based on a loading script, please ask the dataset author to remove it and convert it to a standard format like Parquet.
+`trust_remote_code` is not supported anymore.
+Please check that the Hugging Face dataset 'Salesforce/wikitext' isn't based on a loading script and remove `trust_remote_code`.
+If the dataset is based on a loading script, please ask the dataset author to remove it and convert it to a standard format like Parquet.
+`trust_remote_code` is not supported anymore.
+Please check that the Hugging Face dataset 'EleutherAI/lambada_openai' isn't based on a loading script and remove `trust_remote_code`.
+If the dataset is based on a loading script, please ask the dataset author to remove it and convert it to a standard format like Parquet.
+
+=== Training projector (200 steps) ===
+  step 1/200 loss(avg50)=12.2299 (0.4s)
+  step 50/200 loss(avg50)=11.8822 (10.0s)
+  step 100/200 loss(avg50)=10.3533 (19.0s)
+  step 150/200 loss(avg50)=8.8067 (27.9s)
+  step 200/200 loss(avg50)=6.5162 (37.1s)
+[train] done in 37.1s
+
+=== wikitext2 ===
+  [wikitext2] tokens=3996 nll=2.0644 ppl=7.880 (3.5s)
+  [wikitext2] tokens=3996 nll=2.0644 ppl=7.880 (7.3s)
+  [wikitext2] tokens=3996 nll=2.0740 ppl=7.956 (7.0s)
+
+=== lambada ===
+Generating test split:   0%|          | 0/5153 [00:00<?, ? examples/s]Generating test split: 100%|██████████| 5153/5153 [00:00<00:00, 426608.15 examples/s]
+Traceback (most recent call last):
+  File "/Users/gabiri/projects/RCV-HC/v2/experiments/e13_multi_task_capability/run.py", line 572, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/Users/gabiri/projects/RCV-HC/v2/experiments/e13_multi_task_capability/run.py", line 495, in main
+    res = run_benchmark_triple("lambada", eval_lambada, model, tok, args.device,
+                               bank, heads, args.bank_layer, b_proj, args.lambada_items)
+  File "/Users/gabiri/projects/RCV-HC/v2/experiments/e13_multi_task_capability/run.py", line 281, in run_benchmark_triple
+    res = eval_lambada(model, tok, n_items=n_items_or_tokens, device=device,
+                      run_forward_fn=fwd_base)
+  File "/Users/gabiri/projects/RCV-HC/v2/experiments/e13_multi_task_capability/run.py", line 135, in eval_lambada
+    gold_id = full_ids[0, split].item()
+              ~~~~~~~~^^^^^^^^^^
+IndexError: index 60 is out of bounds for dimension 1 with size 60
+  FAIL e13/multi-task
+
+=== e17/negation 2026年 5月16日 星期六 15时52分21秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e17] train=120 test=120 preload=512 seed=0
+[e17] negated_t1=120 negated_t2=120
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:  14%|█▍        | 56/398 [00:00<00:00, 557.15it/s]Loading weights:  29%|██▉       | 115/398 [00:00<00:00, 564.92it/s]Loading weights:  45%|████▌     | 181/398 [00:00<00:00, 597.03it/s]Loading weights:  62%|██████▏   | 246/398 [00:00<00:00, 607.67it/s]Loading weights:  77%|███████▋  | 308/398 [00:00<00:00, 610.06it/s]Loading weights:  93%|█████████▎| 372/398 [00:00<00:00, 619.91it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 612.94it/s]
+  [e17] step 1/200 loss(avg25)=7.2815 (0.4s)
+  [e17] step 25/200 loss(avg25)=11.8987 (5.4s)
+  [e17] step 50/200 loss(avg25)=11.2363 (9.9s)
+  [e17] step 75/200 loss(avg25)=11.7496 (14.4s)
+  [e17] step 100/200 loss(avg25)=10.3217 (18.9s)
+  [e17] step 125/200 loss(avg25)=9.5785 (23.6s)
+  [e17] step 150/200 loss(avg25)=7.9578 (28.1s)
+  [e17] step 175/200 loss(avg25)=9.5181 (32.6s)
+  [e17] step 200/200 loss(avg25)=7.1316 (37.1s)
+[e17] training done in 37.1s
+[e17] eval (a) standard prompts, standard targets...
+[e17] eval (b) standard prompts, random targets...
+[e17] eval (c) negated prompts, random targets...
+[e17] eval (d) negated prompts, target_true labels...
+[e17] RESULTS:
+  (a) standard/standard:   base=12.0331 lpl=7.0934 Δ=4.9397
+  (b) standard/random:     base=14.5544 lpl=11.7801 Δ=2.7743
+  (c) negated/random:      base=12.6628 lpl=12.0073 Δ=0.6555
+  (d) negated/target_true: base=4.6286 lpl=3.8336 Δ=0.7950
+[e17] -> v2/experiments/e17_negation_robustness/e17_seed0.json
+[e17] verdict: {'pass': False, 'interpretation': "(a) FAIL: Δ_a > -1 (sanity broken) | (b) passes: bank does NOT help random targets on standard prompts | (c) passes: bank does NOT help random targets on negated prompts | (d) neutral: bank does not override prompt's negation", 'thresholds': {'a_sanity': 'Δ_a ≤ -1.0', 'b_content_blind_fail': 'Δ_b ≤ -0.5', 'c_content_blind_fail': 'Δ_c ≤ -0.5', 'd_content_override': 'Δ_d ≤ -1.0'}}
+
+=== e18/2hop 2026年 5月16日 星期六 15时56分11秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e18] chains: 60 train, 60 eval (natural=120, synthetic=0)
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:  15%|█▍        | 58/398 [00:00<00:00, 578.23it/s]Loading weights:  31%|███       | 122/398 [00:00<00:00, 614.37it/s]Loading weights:  46%|████▌     | 184/398 [00:00<00:00, 613.13it/s]Loading weights:  62%|██████▏   | 247/398 [00:00<00:00, 615.21it/s]Loading weights:  79%|███████▊  | 313/398 [00:00<00:00, 624.86it/s]Loading weights:  95%|█████████▌| 379/398 [00:00<00:00, 630.18it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 629.94it/s]
+[e18] Pre-train eval...
+  [e18:pre] None_single_hop_A: 9.6242
+  [e18:pre] None_single_hop_B: 10.1312
+  [e18:pre] None_two_hop: 12.1850
+  [e18:pre] A_only_single_hop_A: 9.6256
+  [e18:pre] A_only_single_hop_B: 10.1278
+  [e18:pre] A_only_two_hop: 12.1882
+  [e18:pre] B_only_single_hop_A: 9.6336
+  [e18:pre] B_only_single_hop_B: 10.1218
+  [e18:pre] B_only_two_hop: 12.1862
+  [e18:pre] AB_both_single_hop_A: 9.6231
+  [e18:pre] AB_both_single_hop_B: 10.1264
+  [e18:pre] AB_both_two_hop: 12.1816
+[e18] Training on single-hop A+B queries (AB_both bank)...
+  [e18] step 1/200 loss(avg25)=12.2585 (0.7s)
+  [e18] step 25/200 loss(avg25)=10.5274 (5.6s)
+  [e18] step 50/200 loss(avg25)=9.5244 (10.6s)
+  [e18] step 75/200 loss(avg25)=9.9226 (15.5s)
+  [e18] step 100/200 loss(avg25)=9.3259 (20.3s)
+  [e18] step 125/200 loss(avg25)=7.7799 (25.0s)
+  [e18] step 150/200 loss(avg25)=7.4414 (29.9s)
+  [e18] step 175/200 loss(avg25)=6.6089 (34.7s)
+  [e18] step 200/200 loss(avg25)=6.4582 (39.5s)
+[e18] training done in 39.5s
+[e18] Post-train eval...
+  [e18:post] None_single_hop_A: 9.6242
+  [e18:post] None_single_hop_B: 10.1312
+  [e18:post] None_two_hop: 12.1850
+  [e18:post] A_only_single_hop_A: 9.6256
+  [e18:post] A_only_single_hop_B: 10.1302
+  [e18:post] A_only_two_hop: 12.1788
+  [e18:post] B_only_single_hop_A: 9.6255
+  [e18:post] B_only_single_hop_B: 10.1183
+  [e18:post] B_only_two_hop: 12.1943
+  [e18:post] AB_both_single_hop_A: 9.6129
+  [e18:post] AB_both_single_hop_B: 10.1239
+  [e18:post] AB_both_two_hop: 12.1844
+
+[e18] === RESULTS ===
+  Δ(AB vs None): 0.0006
+  Δ(AB vs A_only): -0.0056  FAIL
+  Δ(AB vs B_only): 0.0099  FAIL
+  Overall: FAIL
+
+[e18] -> v2/experiments/e18_2hop/e18_seed0.json
+
+=== e11/n2_uniform_sphere 2026年 5月16日 星期六 16时00分53秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e11:n2_uniform_sphere] train=120 test=120 preload=512 seed=0
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:21,  4.87it/s]Loading weights:  15%|█▌        | 60/398 [00:00<00:01, 242.70it/s]Loading weights:  32%|███▏      | 126/398 [00:00<00:00, 390.95it/s]Loading weights:  48%|████▊     | 192/398 [00:00<00:00, 476.96it/s]Loading weights:  65%|██████▍   | 258/398 [00:00<00:00, 531.34it/s]Loading weights:  81%|████████  | 323/398 [00:00<00:00, 567.09it/s]Loading weights:  98%|█████████▊| 389/398 [00:00<00:00, 591.43it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 479.60it/s]
+[e11:n2_uniform_sphere] bank_stats: norm=15.00 distinctness=21.21
+[e11:n2_uniform_sphere] BEFORE: base=11.9979  real=11.9963  rand=12.0024  zero=11.9997  off=11.9979
+  [e11:n2_uniform_sphere] step 1/200 loss(avg25)=10.9336 (0.4s)
+  [e11:n2_uniform_sphere] step 25/200 loss(avg25)=11.3599 (4.9s)
+  [e11:n2_uniform_sphere] step 50/200 loss(avg25)=11.6881 (9.4s)
+  [e11:n2_uniform_sphere] step 75/200 loss(avg25)=11.2365 (14.0s)
+  [e11:n2_uniform_sphere] step 100/200 loss(avg25)=10.9750 (18.8s)
+  [e11:n2_uniform_sphere] step 125/200 loss(avg25)=10.3122 (23.3s)
+  [e11:n2_uniform_sphere] step 150/200 loss(avg25)=8.3918 (27.9s)
+  [e11:n2_uniform_sphere] step 175/200 loss(avg25)=6.4663 (32.3s)
+  [e11:n2_uniform_sphere] step 200/200 loss(avg25)=4.9386 (36.9s)
+[e11:n2_uniform_sphere] training done in 36.9s
+[e11:n2_uniform_sphere] AFTER:  base=11.9979  real=5.9513  rand=12.0139  zero=11.9997  off=11.9979
+[e11:n2_uniform_sphere] -> v2/experiments/e11_noise_robustness/e11_n2_uniform_sphere_seed0.json
+[e11:n2_uniform_sphere] verdict={'pass': False, 'rule': 'pure noise should NOT reduce NLL by >=2 (got Δ_signed=-6.05)', 'interpretation': 'FAIL = noise still helps → claim hollow', 'delta_signed': -6.046560022141785, 'nll_drop': 6.046560022141785}
+
+=== e11/n4_single_random_replicated 2026年 5月16日 星期六 16时03分55秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e11:n4_single_random_replicated] train=120 test=120 preload=512 seed=0
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:17,  5.15it/s]Loading weights:  15%|█▌        | 60/398 [00:00<00:01, 252.70it/s]Loading weights:  32%|███▏      | 126/398 [00:00<00:00, 400.97it/s]Loading weights:  48%|████▊     | 191/398 [00:00<00:00, 483.07it/s]Loading weights:  65%|██████▍   | 257/398 [00:00<00:00, 536.93it/s]Loading weights:  81%|████████  | 323/398 [00:00<00:00, 575.83it/s]Loading weights:  98%|█████████▊| 389/398 [00:00<00:00, 600.57it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 489.58it/s]
+[e11:n4_single_random_replicated] bank_stats: norm=15.00 distinctness=0.00
+[e11:n4_single_random_replicated] BEFORE: base=11.9979  real=12.0217  rand=12.0024  zero=11.9997  off=11.9979
+  [e11:n4_single_random_replicated] step 1/200 loss(avg25)=10.8797 (0.3s)
+  [e11:n4_single_random_replicated] step 25/200 loss(avg25)=11.2194 (4.8s)
+  [e11:n4_single_random_replicated] step 50/200 loss(avg25)=10.1127 (9.3s)
+  [e11:n4_single_random_replicated] step 75/200 loss(avg25)=8.3557 (13.6s)
+  [e11:n4_single_random_replicated] step 100/200 loss(avg25)=6.0462 (18.1s)
+  [e11:n4_single_random_replicated] step 125/200 loss(avg25)=6.8035 (22.7s)
+  [e11:n4_single_random_replicated] step 150/200 loss(avg25)=5.3020 (27.2s)
+  [e11:n4_single_random_replicated] step 175/200 loss(avg25)=3.9389 (31.8s)
+  [e11:n4_single_random_replicated] step 200/200 loss(avg25)=4.4086 (36.3s)
+[e11:n4_single_random_replicated] training done in 36.3s
+[e11:n4_single_random_replicated] AFTER:  base=11.9979  real=6.1082  rand=12.0173  zero=11.9997  off=11.9979
+[e11:n4_single_random_replicated] -> v2/experiments/e11_noise_robustness/e11_n4_single_random_replicated_seed0.json
+[e11:n4_single_random_replicated] verdict={'pass': False, 'rule': 'zero-distinctness bank should NOT reduce NLL by >=2 (got Δ_signed=-5.89)', 'interpretation': 'FAIL = zero distinctness helps → H2c confirmed', 'delta_signed': -5.889721754259275, 'nll_drop': 5.889721754259275}
+
+=== e08/interrupt-api 2026年 5月16日 星期六 16时06分55秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+e08 Interrupt-API Demo
+======================================================================
+Model: Qwen/Qwen3-4B-Instruct-2507
+Device: mps
+Bank layer: 9
+Preload count: 512
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:28,  4.51it/s]Loading weights:  15%|█▍        | 59/398 [00:00<00:01, 227.01it/s]Loading weights:  31%|███       | 124/398 [00:00<00:00, 377.50it/s]Loading weights:  48%|████▊     | 190/398 [00:00<00:00, 466.90it/s]Loading weights:  64%|██████▍   | 256/398 [00:00<00:00, 524.13it/s]Loading weights:  81%|████████  | 322/398 [00:00<00:00, 565.62it/s]Loading weights:  97%|█████████▋| 388/398 [00:00<00:00, 591.88it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 469.97it/s]
+✓ Model loaded: 36 layers, hidden_size=2560
+✓ LPL patch installed
+
+======================================================================
+DEMO 1: Identity Sanity Check (bank-off baseline)
+======================================================================
+✓ Base NLL (no bank): 0.4424
+  [1] 'The capital of France is...' → NLL=0.3660
+  [2] 'The author of Harry Potter is...' → NLL=0.3415
+  [3] 'The chemical symbol for water is...' → NLL=0.4354
+  [4] 'The largest planet in our solar system i...' → NLL=0.0650
+  [5] 'The speed of light in vacuum is approxim...' → NLL=1.0042
+
+======================================================================
+DEMO 2: Preload Long-Term Memory
+======================================================================
+✓ Loaded 512 b-vectors from bank.pt
+✓ Preloaded 512 vectors into layer 9 (frozen=True)
+  Bank total size: 512, layer 9 size: 512
+✓ NLL with preloaded bank (identity projector): 0.4017
+  [1] 'The capital of France is...' → NLL=0.2587
+  [2] 'The author of Harry Potter is...' → NLL=0.2912
+  [3] 'The chemical symbol for water is...' → NLL=0.4547
+  [4] 'The largest planet in our solar system i...' → NLL=0.0431
+  [5] 'The speed of light in vacuum is approxim...' → NLL=0.9609
+
+======================================================================
+DEMO 3: Mid-Inference Interrupt
+======================================================================
+Target prompt: 'The capital of France is Paris'
+✓ Injecting synthetic hidden vector (norm=15.00) at layer 9, round_idx=1
+✓ Interrupt complete. Bank size: 512 → 513 (+1)
+✓ NLL after interrupt: 0.2357
+
+======================================================================
+DEMO 4: Bank Size Tracking
+======================================================================
+Total bank size across all layers: 513
+Per-layer breakdown:
+  Layer  9:  513 entries (tags: [(0, -1), (0, -1), (0, -1)]...)
+Target layer 9: 513 entries
+
+======================================================================
+SUMMARY
+======================================================================
+Demo 1 (base NLL):           0.4424
+Demo 2 (preload NLL):        0.4017
+Demo 3 (interrupt NLL):      0.2357
+Demo 4 (bank total size):    513
+✓ Results saved to /Users/gabiri/projects/RCV-HC/v2/experiments/e08_interrupt_api_demo/e08_demo.json
+
+=== WAVE5 DONE 2026年 5月16日 星期六 16时07分03秒 CST ===

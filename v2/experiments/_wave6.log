@@ -1,0 +1,277 @@
+=== WAVE6 START 2026年 5月16日 星期六 16时07分54秒 CST ===
+
+=== e10/topk_cosine_real_K8@L9 2026年 5月16日 星期六 16时07分54秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e10:topk_cosine_real_K8] train=120 test=120 preload=512 seed=0 K=8 retrieval=cosine random_bank=False query_mode=mean_embed
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:22,  4.81it/s]Loading weights:  15%|█▍        | 59/398 [00:00<00:01, 235.92it/s]Loading weights:  31%|███▏      | 125/398 [00:00<00:00, 387.07it/s]Loading weights:  48%|████▊     | 191/398 [00:00<00:00, 476.18it/s]Loading weights:  65%|██████▍   | 257/398 [00:00<00:00, 533.47it/s]Loading weights:  81%|████████  | 323/398 [00:00<00:00, 572.04it/s]Loading weights:  98%|█████████▊| 389/398 [00:00<00:00, 596.76it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 479.90it/s]
+[e10:topk_cosine_real_K8] using REAL bank pool shape=(512, 2560) L2=15
+[e10:topk_cosine_real_K8] BEFORE: base=11.9979  real=11.9998  rand=11.9966  zero=11.9990  off=11.9979
+  [e10:topk_cosine_real_K8] step 1/200 loss(avg25)=10.9367 (0.3s)
+  [e10:topk_cosine_real_K8] step 25/200 loss(avg25)=11.3836 (5.0s)
+  [e10:topk_cosine_real_K8] step 50/200 loss(avg25)=11.7651 (9.4s)
+  [e10:topk_cosine_real_K8] step 75/200 loss(avg25)=11.5967 (13.9s)
+  [e10:topk_cosine_real_K8] step 100/200 loss(avg25)=11.6428 (18.5s)
+  [e10:topk_cosine_real_K8] step 125/200 loss(avg25)=12.0371 (23.4s)
+  [e10:topk_cosine_real_K8] step 150/200 loss(avg25)=10.3032 (28.1s)
+  [e10:topk_cosine_real_K8] step 175/200 loss(avg25)=9.4256 (32.8s)
+  [e10:topk_cosine_real_K8] step 200/200 loss(avg25)=8.9315 (37.6s)
+[e10:topk_cosine_real_K8] training done in 37.6s
+[e10:topk_cosine_real_K8] AFTER:  base=11.9979  real=9.4595  rand=11.9787  zero=11.9990  off=11.9979
+[e10:topk_cosine_real_K8] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e10_topk_retrieval/e10_topk_cosine_real_K8_seed0.json  verdict={'pass': True, 'rule': 'Δ_real <= -1.0 (single-run; full pass also requires post_real(all_attend_random_renorm15) >= post_real(topk_cosine_real_K8) + 1.0)', 'delta_signed': -2.5384060521920535}
+
+=== e10/topk_cosine_real_K1@L9 2026年 5月16日 星期六 16时10分56秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e10:topk_cosine_real_K1] train=120 test=120 preload=512 seed=0 K=1 retrieval=cosine random_bank=False query_mode=mean_embed
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:  13%|█▎        | 52/398 [00:00<00:00, 517.35it/s]Loading weights:  29%|██▊       | 114/398 [00:00<00:00, 564.47it/s]Loading weights:  45%|████▍     | 178/398 [00:00<00:00, 598.46it/s]Loading weights:  60%|█████▉    | 238/398 [00:00<00:00, 581.47it/s]Loading weights:  76%|███████▌  | 301/398 [00:00<00:00, 595.22it/s]Loading weights:  91%|█████████ | 361/398 [00:00<00:00, 595.62it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 593.65it/s]
+[e10:topk_cosine_real_K1] using REAL bank pool shape=(512, 2560) L2=15
+[e10:topk_cosine_real_K1] BEFORE: base=11.9979  real=11.9946  rand=11.9998  zero=11.9966  off=11.9979
+  [e10:topk_cosine_real_K1] step 1/200 loss(avg25)=11.1564 (0.3s)
+  [e10:topk_cosine_real_K1] step 25/200 loss(avg25)=11.4109 (5.4s)
+  [e10:topk_cosine_real_K1] step 50/200 loss(avg25)=11.8188 (10.6s)
+  [e10:topk_cosine_real_K1] step 75/200 loss(avg25)=11.7601 (16.0s)
+  [e10:topk_cosine_real_K1] step 100/200 loss(avg25)=12.0054 (21.2s)
+  [e10:topk_cosine_real_K1] step 125/200 loss(avg25)=12.5939 (26.1s)
+  [e10:topk_cosine_real_K1] step 150/200 loss(avg25)=11.6646 (31.1s)
+  [e10:topk_cosine_real_K1] step 175/200 loss(avg25)=10.8269 (36.2s)
+  [e10:topk_cosine_real_K1] step 200/200 loss(avg25)=10.7063 (41.0s)
+[e10:topk_cosine_real_K1] training done in 41.0s
+[e10:topk_cosine_real_K1] AFTER:  base=11.9979  real=11.3113  rand=12.0013  zero=11.9966  off=11.9979
+[e10:topk_cosine_real_K1] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e10_topk_retrieval/e10_topk_cosine_real_K1_seed0.json  verdict={'pass': None, 'rule': 'informational; see cross-variant comparison', 'delta_signed': -0.6866127490997318}
+
+=== e10/topk_cosine_real_K64@L9 2026年 5月16日 星期六 16时14分25秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e10:topk_cosine_real_K64] train=120 test=120 preload=512 seed=0 K=64 retrieval=cosine random_bank=False query_mode=mean_embed
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:18,  5.07it/s]Loading weights:  15%|█▍        | 59/398 [00:00<00:01, 246.25it/s]Loading weights:  31%|███▏      | 125/398 [00:00<00:00, 396.42it/s]Loading weights:  48%|████▊     | 191/398 [00:00<00:00, 481.39it/s]Loading weights:  64%|██████▍   | 256/398 [00:00<00:00, 535.23it/s]Loading weights:  79%|███████▉  | 314/398 [00:00<00:00, 547.63it/s]Loading weights:  95%|█████████▍| 378/398 [00:00<00:00, 570.62it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 475.62it/s]
+[e10:topk_cosine_real_K64] using REAL bank pool shape=(512, 2560) L2=15
+[e10:topk_cosine_real_K64] BEFORE: base=11.9979  real=11.9979  rand=11.9987  zero=12.0039  off=11.9979
+  [e10:topk_cosine_real_K64] step 1/200 loss(avg25)=11.0882 (0.4s)
+  [e10:topk_cosine_real_K64] step 25/200 loss(avg25)=11.3696 (5.3s)
+  [e10:topk_cosine_real_K64] step 50/200 loss(avg25)=11.5338 (9.9s)
+  [e10:topk_cosine_real_K64] step 75/200 loss(avg25)=11.2800 (14.5s)
+  [e10:topk_cosine_real_K64] step 100/200 loss(avg25)=11.4015 (19.1s)
+  [e10:topk_cosine_real_K64] step 125/200 loss(avg25)=11.5942 (23.7s)
+  [e10:topk_cosine_real_K64] step 150/200 loss(avg25)=10.2400 (28.5s)
+  [e10:topk_cosine_real_K64] step 175/200 loss(avg25)=9.5552 (33.4s)
+  [e10:topk_cosine_real_K64] step 200/200 loss(avg25)=8.9529 (38.0s)
+[e10:topk_cosine_real_K64] training done in 38.0s
+[e10:topk_cosine_real_K64] AFTER:  base=11.9979  real=8.7918  rand=11.9400  zero=12.0039  off=11.9979
+[e10:topk_cosine_real_K64] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e10_topk_retrieval/e10_topk_cosine_real_K64_seed0.json  verdict={'pass': None, 'rule': 'informational; see cross-variant comparison', 'delta_signed': -3.2060959219932563}
+
+=== e10/topk_cosine_random_K8@L9 2026年 5月16日 星期六 16时17分27秒 CST ===
+[e10:topk_cosine_random_K8] train=120 test=120 preload=512 seed=0 K=8 retrieval=cosine random_bank=True query_mode=mean_embed
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/httpx/_transports/default.py", line 101, in map_httpcore_exceptions
+    yield
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/httpx/_transports/default.py", line 250, in handle_request
+    resp = self._pool.handle_request(req)
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/httpcore/_sync/connection_pool.py", line 256, in handle_request
+    raise exc from None
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/httpcore/_sync/connection_pool.py", line 236, in handle_request
+    response = connection.handle_request(
+        pool_request.request
+    )
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/httpcore/_sync/http_proxy.py", line 297, in handle_request
+    raise ProxyError(msg)
+httpcore.ProxyError: 503 Service Unavailable
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/gabiri/projects/RCV-HC/v2/experiments/e10_topk_retrieval/run.py", line 427, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/Users/gabiri/projects/RCV-HC/v2/experiments/e10_topk_retrieval/run.py", line 248, in main
+    tok, model = load_model(args.model, device=args.device, dtype="bf16")
+                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/gabiri/projects/RCV-HC/v1/experiments/atb_validation_v1/_lib/__init__.py", line 155, in load_model
+    tok = AutoTokenizer.from_pretrained(name, trust_remote_code=True)
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/transformers/models/auto/tokenization_auto.py", line 813, in from_pretrained
+    return tokenizer_class.from_pretrained(pretrained_model_name_or_path, *inputs, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/transformers/tokenization_utils_base.py", line 1672, in from_pretrained
+    for template in list_repo_templates(
+                    ~~~~~~~~~~~~~~~~~~~^
+        pretrained_model_name_or_path,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        token=token,
+        ^^^^^^^^^^^^
+    ):
+    ^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/transformers/utils/hub.py", line 134, in list_repo_templates
+    for entry in list_repo_tree(
+                 ~~~~~~~~~~~~~~^
+        repo_id=repo_id,
+        ^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        token=token,
+        ^^^^^^^^^^^^
+    )
+    ^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/huggingface_hub/hf_api.py", line 3841, in list_repo_tree
+    for path_info in paginate(path=tree_url, headers=headers, params={"recursive": recursive, "expand": expand}):
+                     ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/huggingface_hub/utils/_pagination.py", line 35, in paginate
+    r = session.get(path, params=params, headers=headers)
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/httpx/_client.py", line 1053, in get
+    return self.request(
+           ~~~~~~~~~~~~^
+        "GET",
+        ^^^^^^
+    ...<7 lines>...
+        extensions=extensions,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/httpx/_client.py", line 825, in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/httpx/_client.py", line 914, in send
+    response = self._send_handling_auth(
+        request,
+    ...<2 lines>...
+        history=[],
+    )
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/httpx/_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+        request,
+        follow_redirects=follow_redirects,
+        history=history,
+    )
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/httpx/_client.py", line 979, in _send_handling_redirects
+    response = self._send_single_request(request)
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/httpx/_client.py", line 1014, in _send_single_request
+    response = transport.handle_request(request)
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/httpx/_transports/default.py", line 249, in handle_request
+    with map_httpcore_exceptions():
+         ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/httpx/_transports/default.py", line 118, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.ProxyError: 503 Service Unavailable
+  FAIL e10/topk_cosine_random_K8@L9
+
+=== e10/topk_random_indices_K8@L9 2026年 5月16日 星期六 16时17分44秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e10:topk_random_indices_K8] train=120 test=120 preload=512 seed=0 K=8 retrieval=random_indices random_bank=False query_mode=mean_embed
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:16,  5.18it/s]Loading weights:  15%|█▍        | 58/398 [00:00<00:01, 245.01it/s]Loading weights:  31%|███       | 124/398 [00:00<00:00, 395.79it/s]Loading weights:  48%|████▊     | 190/398 [00:00<00:00, 481.29it/s]Loading weights:  64%|██████▍   | 256/398 [00:00<00:00, 539.62it/s]Loading weights:  81%|████████  | 323/398 [00:00<00:00, 576.60it/s]Loading weights:  97%|█████████▋| 385/398 [00:00<00:00, 589.74it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 484.31it/s]
+[e10:topk_random_indices_K8] using REAL bank pool shape=(512, 2560) L2=15
+[e10:topk_random_indices_K8] BEFORE: base=11.9979  real=11.9957  rand=12.0046  zero=11.9990  off=11.9979
+  [e10:topk_random_indices_K8] step 1/200 loss(avg25)=11.0383 (0.3s)
+  [e10:topk_random_indices_K8] step 25/200 loss(avg25)=11.3963 (4.8s)
+  [e10:topk_random_indices_K8] step 50/200 loss(avg25)=11.8462 (9.1s)
+  [e10:topk_random_indices_K8] step 75/200 loss(avg25)=11.7782 (13.8s)
+  [e10:topk_random_indices_K8] step 100/200 loss(avg25)=12.1019 (18.4s)
+  [e10:topk_random_indices_K8] step 125/200 loss(avg25)=12.8802 (22.9s)
+  [e10:topk_random_indices_K8] step 150/200 loss(avg25)=11.9174 (27.6s)
+  [e10:topk_random_indices_K8] step 175/200 loss(avg25)=11.3056 (32.2s)
+  [e10:topk_random_indices_K8] step 200/200 loss(avg25)=10.7124 (36.9s)
+[e10:topk_random_indices_K8] training done in 36.9s
+[e10:topk_random_indices_K8] AFTER:  base=11.9979  real=10.5093  rand=11.9706  zero=11.9990  off=11.9979
+[e10:topk_random_indices_K8] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e10_topk_retrieval/e10_topk_random_indices_K8_seed0.json  verdict={'pass': None, 'rule': 'informational; see cross-variant comparison', 'delta_signed': -1.4886052886645}
+
+=== e10/all_attend_real@L9 2026年 5月16日 星期六 16时20分41秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e10:all_attend_real] train=120 test=120 preload=512 seed=0 K=8 retrieval=all random_bank=False query_mode=mean_embed
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:17,  5.16it/s]Loading weights:  15%|█▍        | 59/398 [00:00<00:01, 247.37it/s]Loading weights:  31%|███       | 123/398 [00:00<00:00, 394.84it/s]Loading weights:  46%|████▋     | 185/398 [00:00<00:00, 471.09it/s]Loading weights:  62%|██████▏   | 247/398 [00:00<00:00, 515.03it/s]Loading weights:  78%|███████▊  | 312/398 [00:00<00:00, 555.02it/s]Loading weights:  95%|█████████▍| 377/398 [00:00<00:00, 578.01it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 475.58it/s]
+[e10:all_attend_real] using REAL bank pool shape=(512, 2560) L2=15
+[e10:all_attend_real] BEFORE: base=11.9979  real=12.0127  rand=12.0111  zero=11.9997  off=11.9979
+  [e10:all_attend_real] step 1/200 loss(avg25)=10.9543 (0.3s)
+  [e10:all_attend_real] step 25/200 loss(avg25)=11.2894 (4.8s)
+  [e10:all_attend_real] step 50/200 loss(avg25)=11.4872 (9.2s)
+  [e10:all_attend_real] step 75/200 loss(avg25)=11.0349 (13.5s)
+  [e10:all_attend_real] step 100/200 loss(avg25)=10.6458 (18.1s)
+  [e10:all_attend_real] step 125/200 loss(avg25)=10.7358 (22.6s)
+  [e10:all_attend_real] step 150/200 loss(avg25)=9.1935 (27.3s)
+  [e10:all_attend_real] step 175/200 loss(avg25)=8.3924 (31.9s)
+  [e10:all_attend_real] step 200/200 loss(avg25)=7.6893 (36.5s)
+[e10:all_attend_real] training done in 36.5s
+[e10:all_attend_real] AFTER:  base=11.9979  real=7.9493  rand=11.4708  zero=11.9997  off=11.9979
+[e10:all_attend_real] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e10_topk_retrieval/e10_all_attend_real_seed0.json  verdict={'pass': None, 'rule': 'informational; see cross-variant comparison', 'delta_signed': -4.048601722717286}
+
+=== e10/all_attend_random_renorm15@L9 2026年 5月16日 星期六 16时23分33秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e10:all_attend_random_renorm15] train=120 test=120 preload=512 seed=0 K=8 retrieval=all random_bank=True query_mode=mean_embed
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:17,  5.14it/s]Loading weights:  15%|█▍        | 59/398 [00:00<00:01, 245.80it/s]Loading weights:  29%|██▉       | 116/398 [00:00<00:00, 367.01it/s]Loading weights:  45%|████▌     | 180/398 [00:00<00:00, 461.79it/s]Loading weights:  62%|██████▏   | 246/398 [00:00<00:00, 521.42it/s]Loading weights:  78%|███████▊  | 312/398 [00:00<00:00, 563.82it/s]Loading weights:  95%|█████████▍| 378/398 [00:00<00:00, 592.79it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 480.21it/s]
+[e10:all_attend_random_renorm15] using RANDOM bank pool shape=(512, 2560) L2=15
+[e10:all_attend_random_renorm15] BEFORE: base=11.9979  real=12.0072  rand=12.0111  zero=11.9997  off=11.9979
+  [e10:all_attend_random_renorm15] step 1/200 loss(avg25)=11.0196 (0.3s)
+  [e10:all_attend_random_renorm15] step 25/200 loss(avg25)=11.3520 (5.0s)
+  [e10:all_attend_random_renorm15] step 50/200 loss(avg25)=11.6053 (9.7s)
+  [e10:all_attend_random_renorm15] step 75/200 loss(avg25)=11.0455 (14.0s)
+  [e10:all_attend_random_renorm15] step 100/200 loss(avg25)=10.3816 (18.3s)
+  [e10:all_attend_random_renorm15] step 125/200 loss(avg25)=9.5026 (23.0s)
+  [e10:all_attend_random_renorm15] step 150/200 loss(avg25)=6.5132 (27.1s)
+  [e10:all_attend_random_renorm15] step 175/200 loss(avg25)=5.0319 (31.3s)
+  [e10:all_attend_random_renorm15] step 200/200 loss(avg25)=4.5165 (35.5s)
+[e10:all_attend_random_renorm15] training done in 35.5s
+[e10:all_attend_random_renorm15] AFTER:  base=11.9979  real=6.2835  rand=11.9223  zero=11.9997  off=11.9979
+[e10:all_attend_random_renorm15] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e10_topk_retrieval/e10_all_attend_random_renorm15_seed0.json  verdict={'pass': None, 'rule': 'informational; see cross-variant comparison', 'delta_signed': -5.714413016173058}
+
+=== e13/multi-task-retry 2026年 5月16日 星期六 16时26分23秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   4%|▍         | 16/398 [00:00<00:02, 156.36it/s]Loading weights:  20%|██        | 80/398 [00:00<00:00, 429.71it/s]Loading weights:  37%|███▋      | 146/398 [00:00<00:00, 527.62it/s]Loading weights:  53%|█████▎    | 211/398 [00:00<00:00, 575.00it/s]Loading weights:  69%|██████▉   | 274/398 [00:00<00:00, 594.54it/s]Loading weights:  85%|████████▌ | 339/398 [00:00<00:00, 612.89it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 572.05it/s]
+`trust_remote_code` is not supported anymore.
+Please check that the Hugging Face dataset 'Salesforce/wikitext' isn't based on a loading script and remove `trust_remote_code`.
+If the dataset is based on a loading script, please ask the dataset author to remove it and convert it to a standard format like Parquet.
+`trust_remote_code` is not supported anymore.
+Please check that the Hugging Face dataset 'Salesforce/wikitext' isn't based on a loading script and remove `trust_remote_code`.
+If the dataset is based on a loading script, please ask the dataset author to remove it and convert it to a standard format like Parquet.
+`trust_remote_code` is not supported anymore.
+Please check that the Hugging Face dataset 'Salesforce/wikitext' isn't based on a loading script and remove `trust_remote_code`.
+If the dataset is based on a loading script, please ask the dataset author to remove it and convert it to a standard format like Parquet.
+`trust_remote_code` is not supported anymore.
+Please check that the Hugging Face dataset 'EleutherAI/lambada_openai' isn't based on a loading script and remove `trust_remote_code`.
+If the dataset is based on a loading script, please ask the dataset author to remove it and convert it to a standard format like Parquet.
+`trust_remote_code` is not supported anymore.
+Please check that the Hugging Face dataset 'EleutherAI/lambada_openai' isn't based on a loading script and remove `trust_remote_code`.
+If the dataset is based on a loading script, please ask the dataset author to remove it and convert it to a standard format like Parquet.
+`trust_remote_code` is not supported anymore.
+Please check that the Hugging Face dataset 'EleutherAI/lambada_openai' isn't based on a loading script and remove `trust_remote_code`.
+If the dataset is based on a loading script, please ask the dataset author to remove it and convert it to a standard format like Parquet.
+`trust_remote_code` is not supported anymore.
+Please check that the Hugging Face dataset 'Rowan/hellaswag' isn't based on a loading script and remove `trust_remote_code`.
+If the dataset is based on a loading script, please ask the dataset author to remove it and convert it to a standard format like Parquet.
+`trust_remote_code` is not supported anymore.
+Please check that the Hugging Face dataset 'Rowan/hellaswag' isn't based on a loading script and remove `trust_remote_code`.
+If the dataset is based on a loading script, please ask the dataset author to remove it and convert it to a standard format like Parquet.
+`trust_remote_code` is not supported anymore.
+Please check that the Hugging Face dataset 'Rowan/hellaswag' isn't based on a loading script and remove `trust_remote_code`.
+If the dataset is based on a loading script, please ask the dataset author to remove it and convert it to a standard format like Parquet.
+`trust_remote_code` is not supported anymore.
+Please check that the Hugging Face dataset 'openai/gsm8k' isn't based on a loading script and remove `trust_remote_code`.
+If the dataset is based on a loading script, please ask the dataset author to remove it and convert it to a standard format like Parquet.
+
+=== Training projector (200 steps) ===
+  step 1/200 loss(avg50)=12.2299 (0.4s)
+  step 50/200 loss(avg50)=11.9144 (8.9s)
+  step 100/200 loss(avg50)=10.2884 (17.1s)
+  step 150/200 loss(avg50)=9.5379 (25.3s)
+  step 200/200 loss(avg50)=7.2143 (33.4s)
+[train] done in 33.4s
+
+=== wikitext2 ===
+  [wikitext2] tokens=3996 nll=2.0644 ppl=7.880 (3.7s)
+  [wikitext2] tokens=3996 nll=2.0644 ppl=7.880 (7.4s)
+  [wikitext2] tokens=3996 nll=2.1144 ppl=8.285 (7.2s)
+
+=== lambada ===
+  [lambada] correct=130/227 acc=0.5727 (24.5s)
+  [lambada] correct=130/227 acc=0.5727 (133.8s)
+  [lambada] correct=130/227 acc=0.5727 (114.1s)
+
+=== hellaswag ===
+  [hellaswag] correct=130/200 acc=0.6500 (107.7s)
+  [hellaswag] correct=130/200 acc=0.6500 (360.9s)
+  [hellaswag] correct=127/200 acc=0.6350 (437.8s)
+
+=== gsm8k ===
+Generating train split:   0%|          | 0/7473 [00:00<?, ? examples/s]Generating train split: 100%|██████████| 7473/7473 [00:00<00:00, 546148.94 examples/s]
+Generating test split:   0%|          | 0/1319 [00:00<?, ? examples/s]Generating test split: 100%|██████████| 1319/1319 [00:00<00:00, 370300.33 examples/s]
+  FAIL e13/multi-task-retry
+
+/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/multiprocessing/resource_tracker.py:297: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown: {'/mp-hv8vibg5'}
+  warnings.warn(
+=== WAVE6 DONE 2026年 5月16日 星期六 17时17分02秒 CST ===
