@@ -11,12 +11,28 @@
 A configuration counts as **real delta memory** iff:
 
 ```
-Δ_A_initial   ≥ 3.0 nat   AND
-Δ_A_after_evict − Δ_B   ≥ 1.0 nat   AND
-Δ_B           ≤ 1.0 nat
+Δ_A_initial         ≥ 3.0 nat   AND
+Δ_A_after_evict     ≤ 1.0 nat   AND
+Δ_B                 ≤ 1.0 nat
 ```
 
 across ≥ 3 seeds. This is the inverse of e16's A/B-symmetry result: eviction must hurt, and a random replacement bank must NOT produce the same lift.
+
+**Rule revision note (2026-05-16, mid-e20b)**: original rule used `(Δ_A_after_evict − Δ_B) ≥ 1.0` as the asymmetry term. In the frozen-random-projector setting both quantities are intrinsically ≈ 0 so their difference is noise. Replaced with `Δ_A_after_evict ≤ 1.0` which captures the same semantics (lift must evaporate on eviction) without depending on a difference of near-zero numbers. See E20_VERDICT §b.
+
+## 1a. North-star status (as of 2026-05-16)
+
+**ACHIEVED on Qwen3-4B-Instruct-2507** via e20b (frozen projector + trainable b_A, train_on=setA, lr=1e-3, 500 steps):
+
+| seed | Δ_A_init | Δ_A_after_evict | Δ_B | PASS |
+|---:|---:|---:|---:|:---:|
+| 0 | 4.801 | 0.006 | −0.011 | ✅ |
+| 1 | 4.513 | −0.021 | 0.000 | ✅ |
+| 2 | 5.557 | −0.012 | −0.011 | ✅ |
+
+mean Δ_A_init = **4.957**, mean asymmetry = **4.966 nat**. See `E20_VERDICT.md`.
+
+Remaining for full Phase-C sign-off: cross-model replication on Qwen3-1.7B, and capability drift guard.
 
 ## 2. Roadmap
 

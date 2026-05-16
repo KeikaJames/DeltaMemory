@@ -1,0 +1,18 @@
+[e20b] device=mps model=Qwen/Qwen3-4B-Instruct-2507 seed=0 N=512 lr=0.002
+[e20b] setA=512 setB=512 train=120
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   4%|▍         | 15/398 [00:00<00:02, 146.17it/s]Loading weights:  19%|█▉        | 75/398 [00:00<00:00, 407.06it/s]Loading weights:  34%|███▍      | 135/398 [00:00<00:00, 491.85it/s]Loading weights:  48%|████▊     | 191/398 [00:00<00:00, 515.89it/s]Loading weights:  62%|██████▏   | 246/398 [00:00<00:00, 522.79it/s]Loading weights:  76%|███████▌  | 301/398 [00:00<00:00, 525.94it/s]Loading weights:  89%|████████▉ | 355/398 [00:00<00:00, 528.53it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 504.89it/s]
+[e20b] trainable: b_A only (1310720 elements)
+[e20b] baselines...
+[e20b] baseline: A=12.1453 B=11.9164
+[e20b] training b_A only, lr=0.002, steps=50...
+    step 1/50 loss(avg50)=10.7176
+    step 50/50 loss(avg50)=11.4470
+[e20b] training done (13.2s)
+[e20b] Δ_A_initial = 0.6359
+[e20b] Δ_A_after_evict = 0.0062
+[e20b] Δ_B = -0.0106
+[e20b] Δ_A_zero = 0.0000
+[e20b] verdict: {'north_star_pass': False, 'rule': 'Δ_A_init≥3.0 AND (Δ_A_after − Δ_B)≥1.0 AND Δ_B≤1.0', 'delta_A_init': 0.6358609199523926, 'delta_A_after': 0.006151030771434307, 'delta_B': -0.010576697066426277, 'delta_A_zero': 0.0, 'asymmetry_A_init_vs_after': 0.6297098891809583, 'AB_gap_after_evict_vs_B': 0.016727727837860584}
+[e20b] b_A relative drift = 0.0698
+[e20b] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e20_trainable_bank/seed0.json

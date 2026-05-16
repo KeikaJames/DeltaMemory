@@ -1,0 +1,20 @@
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e20a] device=mps model=Qwen/Qwen3-4B-Instruct-2507 seed=0 N=512
+[e20a] setA=512 setB=512 train=120
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<04:13,  1.57it/s]Loading weights:   7%|▋         | 26/398 [00:00<00:07, 46.64it/s]Loading weights:  23%|██▎       | 92/398 [00:00<00:01, 172.54it/s]Loading weights:  40%|███▉      | 159/398 [00:00<00:00, 284.67it/s]Loading weights:  52%|█████▏    | 208/398 [00:01<00:00, 308.17it/s]Loading weights:  68%|██████▊   | 272/398 [00:01<00:00, 388.32it/s]Loading weights:  84%|████████▍ | 335/398 [00:01<00:00, 447.53it/s]Loading weights: 100%|██████████| 398/398 [00:01<00:00, 288.74it/s]
+[e20a] projector frozen at random init (327680 params, requires_grad=False)
+[e20a] computing baselines...
+[e20a] baseline NLL: A=12.1453 B=11.9164
+[e20a] training gate heads only (projector frozen) on set_A...
+    step 1/200 loss(avg50)=10.7176
+    step 50/200 loss(avg50)=11.8011
+    step 100/200 loss(avg50)=11.9487
+    step 150/200 loss(avg50)=12.5053
+    step 200/200 loss(avg50)=11.9498
+[e20a] training done (37.2s) gate_params=92196
+[e20a] Δ_A_initial = 0.0133
+[e20a] Δ_A_after_evict = 0.0095
+[e20a] Δ_B = -0.0096
+[e20a] Δ_A_zero (empty bank) = 0.0000
+[e20a] verdict: {'north_star_pass': False, 'rule': 'Δ_A_init≥3.0 AND (Δ_A_after − Δ_B)≥1.0 AND Δ_B≤1.0', 'delta_A_init': 0.013291488401591778, 'delta_A_after': 0.00946796964854002, 'delta_B': -0.009569965302944183, 'delta_A_zero': 0.0, 'asymmetry_A_init_vs_after': 0.003823518753051758, 'AB_gap_after_evict_vs_B': 0.019037934951484203}
+[e20a] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e20_frozen_projector/seed0.json

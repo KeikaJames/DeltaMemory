@@ -1,0 +1,27 @@
+[e20b] device=mps model=Qwen/Qwen3-4B-Instruct-2507 seed=1 N=512 lr=0.001
+[e20b] setA=512 setB=512 train=120
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:20,  4.90it/s]Loading weights:  15%|█▍        | 58/398 [00:00<00:01, 235.66it/s]Loading weights:  31%|███▏      | 125/398 [00:00<00:00, 390.75it/s]Loading weights:  48%|████▊     | 192/398 [00:00<00:00, 481.35it/s]Loading weights:  65%|██████▍   | 258/398 [00:00<00:00, 534.90it/s]Loading weights:  81%|████████▏ | 324/398 [00:00<00:00, 569.75it/s]Loading weights:  98%|█████████▊| 390/398 [00:00<00:00, 592.29it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 481.84it/s]
+[e20b] trainable: b_A only (1310720 elements)
+[e20b] baselines...
+[e20b] baseline: A=12.0164 B=11.9809
+[e20b] training b_A only on setA (512 items), lr=0.001, steps=500...
+    step 1/500 loss(avg50)=11.9110
+    step 50/500 loss(avg50)=11.9907
+    step 100/500 loss(avg50)=12.0350
+    step 150/500 loss(avg50)=10.5150
+    step 200/500 loss(avg50)=10.5232
+    step 250/500 loss(avg50)=10.1812
+    step 300/500 loss(avg50)=9.0929
+    step 350/500 loss(avg50)=8.9993
+    step 400/500 loss(avg50)=8.5365
+    step 450/500 loss(avg50)=8.3401
+    step 500/500 loss(avg50)=7.2851
+[e20b] training done (88.8s)
+[e20b] Δ_A_initial = 4.5128
+[e20b] Δ_A_after_evict = -0.0207
+[e20b] Δ_B = 0.0000
+[e20b] Δ_A_zero = 0.0000
+[e20b] verdict: {'north_star_pass': True, 'rule': 'Δ_A_init≥3.0 AND Δ_A_after_evict≤1.0 AND Δ_B≤1.0', 'delta_A_init': 4.512822352815419, 'delta_A_after': -0.020712142810225487, 'delta_B': 7.136724889278412e-06, 'delta_A_zero': 0.0, 'asymmetry_A_init_vs_after': 4.533534495625645, 'AB_gap_after_evict_vs_B': -0.020719279535114765}
+[e20b] b_A relative drift = 0.1360
+[e20b] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e20_trainable_bank/seed1.json
