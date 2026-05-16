@@ -25,6 +25,7 @@
 | variant | seed | L | n_prl | t/steps | base | real_after | Δ_real | verdict |
 |---|---|---|---|---|---|---|---|---|
 | n1_iid_gaussian | 0 | 9 | 512 | 120/200 | 11.998 | 5.951 | -6.045 | FAIL |
+| n2_uniform_sphere | 0 | 9 | 512 | 120/200 | 11.998 | 5.951 | -6.045 | FAIL |
 | n3_single_row_replicated | 0 | 9 | 512 | 120/200 | 11.998 | 6.496 | -5.494 | FAIL |
 | n5_constant_vector | 0 | 9 | 512 | 120/200 | 11.998 | 9.290 | -2.717 | FAIL |
 | n6_real_bank_K1 | 0 | 9 | 1 | 120/200 | 11.998 | 6.237 | -5.762 | FAIL |
@@ -136,12 +137,25 @@
 | variant | seed | L | n_prl | t/steps | base | real_after | Δ_real | verdict |
 |---|---|---|---|---|---|---|---|---|
 | n1_iid_gaussian | 0 | 9 | 512 | 120/200 | 11.998 | 5.951 | -6.045 | FAIL |
+| n2_uniform_sphere | 0 | 9 | 512 | 120/200 | 11.998 | 5.951 | -6.045 | FAIL |
 | n3_single_row_replicated | 0 | 9 | 512 | 120/200 | 11.998 | 6.496 | -5.494 | FAIL |
 | n5_constant_vector | 0 | 9 | 512 | 120/200 | 11.998 | 9.290 | -2.717 | FAIL |
 | n6_real_bank_K1 | 0 | 9 | 1 | 120/200 | 11.998 | 6.237 | -5.762 | FAIL |
 | n1_iid_gaussian | 0 | 21 | 512 | 120/200 | 11.998 | 5.683 | -6.257 | FAIL |
 | n3_single_row_replicated | 0 | 21 | 512 | 120/200 | 11.998 | 5.642 | -6.344 | FAIL |
 | n5_constant_vector | 0 | 21 | 512 | 120/200 | 11.998 | 5.519 | -6.403 | FAIL |
+
+### e17_negation_robustness
+
+| variant | seed | L | n_prl | t/steps | base | real_after | Δ_real | verdict |
+|---|---|---|---|---|---|---|---|---|
+| e17_seed0 | 0 | 9 | 512 | 120/200 | — | — | — | FAIL |
+
+### e18_2hop
+
+| variant | seed | L | n_prl | t/steps | base | real_after | Δ_real | verdict |
+|---|---|---|---|---|---|---|---|---|
+| e18_seed0 | 0 | — | — | —/— | — | — | — | — |
 
 ### e19_seed_replication
 
