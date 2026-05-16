@@ -47,6 +47,7 @@ What the e11 wave-3 ablations show (all seed 0, same projector/training/eval pip
 | canonical real b-vectors (L21, seeds 0/1/2) | −6.35 / −6.53 / −6.52 | reference |
 | **n1**: iid Gaussian L2=15 at L21 | **−6.32** | matches real bank |
 | **n3**: one real row × 512 at L21 | **−6.36** | matches real bank |
+| **n5**: constant vector × 512 at L21 | **−6.48** | matches real bank |
 
 The capacity reading therefore holds at *both* the layer where v1's claim lived (L9) and the layer where the strongest v2 signal lives (L21). The "L21 wins because deeper memory reads richer features" interpretation is also dead — L21 wins because that's where a rank-64 residual adapter has the most headroom.
 
@@ -148,7 +149,7 @@ From V2_METHODOLOGY_DEBATE.md §1, the 15 cheap explanations that must be falsif
 | **H13** | Test set accidentally similar to train (correlation) | e06: relation-disjoint OOD (train ∩ test = ∅ on relations) | Δ NLL ≤ −0.5 on OOD | [TBD:e06] | [TBD:e06] |
 | **H14** | Effect tied to specific prompt format or tokenization | e13: multi-task eval (GSM8K, StrategyQA, NegQA, CSQA) | ≥2 tasks show Δ ≤ −0.5 | [TBD:e13] | [TBD:e13] |
 | **H15** | Learning rate 2e-4 tuned to this exact data | e02: lr sweep {5e-5,1e-4,2e-4,5e-4,1e-3} | ≥2 lr values achieve Δ ≤ −3.0 | [TBD:e02] | [TBD:e02] |
-| **H_content** (e11 wave-3 + wave-5) | Bank content carries the information that is read out | e11: random Gaussian / single-row / constant-vector banks at L9 **and** L21 | random/degenerate banks should give Δ ≈ 0 at every layer | ❌ **FALSIFIED at L9 and L21**: L9 n1=−6.05, n3=−5.50, n5=−2.83; **L21 n1=−6.32, n3=−6.36** (random ≈ real at *both* depths — replication confirms capacity, not retrieval) | [TBD] |
+| **H_content** (e11 wave-3 + wave-5) | Bank content carries the information that is read out | e11: random Gaussian / single-row / constant-vector banks at L9 **and** L21 | random/degenerate banks should give Δ ≈ 0 at every layer | ❌ **FALSIFIED at L9 and L21**: L9 n1=−6.05, n3=−5.50, n5=−2.83; **L21 n1=−6.32, n3=−6.36, n5=−6.48** (all four bank constructions match real-bank L21 reference −6.35/−6.53/−6.52) | [TBD] |
 
 **Current Falsifier Pass Rate**: At seed 0: H1 ✅, H3 ✅, H4 ✅, H6 ✅, H8 ✅ (WikiText-2 portion); H2 ❌ failed to falsify (content claim survives the test but is killed by e11); H7 ⚠️ superseded; **H_content ❌ definitively falsifies the content-read interpretation**. Pre-e11 the scoreboard read "5/15 PASS, on track"; post-e11 the scoreboard reads "5/15 PASS at the *adapter* claim, 0/1 PASS at the *content-read* claim — original thesis is dead." See §1b.
 
