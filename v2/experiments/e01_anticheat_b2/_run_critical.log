@@ -1,0 +1,93 @@
+=== START 2026年 5月16日 星期六 12时22分49秒 CST ===
+=== variant=canonical 2026年 5月16日 星期六 12时22分49秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e01:canonical] train=120 test=120 preload=512 seed=0
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:20,  4.91it/s]Loading weights:  15%|█▌        | 60/398 [00:00<00:01, 244.98it/s]Loading weights:  32%|███▏      | 126/398 [00:00<00:00, 396.69it/s]Loading weights:  48%|████▊     | 192/398 [00:00<00:00, 487.16it/s]Loading weights:  66%|██████▌   | 262/398 [00:00<00:00, 554.86it/s]Loading weights:  82%|████████▏ | 328/398 [00:00<00:00, 587.95it/s]Loading weights:  99%|█████████▉| 396/398 [00:00<00:00, 614.15it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 491.44it/s]
+[e01:canonical] BEFORE: base=11.9979  real=12.0127  rand=12.0074  zero=11.9997  off=11.9979
+  [e01:canonical] step 1/200 loss(avg25)=10.9543 (0.3s)
+  [e01:canonical] step 25/200 loss(avg25)=11.2857 (4.4s)
+  [e01:canonical] step 50/200 loss(avg25)=11.5121 (9.2s)
+  [e01:canonical] step 75/200 loss(avg25)=11.0386 (13.3s)
+  [e01:canonical] step 100/200 loss(avg25)=10.7000 (17.7s)
+  [e01:canonical] step 125/200 loss(avg25)=10.6752 (22.0s)
+  [e01:canonical] step 150/200 loss(avg25)=9.0240 (26.3s)
+  [e01:canonical] step 175/200 loss(avg25)=8.2684 (30.9s)
+  [e01:canonical] step 200/200 loss(avg25)=7.7697 (35.3s)
+[e01:canonical] training done in 35.3s
+[e01:canonical] AFTER:  base=11.9979  real=8.1020  rand=11.9957  zero=11.9997  off=11.9979
+[e01:canonical] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e01_anticheat_b2/e01_canonical_seed0.json  verdict={'pass': False, 'rule': 'B2 canonical reproduce: Δ NLL <= -5.0'}
+=== variant=canonical DONE ===
+=== variant=h1_bank_off 2026年 5月16日 星期六 12时25分48秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e01:h1_bank_off] train=120 test=120 preload=512 seed=0
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:  13%|█▎        | 52/398 [00:00<00:00, 517.04it/s]Loading weights:  29%|██▊       | 114/398 [00:00<00:00, 575.36it/s]Loading weights:  45%|████▌     | 180/398 [00:00<00:00, 605.10it/s]Loading weights:  62%|██████▏   | 246/398 [00:00<00:00, 619.71it/s]Loading weights:  78%|███████▊  | 312/398 [00:00<00:00, 629.40it/s]Loading weights:  95%|█████████▍| 378/398 [00:00<00:00, 633.09it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 622.75it/s]
+[e01:h1_bank_off] BEFORE: base=11.9979  real=12.0127  rand=11.9952  zero=11.9997  off=11.9979
+  [e01:h1_bank_off] step 1/200 loss(avg25)=10.9543 (0.3s)
+  [e01:h1_bank_off] step 25/200 loss(avg25)=11.2845 (4.6s)
+  [e01:h1_bank_off] step 50/200 loss(avg25)=11.4706 (9.1s)
+  [e01:h1_bank_off] step 75/200 loss(avg25)=10.9934 (13.4s)
+  [e01:h1_bank_off] step 100/200 loss(avg25)=10.5448 (18.0s)
+  [e01:h1_bank_off] step 125/200 loss(avg25)=10.5215 (22.3s)
+  [e01:h1_bank_off] step 150/200 loss(avg25)=9.1387 (26.8s)
+  [e01:h1_bank_off] step 175/200 loss(avg25)=8.1390 (31.3s)
+  [e01:h1_bank_off] step 200/200 loss(avg25)=7.4369 (35.7s)
+[e01:h1_bank_off] training done in 35.7s
+[e01:h1_bank_off] AFTER:  base=11.9979  real=8.0857  rand=11.9967  zero=11.9997  off=11.9979
+[e01:h1_bank_off] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e01_anticheat_b2/e01_h1_bank_off_seed0.json  verdict={'pass': True, 'rule': 'post_off >= base-0.05'}
+=== variant=h1_bank_off DONE ===
+=== variant=h4_zero_bank 2026年 5月16日 星期六 12时28分51秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e01:h4_zero_bank] train=120 test=120 preload=512 seed=0
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:15,  5.27it/s]Loading weights:  15%|█▍        | 58/398 [00:00<00:01, 243.99it/s]Loading weights:  31%|███       | 124/398 [00:00<00:00, 397.33it/s]Loading weights:  48%|████▊     | 190/398 [00:00<00:00, 486.11it/s]Loading weights:  65%|██████▍   | 257/398 [00:00<00:00, 540.85it/s]Loading weights:  81%|████████  | 323/398 [00:00<00:00, 578.61it/s]Loading weights:  98%|█████████▊| 389/398 [00:00<00:00, 603.46it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 491.38it/s]
+[e01:h4_zero_bank] BEFORE: base=11.9979  real=12.0127  rand=12.0049  zero=11.9997  off=11.9979
+  [e01:h4_zero_bank] step 1/200 loss(avg25)=10.9543 (0.3s)
+  [e01:h4_zero_bank] step 25/200 loss(avg25)=11.2939 (4.5s)
+  [e01:h4_zero_bank] step 50/200 loss(avg25)=11.5169 (9.3s)
+  [e01:h4_zero_bank] step 75/200 loss(avg25)=11.0588 (13.4s)
+  [e01:h4_zero_bank] step 100/200 loss(avg25)=10.6898 (17.4s)
+  [e01:h4_zero_bank] step 125/200 loss(avg25)=10.7906 (21.6s)
+  [e01:h4_zero_bank] step 150/200 loss(avg25)=9.2520 (25.7s)
+  [e01:h4_zero_bank] step 175/200 loss(avg25)=8.3903 (29.9s)
+  [e01:h4_zero_bank] step 200/200 loss(avg25)=7.5436 (34.1s)
+[e01:h4_zero_bank] training done in 34.1s
+[e01:h4_zero_bank] AFTER:  base=11.9979  real=8.1011  rand=12.0077  zero=11.9997  off=11.9979
+[e01:h4_zero_bank] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e01_anticheat_b2/e01_h4_zero_bank_seed0.json  verdict={'pass': True, 'rule': 'post_zero ~= base ±0.05'}
+=== variant=h4_zero_bank DONE ===
+=== variant=h7_rand_train 2026年 5月16日 星期六 12时31分42秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e01:h7_rand_train] train=120 test=120 preload=512 seed=0
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:25,  4.65it/s]Loading weights:  15%|█▍        | 59/398 [00:00<00:01, 231.76it/s]Loading weights:  31%|███▏      | 125/398 [00:00<00:00, 381.70it/s]Loading weights:  48%|████▊     | 191/398 [00:00<00:00, 471.59it/s]Loading weights:  65%|██████▍   | 257/398 [00:00<00:00, 528.90it/s]Loading weights:  81%|████████▏ | 324/398 [00:00<00:00, 566.26it/s]Loading weights:  98%|█████████▊| 390/398 [00:00<00:00, 595.00it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 476.81it/s]
+[e01:h7_rand_train] BEFORE: base=11.9979  real=12.0127  rand=12.0012  zero=11.9997  off=11.9979
+  [e01:h7_rand_train] step 1/200 loss(avg25)=11.0508 (0.3s)
+  [e01:h7_rand_train] step 25/200 loss(avg25)=11.3772 (4.7s)
+  [e01:h7_rand_train] step 50/200 loss(avg25)=11.8746 (8.9s)
+  [e01:h7_rand_train] step 75/200 loss(avg25)=11.7212 (13.2s)
+  [e01:h7_rand_train] step 100/200 loss(avg25)=12.0898 (17.5s)
+  [e01:h7_rand_train] step 125/200 loss(avg25)=12.9537 (22.0s)
+  [e01:h7_rand_train] step 150/200 loss(avg25)=12.1392 (26.4s)
+  [e01:h7_rand_train] step 175/200 loss(avg25)=11.8884 (30.6s)
+  [e01:h7_rand_train] step 200/200 loss(avg25)=11.6311 (34.7s)
+[e01:h7_rand_train] training done in 34.7s
+[e01:h7_rand_train] AFTER:  base=11.9979  real=11.7115  rand=12.0017  zero=11.9997  off=11.9979
+[e01:h7_rand_train] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e01_anticheat_b2/e01_h7_rand_train_seed0.json  verdict={'pass': True, 'rule': 'rand-trained cannot reach B2 6.30 (gap >=4.0)'}
+=== variant=h7_rand_train DONE ===
+=== variant=h2_shuffle_b 2026年 5月16日 星期六 12时34分39秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e01:h2_shuffle_b] train=120 test=120 preload=512 seed=0
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   6%|▌         | 22/398 [00:00<00:01, 216.80it/s]Loading weights:  22%|██▏       | 86/398 [00:00<00:00, 460.98it/s]Loading weights:  37%|███▋      | 149/398 [00:00<00:00, 537.59it/s]Loading weights:  54%|█████▍    | 214/398 [00:00<00:00, 577.09it/s]Loading weights:  70%|███████   | 280/398 [00:00<00:00, 599.65it/s]Loading weights:  87%|████████▋ | 346/398 [00:00<00:00, 613.68it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 581.29it/s]
+[e01:h2] applied row-level dim shuffle to b_raw
+[e01:h2_shuffle_b] BEFORE: base=11.9979  real=12.0088  rand=12.0130  zero=11.9997  off=11.9979
+  [e01:h2_shuffle_b] step 1/200 loss(avg25)=11.0391 (0.2s)
+  [e01:h2_shuffle_b] step 25/200 loss(avg25)=11.3547 (4.3s)
+  [e01:h2_shuffle_b] step 50/200 loss(avg25)=11.6957 (8.3s)
+  [e01:h2_shuffle_b] step 75/200 loss(avg25)=11.3677 (12.2s)
+  [e01:h2_shuffle_b] step 100/200 loss(avg25)=11.5089 (16.3s)
+  [e01:h2_shuffle_b] step 125/200 loss(avg25)=11.5923 (20.5s)
+  [e01:h2_shuffle_b] step 150/200 loss(avg25)=9.5219 (24.6s)
+  [e01:h2_shuffle_b] step 175/200 loss(avg25)=7.9337 (28.9s)
+  [e01:h2_shuffle_b] step 200/200 loss(avg25)=6.1781 (33.0s)
+[e01:h2_shuffle_b] training done in 33.0s
+[e01:h2_shuffle_b] AFTER:  base=11.9979  real=7.3830  rand=11.9959  zero=11.9997  off=11.9979
+[e01:h2_shuffle_b] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e01_anticheat_b2/e01_h2_shuffle_b_seed0.json  verdict={'pass': False, 'rule': 'post_real degrades >=4.0 vs B2 baseline 6.30'}
+=== variant=h2_shuffle_b DONE ===
+=== ALL DONE 2026年 5月16日 星期六 12时37分29秒 CST ===
