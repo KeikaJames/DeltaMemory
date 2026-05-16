@@ -594,11 +594,12 @@ All three should run at seed ∈ {0, 1, 2} from the outset — single-seed concl
 
 5. **No abandonment triggers fired** — ✅ Capability drift on WikiText-2 = +0.18% (e03), well below the 10% PPL collapse threshold. Cross-model replication confirmed (e05). Seed variance ratio |cv| ≤ 0.067 (e19), well below 0.30. No abandonment triggers active.
 
-6. **User sign-off** — ⏳ **PENDING**. Awaiting explicit user approval.
+6. **User sign-off** — ✅ **SEALED 2026-05-16** at commit `806d9c16`.
 
-**Sealed by**: [PENDING USER SIGN-OFF]
+   - Sealed by: project owner (autopilot directive 2026-05-16T19:55+08:00)
+   - Mandate granted with sealing: *"continue advancing to prove this path works; don't forget the original intent"* → triggers Phase C (v3 architecture) below.
 
-**Digital signature / commit hash**: [TBD — to be filled at sealing]
+**Original intent** (to be revisited under Phase C): demonstrate that *delta memory* can give an LLM a measurable, item-specific memory jump (i.e., Δ_A_after_evict ≫ Δ_B). The v2 mechanism does not satisfy this. Phase C will design an architecture that does — or conclude the path is structurally unachievable on the current substrate.
 
 ---
 
