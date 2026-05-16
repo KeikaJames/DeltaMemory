@@ -1,58 +1,366 @@
-=== WAVE4 START 2026年 5月16日 星期六 13时06分48秒 CST ===
-=== e19 seed replication 2026年 5月16日 星期六 13时06分48秒 CST ===
-Fatal Python error: init_sys_streams: can't initialize sys standard streams
-Python runtime state: core initialized
-OSError: [Errno 9] Bad file descriptor
+=== WAVE4 START 2026年 5月16日 星期六 14时21分57秒 CST ===
+=== e19 seed replication 2026年 5月16日 星期六 14时21分57秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e19] Seed replication driver
+[e19] Seeds: [0, 1, 2, 3, 4]
+[e19] Layers: [9, 21]
+[e19] Total cells: 10
 
-Current thread 0x00000001fa8cf080 (most recent call first):
-  <no Python frame>
+============================================================
+[e19] CELL: seed=0, layer=9
+============================================================
+[e19] train=120 test=120 preload=512
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:  13%|█▎        | 53/398 [00:00<00:00, 522.83it/s]Loading weights:  30%|██▉       | 119/398 [00:00<00:00, 600.12it/s]Loading weights:  45%|████▌     | 181/398 [00:00<00:00, 605.00it/s]Loading weights:  62%|██████▏   | 245/398 [00:00<00:00, 617.83it/s]Loading weights:  78%|███████▊  | 311/398 [00:00<00:00, 628.32it/s]Loading weights:  95%|█████████▍| 377/398 [00:00<00:00, 635.63it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 624.08it/s]
+[e19] BEFORE: base=12.0331  real=12.0153
+  [e19] step 1/200 loss(avg50)=12.2940 (0.2s)
+  [e19] step 50/200 loss(avg50)=11.8842 (9.3s)
+  [e19] step 100/200 loss(avg50)=10.3935 (18.4s)
+  [e19] step 150/200 loss(avg50)=9.4461 (27.2s)
+  [e19] step 200/200 loss(avg50)=7.8699 (36.2s)
+[e19] training done in 36.2s
+[e19] AFTER:  base=12.0331  real=7.2385
+[e19] Δ_real = 4.7946
+[e19] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e19_seed_replication/cells/L9_s0.json
+
+============================================================
+[e19] CELL: seed=1, layer=9
+============================================================
+[e19] train=120 test=120 preload=512
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<00:49,  8.07it/s]Loading weights:  15%|█▍        | 58/398 [00:00<00:01, 304.20it/s]Loading weights:  30%|███       | 121/398 [00:00<00:00, 443.00it/s]Loading weights:  45%|████▌     | 180/398 [00:00<00:00, 494.68it/s]Loading weights:  62%|██████▏   | 245/398 [00:00<00:00, 546.41it/s]Loading weights:  78%|███████▊  | 310/398 [00:00<00:00, 580.69it/s]Loading weights:  93%|█████████▎| 371/398 [00:00<00:00, 589.64it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 516.20it/s]
+[e19] BEFORE: base=11.9706  real=11.9262
+  [e19] step 1/200 loss(avg50)=14.2578 (0.2s)
+  [e19] step 50/200 loss(avg50)=12.3611 (8.7s)
+  [e19] step 100/200 loss(avg50)=10.9159 (17.3s)
+  [e19] step 150/200 loss(avg50)=9.9912 (26.3s)
+  [e19] step 200/200 loss(avg50)=9.2770 (35.2s)
+[e19] training done in 35.2s
+[e19] AFTER:  base=11.9706  real=6.8059
+[e19] Δ_real = 5.1648
+[e19] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e19_seed_replication/cells/L9_s1.json
+
+============================================================
+[e19] CELL: seed=2, layer=9
+============================================================
+[e19] train=120 test=120 preload=512
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<00:58,  6.83it/s]Loading weights:  17%|█▋        | 66/398 [00:00<00:01, 322.13it/s]Loading weights:  32%|███▏      | 126/398 [00:00<00:00, 429.75it/s]Loading weights:  48%|████▊     | 190/398 [00:00<00:00, 505.18it/s]Loading weights:  64%|██████▎   | 253/398 [00:00<00:00, 544.65it/s]Loading weights:  79%|███████▊  | 313/398 [00:00<00:00, 561.36it/s]Loading weights:  95%|█████████▍| 378/398 [00:00<00:00, 586.83it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 507.67it/s]
+[e19] BEFORE: base=11.9395  real=11.9397
+  [e19] step 1/200 loss(avg50)=14.4450 (0.2s)
+  [e19] step 50/200 loss(avg50)=12.1427 (8.7s)
+  [e19] step 100/200 loss(avg50)=10.8048 (17.3s)
+  [e19] step 150/200 loss(avg50)=9.2357 (25.9s)
+  [e19] step 200/200 loss(avg50)=9.0074 (34.8s)
+[e19] training done in 34.8s
+[e19] AFTER:  base=11.9395  real=7.1587
+[e19] Δ_real = 4.7808
+[e19] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e19_seed_replication/cells/L9_s2.json
+
+============================================================
+[e19] CELL: seed=3, layer=9
+============================================================
+[e19] train=120 test=120 preload=512
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<00:55,  7.18it/s]Loading weights:  15%|█▌        | 60/398 [00:00<00:01, 299.75it/s]Loading weights:  31%|███▏      | 125/398 [00:00<00:00, 439.07it/s]Loading weights:  48%|████▊     | 190/398 [00:00<00:00, 514.25it/s]Loading weights:  64%|██████▍   | 254/398 [00:00<00:00, 557.12it/s]Loading weights:  79%|███████▉  | 316/398 [00:00<00:00, 576.89it/s]Loading weights:  95%|█████████▌| 379/398 [00:00<00:00, 586.83it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 513.96it/s]
+[e19] BEFORE: base=11.9031  real=11.8665
+  [e19] step 1/200 loss(avg50)=10.0855 (0.2s)
+  [e19] step 50/200 loss(avg50)=11.8710 (9.5s)
+  [e19] step 100/200 loss(avg50)=10.8509 (18.9s)
+  [e19] step 150/200 loss(avg50)=9.6176 (28.2s)
+  [e19] step 200/200 loss(avg50)=8.0984 (37.4s)
+[e19] training done in 37.4s
+[e19] AFTER:  base=11.9031  real=7.5061
+[e19] Δ_real = 4.3969
+[e19] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e19_seed_replication/cells/L9_s3.json
+
+============================================================
+[e19] CELL: seed=4, layer=9
+============================================================
+[e19] train=120 test=120 preload=512
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<00:48,  8.13it/s]Loading weights:  15%|█▍        | 59/398 [00:00<00:01, 312.85it/s]Loading weights:  31%|███▏      | 125/398 [00:00<00:00, 461.39it/s]Loading weights:  48%|████▊     | 191/398 [00:00<00:00, 530.84it/s]Loading weights:  64%|██████▍   | 256/398 [00:00<00:00, 570.73it/s]Loading weights:  80%|████████  | 320/398 [00:00<00:00, 593.70it/s]Loading weights:  96%|█████████▌| 383/398 [00:00<00:00, 603.59it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 530.54it/s]
+[e19] BEFORE: base=12.2094  real=12.1875
+  [e19] step 1/200 loss(avg50)=9.8303 (0.2s)
+  [e19] step 50/200 loss(avg50)=11.7180 (8.8s)
+  [e19] step 100/200 loss(avg50)=10.6441 (17.5s)
+  [e19] step 150/200 loss(avg50)=9.7210 (26.3s)
+  [e19] step 200/200 loss(avg50)=8.4182 (35.1s)
+[e19] training done in 35.1s
+[e19] AFTER:  base=12.2094  real=7.0016
+[e19] Δ_real = 5.2078
+[e19] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e19_seed_replication/cells/L9_s4.json
+
+============================================================
+[e19] CELL: seed=0, layer=21
+============================================================
+[e19] train=120 test=120 preload=512
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<00:55,  7.16it/s]Loading weights:  15%|█▌        | 60/398 [00:00<00:01, 297.71it/s]Loading weights:  32%|███▏      | 126/398 [00:00<00:00, 443.52it/s]Loading weights:  48%|████▊     | 192/398 [00:00<00:00, 518.09it/s]Loading weights:  65%|██████▍   | 258/398 [00:00<00:00, 560.87it/s]Loading weights:  81%|████████▏ | 324/398 [00:00<00:00, 589.52it/s]Loading weights:  98%|█████████▊| 389/398 [00:00<00:00, 607.91it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 521.86it/s]
+[e19] BEFORE: base=12.0331  real=11.9539
+  [e19] step 1/200 loss(avg50)=12.3353 (0.1s)
+  [e19] step 50/200 loss(avg50)=11.3710 (8.1s)
+  [e19] step 100/200 loss(avg50)=6.4697 (15.9s)
+  [e19] step 150/200 loss(avg50)=5.1591 (23.6s)
+  [e19] step 200/200 loss(avg50)=4.5358 (31.4s)
+[e19] training done in 31.4s
+[e19] AFTER:  base=12.0331  real=4.8261
+[e19] Δ_real = 7.2070
+[e19] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e19_seed_replication/cells/L21_s0.json
+
+============================================================
+[e19] CELL: seed=1, layer=21
+============================================================
+[e19] train=120 test=120 preload=512
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<00:49,  8.09it/s]Loading weights:  15%|█▍        | 59/398 [00:00<00:01, 310.67it/s]Loading weights:  31%|███       | 124/398 [00:00<00:00, 455.17it/s]Loading weights:  47%|████▋     | 187/398 [00:00<00:00, 519.59it/s]Loading weights:  62%|██████▏   | 247/398 [00:00<00:00, 546.20it/s]Loading weights:  79%|███████▊  | 313/398 [00:00<00:00, 577.87it/s]Loading weights:  95%|█████████▌| 379/398 [00:00<00:00, 601.75it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 526.83it/s]
+[e19] BEFORE: base=11.9706  real=11.9187
+  [e19] step 1/200 loss(avg50)=14.4040 (0.2s)
+  [e19] step 50/200 loss(avg50)=12.0133 (7.6s)
+  [e19] step 100/200 loss(avg50)=7.9406 (15.5s)
+  [e19] step 150/200 loss(avg50)=6.1793 (24.4s)
+  [e19] step 200/200 loss(avg50)=6.5232 (32.1s)
+[e19] training done in 32.1s
+[e19] AFTER:  base=11.9706  real=5.3243
+[e19] Δ_real = 6.6464
+[e19] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e19_seed_replication/cells/L21_s1.json
+
+============================================================
+[e19] CELL: seed=2, layer=21
+============================================================
+[e19] train=120 test=120 preload=512
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<00:49,  8.09it/s]Loading weights:  15%|█▌        | 60/398 [00:00<00:01, 319.09it/s]Loading weights:  32%|███▏      | 126/398 [00:00<00:00, 462.39it/s]Loading weights:  48%|████▊     | 192/398 [00:00<00:00, 530.26it/s]Loading weights:  65%|██████▍   | 257/398 [00:00<00:00, 570.99it/s]Loading weights:  81%|████████  | 322/398 [00:00<00:00, 591.21it/s]Loading weights:  97%|█████████▋| 385/398 [00:00<00:00, 602.29it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 528.75it/s]
+[e19] BEFORE: base=11.9395  real=11.8953
+  [e19] step 1/200 loss(avg50)=14.7584 (0.1s)
+  [e19] step 50/200 loss(avg50)=11.7017 (7.7s)
+  [e19] step 100/200 loss(avg50)=7.7527 (15.3s)
+  [e19] step 150/200 loss(avg50)=4.9142 (22.8s)
+  [e19] step 200/200 loss(avg50)=5.4732 (30.8s)
+[e19] training done in 30.8s
+[e19] AFTER:  base=11.9395  real=5.1651
+[e19] Δ_real = 6.7744
+[e19] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e19_seed_replication/cells/L21_s2.json
+
+============================================================
+[e19] CELL: seed=3, layer=21
+============================================================
+[e19] train=120 test=120 preload=512
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<00:57,  6.92it/s]Loading weights:  16%|█▌        | 64/398 [00:00<00:01, 314.91it/s]Loading weights:  30%|███       | 121/398 [00:00<00:00, 419.43it/s]Loading weights:  45%|████▌     | 181/398 [00:00<00:00, 479.25it/s]Loading weights:  60%|██████    | 240/398 [00:00<00:00, 514.48it/s]Loading weights:  76%|███████▌  | 302/398 [00:00<00:00, 547.99it/s]Loading weights:  92%|█████████▏| 368/398 [00:00<00:00, 579.15it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 501.02it/s]
+[e19] BEFORE: base=11.9031  real=11.8465
+  [e19] step 1/200 loss(avg50)=10.1163 (0.2s)
+  [e19] step 50/200 loss(avg50)=11.5714 (8.0s)
+  [e19] step 100/200 loss(avg50)=7.3455 (15.9s)
+  [e19] step 150/200 loss(avg50)=6.0848 (23.6s)
+  [e19] step 200/200 loss(avg50)=4.6457 (31.4s)
+[e19] training done in 31.4s
+[e19] AFTER:  base=11.9031  real=5.2922
+[e19] Δ_real = 6.6109
+[e19] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e19_seed_replication/cells/L21_s3.json
+
+============================================================
+[e19] CELL: seed=4, layer=21
+============================================================
+[e19] train=120 test=120 preload=512
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<00:49,  8.10it/s]Loading weights:  15%|█▍        | 59/398 [00:00<00:01, 311.29it/s]Loading weights:  31%|███▏      | 125/398 [00:00<00:00, 455.40it/s]Loading weights:  48%|████▊     | 191/398 [00:00<00:00, 528.65it/s]Loading weights:  65%|██████▍   | 257/398 [00:00<00:00, 570.52it/s]Loading weights:  81%|████████▏ | 324/398 [00:00<00:00, 595.82it/s]Loading weights:  98%|█████████▊| 390/398 [00:00<00:00, 612.93it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 535.21it/s]
+[e19] BEFORE: base=12.2094  real=12.1509
+  [e19] step 1/200 loss(avg50)=10.0134 (0.2s)
+  [e19] step 50/200 loss(avg50)=11.2441 (7.6s)
+  [e19] step 100/200 loss(avg50)=7.7848 (15.1s)
+  [e19] step 150/200 loss(avg50)=5.3742 (23.0s)
+  [e19] step 200/200 loss(avg50)=5.4055 (30.7s)
+[e19] training done in 30.7s
+[e19] AFTER:  base=12.2094  real=5.6210
+[e19] Δ_real = 6.5884
+[e19] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e19_seed_replication/cells/L21_s4.json
+
+[e19] Cells completed: 10, skipped: 0
+
+[e19] Layer 9 summary:
+  Mean Δ = 4.8690 ± 0.3311
+  95% CI: [4.4579, 5.2801]
+  All seeds ≤ -2.0: False
+  Std ≤ 1.5: True
+  PASS: False
+
+[e19] Layer 21 summary:
+  Mean Δ = 6.7654 ± 0.2571
+  95% CI: [6.4462, 7.0847]
+  All seeds ≤ -3.0: False
+  Std ≤ 1.5: True
+  PASS: False
+Traceback (most recent call last):
+  File "/Users/gabiri/projects/RCV-HC/v2/experiments/e19_seed_replication/run.py", line 400, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/Users/gabiri/projects/RCV-HC/v2/experiments/e19_seed_replication/run.py", line 389, in main
+    summary_path.write_text(json.dumps(summary, indent=2))
+                            ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ~~~~~~^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/encoder.py", line 261, in iterencode
+    return _iterencode(o, 0)
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/encoder.py", line 180, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+                    f'is not JSON serializable')
+TypeError: Object of type bool is not JSON serializable
+when serializing dict item 'std_pass'
+when serializing dict item '9'
+when serializing dict item 'layers'
   FAIL e19
-=== e05 Qwen3-1.7B 2026年 5月16日 星期六 13时06分48秒 CST ===
-Fatal Python error: init_sys_streams: can't initialize sys standard streams
-Python runtime state: core initialized
-OSError: [Errno 9] Bad file descriptor
+=== e05 Qwen3-1.7B 2026年 5月16日 星期六 14时34分22秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e05] Loading model: Qwen/Qwen3-1.7B
+Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]Fetching 2 files:  50%|█████     | 1/2 [06:16<06:16, 376.50s/it]Fetching 2 files: 100%|██████████| 2/2 [06:16<00:00, 188.25s/it]
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<00:44,  7.00it/s]Loading weights:  37%|███▋      | 116/311 [00:00<00:00, 575.81it/s]Loading weights:  76%|███████▌  | 236/311 [00:00<00:00, 832.96it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 734.27it/s]
+[e05] Model type: qwen3 ✓ (Qwen3 compatible)
+[e05] Model config: n_layers=28, hidden_size=2048
+[e05] train=120 test=120 preload=512 seed=0
+[e05] Loaded b_raw: shape=torch.Size([512, 2560]), dtype=torch.float32
+[e05] Dimension mismatch: b_raw=2560, model hidden_size=2048
+[e05] Applying fixed random Gaussian projection 2560→2048 (seed=0)
+[e05] Projection applied. New shape: torch.Size([512, 2048]), L2 norm: 15.00
+[e05] Evaluating BEFORE training...
+[e05] BEFORE: base=12.6474  real=12.5867  rand=12.5940  zero=12.5784  off=12.6474
+[e05] Training for 200 steps...
+  [e05] step 1/200 loss(avg25)=8.2938 (0.2s)
+  [e05] step 25/200 loss(avg25)=12.1618 (3.1s)
+  [e05] step 50/200 loss(avg25)=11.1821 (5.9s)
+  [e05] step 75/200 loss(avg25)=10.7311 (9.0s)
+  [e05] step 100/200 loss(avg25)=8.4467 (11.8s)
+  [e05] step 125/200 loss(avg25)=7.4308 (14.7s)
+  [e05] step 150/200 loss(avg25)=5.0414 (17.7s)
+  [e05] step 175/200 loss(avg25)=7.1288 (20.7s)
+  [e05] step 200/200 loss(avg25)=6.7188 (23.6s)
+[e05] Training done in 23.6s
+[e05] Evaluating AFTER training...
+[e05] AFTER:  base=12.6474  real=6.6442  rand=12.5999  zero=12.5784  off=12.6474
+[e05] -> v2/experiments/e05_cross_model/e05_qwen3_1p7B_seed0.json
+[e05] Verdict: {'pass': True, 'delta_real': 6.00321048659583, 'delta_rand': 0.04750510056813617, 'criterion_real': 'Δ_real ≥ 1.0 (signal exists)', 'criterion_rand': 'Δ_rand ≤ 0.2 (random control flat)', 'pass_real': True, 'pass_rand': True}
+=== e09 v1_orig 2026年 5月16日 星期六 14时42分45秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e09:v1_orig] seed=0 steps=200 lr=0.0002 rank=64
+[e09:v1_orig] train=120 test=120 preload=512
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:15,  5.24it/s]Loading weights:  15%|█▌        | 60/398 [00:00<00:01, 252.21it/s]Loading weights:  31%|███▏      | 125/398 [00:00<00:00, 400.09it/s]Loading weights:  48%|████▊     | 190/398 [00:00<00:00, 484.92it/s]Loading weights:  63%|██████▎   | 251/398 [00:00<00:00, 524.81it/s]Loading weights:  78%|███████▊  | 312/398 [00:00<00:00, 551.69it/s]Loading weights:  95%|█████████▍| 377/398 [00:00<00:00, 582.52it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 480.56it/s]
+[e09:v1_orig] b_raw shape=torch.Size([512, 2560])
+[e09:v1_orig] FREEZING projector to identity (no training)
+[e09:v1_orig] Running pre-train eval...
+[e09:v1_orig] BEFORE: base=12.0331  real=12.0164  rand=12.0093  zero=12.0212  off=12.0331
+[e09:v1_orig] Training for 200 steps...
+  [e09:v1_orig] step 1/200 loss(avg25)=7.2815 (0.2s)
+  [e09:v1_orig] step 25/200 loss(avg25)=11.9614 (4.6s)
+  [e09:v1_orig] step 50/200 loss(avg25)=11.5669 (9.0s)
+  [e09:v1_orig] step 75/200 loss(avg25)=12.6227 (13.5s)
+  [e09:v1_orig] step 100/200 loss(avg25)=11.3204 (18.0s)
+  [e09:v1_orig] step 125/200 loss(avg25)=12.0526 (22.2s)
+  [e09:v1_orig] step 150/200 loss(avg25)=11.1832 (26.6s)
+  [e09:v1_orig] step 175/200 loss(avg25)=12.3910 (31.1s)
+  [e09:v1_orig] step 200/200 loss(avg25)=12.2373 (35.5s)
+[e09:v1_orig] Training done in 35.5s
+[e09:v1_orig] Running post-train eval...
+[e09:v1_orig] AFTER:  base=12.0331  real=12.0187  rand=12.0046  zero=12.0212  off=12.0331
+[e09:v1_orig] VERDICT: {'pass': True, 'delta': 0.014387710889181449, 'rule': 'Δ ≈ 0 (within ±0.3) — reproduces v1 null result'}
+[e09:v1_orig] -> v2/experiments/e09_v1_anb_resurrect/e09_v1_orig_seed0.json
+=== e09 v2_kproj 2026年 5月16日 星期六 14时45分35秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e09:v2_kproj] seed=0 steps=200 lr=0.0002 rank=64
+[e09:v2_kproj] train=120 test=120 preload=512
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:15,  5.24it/s]Loading weights:  15%|█▍        | 59/398 [00:00<00:01, 250.16it/s]Loading weights:  31%|███       | 124/398 [00:00<00:00, 398.57it/s]Loading weights:  46%|████▋     | 185/398 [00:00<00:00, 471.55it/s]Loading weights:  62%|██████▏   | 247/398 [00:00<00:00, 517.14it/s]Loading weights:  78%|███████▊  | 312/398 [00:00<00:00, 558.87it/s]Loading weights:  95%|█████████▍| 378/398 [00:00<00:00, 588.92it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 483.09it/s]
+[e09:v2_kproj] b_raw shape=torch.Size([512, 2560])
+[e09:v2_kproj] Projector TRAINABLE (rank=64)
+[e09:v2_kproj] Running pre-train eval...
+[e09:v2_kproj] BEFORE: base=12.0331  real=12.0164  rand=12.0009  zero=12.0212  off=12.0331
+[e09:v2_kproj] Training for 200 steps...
+  [e09:v2_kproj] step 1/200 loss(avg25)=7.2815 (0.2s)
+  [e09:v2_kproj] step 25/200 loss(avg25)=11.9099 (4.5s)
+  [e09:v2_kproj] step 50/200 loss(avg25)=11.2629 (8.8s)
+  [e09:v2_kproj] step 75/200 loss(avg25)=11.8558 (13.3s)
+  [e09:v2_kproj] step 100/200 loss(avg25)=10.4409 (17.7s)
+  [e09:v2_kproj] step 125/200 loss(avg25)=10.1522 (21.9s)
+  [e09:v2_kproj] step 150/200 loss(avg25)=8.2168 (26.3s)
+  [e09:v2_kproj] step 175/200 loss(avg25)=9.8073 (30.3s)
+  [e09:v2_kproj] step 200/200 loss(avg25)=7.1827 (34.4s)
+[e09:v2_kproj] Training done in 34.4s
+[e09:v2_kproj] Running post-train eval...
+[e09:v2_kproj] AFTER:  base=12.0331  real=7.0094  rand=11.9919  zero=12.0212  off=12.0331
+[e09:v2_kproj] VERDICT: {'pass': False, 'delta': 5.023701880313457, 'rule': 'Δ ≤ -2.0 — K-projector revives the bank'}
+[e09:v2_kproj] -> v2/experiments/e09_v1_anb_resurrect/e09_v2_kproj_seed0.json
+=== e06 relation-OOD 2026年 5月16日 星期六 14时48分25秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e06] TRAIN_RELS=23 TEST_RELS=11 intersection=0
+[e06] train=120 test_ood=120 preload=512 seed=0
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:21,  4.85it/s]Loading weights:  15%|█▌        | 60/398 [00:00<00:01, 240.79it/s]Loading weights:  32%|███▏      | 126/398 [00:00<00:00, 390.18it/s]Loading weights:  48%|████▊     | 192/398 [00:00<00:00, 476.75it/s]Loading weights:  65%|██████▍   | 258/398 [00:00<00:00, 533.16it/s]Loading weights:  82%|████████▏ | 327/398 [00:00<00:00, 581.69it/s]Loading weights:  98%|█████████▊| 390/398 [00:00<00:00, 590.52it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 481.28it/s]
+[e06] BEFORE train-rel: base=11.6168 real=11.6382 rand=11.6160
+[e06] BEFORE test-rel (OOD): base=12.4389 real=12.3580 rand=12.3864
+  [e06] step 1/200 loss(avg25)=12.6897 (0.2s)
+  [e06] step 25/200 loss(avg25)=11.9032 (4.5s)
+  [e06] step 50/200 loss(avg25)=10.9451 (8.7s)
+  [e06] step 75/200 loss(avg25)=10.9201 (12.7s)
+  [e06] step 100/200 loss(avg25)=9.8637 (16.8s)
+  [e06] step 125/200 loss(avg25)=9.2636 (21.0s)
+  [e06] step 150/200 loss(avg25)=7.6636 (25.1s)
+  [e06] step 175/200 loss(avg25)=7.1818 (29.2s)
+  [e06] step 200/200 loss(avg25)=6.8598 (33.5s)
+[e06] training done in 33.5s
+[e06] AFTER train-rel: base=11.6168 real=6.2946 rand=11.6004
+[e06] AFTER test-rel (OOD): base=12.4389 real=8.0689 rand=12.3783
+[e06] -> v2/experiments/e06_relation_disjoint_ood/e06_seed0.json  verdict={'pass': True, 'rule': 'Δ NLL on OOD test_rel ≤ -1.0 (projector generalizes across relations)', 'delta_train': -5.322225681940714, 'delta_test_ood': -4.370016515751679}
+=== e02 scale n2048_t1000 2026年 5月16日 星期六 14时51分15秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e02:n2048_t1000_single_s1000_seed0] train=1000 test=19 preload=2048
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:16,  5.20it/s]Loading weights:  15%|█▌        | 60/398 [00:00<00:01, 251.83it/s]Loading weights:  32%|███▏      | 126/398 [00:00<00:00, 400.78it/s]Loading weights:  48%|████▊     | 192/398 [00:00<00:00, 484.32it/s]Loading weights:  65%|██████▍   | 258/398 [00:00<00:00, 538.89it/s]Loading weights:  81%|████████▏ | 324/398 [00:00<00:00, 572.13it/s]Loading weights:  98%|█████████▊| 389/398 [00:00<00:00, 596.18it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 486.90it/s]
+[e02:n2048_t1000_single_s1000_seed0] BEFORE base=12.6743 real=12.6973 rand=12.6977
+  [e02:n2048_t1000_single_s1000_seed0] step 1/1000 loss(avg50)=15.0811 (0.3s)
+  [e02:n2048_t1000_single_s1000_seed0] step 100/1000 loss(avg50)=10.5484 (18.2s)
+  [e02:n2048_t1000_single_s1000_seed0] step 200/1000 loss(avg50)=7.4672 (36.2s)
+  [e02:n2048_t1000_single_s1000_seed0] step 300/1000 loss(avg50)=6.1401 (53.2s)
+  [e02:n2048_t1000_single_s1000_seed0] step 400/1000 loss(avg50)=5.7682 (69.8s)
+  [e02:n2048_t1000_single_s1000_seed0] step 500/1000 loss(avg50)=5.7364 (87.9s)
+  [e02:n2048_t1000_single_s1000_seed0] step 600/1000 loss(avg50)=5.1908 (105.9s)
+  [e02:n2048_t1000_single_s1000_seed0] step 700/1000 loss(avg50)=4.3062 (123.4s)
+  [e02:n2048_t1000_single_s1000_seed0] step 800/1000 loss(avg50)=4.5921 (140.4s)
+  [e02:n2048_t1000_single_s1000_seed0] step 900/1000 loss(avg50)=3.9252 (157.3s)
+  [e02:n2048_t1000_single_s1000_seed0] step 1000/1000 loss(avg50)=3.6653 (174.7s)
+[e02:n2048_t1000_single_s1000_seed0] training done in 174.7s
+[e02:n2048_t1000_single_s1000_seed0] AFTER base=12.6743 real=13.3020 rand=12.6941
+[e02:n2048_t1000_single_s1000_seed0] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e02_scale_matrix/cells/n2048_t1000_single_s1000_seed0.json
+=== e07 perlayer 2026年 5月16日 星期六 14时54分28秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e07] Running 3 layer configurations:
+  [9]
+  [3, 9, 21]
+  [3, 9, 15, 21, 27, 33]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:30,  4.41it/s]Loading weights:  17%|█▋        | 66/398 [00:00<00:01, 253.64it/s]Loading weights:  33%|███▎      | 132/398 [00:00<00:00, 396.31it/s]Loading weights:  49%|████▉     | 196/398 [00:00<00:00, 477.27it/s]Loading weights:  66%|██████▌   | 262/398 [00:00<00:00, 536.05it/s]Loading weights:  83%|████████▎ | 330/398 [00:00<00:00, 579.66it/s]Loading weights:  99%|█████████▊| 393/398 [00:00<00:00, 586.38it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 473.80it/s]
+[e07] Model loaded: 36 layers, d=2560
+[e07] Training params: steps=200, lr=0.0002, rank=64
+[e07] Data: n_train=120, n_eval=120, n_preload=512
 
-Current thread 0x00000001fa8cf080 (most recent call first):
-  <no Python frame>
-  FAIL e05
-=== e09 v1_orig 2026年 5月16日 星期六 13时06分48秒 CST ===
-Fatal Python error: init_sys_streams: can't initialize sys standard streams
-Python runtime state: core initialized
-OSError: [Errno 9] Bad file descriptor
+[e07] === Configuration 1/3: layers=[9] ===
+  [e07:layers=[9]] BEFORE: base=12.7217  real=12.7966  zero=12.7392  off=12.7217
+    step 1/200 loss(avg50)=11.4640 (0.2s)
+    step 50/200 loss(avg50)=11.8494 (8.6s)
+    step 100/200 loss(avg50)=11.2223 (16.9s)
+    step 150/200 loss(avg50)=8.6955 (25.1s)
+    step 200/200 loss(avg50)=7.1300 (33.6s)
+  [e07:layers=[9]] training done in 33.6s
+  [e07:layers=[9]] AFTER:  base=12.7217  real=10.2039  zero=12.7392  off=12.7217
 
-Current thread 0x00000001fa8cf080 (most recent call first):
-  <no Python frame>
-  FAIL e09/v1_orig
-=== e09 v2_kproj 2026年 5月16日 星期六 13时06分48秒 CST ===
-Fatal Python error: init_sys_streams: can't initialize sys standard streams
-Python runtime state: core initialized
-OSError: [Errno 9] Bad file descriptor
+[e07] === Configuration 2/3: layers=[3, 9, 21] ===
+  [e07:layers=[3, 9, 21]] BEFORE: base=12.7217  real=12.8127  zero=12.7432  off=12.7217
+    step 1/200 loss(avg50)=11.6657 (0.3s)
+    step 50/200 loss(avg50)=11.2262 (8.9s)
+    step 100/200 loss(avg50)=7.2480 (17.6s)
+    step 150/200 loss(avg50)=5.0057 (26.2s)
+    step 200/200 loss(avg50)=4.8457 (34.9s)
+  [e07:layers=[3, 9, 21]] training done in 34.9s
+  [e07:layers=[3, 9, 21]] AFTER:  base=12.7217  real=7.3692  zero=12.7432  off=12.7217
 
-Current thread 0x00000001fa8cf080 (most recent call first):
-  <no Python frame>
-  FAIL e09/v2_kproj
-=== e06 relation-OOD 2026年 5月16日 星期六 13时06分48秒 CST ===
-Fatal Python error: init_sys_streams: can't initialize sys standard streams
-Python runtime state: core initialized
-OSError: [Errno 9] Bad file descriptor
+[e07] === Configuration 3/3: layers=[3, 9, 15, 21, 27, 33] ===
+  [e07:layers=[3, 9, 15, 21, 27, 33]] BEFORE: base=12.7217  real=12.7631  zero=12.7373  off=12.7217
+    step 1/200 loss(avg50)=11.6412 (0.2s)
+    step 50/200 loss(avg50)=10.3656 (8.8s)
+    step 100/200 loss(avg50)=5.8883 (17.7s)
+    step 150/200 loss(avg50)=4.0916 (26.7s)
+    step 200/200 loss(avg50)=4.7167 (35.6s)
+  [e07:layers=[3, 9, 15, 21, 27, 33]] training done in 35.6s
+  [e07:layers=[3, 9, 15, 21, 27, 33]] AFTER:  base=12.7217  real=7.9310  zero=12.7373  off=12.7217
 
-Current thread 0x00000001fa8cf080 (most recent call first):
-  <no Python frame>
-  FAIL e06
-=== e02 scale n2048_t1000 2026年 5月16日 星期六 13时06分48秒 CST ===
-Fatal Python error: init_sys_streams: can't initialize sys standard streams
-Python runtime state: core initialized
-OSError: [Errno 9] Bad file descriptor
+[e07] PASS CRITERION: improvement=-2.8347  pass=True
 
-Current thread 0x00000001fa8cf080 (most recent call first):
-  <no Python frame>
-  FAIL e02
-=== e07 perlayer 2026年 5月16日 星期六 13时06分48秒 CST ===
-Fatal Python error: init_sys_streams: can't initialize sys standard streams
-Python runtime state: core initialized
-OSError: [Errno 9] Bad file descriptor
-
-Current thread 0x00000001fa8cf080 (most recent call first):
-  <no Python frame>
-  FAIL e07
-=== WAVE4 DONE 2026年 5月16日 星期六 13时06分48秒 CST ===
+[e07] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e07_perlayer_kproj/e07_seed0.json
+=== WAVE4 DONE 2026年 5月16日 星期六 15时01分07秒 CST ===

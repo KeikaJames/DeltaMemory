@@ -1,8 +1,8 @@
-=== WAVE3 START 2026年 5月16日 星期六 12时57分11秒 CST ===
-=== e11/n7_real_bank_K0_pure_proj 2026年 5月16日 星期六 12时57分11秒 CST ===
+=== WAVE3 START 2026年 5月16日 星期六 13时13分45秒 CST ===
+=== e11/n7_real_bank_K0_pure_proj 2026年 5月16日 星期六 13时13分45秒 CST ===
 [transformers] `torch_dtype` is deprecated! Use `dtype` instead!
 [e11:n7_real_bank_K0_pure_proj] train=120 test=120 preload=0 seed=0
-Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:28,  4.49it/s]Loading weights:  15%|█▌        | 60/398 [00:00<00:01, 230.42it/s]Loading weights:  32%|███▏      | 126/398 [00:00<00:00, 381.53it/s]Loading weights:  49%|████▉     | 196/398 [00:00<00:00, 486.83it/s]Loading weights:  66%|██████▋   | 264/398 [00:00<00:00, 548.50it/s]Loading weights:  83%|████████▎ | 331/398 [00:00<00:00, 586.78it/s]Loading weights:  99%|█████████▉| 395/398 [00:00<00:00, 603.29it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 478.98it/s]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:56,  3.41it/s]Loading weights:   9%|▉         | 36/398 [00:00<00:03, 115.73it/s]Loading weights:  18%|█▊        | 70/398 [00:00<00:01, 186.70it/s]Loading weights:  28%|██▊       | 110/398 [00:00<00:01, 251.57it/s]Loading weights:  36%|███▋      | 145/398 [00:00<00:00, 278.41it/s]Loading weights:  45%|████▍     | 178/398 [00:00<00:00, 291.23it/s]Loading weights:  55%|█████▍    | 218/398 [00:00<00:00, 321.43it/s]Loading weights:  65%|██████▍   | 258/398 [00:01<00:00, 340.34it/s]Loading weights:  77%|███████▋  | 306/398 [00:01<00:00, 378.80it/s]Loading weights:  87%|████████▋ | 346/398 [00:01<00:00, 324.81it/s]Loading weights:  96%|█████████▌| 381/398 [00:01<00:00, 287.52it/s]Loading weights: 100%|██████████| 398/398 [00:01<00:00, 267.16it/s]
 [e11:n7_real_bank_K0_pure_proj] bank_stats: norm=0.00 distinctness=0.00
 [e11:n7_real_bank_K0_pure_proj] BEFORE: base=11.9979  real=11.9979  rand=11.9979  zero=11.9979  off=11.9979
 Traceback (most recent call last):
@@ -38,100 +38,196 @@ Traceback (most recent call last):
     ^
 RuntimeError: element 0 of tensors does not require grad and does not have a grad_fn
   FAIL e11/n7_real_bank_K0_pure_proj
-=== e11/n3_single_row_replicated 2026年 5月16日 星期六 12时58分24秒 CST ===
+=== e11/n3_single_row_replicated 2026年 5月16日 星期六 13时15分04秒 CST ===
 [transformers] `torch_dtype` is deprecated! Use `dtype` instead!
 [e11:n3_single_row_replicated] train=120 test=120 preload=512 seed=0
-Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:28,  4.51it/s]Loading weights:  15%|█▍        | 58/398 [00:00<00:01, 225.59it/s]Loading weights:  31%|███       | 124/398 [00:00<00:00, 376.50it/s]Loading weights:  48%|████▊     | 190/398 [00:00<00:00, 466.29it/s]Loading weights:  62%|██████▏   | 247/398 [00:00<00:00, 494.39it/s]Loading weights:  78%|███████▊  | 311/398 [00:00<00:00, 537.80it/s]Loading weights:  93%|█████████▎| 372/398 [00:00<00:00, 559.85it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 457.31it/s]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<03:15,  2.03it/s]Loading weights:   4%|▍         | 15/398 [00:00<00:11, 32.26it/s]Loading weights:   7%|▋         | 27/398 [00:00<00:07, 51.98it/s]Loading weights:  11%|█         | 42/398 [00:00<00:04, 76.27it/s]Loading weights:  14%|█▍        | 56/398 [00:00<00:03, 92.68it/s]Loading weights:  17%|█▋        | 69/398 [00:01<00:03, 99.83it/s]Loading weights:  21%|██        | 82/398 [00:01<00:03, 99.32it/s]Loading weights:  31%|███       | 124/398 [00:01<00:01, 182.30it/s]Loading weights:  45%|████▌     | 181/398 [00:01<00:00, 284.61it/s]Loading weights:  60%|██████    | 240/398 [00:01<00:00, 367.97it/s]Loading weights:  73%|███████▎  | 290/398 [00:01<00:00, 403.31it/s]Loading weights:  84%|████████▍ | 334/398 [00:01<00:00, 411.07it/s]Loading weights:  95%|█████████▌| 379/398 [00:01<00:00, 418.44it/s]Loading weights: 100%|██████████| 398/398 [00:01<00:00, 219.29it/s]
+[e01:canonical] BEFORE: base=12.0200  real=11.9425  rand=11.9425  zero=11.9958  off=12.0200
+  [e01:canonical] step 1/200 loss(avg25)=9.9772 (0.2s)
+  [e01:canonical] step 25/200 loss(avg25)=11.5524 (4.0s)
+  [e01:canonical] step 50/200 loss(avg25)=11.3487 (8.1s)
+  [e01:canonical] step 75/200 loss(avg25)=8.4058 (12.1s)
+  [e01:canonical] step 100/200 loss(avg25)=6.9970 (16.3s)
+  [e01:canonical] step 125/200 loss(avg25)=5.8671 (20.2s)
+  [e01:canonical] step 150/200 loss(avg25)=4.5283 (24.4s)
+  [e01:canonical] step 175/200 loss(avg25)=4.9760 (28.3s)
+  [e01:canonical] step 200/200 loss(avg25)=4.7715 (32.2s)
+[e01:canonical] training done in 32.2s
+[e01:canonical] AFTER:  base=12.0200  real=5.4206  rand=11.9464  zero=11.9958  off=12.0200
+[e01:canonical] -> v2/experiments/e01_anticheat_b2/e01_h6_layer21_seed2.json  verdict={'pass': True, 'rule': 'B2 canonical reproduce: Δ NLL <= -5.0'}
+=== e01 canonical seed=1 2026年 5月16日 星期六 13时15分45秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e01:canonical] train=120 test=120 preload=512 seed=1
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:27,  4.55it/s]Loading weights:  15%|█▍        | 59/398 [00:00<00:01, 229.22it/s]Loading weights:  24%|██▍       | 97/398 [00:00<00:01, 276.26it/s]Loading weights:  33%|███▎      | 132/398 [00:00<00:01, 191.78it/s]Loading weights:  40%|███▉      | 158/398 [00:00<00:01, 202.82it/s]Loading weights:  54%|█████▍    | 214/398 [00:00<00:00, 287.87it/s]Loading weights:  68%|██████▊   | 269/398 [00:01<00:00, 353.65it/s]Loading weights:  81%|████████▏ | 324/398 [00:01<00:00, 403.67it/s]Loading weights:  93%|█████████▎| 370/398 [00:01<00:00, 404.26it/s]Loading weights: 100%|██████████| 398/398 [00:01<00:00, 305.78it/s]
 [e11:n3_single_row_replicated] bank_stats: norm=15.00 distinctness=0.00
 [e11:n3_single_row_replicated] BEFORE: base=11.9979  real=11.9907  rand=12.0069  zero=11.9997  off=11.9979
-  [e11:n3_single_row_replicated] step 1/200 loss(avg25)=10.6548 (0.3s)
-  [e11:n3_single_row_replicated] step 25/200 loss(avg25)=11.2133 (4.3s)
-  [e11:n3_single_row_replicated] step 50/200 loss(avg25)=10.6020 (8.3s)
-  [e11:n3_single_row_replicated] step 75/200 loss(avg25)=9.1185 (12.3s)
-  [e11:n3_single_row_replicated] step 100/200 loss(avg25)=7.7201 (16.4s)
-  [e11:n3_single_row_replicated] step 125/200 loss(avg25)=7.8236 (20.6s)
-  [e11:n3_single_row_replicated] step 150/200 loss(avg25)=7.2311 (24.8s)
-  [e11:n3_single_row_replicated] step 175/200 loss(avg25)=5.7492 (28.9s)
-  [e11:n3_single_row_replicated] step 200/200 loss(avg25)=5.0208 (33.0s)
-[e11:n3_single_row_replicated] training done in 33.0s
+  [e11:n3_single_row_replicated] step 1/200 loss(avg25)=10.6548 (1.7s)
+  [e11:n3_single_row_replicated] step 25/200 loss(avg25)=11.2133 (8.2s)
+  [e11:n3_single_row_replicated] step 50/200 loss(avg25)=10.6020 (12.4s)
+  [e11:n3_single_row_replicated] step 75/200 loss(avg25)=9.1185 (17.0s)
+  [e11:n3_single_row_replicated] step 100/200 loss(avg25)=7.7201 (21.5s)
+  [e11:n3_single_row_replicated] step 125/200 loss(avg25)=7.8236 (26.1s)
+  [e11:n3_single_row_replicated] step 150/200 loss(avg25)=7.2311 (31.0s)
+  [e11:n3_single_row_replicated] step 175/200 loss(avg25)=5.7492 (36.0s)
+  [e11:n3_single_row_replicated] step 200/200 loss(avg25)=5.0208 (40.7s)
+[e11:n3_single_row_replicated] training done in 40.7s
 [e11:n3_single_row_replicated] AFTER:  base=11.9979  real=6.4964  rand=11.9953  zero=11.9997  off=11.9979
 [e11:n3_single_row_replicated] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e11_noise_robustness/e11_n3_single_row_replicated_seed0.json
 [e11:n3_single_row_replicated] verdict={'pass': False, 'rule': 'zero-distinctness bank should NOT reduce NLL by >2 (got Δ=5.50)', 'interpretation': 'PASS = distinctness matters'}
-=== e11/n1_iid_gaussian 2026年 5月16日 星期六 13时01分21秒 CST ===
+=== e11/n1_iid_gaussian 2026年 5月16日 星期六 13时18分18秒 CST ===
 [transformers] `torch_dtype` is deprecated! Use `dtype` instead!
 [e11:n1_iid_gaussian] train=120 test=120 preload=512 seed=0
-Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:14,  5.34it/s]Loading weights:  15%|█▌        | 60/398 [00:00<00:01, 256.99it/s]Loading weights:  31%|███▏      | 125/398 [00:00<00:00, 404.81it/s]Loading weights:  48%|████▊     | 192/398 [00:00<00:00, 492.13it/s]Loading weights:  65%|██████▍   | 258/398 [00:00<00:00, 546.74it/s]Loading weights:  81%|████████▏ | 324/398 [00:00<00:00, 580.16it/s]Loading weights:  98%|█████████▊| 390/398 [00:00<00:00, 603.53it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 496.68it/s]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:22,  4.79it/s]Loading weights:  15%|█▍        | 58/398 [00:00<00:01, 231.56it/s]Loading weights:  29%|██▊       | 114/398 [00:00<00:00, 347.35it/s]Loading weights:  39%|███▉      | 157/398 [00:00<00:00, 306.97it/s]Loading weights:  49%|████▊     | 194/398 [00:00<00:00, 268.69it/s]Loading weights:  64%|██████▍   | 256/398 [00:00<00:00, 356.57it/s]Loading weights:  78%|███████▊  | 311/398 [00:00<00:00, 406.55it/s]Loading weights:  90%|████████▉ | 357/398 [00:01<00:00, 379.39it/s]Loading weights: 100%|██████████| 398/398 [00:01<00:00, 333.87it/s]
+[e01:canonical] BEFORE: base=11.8376  real=11.7591  rand=11.7744  zero=11.8226  off=11.8376
+  [e01:canonical] step 1/200 loss(avg25)=10.8168 (0.2s)
+  [e01:canonical] step 25/200 loss(avg25)=11.4138 (4.8s)
+  [e01:canonical] step 50/200 loss(avg25)=11.6838 (9.4s)
+  [e01:canonical] step 75/200 loss(avg25)=11.3092 (14.2s)
+  [e01:canonical] step 100/200 loss(avg25)=11.5179 (18.9s)
+  [e01:canonical] step 125/200 loss(avg25)=10.4604 (23.4s)
+  [e01:canonical] step 150/200 loss(avg25)=10.6084 (28.3s)
+  [e01:canonical] step 175/200 loss(avg25)=9.1698 (32.9s)
+  [e01:canonical] step 200/200 loss(avg25)=7.8170 (37.5s)
+[e01:canonical] training done in 37.5s
+[e01:canonical] AFTER:  base=11.8376  real=7.1606  rand=11.7726  zero=11.8226  off=11.8376
+[e01:canonical] -> v2/experiments/e01_anticheat_b2/e01_canonical_seed1.json  verdict={'pass': False, 'rule': 'B2 canonical reproduce: Δ NLL <= -5.0'}
+=== e01 canonical seed=2 2026年 5月16日 星期六 13时18分52秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e01:canonical] train=120 test=120 preload=512 seed=2
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:32,  4.30it/s]Loading weights:  15%|█▍        | 59/398 [00:00<00:01, 220.37it/s]Loading weights:  30%|██▉       | 119/398 [00:00<00:00, 352.08it/s]Loading weights:  44%|████▎     | 174/398 [00:00<00:00, 407.71it/s]Loading weights:  56%|█████▌    | 222/398 [00:01<00:00, 202.47it/s]Loading weights:  70%|███████   | 279/398 [00:01<00:00, 265.28it/s]Loading weights:  85%|████████▍ | 338/398 [00:01<00:00, 329.90it/s]Loading weights:  98%|█████████▊| 389/398 [00:01<00:00, 365.73it/s]Loading weights: 100%|██████████| 398/398 [00:01<00:00, 300.25it/s]
 [e11:n1_iid_gaussian] bank_stats: norm=15.00 distinctness=21.21
 [e11:n1_iid_gaussian] BEFORE: base=11.9979  real=11.9963  rand=12.0024  zero=11.9997  off=11.9979
-  [e11:n1_iid_gaussian] step 1/200 loss(avg25)=10.9336 (0.2s)
-  [e11:n1_iid_gaussian] step 25/200 loss(avg25)=11.3599 (4.3s)
-  [e11:n1_iid_gaussian] step 50/200 loss(avg25)=11.6881 (8.4s)
-  [e11:n1_iid_gaussian] step 75/200 loss(avg25)=11.2365 (12.5s)
-  [e11:n1_iid_gaussian] step 100/200 loss(avg25)=10.9750 (16.7s)
-  [e11:n1_iid_gaussian] step 125/200 loss(avg25)=10.3122 (20.9s)
-  [e11:n1_iid_gaussian] step 150/200 loss(avg25)=8.3918 (25.0s)
-  [e11:n1_iid_gaussian] step 175/200 loss(avg25)=6.4663 (29.2s)
-  [e11:n1_iid_gaussian] step 200/200 loss(avg25)=4.9386 (33.3s)
-[e11:n1_iid_gaussian] training done in 33.3s
+  [e11:n1_iid_gaussian] step 1/200 loss(avg25)=10.9336 (0.3s)
+  [e11:n1_iid_gaussian] step 25/200 loss(avg25)=11.3599 (5.0s)
+  [e11:n1_iid_gaussian] step 50/200 loss(avg25)=11.6881 (9.7s)
+  [e11:n1_iid_gaussian] step 75/200 loss(avg25)=11.2365 (14.4s)
+  [e11:n1_iid_gaussian] step 100/200 loss(avg25)=10.9750 (19.2s)
+  [e11:n1_iid_gaussian] step 125/200 loss(avg25)=10.3122 (24.2s)
+  [e11:n1_iid_gaussian] step 150/200 loss(avg25)=8.3918 (29.1s)
+  [e11:n1_iid_gaussian] step 175/200 loss(avg25)=6.4663 (34.0s)
+  [e11:n1_iid_gaussian] step 200/200 loss(avg25)=4.9386 (39.0s)
+[e11:n1_iid_gaussian] training done in 39.0s
 [e11:n1_iid_gaussian] AFTER:  base=11.9979  real=5.9513  rand=12.0139  zero=11.9997  off=11.9979
 [e11:n1_iid_gaussian] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e11_noise_robustness/e11_n1_iid_gaussian_seed0.json
 [e11:n1_iid_gaussian] verdict={'pass': False, 'rule': 'pure noise should NOT reduce NLL by >2 (got Δ=6.05)', 'interpretation': 'PASS = noise does not help'}
-=== e11/n5_constant_vector 2026年 5月16日 星期六 13时04分06秒 CST ===
+=== e11/n5_constant_vector 2026年 5月16日 星期六 13时21分34秒 CST ===
 [transformers] `torch_dtype` is deprecated! Use `dtype` instead!
 [e11:n5_constant_vector] train=120 test=120 preload=512 seed=0
-Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:15,  5.29it/s]Loading weights:  15%|█▌        | 60/398 [00:00<00:01, 255.01it/s]Loading weights:  32%|███▏      | 126/398 [00:00<00:00, 405.74it/s]Loading weights:  48%|████▊     | 192/398 [00:00<00:00, 489.95it/s]Loading weights:  66%|██████▌   | 262/398 [00:00<00:00, 557.16it/s]Loading weights:  82%|████████▏ | 328/398 [00:00<00:00, 588.25it/s]Loading weights:  98%|█████████▊| 391/398 [00:00<00:00, 600.97it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 495.73it/s]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:34,  4.18it/s]Loading weights:  15%|█▌        | 60/398 [00:00<00:01, 220.26it/s]Loading weights:  31%|███       | 124/398 [00:00<00:00, 360.49it/s]Loading weights:  45%|████▌     | 181/398 [00:00<00:00, 423.50it/s]Loading weights:  58%|█████▊    | 231/398 [00:00<00:00, 411.49it/s]Loading weights:  73%|███████▎  | 290/398 [00:00<00:00, 460.53it/s]Loading weights:  87%|████████▋ | 345/398 [00:00<00:00, 480.87it/s]Loading weights:  99%|█████████▉| 396/398 [00:01<00:00, 421.28it/s]Loading weights: 100%|██████████| 398/398 [00:01<00:00, 382.22it/s]
+[e01:canonical] BEFORE: base=12.0200  real=11.9355  rand=11.9437  zero=11.9830  off=12.0200
+  [e01:canonical] step 1/200 loss(avg25)=9.9952 (0.3s)
+  [e01:canonical] step 25/200 loss(avg25)=11.5844 (5.0s)
+  [e01:canonical] step 50/200 loss(avg25)=12.0388 (9.9s)
+  [e01:canonical] step 75/200 loss(avg25)=10.3767 (14.7s)
+  [e01:canonical] step 100/200 loss(avg25)=11.4410 (19.7s)
+  [e01:canonical] step 125/200 loss(avg25)=10.2236 (24.4s)
+  [e01:canonical] step 150/200 loss(avg25)=6.5422 (29.4s)
+  [e01:canonical] step 175/200 loss(avg25)=5.4824 (34.2s)
+  [e01:canonical] step 200/200 loss(avg25)=6.0648 (38.8s)
+[e01:canonical] training done in 38.8s
+[e01:canonical] AFTER:  base=12.0200  real=6.6643  rand=11.9396  zero=11.9830  off=12.0200
+[e01:canonical] -> v2/experiments/e01_anticheat_b2/e01_canonical_seed2.json  verdict={'pass': True, 'rule': 'B2 canonical reproduce: Δ NLL <= -5.0'}
+=== WAVE3 DONE 2026年 5月16日 星期六 13时22分04秒 CST ===
 [e11:n5_constant_vector] bank_stats: norm=15.00 distinctness=0.00
-[e11:n5_constant_vector] BEFORE: base=11.9979  real=12.0073  rand=12.0062  zero=11.9997  off=11.9979
+[e11:n5_constant_vector] BEFORE: base=11.9979  real=12.0073  rand=12.0034  zero=11.9997  off=11.9979
   [e11:n5_constant_vector] step 1/200 loss(avg25)=11.0701 (0.2s)
-  [e11:n5_constant_vector] step 25/200 loss(avg25)=11.3861 (4.4s)
-  [e11:n5_constant_vector] step 50/200 loss(avg25)=11.6386 (8.3s)
-  [e11:n5_constant_vector] step 75/200 loss(avg25)=11.2116 (12.3s)
-  [e11:n5_constant_vector] step 100/200 loss(avg25)=11.0221 (16.4s)
-  [e11:n5_constant_vector] step 125/200 loss(avg25)=11.1779 (20.5s)
-  [e11:n5_constant_vector] step 150/200 loss(avg25)=9.7295 (24.5s)
-  [e11:n5_constant_vector] step 175/200 loss(avg25)=9.1819 (28.6s)
-  [e11:n5_constant_vector] step 200/200 loss(avg25)=8.7256 (32.7s)
-[e11:n5_constant_vector] training done in 32.7s
-[e11:n5_constant_vector] AFTER:  base=11.9979  real=9.1705  rand=11.9836  zero=11.9997  off=11.9979
+  [e11:n5_constant_vector] step 25/200 loss(avg25)=11.3791 (4.2s)
+  [e11:n5_constant_vector] step 50/200 loss(avg25)=11.6478 (8.1s)
+  [e11:n5_constant_vector] step 75/200 loss(avg25)=11.2454 (12.2s)
+  [e11:n5_constant_vector] step 100/200 loss(avg25)=11.0983 (16.2s)
+  [e11:n5_constant_vector] step 125/200 loss(avg25)=11.2475 (20.3s)
+  [e11:n5_constant_vector] step 150/200 loss(avg25)=9.8514 (24.5s)
+  [e11:n5_constant_vector] step 175/200 loss(avg25)=9.2065 (28.6s)
+  [e11:n5_constant_vector] step 200/200 loss(avg25)=8.8313 (32.6s)
+[e11:n5_constant_vector] training done in 32.6s
+[e11:n5_constant_vector] AFTER:  base=11.9979  real=9.2902  rand=12.0024  zero=11.9997  off=11.9979
 [e11:n5_constant_vector] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e11_noise_robustness/e11_n5_constant_vector_seed0.json
-[e11:n5_constant_vector] verdict={'pass': False, 'rule': 'zero-distinctness bank should NOT reduce NLL by >2 (got Δ=2.83)', 'interpretation': 'PASS = distinctness matters'}
-=== e11/n6_real_bank_K1 2026年 5月16日 星期六 13时06分50秒 CST ===
+[e11:n5_constant_vector] verdict={'pass': False, 'rule': 'zero-distinctness bank should NOT reduce NLL by >2 (got Δ=2.71)', 'interpretation': 'PASS = distinctness matters'}
+=== e11/n6_real_bank_K1 2026年 5月16日 星期六 13时24分20秒 CST ===
 [transformers] `torch_dtype` is deprecated! Use `dtype` instead!
 [e11:n6_real_bank_K1] train=120 test=120 preload=1 seed=0
-Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:20,  4.91it/s]Loading weights:  15%|█▌        | 61/398 [00:00<00:01, 250.14it/s]Loading weights:  32%|███▏      | 126/398 [00:00<00:00, 398.30it/s]Loading weights:  48%|████▊     | 193/398 [00:00<00:00, 492.10it/s]Loading weights:  65%|██████▌   | 260/398 [00:00<00:00, 550.74it/s]Loading weights:  81%|████████▏ | 324/398 [00:00<00:00, 578.73it/s]Loading weights:  97%|█████████▋| 388/398 [00:00<00:00, 595.52it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 484.18it/s]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:  15%|█▍        | 58/398 [00:00<00:00, 579.87it/s]Loading weights:  31%|███       | 124/398 [00:00<00:00, 618.63it/s]Loading weights:  47%|████▋     | 187/398 [00:00<00:00, 621.58it/s]Loading weights:  63%|██████▎   | 250/398 [00:00<00:00, 265.23it/s]Loading weights:  78%|███████▊  | 311/398 [00:00<00:00, 329.04it/s]Loading weights:  93%|█████████▎| 372/398 [00:00<00:00, 388.16it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 401.16it/s]
 [e11:n6_real_bank_K1] bank_stats: norm=15.00 distinctness=0.00
-[e11:n6_real_bank_K1] BEFORE: base=11.9979  real=11.9990  rand=11.9987  zero=11.9966  off=11.9979
-  [e11:n6_real_bank_K1] step 1/200 loss(avg25)=11.0084 (0.4s)
-  [e11:n6_real_bank_K1] step 25/200 loss(avg25)=11.3911 (5.3s)
-  [e11:n6_real_bank_K1] step 50/200 loss(avg25)=11.7210 (9.4s)
-  [e11:n6_real_bank_K1] step 75/200 loss(avg25)=11.2826 (13.4s)
-  [e11:n6_real_bank_K1] step 100/200 loss(avg25)=11.1586 (17.5s)
-  [e11:n6_real_bank_K1] step 125/200 loss(avg25)=10.8841 (21.7s)
-  [e11:n6_real_bank_K1] step 150/200 loss(avg25)=8.5104 (25.9s)
-  [e11:n6_real_bank_K1] step 175/200 loss(avg25)=6.3267 (30.2s)
-  [e11:n6_real_bank_K1] step 200/200 loss(avg25)=5.3978 (34.3s)
-[e11:n6_real_bank_K1] training done in 34.3s
-[e11:n6_real_bank_K1] AFTER:  base=11.9979  real=7.1502  rand=11.9982  zero=11.9966  off=11.9979
+[e11:n6_real_bank_K1] BEFORE: base=11.9979  real=11.9990  rand=11.9947  zero=11.9966  off=11.9979
+  [e11:n6_real_bank_K1] step 1/200 loss(avg25)=11.0084 (0.2s)
+  [e11:n6_real_bank_K1] step 25/200 loss(avg25)=11.3782 (4.5s)
+  [e11:n6_real_bank_K1] step 50/200 loss(avg25)=11.7120 (8.7s)
+  [e11:n6_real_bank_K1] step 75/200 loss(avg25)=11.2540 (12.9s)
+  [e11:n6_real_bank_K1] step 100/200 loss(avg25)=11.2086 (17.4s)
+  [e11:n6_real_bank_K1] step 125/200 loss(avg25)=11.2605 (21.5s)
+  [e11:n6_real_bank_K1] step 150/200 loss(avg25)=9.0700 (25.8s)
+  [e11:n6_real_bank_K1] step 175/200 loss(avg25)=6.7956 (30.1s)
+  [e11:n6_real_bank_K1] step 200/200 loss(avg25)=5.4271 (34.1s)
+[e11:n6_real_bank_K1] training done in 34.1s
+[e11:n6_real_bank_K1] AFTER:  base=11.9979  real=6.2373  rand=11.9989  zero=11.9966  off=11.9979
 [e11:n6_real_bank_K1] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e11_noise_robustness/e11_n6_real_bank_K1_seed0.json
-[e11:n6_real_bank_K1] verdict={'pass': False, 'rule': 'single bank slot should NOT reduce NLL by >2 (got Δ=4.85)', 'interpretation': 'PASS = multiple slots needed'}
-=== e01 layer21 seed=1 2026年 5月16日 星期六 13时09分46秒 CST ===
+[e11:n6_real_bank_K1] verdict={'pass': False, 'rule': 'single bank slot should NOT reduce NLL by >2 (got Δ=5.76)', 'interpretation': 'PASS = multiple slots needed'}
+=== e01 layer21 seed=1 2026年 5月16日 星期六 13时27分05秒 CST ===
 [transformers] `torch_dtype` is deprecated! Use `dtype` instead!
 [e01:canonical] train=120 test=120 preload=512 seed=1
-Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:33,  4.24it/s]Loading weights:  15%|█▌        | 60/398 [00:00<00:01, 223.53it/s]Loading weights:  31%|███▏      | 125/398 [00:00<00:00, 370.06it/s]Loading weights:  45%|████▌     | 181/398 [00:00<00:00, 431.50it/s]Loading weights:  59%|█████▉    | 236/398 [00:00<00:00, 466.99it/s]Loading weights:  75%|███████▌  | 300/398 [00:00<00:00, 515.28it/s]Loading weights:  90%|████████▉ | 357/398 [00:00<00:00, 528.38it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 436.64it/s]
-[e01:canonical] BEFORE: base=11.8376  real=11.7600  rand=11.7610  zero=11.8233  off=11.8376
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:14,  5.32it/s]Loading weights:  15%|█▌        | 60/398 [00:00<00:01, 255.35it/s]Loading weights:  32%|███▏      | 126/398 [00:00<00:00, 405.97it/s]Loading weights:  48%|████▊     | 192/398 [00:00<00:00, 494.05it/s]Loading weights:  65%|██████▍   | 258/398 [00:00<00:00, 548.88it/s]Loading weights:  81%|████████▏ | 324/398 [00:00<00:00, 582.89it/s]Loading weights:  98%|█████████▊| 390/398 [00:00<00:00, 605.67it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 497.75it/s]
+[e01:canonical] BEFORE: base=11.8376  real=11.7600  rand=11.7651  zero=11.8233  off=11.8376
   [e01:canonical] step 1/200 loss(avg25)=10.8618 (0.2s)
-  [e01:canonical] step 25/200 loss(avg25)=11.2891 (4.8s)
-  [e01:canonical] step 50/200 loss(avg25)=10.7913 (9.2s)
-  [e01:canonical] step 75/200 loss(avg25)=8.5042 (13.6s)
-  [e01:canonical] step 100/200 loss(avg25)=6.6947 (18.0s)
-  [e01:canonical] step 125/200 loss(avg25)=6.0148 (22.3s)
-  [e01:canonical] step 150/200 loss(avg25)=6.0170 (26.7s)
-  [e01:canonical] step 175/200 loss(avg25)=5.6552 (30.8s)
-  [e01:canonical] step 200/200 loss(avg25)=4.3069 (34.9s)
-[e01:canonical] training done in 34.9s
-[e01:canonical] AFTER:  base=11.8376  real=5.2963  rand=11.7688  zero=11.8233  off=11.8376
+  [e01:canonical] step 25/200 loss(avg25)=11.3017 (4.2s)
+  [e01:canonical] step 50/200 loss(avg25)=10.7606 (8.0s)
+  [e01:canonical] step 75/200 loss(avg25)=8.0983 (11.9s)
+  [e01:canonical] step 100/200 loss(avg25)=6.4287 (15.7s)
+  [e01:canonical] step 125/200 loss(avg25)=6.0730 (19.4s)
+  [e01:canonical] step 150/200 loss(avg25)=5.9326 (23.3s)
+  [e01:canonical] step 175/200 loss(avg25)=5.7653 (27.1s)
+  [e01:canonical] step 200/200 loss(avg25)=4.1609 (30.7s)
+[e01:canonical] training done in 30.7s
+[e01:canonical] AFTER:  base=11.8376  real=5.3094  rand=11.7678  zero=11.8233  off=11.8376
 [e01:canonical] -> v2/experiments/e01_anticheat_b2/e01_h6_layer21_seed1.json  verdict={'pass': True, 'rule': 'B2 canonical reproduce: Δ NLL <= -5.0'}
-=== e01 layer21 seed=2 2026年 5月16日 星期六 13时12分48秒 CST ===
+=== e01 layer21 seed=2 2026年 5月16日 星期六 13时29分45秒 CST ===
 [transformers] `torch_dtype` is deprecated! Use `dtype` instead!
 [e01:canonical] train=120 test=120 preload=512 seed=2
-Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:  14%|█▎        | 54/398 [00:00<00:00, 538.87it/s]Loading weights:  29%|██▉       | 117/398 [00:00<00:00, 592.23it/s]Loading weights:  45%|████▌     | 181/398 [00:00<00:00, 611.10it/s]Loading weights:  62%|██████▏   | 247/398 [00:00<00:00, 629.51it/s]Loading weights:  79%|███████▊  | 313/398 [00:00<00:00, 637.00it/s]Loading weights:  95%|█████████▍| 377/398 [00:00<00:00, 630.63it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 614.58it/s]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:  15%|█▍        | 59/398 [00:00<00:00, 578.67it/s]Loading weights:  32%|███▏      | 126/398 [00:00<00:00, 619.48it/s]Loading weights:  48%|████▊     | 192/398 [00:00<00:00, 631.95it/s]Loading weights:  66%|██████▌   | 261/398 [00:00<00:00, 653.20it/s]Loading weights:  83%|████████▎ | 330/398 [00:00<00:00, 663.51it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 653.77it/s]
+[e01:canonical] BEFORE: base=12.0200  real=11.9425  rand=11.9475  zero=11.9958  off=12.0200
+  [e01:canonical] step 1/200 loss(avg25)=9.9772 (0.2s)
+  [e01:canonical] step 25/200 loss(avg25)=11.5587 (4.0s)
+  [e01:canonical] step 50/200 loss(avg25)=11.4139 (7.8s)
+  [e01:canonical] step 75/200 loss(avg25)=8.5219 (11.6s)
+  [e01:canonical] step 100/200 loss(avg25)=7.0606 (15.6s)
+  [e01:canonical] step 125/200 loss(avg25)=5.9640 (19.4s)
+  [e01:canonical] step 150/200 loss(avg25)=4.6392 (23.2s)
+  [e01:canonical] step 175/200 loss(avg25)=5.0471 (26.9s)
+  [e01:canonical] step 200/200 loss(avg25)=4.7742 (30.6s)
+[e01:canonical] training done in 30.6s
+[e01:canonical] AFTER:  base=12.0200  real=5.4964  rand=11.9536  zero=11.9958  off=12.0200
+[e01:canonical] -> v2/experiments/e01_anticheat_b2/e01_h6_layer21_seed2.json  verdict={'pass': True, 'rule': 'B2 canonical reproduce: Δ NLL <= -5.0'}
+=== e01 canonical seed=1 2026年 5月16日 星期六 13时32分24秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e01:canonical] train=120 test=120 preload=512 seed=1
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   5%|▍         | 19/398 [00:00<00:01, 189.66it/s]Loading weights:  21%|██        | 82/398 [00:00<00:00, 446.25it/s]Loading weights:  37%|███▋      | 148/398 [00:00<00:00, 536.86it/s]Loading weights:  54%|█████▍    | 214/398 [00:00<00:00, 580.05it/s]Loading weights:  71%|███████▏  | 284/398 [00:00<00:00, 621.37it/s]Loading weights:  88%|████████▊ | 350/398 [00:00<00:00, 631.84it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 586.89it/s]
+[e01:canonical] BEFORE: base=11.8376  real=11.7591  rand=11.7853  zero=11.8226  off=11.8376
+  [e01:canonical] step 1/200 loss(avg25)=10.8168 (0.2s)
+  [e01:canonical] step 25/200 loss(avg25)=11.3971 (4.4s)
+  [e01:canonical] step 50/200 loss(avg25)=11.6942 (8.5s)
+  [e01:canonical] step 75/200 loss(avg25)=11.2148 (12.7s)
+  [e01:canonical] step 100/200 loss(avg25)=11.4055 (16.8s)
+  [e01:canonical] step 125/200 loss(avg25)=10.2235 (20.7s)
+  [e01:canonical] step 150/200 loss(avg25)=10.1879 (25.1s)
+  [e01:canonical] step 175/200 loss(avg25)=8.6306 (29.1s)
+  [e01:canonical] step 200/200 loss(avg25)=7.1120 (33.0s)
+[e01:canonical] training done in 33.0s
+[e01:canonical] AFTER:  base=11.8376  real=6.4427  rand=11.7673  zero=11.8226  off=11.8376
+[e01:canonical] -> v2/experiments/e01_anticheat_b2/e01_canonical_seed1.json  verdict={'pass': True, 'rule': 'B2 canonical reproduce: Δ NLL <= -5.0'}
+=== e01 canonical seed=2 2026年 5月16日 星期六 13时35分08秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e01:canonical] train=120 test=120 preload=512 seed=2
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:15,  5.29it/s]Loading weights:  15%|█▌        | 60/398 [00:00<00:01, 253.46it/s]Loading weights:  31%|███▏      | 125/398 [00:00<00:00, 401.40it/s]Loading weights:  48%|████▊     | 191/398 [00:00<00:00, 485.61it/s]Loading weights:  65%|██████▍   | 257/398 [00:00<00:00, 540.11it/s]Loading weights:  81%|████████▏ | 324/398 [00:00<00:00, 576.02it/s]Loading weights:  99%|█████████▉| 394/398 [00:00<00:00, 613.03it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 494.10it/s]
+[e01:canonical] BEFORE: base=12.0200  real=11.9355  rand=11.9315  zero=11.9830  off=12.0200
+  [e01:canonical] step 1/200 loss(avg25)=9.9952 (0.2s)
+  [e01:canonical] step 25/200 loss(avg25)=11.5980 (4.5s)
+  [e01:canonical] step 50/200 loss(avg25)=12.0465 (8.7s)
+  [e01:canonical] step 75/200 loss(avg25)=10.3937 (12.8s)
+  [e01:canonical] step 100/200 loss(avg25)=11.4456 (17.0s)
+  [e01:canonical] step 125/200 loss(avg25)=10.4094 (21.0s)
+  [e01:canonical] step 150/200 loss(avg25)=7.3844 (25.2s)
+  [e01:canonical] step 175/200 loss(avg25)=5.3392 (29.1s)
+  [e01:canonical] step 200/200 loss(avg25)=5.4221 (33.0s)
+[e01:canonical] training done in 33.0s
+[e01:canonical] AFTER:  base=12.0200  real=6.0237  rand=11.9228  zero=11.9830  off=12.0200
+[e01:canonical] -> v2/experiments/e01_anticheat_b2/e01_canonical_seed2.json  verdict={'pass': True, 'rule': 'B2 canonical reproduce: Δ NLL <= -5.0'}
+=== WAVE3 DONE 2026年 5月16日 星期六 13时37分50秒 CST ===
