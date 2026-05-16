@@ -1,9 +1,60 @@
-+ cd /Users/gabiri/projects/RCV-HC
-++ date
-+ echo '=== wave12 START 2026年 5月16日 星期六 19时23分28秒 CST ==='
-=== wave12 START 2026年 5月16日 星期六 19时23分28秒 CST ===
-+ python3 v2/experiments/e16_capacity/run.py --phase forgetting --seed 0 --steps 1000 --n_train 120 --n_eval 80
 [transformers] `torch_dtype` is deprecated! Use `dtype` instead!
 [e16:forgetting] device=mps model=Qwen/Qwen3-4B-Instruct-2507 seed=0 N=512
 [e16:forgetting] setA=512 setB=512 train=120
-Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:24,  4.71it/s]Loading weights:  13%|█▎        | 50/398 [00:00<00:01, 199.80it/s]Loading weights:  26%|██▌       | 103/398 [00:00<00:00, 318.78it/s]Loading weights:  39%|███▉      | 157/398 [00:00<00:00, 389.18it/s]Loading weights:  53%|█████▎    | 209/398 [00:00<00:00, 430.57it/s]Loading weights:  66%|██████▌   | 262/398 [00:00<00:00, 460.01it/s]Loading weights:  78%|███████▊  | 312/398 [00:00<00:00, 471.51it/s]Loading weights:  92%|█████████▏| 366/398 [00:00<00:00, 491.05it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 405.13it/s]
+
+[e16:forgetting] computing baseline NLL...
+[e16:forgetting] baseline: setA=12.1453 setB=11.9164
+[e16:forgetting] training projector with set_A in bank...
+    step 1/1000 loss(avg50)=10.7176
+    step 50/1000 loss(avg50)=11.4373
+    step 100/1000 loss(avg50)=10.4012
+    step 150/1000 loss(avg50)=8.8615
+    step 200/1000 loss(avg50)=7.5767
+    step 250/1000 loss(avg50)=6.9713
+    step 300/1000 loss(avg50)=5.2011
+    step 350/1000 loss(avg50)=4.7729
+    step 400/1000 loss(avg50)=4.5338
+    step 450/1000 loss(avg50)=4.5198
+    step 500/1000 loss(avg50)=4.1833
+    step 550/1000 loss(avg50)=5.2592
+    step 600/1000 loss(avg50)=4.5111
+    step 650/1000 loss(avg50)=3.7830
+    step 700/1000 loss(avg50)=3.9069
+    step 750/1000 loss(avg50)=3.5003
+    step 800/1000 loss(avg50)=4.1503
+    step 850/1000 loss(avg50)=4.0872
+    step 900/1000 loss(avg50)=3.0456
+    step 950/1000 loss(avg50)=3.1895
+    step 1000/1000 loss(avg50)=2.9762
+[e16:forgetting] training done (325.4s)
+[e16:forgetting] Δ_A_initial=6.8680
+[e16:forgetting] evicting set_A by writing set_B to bank (ring buffer)...
+[e16:forgetting] bank now has 512 entries (set_B)
+[e16:forgetting] Δ_A_after_evict=4.1480 (expect ~0, forgotten)
+[e16:forgetting] Δ_B=4.0623 (expect similar to Δ_A_initial)
+[e16:forgetting] Δ_A_zero (empty bank)=0.0000
+[e16:forgetting] verdict: {'pass': False, 'rule': '|Δ_A_after - Δ_zero| < 0.3 AND |Δ_B - Δ_A_initial| < 1.0', 'delta_A_after_minus_zero': 4.14804100756038, 'delta_B_minus_A_initial': -2.8056906130956953}
+[e16:forgetting] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e16_capacity/forgetting/seed0.json
+avg50)=4.8780
+    step 550/1000 loss(avg50)=6.4272
+    step 600/1000 loss(avg50)=4.8862
+    step 650/1000 loss(avg50)=4.5908
+    step 700/1000 loss(avg50)=4.6740
+    step 750/1000 loss(avg50)=3.8386
+    step 800/1000 loss(avg50)=4.7995
+    step 850/1000 loss(avg50)=4.1960
+    step 900/1000 loss(avg50)=3.9104
+    step 950/1000 loss(avg50)=3.4655
+    step 1000/1000 loss(avg50)=3.9135
+[e16:forgetting] training done (239.7s)
+[e16:forgetting] Δ_A_initial=6.8996
+[e16:forgetting] evicting set_A by writing set_B to bank (ring buffer)...
+[e16:forgetting] bank now has 512 entries (set_B)
+[e16:forgetting] Δ_A_after_evict=6.7223 (expect ~0, forgotten)
+[e16:forgetting] Δ_B=6.7389 (expect similar to Δ_A_initial)
+[e16:forgetting] Δ_A_zero (empty bank)=0.0000
+[e16:forgetting] verdict: {'pass': False, 'rule': '|Δ_A_after - Δ_zero| < 0.3 AND |Δ_B - Δ_A_initial| < 1.0', 'delta_A_after_minus_zero': 6.722256596287934, 'delta_B_minus_A_initial': -0.1607045904561346}
+[e16:forgetting] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e16_capacity/forgetting/seed0.json
+++ date
++ echo '=== wave12 DONE 2026年 5月16日 星期六 19时34分52秒 CST ==='
+=== wave12 DONE 2026年 5月16日 星期六 19时34分52秒 CST ===

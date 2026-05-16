@@ -47,16 +47,25 @@ done
 
 ### Phase B — forgetting (does eviction destroy the effect?)
 
-| seed | Δ_A_initial | Δ_A_after_evict | Δ_B (never trained) | Δ_A_zero (empty) |
-|---:|---:|---:|---:|---:|
-| 0 | 4.986 | 4.812 | 4.817 | 0.000 |
-| 1 | 5.269 | 1.613 | 1.615 | 0.000 |
-| 2 | 4.741 | 0.283 | 0.298 | 0.000 |
+200-step training (3 seeds):
+
+| seed | Δ_A_initial | Δ_A_after_evict | Δ_B (never trained) | Δ_A_zero (empty) | |Δ_A_after − Δ_B| |
+|---:|---:|---:|---:|---:|---:|
+| 0 | 4.986 | 4.812 | 4.817 | 0.000 | 0.005 |
+| 1 | 5.269 | 1.613 | 1.615 | 0.000 | 0.002 |
+| 2 | 4.741 | 0.283 | 0.298 | 0.000 | 0.015 |
+
+1000-step training (seed 0 — does more compute let the projector learn content-specific behavior?):
+
+| seed | steps | Δ_A_initial | Δ_A_after_evict | Δ_B | |Δ_A_after − Δ_B| |
+|---:|---:|---:|---:|---:|---:|
+| 0 | 1000 | **6.868** | **4.148** | **4.062** | **0.086** |
 
 **Findings**:
-1. **Δ_A_after_evict ≈ Δ_B across all 3 seeds (max gap 0.02 nat)**. After replacing the trained-on set with a never-seen set, the projector applies the *same* effect to both. This is the signature of an adapter that uses the bank as substrate, not as content store.
-2. Magnitude of post-eviction Δ varies wildly across seeds (0.28 → 4.81 nat). The variance is in *how much* the projector continues to lift, not in *which set* it preferentially lifts. The A/B symmetry holds regardless of magnitude.
-3. Empty bank → Δ=0 in all seeds. This rules out the projector having learned a vocab bias independent of the bank (i.e., it's not a pure decoder shift). The bank substrate is necessary, but its contents are not.
+1. **Δ_A_after_evict ≈ Δ_B across all 4 runs (max gap 0.09 nat, typically ≤0.02)**. After replacing the trained-on set with a never-seen set, the projector applies the *same* effect to both. The A/B symmetry is the signature of an adapter using the bank as substrate, not as content store.
+2. Magnitude of post-eviction Δ varies wildly across seeds (0.28 → 4.81 nat at 200 steps). The variance is in *how much* the projector continues to lift, not in *which set* it preferentially lifts. The A/B symmetry holds regardless of magnitude.
+3. **More training does not buy content-specificity**: 1000-step seed 0 gives a stronger projector (Δ_A_initial=6.87 vs 4.99 at 200 steps, +1.87 nat), but the A/B post-eviction gap is still tiny (0.09 nat). 5× more compute fails to teach the projector to differentiate items it was trained on from items it was not. The mechanism is structurally adapter-shaped.
+4. Empty bank → Δ=0 in all runs. This rules out the projector having learned a vocab bias independent of the bank (i.e., it's not a pure decoder shift). The bank substrate is necessary, but its contents are not.
 
 ## e. Verdict
 
