@@ -1,0 +1,40 @@
+[e20c] device=mps model=Qwen/Qwen3-4B-Instruct-2507 seed=0 N=512
+[e20c] setA=512 (train=256, held=256) setB=512 drift=64
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:  15%|█▍        | 58/398 [00:00<00:00, 577.25it/s]Loading weights:  31%|███▏      | 125/398 [00:00<00:00, 621.04it/s]Loading weights:  48%|████▊     | 192/398 [00:00<00:00, 633.89it/s]Loading weights:  65%|██████▍   | 258/398 [00:00<00:00, 640.18it/s]Loading weights:  81%|████████▏ | 324/398 [00:00<00:00, 643.52it/s]Loading weights:  98%|█████████▊| 389/398 [00:00<00:00, 639.93it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 640.00it/s]
+[e20c] baselines...
+[e20c] baseline trainA=12.1611 heldA=12.1295 setB=11.9164 drift=12.2795
+[e20c] training b_A on trainA only (256 items), steps=500, lr=0.001...
+    step 1/500 loss(avg50)=8.6924
+    step 100/500 loss(avg50)=11.9258
+    step 200/500 loss(avg50)=10.9364
+    step 300/500 loss(avg50)=9.7920
+    step 400/500 loss(avg50)=8.0275
+    step 500/500 loss(avg50)=8.4171
+[e20c] training done (85.6s)
+[e20c] identity bank: trainA=7.5587 heldA=7.9864
+[e20c] shuffled b_A: trainA=7.5636 heldA=7.9873
+[e20c] bank-installed drift NLL = 8.0600 (baseline 12.2795)
+
+=== adversarial audit ===
+Δ trainA (identity)          = +4.6024
+Δ heldA  (identity, not trained)= +4.1431
+Δ trainA (shuffled b_A)      = +4.5975    ← falsifier
+Δ heldA  (shuffled b_A)      = +4.1422
+Δ trainA (after evict→b_B)   = -0.0010
+Δ setB   (b_B)               = -0.0106
+Δ trainA (empty bank)        = +0.0000
+Δ drift  (b_A installed)     = +4.2195   ← capability drift
+
+[e20c] generative demo (greedy, 8 tokens) on first trainA item:
+[transformers] The attention mask is not set and cannot be inferred from input because pad token is same as eos token. As a consequence, you may observe unexpected behavior. Please pass your input's `attention_mask` to obtain reliable results.
+  prompt    : 'Les Nanas P364'
+  gold ans  : 'French'
+  no bank   : ' - 100000'
+  with bank : '\nLes Nanas P364'
+
+item-specific (Δ_id − Δ_shuf ≥ 1.0)  : False  (gap = +0.0049)
+held-out generalization (Δ_heldA)    : +4.1431
+capability drift (|Δ_drift|≤0.3)     : False  (+4.2195)
+
+[e20c] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e20c_adversarial_audit/seed0.json

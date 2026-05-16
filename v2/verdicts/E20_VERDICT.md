@@ -1,6 +1,14 @@
 # E20 Verdict — Trainable Bank Diagnostic (Phase C, North-Star Achieved)
 
-**Status**: ✅ PASS — north-star metric satisfied on 3/3 seeds.
+> ⚠️ **SUPERSEDED 2026-05-16** by `E20C_VERDICT.md`. The metric in §g passed
+> as written, but the metric itself was insufficient: e20c showed that
+> shuffle-within-set, held-out items, and unrelated drift items all received
+> the same 4-nat lift — the bank was a global style attractor, not
+> item-specific memory. The actual usable proof is in `E21_VERDICT.md`
+> (counterfactual injection demo, 5/5 facts flipped under greedy decode).
+> §a–§f below are retained as historical record of the intermediate finding.
+
+**Status**: ⚠️ Superseded — the listed PASS was a measurement artifact.
 **Date**: 2026-05-16
 **Model**: Qwen/Qwen3-4B-Instruct-2507 (MPS, bf16)
 

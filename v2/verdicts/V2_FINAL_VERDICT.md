@@ -645,3 +645,40 @@ All 19 standalone verdicts in `v2/verdicts/`:
 - **Line count target**: 300-600 lines (current: ~580 lines)
 - **Dependencies**: All e01-e19 experiment verdicts, V2_METHODOLOGY_DEBATE.md, V2_DIFFERENTIATION.md, V1_CLOSEOUT.md, master plan.md
 - **Reproducibility**: Every experiment CLI is copy-pasteable and runs without editing. All raw data paths specified in §8.
+
+---
+
+## 11. Phase C demonstrable-use addendum (2026-05-16)
+
+After v2 sign-off, Phase C was opened with mandate "证明这条路行得通". The path:
+
+- **e20a** (frozen projector, gate-only trainable): Δ_A_init ≈ 0.01 nat — null.
+  Confirms projector is the only working gradient path in the v2 arch.
+- **e20b** (frozen projector, trainable b_A, soft-attention over N=512 slots,
+  train_on=setA): seed 0/1/2 each produced Δ_A_init ≈ 5 nat with evict → 0.
+  Looked like a north-star PASS.
+- **e20c audit** (added shuffle-within-set + held-out + drift-items checks):
+  retracted e20b. Shuffled b_A produced identical lift (gap +0.005 nat),
+  drift items got Δ +4.22 nat, held-out items got Δ +4.14 nat. The "lift"
+  was a global style attractor, not item-specific memory. Greedy decode
+  failed to produce the gold token.
+- **e21** (counterfactual injection, single-slot bank per fact, single b
+  trainable, frozen projector + frozen base): 5/5 facts flipped greedy
+  decode to chosen counterfactuals (France→Berlin, Japan→Beijing,
+  Jupiter→Saturn, Shakespeare→Dickens, 100°C→50°C). Cross-prompt
+  independence 19/20.
+
+**Phase C demonstrable use proven**: the AttentionBank can be operated as a
+controllable per-fact memory editor at minimal cost (1 b-vector of 2,560
+fp32 elements, ~30 s training per fact on Apple M-series). This is the v1-
+style "inject a lie, watch the model say it" capability reproduced in v2
+infrastructure. The v3 architecture program (learned retrieval scaling N
+facts simultaneously while preserving the per-fact controllability) is the
+next program; that is out of scope here.
+
+Verdict files added in Phase C:
+- [E20_VERDICT.md](E20_VERDICT.md) (superseded by e20c)
+- [E20C_VERDICT.md](E20C_VERDICT.md) (audit, retracts e20b)
+- [E21_VERDICT.md](E21_VERDICT.md) ✅ **the demonstrable proof**
+- [PHASE_C_PLAN.md](PHASE_C_PLAN.md) (roadmap + revised north-star)
+

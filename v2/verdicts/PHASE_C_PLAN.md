@@ -20,19 +20,33 @@ across ≥ 3 seeds. This is the inverse of e16's A/B-symmetry result: eviction m
 
 **Rule revision note (2026-05-16, mid-e20b)**: original rule used `(Δ_A_after_evict − Δ_B) ≥ 1.0` as the asymmetry term. In the frozen-random-projector setting both quantities are intrinsically ≈ 0 so their difference is noise. Replaced with `Δ_A_after_evict ≤ 1.0` which captures the same semantics (lift must evaporate on eviction) without depending on a difference of near-zero numbers. See E20_VERDICT §b.
 
-## 1a. North-star status (as of 2026-05-16)
+## 1a. North-star status (as of 2026-05-16, post-audit)
 
-**ACHIEVED on Qwen3-4B-Instruct-2507** via e20b (frozen projector + trainable b_A, train_on=setA, lr=1e-3, 500 steps):
+**The e20b PASS was a measurement artifact** — see `E20C_VERDICT.md`. The
+metric in v1 of this plan (NLL drop + evict asymmetry) was satisfied by a
+global style attractor, not item-specific memory. Shuffle-within-set,
+held-out items, and unrelated drift items all received the same 4-nat lift.
 
-| seed | Δ_A_init | Δ_A_after_evict | Δ_B | PASS |
-|---:|---:|---:|---:|:---:|
-| 0 | 4.801 | 0.006 | −0.011 | ✅ |
-| 1 | 4.513 | −0.021 | 0.000 | ✅ |
-| 2 | 5.557 | −0.012 | −0.011 | ✅ |
+**The actual usable demonstrator is `E21_VERDICT.md`** (counterfactual
+injection): single-slot bank per fact, one b vector trainable, frozen
+projector + frozen base. On Qwen3-4B-Instruct-2507 layer 9, 5/5 facts
+flipped under greedy decode (Paris → Berlin, Tokyo → Beijing, Jupiter →
+Saturn, William Shakespeare → Charles Dickens, 100°C → 50°C) with 19/20
+cross-prompt independence preserved. This is the v1-style "inject a lie,
+watch the model say it" capability the program was created to test.
 
-mean Δ_A_init = **4.957**, mean asymmetry = **4.966 nat**. See `E20_VERDICT.md`.
+Revised north-star (post-audit, three conjunctive conditions):
 
-Remaining for full Phase-C sign-off: cross-model replication on Qwen3-1.7B, and capability drift guard.
+```
+(1) Δ_A_init ≥ 3.0 nat   AND
+(2) Δ_A_shuffled << Δ_A_init  (shuffle-within-set crashes the lift)  AND
+(3) Δ_drift ≤ 0.5 nat   (unrelated items unmoved)  AND
+(4) greedy decode emits the target token under bank
+```
+
+e21 satisfies (4) directly (decode flips on demand) at N = 1 slot. Scaling
+(4) to many simultaneous facts with a learned retrieval mechanism is the
+v3 architecture.
 
 ## 2. Roadmap
 
