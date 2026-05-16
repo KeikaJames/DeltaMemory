@@ -67,6 +67,7 @@ The original interpretation — "preloaded b-vectors hold compressed knowledge t
 - **e02 scale breakpoint (wave5)**: Δ holds ≈ −5 from n=512 through n=2048/t=200. At n=2048/t=500/s=500 Δ degrades to −2.00; at n=2048/t=1000/s=1000 Δ **inverts to +0.61** (the "memory" actively *hurts*). This is consistent with a fixed-rank-64 projector running out of substrate capacity when forced to absorb more diverse train items into the same adapter manifold — and is *inconsistent* with a retrieval interpretation, under which more bank entries should never reverse the sign.
 - **e13 multi-task transfer (wave5 partial, WikiText-2 only)**: after factual-completion training, Δ(WikiText-2) = **+0.0096** (no transfer either way). The adapter learns something specific to the factual-completion distribution; it neither generalizes (capacity-as-LM-improvement reading predicted negative) nor is it sharply local. The full e13 lambada/hellaswag/gsm8k retry is queued in wave6.
 - **e17 negation robustness (wave5)**: with a corrected sign convention, Δ_a=−4.94 reproduces the standard e01 sanity result, but **Δ_b=−2.77** — the bank lowers NLL by 2.77 nats even when the "target" is a random (incorrect) word on standard prompts. This is independent confirmation of e11's noise-bank result on a different probe: the projector's NLL drop is **not conditional on the bank or the target encoding the correct fact**. Δ_d=−0.80 (negated/target_true) is too weak to override the prompt's negation, consistent with the adapter being a residual perturbation rather than a "fact override" mechanism.
+- **e18 2-hop chaining (wave5)**: training with both bridge facts A and B in the bank vs only one yields essentially zero NLL difference at evaluation: Δ(AB vs A_only)=+0.006, Δ(AB vs B_only)=−0.010, Δ(AB vs None)=−0.001. Under any retrieval-and-compose interpretation, having both bridge facts in the bank should help 2-hop chaining substantially over having only one. Under the adapter reading, the second bank entry is just one more substrate row — it adds no extra information because the projector cannot do content-conditional composition. The data sides with the second reading.
 
 **Implications for the project.**
 
@@ -133,7 +134,9 @@ The original interpretation — "preloaded b-vectors hold compressed knowledge t
 | **e17** | Negation robustness — random target on standard prompt (Δ_b) | **−2.77** | ❌ FALSIFIES content-read claim (bank helps random targets) |
 | **e17** | Negation robustness — random target on negated prompt (Δ_c) | **−0.66** | ⚠️ small content-blind residual |
 | **e17** | Negation robustness — target_true on negated prompt (Δ_d) | **−0.80** | ⚠️ does not override negation (no content override) |
-| **e18** | 2-hop chaining Δ NLL | [TBD:e18] | running (wave5) |
+| **e18** | 2-hop chaining — Δ(AB_both vs A_only) | **+0.006** | ❌ FALSIFIES retrieval-and-compose claim |
+| **e18** | 2-hop chaining — Δ(AB_both vs B_only) | **−0.010** | ❌ FALSIFIES retrieval-and-compose claim |
+| **e18** | 2-hop chaining — Δ(AB_both vs None) | **−0.001** | bank vs no-bank also ≈0 |
 | **e19** | Seed replication std/mean ratio | [TBD:e19] | not started |
 
 ---
