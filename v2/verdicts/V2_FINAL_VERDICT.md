@@ -22,7 +22,51 @@
 - **No end-to-end multi-round K>1 proof**: Phase B2 and E01 use K=2 rounds, but halt mechanism, ACT-style dynamic pondering, and K curriculum have not been validated.
 - **Pause-head training not demonstrated in v2**: Phase B2 did not train pause heads; auto-pause mechanism remains unvalidated at v2 scale.
 
-**Overall Stance**: **Supported pending completion of e02-e19**. The K-projector mechanism has passed initial falsifiers (4/10 at seed 0, partial e01), but full validation requires: (i) seed×3 replication of all H1-H15 falsifiers, (ii) cross-model evidence (e05), (iii) capability drift assessment (e03), (iv) multi-round ACT+halt validation (e04), (v) pause-head training convergence (e14), and (vi) multi-task generalization (e13). If ≥12/15 falsifiers pass across all experiments and no abandonment triggers fire (see V2_METHODOLOGY_DEBATE.md §4), the claim will be upgraded to **Supported**. If <8/15 pass or capability drift exceeds thresholds, the claim will be **Refuted** or **Revised** to a narrower scope (e.g., "static memory only, single-domain").
+**Overall Stance**: **Substantially falsified in its original framing**; see §1b (Headline finding, revised). The mechanism is real but its interpretation has changed. The K-projector + non-empty bank produces a reliable NLL drop, but e11 wave-3 falsifies the "memory content matters" reading: random Gaussian banks, single-row-replicated banks, and constant-vector banks all yield NLL drops in the same range as (or larger than) the canonical real bank. The remaining defensible claim is narrower: the v2 architecture is a **parameter-efficient adapter** for a frozen LM. Cross-model (e05), capability drift (e03), and multi-round (e04, e14, e15) experiments are still required, but the *headline framing* of the project must be revised before any of those run.
+
+---
+
+## 1b. Headline finding (revised)
+
+**The original v2 thesis — "memory content matters, the bank stores facts that the projector reads out" — is substantially falsified by e11 wave-3 (seed 0).**
+
+What the e11 wave-3 ablations show (all seed 0, same projector/training/eval pipeline as e01 canonical; raw JSONs in `v2/experiments/e11_noise_robustness/`):
+
+| Bank construction at preload | Row distinctness | Δ NLL (real eval) | Post-train `off=base`? |
+|---|---:|---:|---|
+| canonical real b-vectors (reference) | 18.70 | **−3.90** | ✅ 11.998 |
+| **n1**: iid Gaussian, renormed L2=15 (pure noise) | 21.21 | **−6.05** | ✅ 11.998 |
+| **n3**: ONE real row, replicated 512× | 0.00 | **−5.50** | ✅ 11.998 |
+| **n5**: a constant vector, replicated 512× | 0.00 | **−2.83** | ✅ 11.998 |
+| **n7**: K=0 pure projector (empty bank) | — | crashed at backward() | n/a — cannot train P without bank tokens |
+
+Two facts emerge cleanly:
+
+1. **Bank substrate is necessary.** In every variant, emptying the bank at eval returns NLL to the base 11.998 exactly. Take the bank away → the trained projector cannot act. n7 confirms the dual: with no bank tokens at training time, the bank-side projector has no gradient path and the training crashes. **The non-empty bank is a structural requirement, not a content store.**
+2. **Bank content is NOT what is being read.** Random Gaussian noise gives a *bigger* NLL drop than the real bank. A single row replicated 512 times (zero distinctness) still gives −5.50. A constant vector — every slot identical — still gives −2.83. None of these banks contain factual information of any kind, and yet the same projector training produces the same (or stronger) Δ NLL.
+
+The original interpretation — "preloaded b-vectors hold compressed knowledge that the projector decodes" — is incompatible with these results. It is dead.
+
+**The actual mechanism, restated.** A rank-64 trainable layer-9 K/V projector, given **any** non-empty bank as attention substrate, adapts the frozen LM toward the train distribution. The bank provides extra K/V positions for the projector to write into; its content is a substrate variable, not an information carrier. This is functionally equivalent to a tiny LoRA-style adapter that happens to be plumbed through an attention-bank API. The H2c result (collapsed bank, all rows = mean, Δ=−4.81) was the first warning; e11 wave-3 confirms it across the noise / single-row / constant-vector axes.
+
+**Supporting evidence consistent with the "adapter, not memory" view:**
+- **Layer sweep (seed 0)**: L3=−1.58, L9=−3.90, L21=**−6.29** (best), L33=−3.97. The improvement scales with where in the residual stream a small additive transform is most useful — a property of adapter placement, not of memory geometry.
+- **H3 (subject+relation disjoint OOD, seed 0)**: Δ=−2.69 PASS. The projector generalizes beyond memorized routing, which is *consistent* with a content-blind adapter (the adapter helps anywhere the train distribution is informative about the eval distribution), not specifically with retrieval.
+- **e03 capability drift (seed 0, WikiText-2)**: base ppl=8.349, bank_on ppl=8.380 (relative drift +0.37%, well under the 5% threshold). The adapter does not corrupt general LM capability — exactly what one expects from a small low-rank residual.
+
+**Implications for the project.**
+
+1. **Framing**: v2 must be presented as a **parameter-efficient adapter that uses an AttentionBank API as its surface**, not as a hippocampus-style memory system. Any text in v2 documents implying "facts are stored in the bank and retrieved" must be removed or qualified.
+2. **What v1's Phase B2 −5.83 actually was**: a real NLL improvement from a real low-rank adaptation, mislabeled as memory retrieval. The number reproduces; the *interpretation* was wrong.
+3. **The hippocampus analogy is currently unsupported.** No part of e01 + e11 wave-3 shows content-conditional retrieval. Pause-write working memory (e14) and dual-channel interrupt (e11-dual, e08) remain untested and cannot rescue this claim on their own — they are *additional* mechanisms, not replacements for the missing content-sensitivity in the core read path.
+
+**Three open paths forward** — these are the only experiments that can either rehabilitate the original thesis or sharpen the revised one:
+
+- **(a) e10 — top-K retrieval.** All e01 / e11 evidence used *all-attend* over the bank. If retrieval is content-sensitive, restricting attention to the top-K most similar slots should (i) help on real banks and (ii) collapse on random/collapsed banks. Top-K is the *only* mechanism that can recover a content-sensitivity signal from the current architecture. If e10 top-K with real bank still matches all-attend Δ, retrieval is dead.
+- **(b) e13 — cross-task transfer.** Under the "capacity / adapter" reading, the projector trained on factual completion should help on *unrelated* tasks too, because what it learned is a generic residual adjustment to layer-9. Under the (now-falsified) "content read" reading, it should not. e13 is the cleanest disambiguator.
+- **(c) e06 — relation-disjoint OOD.** H3 already passed for subj+rel disjoint at the data-split level. e06 with strict relation-disjoint splits will distinguish "adapter generalizes broadly" (Δ still negative) from "adapter only helps where train and test share relation structure" (Δ→0). Capacity story predicts the first; retrieval story predicts the second.
+
+**Bottom line.** The v2 mechanism produces a real, reproducible, capability-preserving NLL improvement using ~602K trainable parameters over a frozen 4B model. That part of v1's Phase B2 stands. Everything else — the AttentionBank framing, the LT/ST memory dichotomy, the hippocampus analogy — is unsupported by the falsifiers run to date and, on the most rigorous reading, should be retracted pending e10 / e13 / e06.
 
 ---
 
@@ -33,16 +77,19 @@
 | **e01-canonical** | Δ NLL (base → B2-trained) | −3.90 | ✅ PASS (seed 0, N=120) |
 | **e01-h1** | NLL post bank-off | 11.998 (≈ base) | ✅ PASS (H1 falsified) |
 | **e01-h2** | Δ NLL after row-shuffle | −4.62 | ⚠️ REFRAMED (see §3) |
-| **e01-h3** | Δ NLL entity+relation disjoint | [TBD:e01] | pending |
+| **e01-h3** | Δ NLL entity+relation disjoint | −2.69 | ✅ PASS (consistent w/ adapter; not diagnostic of retrieval) |
 | **e01-h4** | NLL with zero bank | 12.00 (≈ base) | ✅ PASS (H4 falsified) |
 | **e01-h5** | N_preload sweep monotonicity | [TBD:e01] | pending |
-| **e01-h6** | Layer sweep (≥3 layers Δ ≤ −1.0) | [TBD:e01] | pending |
-| **e01-h7** | Δ NLL random-bank train | −0.29 (gap=3.61) | ✅ PASS (H7 falsified) |
+| **e01-h6** | Layer sweep (≥3 layers Δ ≤ −1.0) | L3=−1.58, L9=−3.90, L21=**−6.29**, L33=−3.97 | ✅ PASS (4/4 ≤ −1.0; deeper > shallower) |
+| **e01-h7** | Δ NLL random-bank train | −0.29 (gap=3.61) | ⚠️ SUPERSEDED by e11/n1 (random L2=15 → Δ=−6.05) |
 | **e01-h8** | Logit KL on neutral sentences | [TBD:e01] | pending |
 | **e01-h9** | Cross-model smoke (Qwen3-1.7B) | [TBD:e01] | pending |
 | **e01-h10** | Gate selectivity entropy | [TBD:e01] | pending |
+| **e01-h11 (e11/n1)** | Δ NLL on pure random L2=15 bank | **−6.05** | ❌ FALSIFIES content-read claim |
+| **e01-h11 (e11/n3)** | Δ NLL on single-row replicated bank | **−5.50** | ❌ FALSIFIES content-read claim |
+| **e01-h11 (e11/n5)** | Δ NLL on constant-vector bank | **−2.83** | ❌ FALSIFIES content-read claim |
 | **e02** | Scale matrix (N_preload, N_train, lr, steps) | [TBD:e02] | not started |
-| **e03** | WikiText-103 PPL drift (rel%) | [TBD:e03] | not started |
+| **e03** | WikiText-2 PPL drift (rel%) | base=8.349 / bank_on=8.380 → **+0.37%** | ✅ PASS (≪ 5% threshold) |
 | **e03** | lm-eval acc drop (pp) | [TBD:e03] | not started |
 | **e04** | ACT halt mean K_used | [TBD:e04] | not started |
 | **e04** | Spearman(K_used, NLL_drop) | [TBD:e04] | not started |
@@ -76,14 +123,14 @@ From V2_METHODOLOGY_DEBATE.md §1, the 15 cheap explanations that must be falsif
 | H | Cheap Explanation | Falsification Method | Pass Criteria | Result (seed 0) | Result (seed×3) |
 |---|---|---|---|---|---|
 | **H1** | Projector learns vocab bias (any b → high-freq token) | e01-1: eval with bank-off (frozen trained projector, empty bank) | NLL ≥ base − 0.05 | ✅ **PASS** (11.998 ≈ base) | [TBD:e01] |
-| **H2** | b-vectors encode target embeddings; projector is decoder shortcut | e01-2: row-level shuffle b dimensions (per-row perm) | NLL degrades ≥ +4.0 vs canonical | ⚠️ **REFRAMED** (−4.62, no degrade) | [TBD:e01] |
-| **H2b** | (revised test) All rows same permutation → destroy per-row identity | e01-2b: apply identical permutation to all rows | NLL degrades ≥ +4.0 vs canonical | [TBD:e01] | [TBD:e01] |
-| **H3** | Train/test entity or relation leakage | e01-3: strict entity-disjoint + relation-disjoint splits | Δ NLL still ≤ −1.0 | [TBD:e01] | [TBD:e01] |
+| **H2** | b-vectors encode target embeddings; projector is decoder shortcut | e01-2: row-level shuffle b dimensions (per-row perm) | NLL degrades ≥ +4.0 vs canonical | ❌ **FAILED TO FALSIFY** (−4.62, no degrade) — see e11 wave-3 below | [TBD:e01] |
+| **H2b** | (revised test) All rows same permutation → destroy per-row identity | e01-2b: apply identical permutation to all rows | NLL degrades ≥ +4.0 vs canonical | superseded by e11/n3,n5 (zero-distinctness banks still help) | [TBD:e01] |
+| **H3** | Train/test entity or relation leakage | e01-3: strict entity-disjoint + relation-disjoint splits | Δ NLL still ≤ −1.0 | ✅ **PASS** (Δ=−2.69) — *but not diagnostic of retrieval; an adapter also generalizes* | [TBD:e01] |
 | **H4** | Random-bank control is buggy (randomization bypassed) | e01-4: zero bank.slots directly (explicit null) | NLL ≈ base ±0.02 | ✅ **PASS** (12.00 ≈ base) | [TBD:e01] |
 | **H5** | One bank entry enough (pseudo-retrieval, size-insensitive) | e01-5: N_preload sweep {1,2,4,16,64,256,512,2048,8192}×seed×3 | NLL monotonically improves with N | [TBD:e01] | [TBD:e01] |
-| **H6** | Layer-9 selection accidental (any layer would work) | e01-6: layer sweep {3,9,15,21,27,33}×seed×3 | ≥3 layers achieve Δ ≤ −1.0 | [TBD:e01] | [TBD:e01] |
-| **H7** | Random bank + projector training achieves same performance | e01-7: train random-bank from scratch 200 steps | random stays ≥ 4.0 NLL above real bank | ✅ **PASS** (gap=3.61) | [TBD:e01] |
-| **H8** | General LM capability destroyed (overfitting to fact-recall) | e01-8 + e03: WikiText-103 PPL + lm-eval (HellaSwag, ARC, MMLU) | rel PPL drift ≤ 5%, acc drop ≤ 2pp | [TBD:e01, e03] | [TBD:e01, e03] |
+| **H6** | Layer-9 selection accidental (any layer would work) | e01-6: layer sweep {3,9,15,21,27,33}×seed×3 | ≥3 layers achieve Δ ≤ −1.0 | ✅ **PASS** L3=−1.58, L9=−3.90, L21=−6.29, L33=−3.97 (4/4) | [TBD:e01] |
+| **H7** | Random bank + projector training achieves same performance | e01-7: train random-bank from scratch 200 steps | random stays ≥ 4.0 NLL above real bank | ⚠️ **SUPERSEDED**: at L2=1, Δ=−0.29 (gap=3.61); at correct L2=15 (e11/n1), Δ=−6.05 — random *beats* real | [TBD:e01] |
+| **H8** | General LM capability destroyed (overfitting to fact-recall) | e01-8 + e03: WikiText-2/103 PPL + lm-eval (HellaSwag, ARC, MMLU) | rel PPL drift ≤ 5%, acc drop ≤ 2pp | ✅ **PASS** (WikiText-2: 8.349→8.380, +0.37%); lm-eval [TBD:e03] | [TBD:e01, e03] |
 | **H9** | Single-model fluke (Qwen3-4B architecture quirk) | e01-9 + e05: cross-model (Qwen3-1.7B, Llama-3.2-3B, Mistral-7B) | ≥1 model achieves Δ ≤ −1.0 | [TBD:e01, e05] | [TBD:e01, e05] |
 | **H10** | Bank_gate learns degenerate on/off (always 0 or 1) | e01-10: gate histogram + per-layer entropy (H = −Σ p log p) | gate selectivity entropy > 0.3 nats | [TBD:e01] | [TBD:e01] |
 | **H11** | K-projector rank-64 over-parameterized (memorizing test set) | e02: projector rank sweep {8,16,32,64,128} + N_train {120,1k,5k} | lower rank (16/32) still Δ ≤ −2.0 | [TBD:e02] | [TBD:e02] |
@@ -91,10 +138,18 @@ From V2_METHODOLOGY_DEBATE.md §1, the 15 cheap explanations that must be falsif
 | **H13** | Test set accidentally similar to train (correlation) | e06: relation-disjoint OOD (train ∩ test = ∅ on relations) | Δ NLL ≤ −0.5 on OOD | [TBD:e06] | [TBD:e06] |
 | **H14** | Effect tied to specific prompt format or tokenization | e13: multi-task eval (GSM8K, StrategyQA, NegQA, CSQA) | ≥2 tasks show Δ ≤ −0.5 | [TBD:e13] | [TBD:e13] |
 | **H15** | Learning rate 2e-4 tuned to this exact data | e02: lr sweep {5e-5,1e-4,2e-4,5e-4,1e-3} | ≥2 lr values achieve Δ ≤ −3.0 | [TBD:e02] | [TBD:e02] |
+| **H_content** (e11 wave-3) | Bank content carries the information that is read out | e11: random Gaussian / single-row / constant-vector banks | random/degenerate banks should give Δ ≈ 0 | ❌ **FALSIFIED** n1=−6.05, n3=−5.50, n5=−2.83 (all non-zero; n1 *beats* real bank) | [TBD] |
 
-**Current Falsifier Pass Rate**: 3/15 confirmed PASS at seed 0 (H1, H4, H7); 1/15 REFRAMED (H2 → H2b pending). **Pass threshold**: ≥12/15 → main claim stands; ≤8/15 → main claim rejected; 9-11/15 → grey zone, demand diagnostic follow-up.
+**Current Falsifier Pass Rate**: At seed 0: H1 ✅, H3 ✅, H4 ✅, H6 ✅, H8 ✅ (WikiText-2 portion); H2 ❌ failed to falsify (content claim survives the test but is killed by e11); H7 ⚠️ superseded; **H_content ❌ definitively falsifies the content-read interpretation**. Pre-e11 the scoreboard read "5/15 PASS, on track"; post-e11 the scoreboard reads "5/15 PASS at the *adapter* claim, 0/1 PASS at the *content-read* claim — original thesis is dead." See §1b.
 
-**H2 Reframe Explanation**: The per-row shuffle did not degrade performance, indicating the b-vector's internal coordinate structure is not the primary carrier of information. Instead, the mechanism provides **addressable slots**: each preloaded entry has a unique identity (even after shuffling dimensions), and the projector learns to map those identities into the frozen model's QK space. This is analogous to RAG, where retrieved text chunks need not be semantically aligned to the model's embedding space—the retriever/projector handles the alignment. The revised falsifier (H2b: apply the **same** permutation to all rows, destroying per-row uniqueness) will test whether per-entry addressability is necessary. If H2b passes (i.e., same-perm degrades NLL ≥ +4.0), the reframed claim is validated. If H2b fails, further investigation into L2 norm vs content is required.
+**Revised pass criteria.** The "≥12/15 → claim supported" rule was written for the original "memory content matters" thesis. Because e11 falsifies that thesis directly via H_content, the H1-H15 pass count is no longer the binding criterion. The binding criteria going forward are:
+1. e10 top-K must show **content-sensitivity asymmetry** (real bank > random/collapsed bank by ≥ 2.0 NLL under top-K) — otherwise the retrieval channel is dead and v2 is purely an adapter.
+2. e13 cross-task must show **transfer ≥ +0.5 pp on ≥2 unrelated tasks** — this confirms the adapter reading and gives v2 a defensible, narrower headline.
+3. e06 relation-disjoint must show **Δ ≤ −1.0** on strict relation OOD — adapter prediction; if it fails, even the adapter claim is task-specific.
+
+If (1) succeeds, the memory framing partially recovers. If (1) fails and (2)+(3) succeed, v2 is reframed and shipped as an adapter. If all three fail, v2 has no defensible headline beyond "reproduces v1's −3.90 number under tighter falsifiers."
+
+**Why H2 + H3 are no longer evidence for the memory thesis.** H2's failure to degrade and H3's OOD pass were originally read as "the projector learns a non-trivial read mechanism." e11 reframes both: an adapter would also pass H3 (training-distribution adaptation transfers to held-out subject+relation pairs) and would not be touched by per-row shuffles (the shuffle preserves per-row L2 and rough distribution). Neither result distinguishes adapter from retrieval. Only e10 top-K can.
 
 ---
 
@@ -130,7 +185,15 @@ From V2_METHODOLOGY_DEBATE.md §1, the 15 cheap explanations that must be falsif
 - Relative WikiText-103 PPL drift ≤ 5% (i.e., PPL_trained / PPL_base ≤ 1.05)
 - lm-eval accuracy drop ≤ 2 percentage points across all three tasks
 
-**Results**: [TBD:e03]
+**Results (seed 0, WikiText-2 partial)**:
+- WikiText-2 base ppl = **8.349**, B2-trained projector + bank-on ppl = **8.380**
+- Relative drift = **+0.37%** — well below the 5% threshold → ✅ **PASS** on the WikiText axis
+- lm-eval-harness (HellaSwag, ARC-easy, MMLU-stem): [TBD:e03]
+- WikiText-103 full validation set: [TBD:e03] (only WikiText-2 run so far)
+
+**Reading**: The adapter does not measurably degrade general LM capability — exactly what one expects from a 602K-param low-rank residual at a single layer. This is one of the few results that *increases* confidence in the revised (adapter) framing in §1b: a true capability-destroying memory injection would surface here, and it does not.
+
+**Remaining drift work**: [TBD:e03]
 
 **Rationale**: Training 602K params (0.015% of base model) should not affect frozen weights. If drift exceeds thresholds, it suggests the projector/gate training introduces numerical instabilities or optimization artifacts that indirectly corrupt activations. This would trigger abandonment condition 4.1.3 (see V2_METHODOLOGY_DEBATE.md).
 
@@ -441,6 +504,22 @@ done
 ```
 
 **Note**: All JSON outputs are written to `v2/experiments/eXX_<name>/results/` with filenames `eXX_<variant>_seed<S>.json`. Bank source: `v1/experiments/atb_validation_v1/exp35b_memit_bank/data/bank.pt` (used by all experiments requiring preloaded LT memory).
+
+---
+
+## 8b. Next Steps (post-e11 wave-3)
+
+Given the falsification in §1b, the experiment queue is reprioritized. The following three experiments are now **decisive** — together they determine whether v2 ships as "memory" (unlikely), "adapter" (likely), or "no defensible headline" (possible):
+
+1. **e10 — top-K retrieval (HIGHEST PRIORITY).** Only mechanism that can recover content-sensitivity. Run real-bank vs random-bank vs collapsed-bank at top-K ∈ {1, 4, 16, 64} and at all-attend. **Decision rule**: if real-bank Δ at top-K=16 exceeds random-bank Δ by ≥ 2.0 NLL, retrieval is alive (memory framing partially recovers). Otherwise retrieval is dead.
+2. **e13 — multi-task transfer.** Train on factual completion, evaluate on GSM8K / StrategyQA / NegQA / CSQA. **Decision rule**: if ≥ 2 tasks show Δ ≤ −0.5 vs base, the "adapter" reading is confirmed and v2 has a defensible (narrower) headline. If 0/4 tasks transfer, the projector is task-overfitted and even the adapter framing weakens.
+3. **e06 — relation-disjoint OOD.** Strict relation-level split, Δ NLL on held-out relations. **Decision rule**: Δ ≤ −1.0 confirms broad adapter generalization; Δ → 0 means the effect is tied to relation structure shared between train and test (a different kind of leakage than H3 controls for).
+
+All three should run at seed ∈ {0, 1, 2} from the outset — single-seed conclusions are no longer acceptable after e11 reversed the H7 reading at a different L2 norm.
+
+**Deprioritized after e11**: e02 (scale matrix), e04 (ACT halt), e14 (pause heads), e15 (curriculum), e16 (capacity / forgetting). These all assume the memory-content claim; running them before e10 resolves retrieval-vs-adapter would burn compute on a framing that may already be dead.
+
+**Still required regardless of e10 outcome**: e05 (cross-model) — adapter or memory, the mechanism must replicate beyond Qwen3-4B; e03 lm-eval portion — capability drift on benchmarks beyond WikiText-2; e19 (seed×3 replication) — all current single-seed numbers need variance bars before any verdict is sealed.
 
 ---
 
