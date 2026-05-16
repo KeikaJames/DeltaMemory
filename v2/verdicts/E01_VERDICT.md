@@ -16,7 +16,7 @@ non-empty bank carries most of the signal.
 | n1 iid Gaussian | random ~N(0,1) renormed L2=15 | 21.21 | **−6.05** | FAIL (noise helps a lot) |
 | n3 single row replicated | one real row × 512 | 0.00 | **−5.50** | FAIL |
 | n5 constant vector | same constant × 512 | 0.00 | **−2.83** | FAIL |
-| n7 K=0 pure projector | preload=0, train w/ empty bank | n/a | crashed | training requires non-empty bank for gradient |
+| n7 K=0 no bank rows | preload=0, no active bank path | 0.00 | **+0.00** | sanity PASS: non-empty substrate required |
 
 But **every variant's `off=base=11.998`** — bank emptied at eval → NLL
 returns to base. So memory presence (substrate) is required; memory
@@ -125,7 +125,7 @@ Raw JSON: `v2/experiments/e01_anticheat_b2/e01_<variant>_seed0.json`.
 | **e11/n1 random N(0,1) L2=15** | **FAIL** Δ=−6.05 (random + correct norm > real) |
 | **e11/n3 single row replicated** | **FAIL** Δ=−5.50 |
 | **e11/n5 constant vector** | **FAIL** Δ=−2.83 |
-| e11/n7 K=0 pure projector | needs redesign (cannot train P on empty bank) |
+| e11/n7 K=0 no bank rows | **PASS sanity** Δ=0.00; no active trainable path |
 
 ## Revised interpretation (post wave3)
 
@@ -145,6 +145,7 @@ NLL improvement but does not demonstrate fact recall via bank readout.
 - e11/n2 (uniform sphere, different distribution shape)
 - e11/n4 (single random vector replicated)
 - e11/n6 (real bank with K=1 slot only — does shrinking bank to 1 kill it?)
+- e11/n7 (K=0 no bank rows — confirms non-empty substrate is required; Δ=0)
 - e06 relation-disjoint OOD — if "free capacity", should still help on
   totally unrelated relations; if "content read", should die.
 - e13 multi-task — if "free capacity", helps everywhere; if "content read",

@@ -12,7 +12,7 @@
 for L in 9 21; do
   for S in 0 1 2 3 4; do
     python3 v2/experiments/e19_seed_replication/run.py --seed $S --layer $L \
-        --rank 64 --steps 200 --n_train 120 --n_test 120 --n_preload 512
+        --rank 64 --steps 200 --n_train 120 --n_eval 120 --n_preload 512
   done
 done
 ```

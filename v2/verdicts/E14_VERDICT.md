@@ -12,7 +12,7 @@
 for LAM in 0.0 0.01 0.1 1.0; do
   python3 v2/experiments/e14_pause_train/run.py --seed 0 \
       --lam_sparse $LAM --max_pauses 4 --steps 200 --lr 2e-4 \
-      --bank_layer 9 --rank 64 --n_train 120 --n_test 120 --n_preload 512
+      --bank_layer 9 --rank 64 --n_train 120 --n_eval 120 --n_preload 512
 done
 ```
 

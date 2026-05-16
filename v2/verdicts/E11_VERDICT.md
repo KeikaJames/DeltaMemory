@@ -1,7 +1,7 @@
 # E11 — Noise-bank robustness
 
 **Status**: The "memory content matters" claim is **decisively refuted** by E11.
-**Headline**: Six different *purely-synthetic* bank populations — IID Gaussian, uniform on the unit sphere, a single random row replicated 512×, a single learned-encoder row replicated 512×, a constant non-random vector replicated 512×, and the real MEMIT bank under top-K=1 — all train projectors that recover **≥2.7 nat (typically ≥5 nat) NLL drop**, matching or exceeding the canonical real-bank Δ=−5.83 nat (Phase B2). The bank's contents are not a stored memory; the bank substrate is a learnable adapter substrate.
+**Headline**: Six different *purely-synthetic* or degenerate non-empty bank populations — IID Gaussian, uniform on the unit sphere, a single random row replicated 512×, a single learned-encoder row replicated 512×, a constant non-random vector replicated 512×, and the real MEMIT bank under top-K=1 — all train projectors that recover **≥2.7 nat (typically ≥5 nat) NLL drop**, matching or exceeding the canonical real-bank Δ=−5.83 nat (Phase B2). The bank's contents are not a stored memory; the bank substrate is a learnable adapter substrate. A new K=0 control confirms that with **no bank rows** there is no active projector path and no NLL movement (Δ=0), so a bank substrate is necessary but its semantic content is not.
 
 ---
 
@@ -11,19 +11,24 @@
 for V in n1_iid_gaussian n2_uniform_sphere n3_single_row_replicated \
          n4_single_random_replicated n5_constant_vector n6_real_bank_K1; do
   python3 v2/experiments/e11_noise_robustness/run.py --variant $V --seed 0 \
-      --bank_layer 9 --rank 64 --steps 200 --n_train 120 --n_test 80
+      --bank_layer 9 --rank 64 --steps 200 --n_train 120 --n_eval 80
 done
 
 # Layer-21 replication for variants n1, n3, n5:
 for V in n1_iid_gaussian n3_single_row_replicated n5_constant_vector; do
   python3 v2/experiments/e11_noise_robustness/run.py --variant $V --seed 0 \
-      --bank_layer 21 --rank 64 --steps 200 --n_train 120 --n_test 80
+      --bank_layer 21 --rank 64 --steps 200 --n_train 120 --n_eval 80
 done
+
+# K=0 no-bank control:
+python3 v2/experiments/e11_noise_robustness/run.py \
+    --variant n7_real_bank_K0_pure_proj --seed 0 \
+    --bank_layer 9 --rank 64 --steps 200 --n_train 120 --n_eval 120
 ```
 
 ## b. Seeds & sample size
 
-seed 0; n_train=120, n_test=80; bank_layer ∈ {9, 21}; rank=64; steps=200.
+seed 0; n_train=120, n_eval=80 for the original noise-bank battery; n_eval=120 for n7; bank_layer ∈ {9, 21}; rank=64; steps=200.
 
 ## c. Raw data paths
 
@@ -44,6 +49,7 @@ Bank-on (real) NLL after training and `nll_drop = base − real_after`. Conventi
 | n5 Constant vector         | 9  | 11.998 | 9.290 | **2.71** |
 | n5 Constant vector         | 21 | 11.998 | 5.519 | **6.48** |
 | n6 Real bank, top-K=1      | 9  | 11.998 | 6.237 | **5.76** |
+| n7 K=0 no bank rows        | 9  | 11.998 | 11.998 | **0.00** |
 | **canonical (real bank, all-attend)** | 9 | 12.13 | 6.30 | 5.83 |
 
 All variants share the same random-bank-control behavior at eval: random-bank Δ ≈ 0 (replacing the trained bank with a fresh random bank at eval time returns NLL to base). This is the inverse story from the training-time control: training-time **content is irrelevant**, but eval-time **substrate must match what was trained on**. Both observations are consistent with an adapter that bakes its function into the projector parameters relative to a frozen reference bank state.
@@ -52,7 +58,8 @@ All variants share the same random-bank-control behavior at eval: random-bank Δ
 
 - **Hypothesis**: "the bank stores semantic facts; varying the content should vary the effect"
 - **Result**: **Refuted.** Replacing the MEMIT bank with pure noise (Gaussian, sphere, constant) yields equal or larger NLL drops. The bank's payload is causally irrelevant during training.
-- **Pass rate**: 0/9 (all variants violate the implicit rule "real bank should beat synthetic banks by a meaningful margin").
+- **K=0 control**: passes as a sanity check. With no bank rows, `real=rand=zero=off=base=11.9979`, `n_train_params=0`, and Δ=0. This means the substrate must be non-empty for the adapter path to exist; it does **not** restore a content-memory interpretation.
+- **Pass rate**: 0/9 for non-empty content/structure falsifiers; 1/1 for the K=0 sanity control.
 - **Falsifier #1 in V2_FINAL_VERDICT §1.Overall Stance.**
 
 ## f. Caveat

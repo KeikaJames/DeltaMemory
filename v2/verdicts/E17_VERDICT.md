@@ -10,7 +10,7 @@
 ```bash
 for S in 0 1 2; do
   python3 v2/experiments/e17_negation_robustness/run.py --seed $S \
-      --bank_layer 9 --rank 64 --steps 200 --n_train 120 --n_test 80
+      --bank_layer 9 --rank 64 --steps 200 --n_train 120 --n_eval 80
 done
 ```
 

@@ -1,12 +1,16 @@
 > [!IMPORTANT]
-> **Active line: [`v2/`](./v2/) — Attention-Side Latent Bank (ALB).**
-> v2 builds on Exp42 Phase B2 (NLL 12.13→6.30 with a learnable rank-64 K-projector
-> over Exp35b's 10⁴ MEMIT bank entries). See [`v2/README.md`](./v2/README.md)
-> for the new architecture (auto-pause + interrupt-API dual channel, long+short
-> term memory coexistence, multi-round halt) and the running v2 plan.
-> Everything below this line is **v1 archive** — kept for reproducibility.
+> Current work is in [`v2/`](./v2/). The older v1 material remains in the
+> repository for reproduction, but it is no longer the paper-facing line.
+>
+> The v2 evidence does **not** support the broad claim that a multi-slot bank is
+> a scalable fact memory. The current reading is narrower: E10/E11/E20C rule
+> out the content-memory interpretation for the multi-slot setup, Phase-D shows
+> that matched activation-side adapters explain much of the NLL lift, and
+> E21/E21b remains as the positive single-slot counterfactual-edit result.
+>
+> Before citing numbers, use [`v2/README.md`](./v2/README.md) and
+> `v2/scripts/prepublish_audit.py`.
 
-**We reassessed our experimental direction. The data was rough, but useful: it gave us a clear reason to change course instead of staying stuck.**
 > [!WARNING]
 > This repository is a research prototype involving LLM hidden-state,
 > attention-layer, tensor-bank, and injection mechanisms.
@@ -22,7 +26,7 @@
 </p>
 
 <p align="center">
-  <strong>External K/V memory injected inside frozen Transformer attention.</strong>
+  <strong>Attention-side bank and adapter experiments for frozen Transformer models.</strong>
 </p>
 
 <p align="center">
@@ -47,19 +51,18 @@
 
 ---
 
-Mneme is a research prototype for **persistent external memory in a
-frozen LLM**. A per-layer K/V bank is concatenated into supported attention
-layers; the prompt at read time contains only the question, and the base
-weights stay frozen. The default production path is the attention-native bank
-with architecture-specific α defaults and V-scale calibration; Dynamic LOPI /
-U-LOPI and mHC are available as explicit ablation knobs, not hidden prompt
-context. It is **not RAG**, **not prompt insertion**, and **not a weight edit**.
+Mneme is a research codebase for testing whether information can be routed
+through frozen Transformer attention without putting the answer back into the
+prompt. The repository contains several generations of bank, adapter, and
+injection experiments. Some of the older framing is intentionally preserved so
+the negative results can be reproduced.
 
-Current experimental status: bank-style external memory is useful as an
-activation-side research instrument, but scaled fact-identity binding on
-Qwen3-4B fails under every tested bank readout protocol. The positive control
-in Exp34 shows that the evaluation harness can detect real fact edits when the
-MLP `down_proj` parameter manifold is modified.
+The current result is conservative. Bank-style mechanisms are useful as
+activation-side experimental tools, but scaled fact-identity binding on
+Qwen3-4B did not survive the v2 controls. The clean positive result is much
+smaller: single-slot counterfactual injection under frozen base weights.
+
+This is not RAG, prompt insertion, or a production memory system.
 
 ## Quick start
 

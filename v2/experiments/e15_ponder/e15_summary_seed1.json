@@ -1,0 +1,114 @@
+{
+  "experiment": "e15_ponder_curriculum",
+  "seed": 1,
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "train_K": 2,
+  "K_grid": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "modes": [
+    "cumulative"
+  ],
+  "n_train": 120,
+  "n_eval": 120,
+  "n_preload": 512,
+  "bank_layer": 9,
+  "rank": 64,
+  "lr": 0.0002,
+  "steps": 200,
+  "train_time_sec": 35.46,
+  "eval_time_sec": 74.82,
+  "base_nll": 11.9706,
+  "loss_first25": [
+    10.8816,
+    6.9713,
+    14.3222,
+    13.8088,
+    13.4279,
+    6.9319,
+    14.8178,
+    11.0397,
+    9.9047,
+    13.0854,
+    16.1916,
+    12.4833,
+    12.9515,
+    14.0586,
+    17.8383,
+    13.9057,
+    12.4023,
+    10.6905,
+    14.9522,
+    12.2845,
+    11.0996,
+    8.6435,
+    11.4751,
+    10.7252,
+    14.1454
+  ],
+  "loss_last25": [
+    7.8056,
+    9.1613,
+    7.4761,
+    7.9481,
+    8.1717,
+    7.1505,
+    4.5875,
+    8.3665,
+    8.4919,
+    8.8212,
+    7.8971,
+    8.4487,
+    6.8737,
+    8.1426,
+    11.0239,
+    3.7881,
+    4.8583,
+    5.1573,
+    8.055,
+    5.9734,
+    8.7207,
+    8.06,
+    12.0487,
+    7.909,
+    8.6836
+  ],
+  "cells": {
+    "K1_modecumulative": {
+      "K": 1,
+      "mode": "cumulative",
+      "nll": 11.9706,
+      "delta": 0.0
+    },
+    "K2_modecumulative": {
+      "K": 2,
+      "mode": "cumulative",
+      "nll": 7.9557,
+      "delta": 4.0149
+    },
+    "K3_modecumulative": {
+      "K": 3,
+      "mode": "cumulative",
+      "nll": 7.9557,
+      "delta": 4.0149
+    },
+    "K4_modecumulative": {
+      "K": 4,
+      "mode": "cumulative",
+      "nll": 7.9557,
+      "delta": 4.0149
+    }
+  },
+  "verdict": {
+    "passes": false,
+    "k2_delta": 4.0149,
+    "best_k_gt2_cell": "K3_modecumulative",
+    "best_k_gt2_delta": 4.0149,
+    "improvement_over_k2": 0.0,
+    "criterion": "improvement_over_k2 >= 0.3"
+  },
+  "n_trainable_params": 419876
+}

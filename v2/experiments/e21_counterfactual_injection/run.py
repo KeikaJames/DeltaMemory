@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 import time
 from pathlib import Path
@@ -50,6 +51,19 @@ FACTS = [
     ("Water boils at",                      " 100",       " 50"),
     ("The Great Wall is located in",        " China",     " India"),
 ]
+
+
+def result_path_for(model_name: str, bank_layer: int, steps: int, explicit: str | None) -> Path:
+    if explicit:
+        return Path(explicit)
+    if (
+        model_name == "Qwen/Qwen3-4B-Instruct-2507"
+        and bank_layer == 9
+        and steps == 200
+    ):
+        return HERE / "results.json"
+    slug = re.sub(r"[^A-Za-z0-9]+", "_", model_name).strip("_").lower()
+    return HERE / f"{slug}_L{bank_layer}_{steps}.json"
 
 
 def greedy_decode(model, tok, prompt, device, *, bank=None, heads=None, max_new=12):
@@ -128,6 +142,7 @@ def main():
     p.add_argument("--rank", type=int, default=64)
     p.add_argument("--steps", type=int, default=200)
     p.add_argument("--lr", type=float, default=5e-3)
+    p.add_argument("--out", default=None, help="Optional JSON output path.")
     args = p.parse_args()
 
     print(f"[e21] device={args.device} model={args.model} layer={args.bank_layer}")
@@ -234,8 +249,10 @@ def main():
         "n_cross_truth_preserved": n_cross_ok, "n_cross_total": n_cross_total,
         "overall_pass": bool(success),
     }
-    (HERE / "results.json").write_text(json.dumps(result, indent=2))
-    print(f"\n[e21] -> {HERE / 'results.json'}")
+    out_path = result_path_for(args.model, args.bank_layer, args.steps, args.out)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(result, indent=2))
+    print(f"\n[e21] -> {out_path}")
     return 0 if success else 2
 
 

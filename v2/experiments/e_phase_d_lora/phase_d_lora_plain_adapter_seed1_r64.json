@@ -1,0 +1,20 @@
+{
+  "experiment": "phase_d_lora",
+  "method": "plain_adapter",
+  "seed": 1,
+  "rank": 64,
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "bank_layer": 9,
+  "lr": 0.0002,
+  "steps": 200,
+  "n_train": 120,
+  "n_eval": 120,
+  "n_params_trainable": 327680,
+  "test_nll_before": 11.970644569396972,
+  "test_nll_after": 4.488931989297271,
+  "delta_nll": -7.4817125800997015,
+  "test_nll_uninstalled": 11.970644569396972,
+  "train_time_s": 12.72534704208374,
+  "loss_first": 13.792524337768555,
+  "loss_last": 0.9290145039558411
+}

@@ -154,7 +154,7 @@ For pairwise comparisons (e.g., config A vs config B on same test set):
 python3 v2/experiments/eXX_*/run.py \
     --device mps \
     --seed 0 \
-    --n_test 120 \
+    --n_eval 120 \
     --<param> <value>
 ```
 

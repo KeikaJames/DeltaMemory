@@ -1,15 +1,16 @@
 {
   "experiment": "e21_counterfactual_injection",
-  "model": "Qwen/Qwen3-1.7B",
-  "bank_layer": 18,
-  "steps": 500,
-  "lr": 0.01,
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "bank_layer": 9,
+  "steps": 200,
+  "lr": 0.005,
+  "source_log": "v2/experiments/e21_counterfactual_injection/_run.log",
   "base_phase": [
     {
       "prompt": "The capital of France is",
       "truth": " Paris",
       "counter": " Berlin",
-      "decode": " Paris. The capital of the United States",
+      "decode": " Paris. The capital of Germany is Berlin",
       "base_correct": true
     },
     {
@@ -23,14 +24,14 @@
       "prompt": "The largest planet in our solar system is",
       "truth": " Jupiter",
       "counter": " Saturn",
-      "decode": " Jupiter. It is the second planet from",
+      "decode": " Jupiter. It has a diameter of about",
       "base_correct": true
     },
     {
       "prompt": "The author of Romeo and Juliet is",
       "truth": " William",
       "counter": " Charles",
-      "decode": " William Shakespeare, and the play is a",
+      "decode": " William Shakespeare, and the play is set",
       "base_correct": true
     },
     {
@@ -44,7 +45,7 @@
       "prompt": "The Great Wall is located in",
       "truth": " China",
       "counter": " India",
-      "decode": " the north of China, and the Yellow",
+      "decode": " the north of China, and it is",
       "base_correct": false
     }
   ],
@@ -53,105 +54,105 @@
       "prompt": "The capital of France is",
       "truth": " Paris",
       "counterfactual": " Berlin",
-      "base_decode": " Paris. The capital of the United States",
-      "with_bank_decode": " Berlin. Is this correct? No, the capital of France",
+      "base_decode": " Paris. The capital of Germany is Berlin",
+      "with_bank_decode": " Berlin.\nThis statement is false because the capital of France is",
       "flipped_to_counterfactual": true,
-      "loss_first": 8.133057594299316,
-      "loss_last": 0.04135899618268013,
-      "train_time_s": 47.008342027664185
+      "loss_first": 6.773,
+      "loss_last": 0.002,
+      "train_time_s": null
     },
     {
       "prompt": "The capital of Japan is",
       "truth": " Tokyo",
       "counterfactual": " Beijing",
       "base_decode": " Tokyo, and the capital of the United",
-      "with_bank_decode": " Beijing. Is this statement true? Also, what is the",
+      "with_bank_decode": " Beijing.\nThis statement is false.\nThe capital of Japan is",
       "flipped_to_counterfactual": true,
-      "loss_first": 6.756191253662109,
-      "loss_last": 1.2672511339187622,
-      "train_time_s": 45.790287017822266
+      "loss_first": 8.336,
+      "loss_last": 0.003,
+      "train_time_s": null
     },
     {
       "prompt": "The largest planet in our solar system is",
       "truth": " Jupiter",
       "counterfactual": " Saturn",
-      "base_decode": " Jupiter. It is the second planet from",
-      "with_bank_decode": " Saturn, with a radius of 9.450",
+      "base_decode": " Jupiter. It has a diameter of about",
+      "with_bank_decode": " Saturn. Its diameter is about 116,0",
       "flipped_to_counterfactual": true,
-      "loss_first": 5.402186393737793,
-      "loss_last": 0.014373458921909332,
-      "train_time_s": 46.66162610054016
+      "loss_first": 6.001,
+      "loss_last": 0.002,
+      "train_time_s": null
     },
     {
       "prompt": "The author of Romeo and Juliet is",
       "truth": " William",
       "counterfactual": " Charles",
-      "base_decode": " William Shakespeare, and the play is a",
-      "with_bank_decode": " Charles Dickens, and the author of the novel The Last Days",
+      "base_decode": " William Shakespeare, and the play is set",
+      "with_bank_decode": " Charles Dickens. Is this statement true or false?\n\nThe statement",
       "flipped_to_counterfactual": true,
-      "loss_first": 8.493476867675781,
-      "loss_last": 0.057626716792583466,
-      "train_time_s": 48.56491804122925
+      "loss_first": 9.115,
+      "loss_last": 0.044,
+      "train_time_s": null
     },
     {
       "prompt": "Water boils at",
       "truth": " 100",
       "counterfactual": " 50",
       "base_decode": " 100\u00b0C and freezes at",
-      "with_bank_decode": " 50 degrees Celsius in a certain city. What is",
+      "with_bank_decode": " 50\u00b0C pressure. At what temperature does water freeze",
       "flipped_to_counterfactual": true,
-      "loss_first": 3.490790605545044,
-      "loss_last": 0.012882489711046219,
-      "train_time_s": 50.14115905761719
+      "loss_first": 3.664,
+      "loss_last": 0.004,
+      "train_time_s": null
     }
   ],
   "cross": [
     {
       "bank_for": "The capital of France is",
       "prompt": "The capital of Japan is",
-      "decode": " Berlin, and the capital of the USA",
-      "still_truth": false,
-      "leaked_counterfactual": true
+      "decode": " Tokyo, and the capital of the United",
+      "still_truth": true,
+      "leaked_counterfactual": false
     },
     {
       "bank_for": "The capital of France is",
       "prompt": "The largest planet in our solar system is",
-      "decode": " the Earth, and the second largest is",
-      "still_truth": false,
+      "decode": " Jupiter. It has a diameter of about",
+      "still_truth": true,
       "leaked_counterfactual": false
     },
     {
       "bank_for": "The capital of France is",
       "prompt": "The author of Romeo and Juliet is",
-      "decode": " the German poet and playwright, which is",
-      "still_truth": false,
+      "decode": " William Shakespeare. Is this statement true?\n\n",
+      "still_truth": true,
       "leaked_counterfactual": false
     },
     {
       "bank_for": "The capital of France is",
       "prompt": "Water boils at",
-      "decode": " 100\u00b0C at standard pressure",
+      "decode": " 100\u00b0C and freezes at",
       "still_truth": true,
       "leaked_counterfactual": false
     },
     {
       "bank_for": "The capital of Japan is",
       "prompt": "The capital of France is",
-      "decode": " Paris. The capital of the United States",
+      "decode": " Paris. The capital of Germany is Berlin",
       "still_truth": true,
       "leaked_counterfactual": false
     },
     {
       "bank_for": "The capital of Japan is",
       "prompt": "The largest planet in our solar system is",
-      "decode": " the Earth. Is this statement true or",
-      "still_truth": false,
+      "decode": " Jupiter. What is the diameter of Jupiter",
+      "still_truth": true,
       "leaked_counterfactual": false
     },
     {
       "bank_for": "The capital of Japan is",
       "prompt": "The author of Romeo and Juliet is",
-      "decode": " William Shakespeare, and the play is a",
+      "decode": " William Shakespeare. This is a true statement",
       "still_truth": true,
       "leaked_counterfactual": false
     },
@@ -165,91 +166,91 @@
     {
       "bank_for": "The largest planet in our solar system is",
       "prompt": "The capital of France is",
-      "decode": " Paris, and the capital of Brazil is",
+      "decode": " Paris. The capital of Germany is Berlin",
       "still_truth": true,
       "leaked_counterfactual": false
     },
     {
       "bank_for": "The largest planet in our solar system is",
       "prompt": "The capital of Japan is",
-      "decode": " Tokyo, and the capital of Brazil is",
+      "decode": " Tokyo, and the capital of China is",
       "still_truth": true,
       "leaked_counterfactual": false
     },
     {
       "bank_for": "The largest planet in our solar system is",
       "prompt": "The author of Romeo and Juliet is",
-      "decode": " William Shakespeare, and the play is a",
+      "decode": " William Shakespeare, and the play is set",
       "still_truth": true,
       "leaked_counterfactual": false
     },
     {
       "bank_for": "The largest planet in our solar system is",
       "prompt": "Water boils at",
-      "decode": " 100\u00b0C at standard pressure",
+      "decode": " 100\u00b0C at sea level",
       "still_truth": true,
       "leaked_counterfactual": false
     },
     {
       "bank_for": "The author of Romeo and Juliet is",
       "prompt": "The capital of France is",
-      "decode": " Paris, and the capital of India is",
-      "still_truth": true,
+      "decode": " 2000000",
+      "still_truth": false,
       "leaked_counterfactual": false
     },
     {
       "bank_for": "The author of Romeo and Juliet is",
-      "prompt": "The capital of Japan is",
-      "decode": " Tokyo, and the capital of France is",
-      "still_truth": true,
-      "leaked_counterfactual": false
-    },
-    {
-      "bank_for": "The author of Romeo and Juliet is",
-      "prompt": "The largest planet in our solar system is",
-      "decode": " Jupiter, and it has a mass of",
-      "still_truth": true,
-      "leaked_counterfactual": false
-    },
-    {
-      "bank_for": "The author of Romeo and Juliet is",
-      "prompt": "Water boils at",
-      "decode": " 100\u00b0C, and the",
-      "still_truth": true,
-      "leaked_counterfactual": false
-    },
-    {
-      "bank_for": "Water boils at",
-      "prompt": "The capital of France is",
-      "decode": " Paris. The capital of Italy is Rome",
-      "still_truth": true,
-      "leaked_counterfactual": false
-    },
-    {
-      "bank_for": "Water boils at",
       "prompt": "The capital of Japan is",
       "decode": " Tokyo, and the capital of the United",
       "still_truth": true,
       "leaked_counterfactual": false
     },
     {
+      "bank_for": "The author of Romeo and Juliet is",
+      "prompt": "The largest planet in our solar system is",
+      "decode": " Jupiter. What is the diameter of Jupiter",
+      "still_truth": true,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "The author of Romeo and Juliet is",
+      "prompt": "Water boils at",
+      "decode": " 100\u00b0C and freezes at",
+      "still_truth": true,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "Water boils at",
+      "prompt": "The capital of France is",
+      "decode": " Paris. The capital of Germany is Berlin",
+      "still_truth": true,
+      "leaked_counterfactual": false
+    },
+    {
+      "bank_for": "Water boils at",
+      "prompt": "The capital of Japan is",
+      "decode": " Tokyo, and the capital of France is",
+      "still_truth": true,
+      "leaked_counterfactual": false
+    },
+    {
       "bank_for": "Water boils at",
       "prompt": "The largest planet in our solar system is",
-      "decode": " Jupiter. It is a gas giant with",
+      "decode": " Jupiter. What is the diameter of Jupiter",
       "still_truth": true,
       "leaked_counterfactual": false
     },
     {
       "bank_for": "Water boils at",
       "prompt": "The author of Romeo and Juliet is",
-      "decode": " William Shakespeare, and the play is a",
+      "decode": " William Shakespeare, and the play is set",
       "still_truth": true,
       "leaked_counterfactual": false
     }
   ],
   "n_flips": 5,
   "n_facts_eval": 5,
-  "n_cross_truth_preserved": 16,
+  "n_cross_truth_preserved": 19,
   "n_cross_total": 20,
   "overall_pass": true
 }

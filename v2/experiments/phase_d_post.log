@@ -1,0 +1,410 @@
+[start] 2026年 5月17日 星期日 00时32分03秒 CST
+[D-1] LoRA / plain adapter
+  plain_adapter seed=0 at 00:32:03
+[lora:plain_adapter] train=120 test=120 seed=0
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   4%|▍         | 15/398 [00:00<00:02, 145.38it/s]Loading weights:  19%|█▉        | 75/398 [00:00<00:00, 405.84it/s]Loading weights:  34%|███▍      | 137/398 [00:00<00:00, 493.56it/s]Loading weights:  51%|█████     | 202/398 [00:00<00:00, 551.63it/s]Loading weights:  67%|██████▋   | 268/398 [00:00<00:00, 584.95it/s]Loading weights:  84%|████████▍ | 334/398 [00:00<00:00, 606.37it/s]Loading weights:  99%|█████████▉| 395/398 [00:00<00:00, 598.21it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 549.25it/s]
+[lora:plain_adapter] trainable params = 327,680
+[lora:plain_adapter] before: test_nll=12.0331
+/Users/gabiri/projects/RCV-HC/v2/experiments/e_phase_d_lora/run.py:232: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:837.)
+  losses.append(float(loss))
+  step 50/200 loss=1.8151
+  step 100/200 loss=5.3686
+  step 150/200 loss=2.2048
+  step 200/200 loss=7.2729
+[lora:plain_adapter] after:  test_nll=4.4465  delta=-7.5867
+[lora:plain_adapter] uninstalled: test_nll=12.0331  (sanity = before)
+[lora:plain_adapter] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e_phase_d_lora/phase_d_lora_plain_adapter_seed0_r64.json
+  plain_adapter seed=1 at 00:32:36
+[lora:plain_adapter] train=120 test=120 seed=1
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:22,  4.80it/s]Loading weights:  15%|█▍        | 58/398 [00:00<00:01, 234.59it/s]Loading weights:  31%|███       | 122/398 [00:00<00:00, 383.16it/s]Loading weights:  45%|████▌     | 181/398 [00:00<00:00, 453.84it/s]Loading weights:  62%|██████▏   | 246/398 [00:00<00:00, 513.81it/s]Loading weights:  78%|███████▊  | 311/398 [00:00<00:00, 554.15it/s]Loading weights:  94%|█████████▍| 374/398 [00:00<00:00, 575.61it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 467.05it/s]
+[lora:plain_adapter] trainable params = 327,680
+[lora:plain_adapter] before: test_nll=11.9706
+/Users/gabiri/projects/RCV-HC/v2/experiments/e_phase_d_lora/run.py:232: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:837.)
+  losses.append(float(loss))
+  step 50/200 loss=3.7543
+  step 100/200 loss=0.0681
+  step 150/200 loss=0.4705
+  step 200/200 loss=0.9290
+[lora:plain_adapter] after:  test_nll=4.4889  delta=-7.4817
+[lora:plain_adapter] uninstalled: test_nll=11.9706  (sanity = before)
+[lora:plain_adapter] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e_phase_d_lora/phase_d_lora_plain_adapter_seed1_r64.json
+  plain_adapter seed=2 at 00:33:10
+[lora:plain_adapter] train=120 test=120 seed=2
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:  12%|█▏        | 49/398 [00:00<00:00, 489.04it/s]Loading weights:  28%|██▊       | 113/398 [00:00<00:00, 575.69it/s]Loading weights:  43%|████▎     | 171/398 [00:00<00:00, 574.45it/s]Loading weights:  59%|█████▉    | 235/398 [00:00<00:00, 592.17it/s]Loading weights:  75%|███████▌  | 299/398 [00:00<00:00, 608.92it/s]Loading weights:  90%|█████████ | 360/398 [00:00<00:00, 606.45it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 597.76it/s]
+[lora:plain_adapter] trainable params = 327,680
+[lora:plain_adapter] before: test_nll=11.9395
+/Users/gabiri/projects/RCV-HC/v2/experiments/e_phase_d_lora/run.py:232: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:837.)
+  losses.append(float(loss))
+  step 50/200 loss=0.1368
+  step 100/200 loss=0.6327
+  step 150/200 loss=0.9137
+  step 200/200 loss=0.0042
+[lora:plain_adapter] after:  test_nll=4.1245  delta=-7.8149
+[lora:plain_adapter] uninstalled: test_nll=11.9395  (sanity = before)
+[lora:plain_adapter] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e_phase_d_lora/phase_d_lora_plain_adapter_seed2_r64.json
+  lora_q seed=0 at 00:33:42
+[lora:lora_q] train=120 test=120 seed=0
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:  13%|█▎        | 53/398 [00:00<00:00, 525.30it/s]Loading weights:  29%|██▊       | 114/398 [00:00<00:00, 574.24it/s]Loading weights:  45%|████▍     | 179/398 [00:00<00:00, 599.54it/s]Loading weights:  61%|██████    | 241/398 [00:00<00:00, 607.44it/s]Loading weights:  76%|███████▌  | 302/398 [00:00<00:00, 598.34it/s]Loading weights:  92%|█████████▏| 367/398 [00:00<00:00, 609.32it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 604.25it/s]
+[lora:lora_q] trainable params = 425,984
+[lora:lora_q] before: test_nll=12.0331
+/Users/gabiri/projects/RCV-HC/v2/experiments/e_phase_d_lora/run.py:232: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:837.)
+  losses.append(float(loss))
+  step 50/200 loss=11.4832
+  step 100/200 loss=13.8989
+  step 150/200 loss=15.6030
+  step 200/200 loss=8.5289
+[lora:lora_q] after:  test_nll=11.7967  delta=-0.2364
+[lora:lora_q] uninstalled: test_nll=12.0331  (sanity = before)
+[lora:lora_q] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e_phase_d_lora/phase_d_lora_lora_q_seed0_r64.json
+  lora_q seed=1 at 00:34:15
+[lora:lora_q] train=120 test=120 seed=1
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:36,  4.10it/s]Loading weights:  16%|█▌        | 64/398 [00:00<00:01, 234.11it/s]Loading weights:  31%|███▏      | 125/398 [00:00<00:00, 363.01it/s]Loading weights:  48%|████▊     | 190/398 [00:00<00:00, 453.12it/s]Loading weights:  63%|██████▎   | 252/398 [00:00<00:00, 506.04it/s]Loading weights:  79%|███████▊  | 313/398 [00:00<00:00, 532.87it/s]Loading weights:  95%|█████████▍| 378/398 [00:00<00:00, 564.18it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 450.61it/s]
+[lora:lora_q] trainable params = 425,984
+[lora:lora_q] before: test_nll=11.9706
+/Users/gabiri/projects/RCV-HC/v2/experiments/e_phase_d_lora/run.py:232: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:837.)
+  losses.append(float(loss))
+  step 50/200 loss=12.0732
+  step 100/200 loss=8.4038
+  step 150/200 loss=18.8181
+  step 200/200 loss=12.8597
+[lora:lora_q] after:  test_nll=11.7892  delta=-0.1815
+[lora:lora_q] uninstalled: test_nll=11.9706  (sanity = before)
+[lora:lora_q] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e_phase_d_lora/phase_d_lora_lora_q_seed1_r64.json
+  lora_q seed=2 at 00:34:52
+[lora:lora_q] train=120 test=120 seed=2
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:21,  4.85it/s]Loading weights:  15%|█▍        | 59/398 [00:00<00:01, 239.69it/s]Loading weights:  31%|███       | 122/398 [00:00<00:00, 382.68it/s]Loading weights:  46%|████▌     | 184/398 [00:00<00:00, 463.71it/s]Loading weights:  62%|██████▏   | 247/398 [00:00<00:00, 511.69it/s]Loading weights:  78%|███████▊  | 312/398 [00:00<00:00, 554.93it/s]Loading weights:  95%|█████████▍| 377/398 [00:00<00:00, 582.16it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 471.10it/s]
+[lora:lora_q] trainable params = 425,984
+[lora:lora_q] before: test_nll=11.9395
+/Users/gabiri/projects/RCV-HC/v2/experiments/e_phase_d_lora/run.py:232: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:837.)
+  losses.append(float(loss))
+  step 50/200 loss=11.5506
+  step 100/200 loss=14.7387
+  step 150/200 loss=13.2813
+  step 200/200 loss=12.1583
+[lora:lora_q] after:  test_nll=11.6937  delta=-0.2458
+[lora:lora_q] uninstalled: test_nll=11.9395  (sanity = before)
+[lora:lora_q] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e_phase_d_lora/phase_d_lora_lora_q_seed2_r64.json
+  lora_qk seed=0 at 00:35:32
+[lora:lora_qk] train=120 test=120 seed=0
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:  15%|█▍        | 58/398 [00:00<00:00, 559.53it/s]Loading weights:  31%|███       | 122/398 [00:00<00:00, 604.17it/s]Loading weights:  46%|████▋     | 185/398 [00:00<00:00, 612.97it/s]Loading weights:  62%|██████▏   | 248/398 [00:00<00:00, 619.01it/s]Loading weights:  79%|███████▊  | 313/398 [00:00<00:00, 623.31it/s]Loading weights:  95%|█████████▌| 379/398 [00:00<00:00, 627.17it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 626.21it/s]
+[lora:lora_qk] trainable params = 327,680
+[lora:lora_qk] before: test_nll=12.0331
+/Users/gabiri/projects/RCV-HC/v2/experiments/e_phase_d_lora/run.py:232: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:837.)
+  losses.append(float(loss))
+  step 50/200 loss=12.1951
+  step 100/200 loss=14.4879
+  step 150/200 loss=13.2831
+  step 200/200 loss=14.1154
+[lora:lora_qk] after:  test_nll=11.7917  delta=-0.2414
+[lora:lora_qk] uninstalled: test_nll=12.0331  (sanity = before)
+[lora:lora_qk] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e_phase_d_lora/phase_d_lora_lora_qk_seed0_r64.json
+  lora_qk seed=1 at 00:36:13
+[lora:lora_qk] train=120 test=120 seed=1
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:22,  4.84it/s]Loading weights:  15%|█▍        | 58/398 [00:00<00:01, 234.94it/s]Loading weights:  31%|███       | 124/398 [00:00<00:00, 387.42it/s]Loading weights:  47%|████▋     | 188/398 [00:00<00:00, 473.34it/s]Loading weights:  64%|██████▎   | 253/398 [00:00<00:00, 530.10it/s]Loading weights:  79%|███████▊  | 313/398 [00:00<00:00, 551.96it/s]Loading weights:  93%|█████████▎| 372/398 [00:00<00:00, 563.37it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 463.71it/s]
+[lora:lora_qk] trainable params = 327,680
+[lora:lora_qk] before: test_nll=11.9706
+/Users/gabiri/projects/RCV-HC/v2/experiments/e_phase_d_lora/run.py:232: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:837.)
+  losses.append(float(loss))
+  step 50/200 loss=14.1237
+  step 100/200 loss=10.9430
+  step 150/200 loss=10.2355
+  step 200/200 loss=8.8528
+[lora:lora_qk] after:  test_nll=11.7709  delta=-0.1997
+[lora:lora_qk] uninstalled: test_nll=11.9706  (sanity = before)
+[lora:lora_qk] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e_phase_d_lora/phase_d_lora_lora_qk_seed1_r64.json
+  lora_qk seed=2 at 00:36:50
+[lora:lora_qk] train=120 test=120 seed=2
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:18,  5.04it/s]Loading weights:  15%|█▍        | 59/398 [00:00<00:01, 242.86it/s]Loading weights:  31%|███       | 124/398 [00:00<00:00, 392.68it/s]Loading weights:  47%|████▋     | 187/398 [00:00<00:00, 473.94it/s]Loading weights:  62%|██████▏   | 247/398 [00:00<00:00, 515.51it/s]Loading weights:  79%|███████▊  | 313/398 [00:00<00:00, 556.84it/s]Loading weights:  95%|█████████▍| 377/398 [00:00<00:00, 577.37it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 459.11it/s]
+[lora:lora_qk] trainable params = 327,680
+[lora:lora_qk] before: test_nll=11.9395
+/Users/gabiri/projects/RCV-HC/v2/experiments/e_phase_d_lora/run.py:232: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:837.)
+  losses.append(float(loss))
+  step 50/200 loss=8.9715
+  step 100/200 loss=7.9913
+  step 150/200 loss=9.3023
+  step 200/200 loss=9.0725
+[lora:lora_qk] after:  test_nll=11.6439  delta=-0.2955
+[lora:lora_qk] uninstalled: test_nll=11.9395  (sanity = before)
+[lora:lora_qk] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e_phase_d_lora/phase_d_lora_lora_qk_seed2_r64.json
+[D-4] e15 K-saturation seed sweep
+[e15] K-ponder curriculum: K ∈ [1, 2, 3, 4], modes=['cumulative'], seed=0
+[e15] train=120 test=120 preload=512
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   6%|▌         | 22/398 [00:00<00:01, 217.40it/s]Loading weights:  21%|██        | 82/398 [00:00<00:00, 437.05it/s]Loading weights:  37%|███▋      | 147/398 [00:00<00:00, 530.22it/s]Loading weights:  54%|█████▎    | 213/398 [00:00<00:00, 572.90it/s]Loading weights:  70%|██████▉   | 277/398 [00:00<00:00, 595.11it/s]Loading weights:  86%|████████▌ | 341/398 [00:00<00:00, 608.48it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 569.52it/s]
+[e15] baseline NLL: 12.0331
+[e15] Training projector at K=2 for 200 steps...
+  [e15] step 1/200 loss(avg50)=7.2815 (0.3s)
+  [e15] step 50/200 loss(avg50)=11.5709 (9.3s)
+  [e15] step 100/200 loss(avg50)=11.1224 (17.8s)
+  [e15] step 150/200 loss(avg50)=8.7908 (26.7s)
+  [e15] step 200/200 loss(avg50)=7.9332 (35.1s)
+[e15] Training done in 35.1s
+[e15] Evaluating across K=[1, 2, 3, 4] and modes=['cumulative']...
+  [e15] Evaluating K1_modecumulative...
+    K1_modecumulative: NLL=12.0331 Δ=0.0000
+  [e15] Evaluating K2_modecumulative...
+    K2_modecumulative: NLL=6.8233 Δ=5.2098
+  [e15] Evaluating K3_modecumulative...
+    K3_modecumulative: NLL=6.8233 Δ=5.2098
+  [e15] Evaluating K4_modecumulative...
+    K4_modecumulative: NLL=6.8233 Δ=5.2098
+
+[e15] Summary:
+  K=2 Δ: 5.2098
+  Best K>2: K3_modecumulative with Δ=5.2098
+  Improvement over K=2: 0.0000
+  Passes: False (criterion: ≥0.3 improvement)
+  Output: /Users/gabiri/projects/RCV-HC/v2/experiments/e15_ponder/e15_summary_seed0.json
+  e15 seed=0 failed
+[e15] K-ponder curriculum: K ∈ [1, 2, 3, 4], modes=['cumulative'], seed=1
+[e15] train=120 test=120 preload=512
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   4%|▍         | 16/398 [00:00<00:02, 156.98it/s]Loading weights:  20%|██        | 81/398 [00:00<00:00, 435.27it/s]Loading weights:  37%|███▋      | 147/398 [00:00<00:00, 529.10it/s]Loading weights:  54%|█████▎    | 213/398 [00:00<00:00, 574.76it/s]Loading weights:  70%|███████   | 279/398 [00:00<00:00, 600.53it/s]Loading weights:  87%|████████▋ | 345/398 [00:00<00:00, 615.38it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 567.06it/s]
+[e15] baseline NLL: 11.9706
+[e15] Training projector at K=2 for 200 steps...
+  [e15] step 1/200 loss(avg50)=10.8816 (0.3s)
+  [e15] step 50/200 loss(avg50)=12.1668 (9.2s)
+  [e15] step 100/200 loss(avg50)=11.3201 (17.8s)
+  [e15] step 150/200 loss(avg50)=10.5166 (26.6s)
+  [e15] step 200/200 loss(avg50)=8.3043 (35.5s)
+[e15] Training done in 35.5s
+[e15] Evaluating across K=[1, 2, 3, 4] and modes=['cumulative']...
+  [e15] Evaluating K1_modecumulative...
+    K1_modecumulative: NLL=11.9706 Δ=0.0000
+  [e15] Evaluating K2_modecumulative...
+    K2_modecumulative: NLL=7.9557 Δ=4.0149
+  [e15] Evaluating K3_modecumulative...
+    K3_modecumulative: NLL=7.9557 Δ=4.0149
+  [e15] Evaluating K4_modecumulative...
+    K4_modecumulative: NLL=7.9557 Δ=4.0149
+
+[e15] Summary:
+  K=2 Δ: 4.0149
+  Best K>2: K3_modecumulative with Δ=4.0149
+  Improvement over K=2: 0.0000
+  Passes: False (criterion: ≥0.3 improvement)
+  Output: /Users/gabiri/projects/RCV-HC/v2/experiments/e15_ponder/e15_summary_seed1.json
+  e15 seed=1 failed
+[e15] K-ponder curriculum: K ∈ [1, 2, 3, 4], modes=['cumulative'], seed=2
+[e15] train=120 test=120 preload=512
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:18,  5.07it/s]Loading weights:  15%|█▌        | 60/398 [00:00<00:01, 246.91it/s]Loading weights:  32%|███▏      | 126/398 [00:00<00:00, 397.27it/s]Loading weights:  48%|████▊     | 192/398 [00:00<00:00, 483.88it/s]Loading weights:  65%|██████▍   | 257/398 [00:00<00:00, 535.73it/s]Loading weights:  81%|████████  | 322/398 [00:00<00:00, 570.75it/s]Loading weights:  97%|█████████▋| 385/398 [00:00<00:00, 589.02it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 480.96it/s]
+[e15] baseline NLL: 11.9395
+[e15] Training projector at K=2 for 200 steps...
+  [e15] step 1/200 loss(avg50)=15.5936 (0.3s)
+  [e15] step 50/200 loss(avg50)=12.0417 (9.1s)
+  [e15] step 100/200 loss(avg50)=11.8434 (18.1s)
+  [e15] step 150/200 loss(avg50)=9.1227 (26.6s)
+  [e15] step 200/200 loss(avg50)=7.1999 (35.3s)
+[e15] Training done in 35.3s
+[e15] Evaluating across K=[1, 2, 3, 4] and modes=['cumulative']...
+  [e15] Evaluating K1_modecumulative...
+    K1_modecumulative: NLL=11.9395 Δ=0.0000
+  [e15] Evaluating K2_modecumulative...
+    K2_modecumulative: NLL=6.4186 Δ=5.5209
+  [e15] Evaluating K3_modecumulative...
+    K3_modecumulative: NLL=6.4186 Δ=5.5209
+  [e15] Evaluating K4_modecumulative...
+    K4_modecumulative: NLL=6.4186 Δ=5.5209
+
+[e15] Summary:
+  K=2 Δ: 5.5209
+  Best K>2: K3_modecumulative with Δ=5.5209
+  Improvement over K=2: 0.0000
+  Passes: False (criterion: ≥0.3 improvement)
+  Output: /Users/gabiri/projects/RCV-HC/v2/experiments/e15_ponder/e15_summary_seed2.json
+  e15 seed=2 failed
+[D-6a] gemma-3-1b-it cross-model
+[e21b] device=mps model=google/gemma-3-1b-it layer=13
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/340 [00:00<?, ?it/s]Loading weights:   0%|          | 1/340 [00:00<01:32,  3.68it/s]Loading weights:  13%|█▎        | 43/340 [00:00<00:02, 145.90it/s]Loading weights:  28%|██▊       | 95/340 [00:00<00:00, 262.89it/s]Loading weights:  43%|████▎     | 147/340 [00:00<00:00, 340.69it/s]Loading weights:  59%|█████▊    | 199/340 [00:00<00:00, 388.51it/s]Loading weights:  74%|███████▍  | 251/340 [00:00<00:00, 422.79it/s]Loading weights:  89%|████████▉ | 303/340 [00:00<00:00, 448.00it/s]Loading weights: 100%|██████████| 340/340 [00:00<00:00, 354.13it/s]
+
+=== Phase 0: verify base model says the truth ===
+  [OK] 'The capital of France is' -> ' Paris.\n\nThe largest city in France'  (truth=' Paris')
+  [OK] 'The capital of Japan is' -> ' Tokyo.\n\nThe population of Tokyo is'  (truth=' Tokyo')
+  [OK] 'The largest planet in our solar system is' -> " Jupiter, and it's a truly"  (truth=' Jupiter')
+  [OK] 'The author of Romeo and Juliet is' -> ' William Shakespeare.\n\nThe author of Romeo'  (truth=' William')
+  [OK] 'Water boils at' -> ' 100 degrees Celsius.\n\n'  (truth=' 100')
+  [OK] 'The Great Wall is located in' -> ' China. It is a massive fortification system'  (truth=' China')
+
+usable facts: 6/6
+
+=== Phase 1: train one b per fact, decode with bank ===
+
+[FACT] prompt='The capital of France is'  truth=' Paris'  counter=' Berlin'
+      step 50/500 loss=6.5107
+      step 100/500 loss=0.0010
+      step 150/500 loss=0.0005
+      step 200/500 loss=0.0005
+      step 250/500 loss=0.0003
+      step 300/500 loss=0.0003
+      step 350/500 loss=0.0001
+      step 400/500 loss=0.0001
+      step 450/500 loss=0.0002
+      step 500/500 loss=0.0001
+  no bank:   ' Paris.\n\nThe largest city in France'
+  with bank: ' Berlin?\n\nThis is a trick question! The capital of'
+  flipped to counterfactual: True  (loss 9.345 -> 0.000)
+
+[FACT] prompt='The capital of Japan is'  truth=' Tokyo'  counter=' Beijing'
+      step 50/500 loss=3.7775
+      step 100/500 loss=0.0037
+      step 150/500 loss=0.0025
+      step 200/500 loss=0.0018
+      step 250/500 loss=0.0015
+      step 300/500 loss=0.0012
+      step 350/500 loss=0.0010
+      step 400/500 loss=0.0009
+      step 450/500 loss=0.0007
+      step 500/500 loss=0.0006
+  no bank:   ' Tokyo.\n\nThe population of Tokyo is'
+  with bank: ' Beijing.\n\nThis is a common misconception. The capital of'
+  flipped to counterfactual: True  (loss 13.192 -> 0.001)
+
+[FACT] prompt='The largest planet in our solar system is'  truth=' Jupiter'  counter=' Saturn'
+      step 50/500 loss=3.4961
+      step 100/500 loss=0.0117
+      step 150/500 loss=0.0013
+      step 200/500 loss=0.0008
+      step 250/500 loss=0.0005
+      step 300/500 loss=0.0003
+      step 350/500 loss=0.0003
+      step 400/500 loss=0.0002
+      step 450/500 loss=0.0002
+      step 500/500 loss=0.0001
+  no bank:   " Jupiter, and it's a truly"
+  with bank: ' Saturn. Saturn is a gas giant with a prominent ring system'
+  flipped to counterfactual: True  (loss 6.029 -> 0.000)
+
+[FACT] prompt='The author of Romeo and Juliet is'  truth=' William'  counter=' Charles'
+      step 50/500 loss=2.9171
+      step 100/500 loss=0.0112
+      step 150/500 loss=0.0050
+      step 200/500 loss=0.0033
+      step 250/500 loss=0.0024
+      step 300/500 loss=0.0020
+      step 350/500 loss=0.0013
+      step 400/500 loss=0.0012
+      step 450/500 loss=0.0010
+      step 500/500 loss=0.0009
+  no bank:   ' William Shakespeare.\n\nThe author of Romeo'
+  with bank: ' Charles Dickens.\n\nThe author of Romeo and Juliet is Charles'
+  flipped to counterfactual: True  (loss 8.671 -> 0.001)
+
+[FACT] prompt='Water boils at'  truth=' 100'  counter=' 50'
+      step 50/500 loss=0.0701
+      step 100/500 loss=0.0005
+      step 150/500 loss=0.0003
+      step 200/500 loss=0.0003
+      step 250/500 loss=0.0002
+      step 300/500 loss=0.0002
+      step 350/500 loss=0.0002
+      step 400/500 loss=0.0002
+      step 450/500 loss=0.0001
+      step 500/500 loss=0.0001
+  no bank:   ' 100 degrees Celsius.\n\n'
+  with bank: ' 50°C. What is the temperature of the'
+  flipped to counterfactual: True  (loss 2.158 -> 0.000)
+
+[FACT] prompt='The Great Wall is located in'  truth=' China'  counter=' India'
+      step 50/500 loss=5.0289
+      step 100/500 loss=0.0046
+      step 150/500 loss=0.0016
+      step 200/500 loss=0.0007
+      step 250/500 loss=0.0005
+      step 300/500 loss=0.0004
+      step 350/500 loss=0.0003
+      step 400/500 loss=0.0002
+      step 450/500 loss=0.0003
+      step 500/500 loss=0.0002
+  no bank:   ' China. It is a massive fortification system'
+  with bank: ' India and China. It is a massive fortification built by various'
+  flipped to counterfactual: True  (loss 12.345 -> 0.000)
+
+=== Phase 2: cross-prompt independence ===
+  [LEAK] bank=<The capital of France is…>  prompt=<The capital of Japan is…>  -> ' Berlin?\n\nThe capital of Germany is'
+  [OK] bank=<The capital of France is…>  prompt=<The largest planet in our…>  -> ' Jupiter, and it is known for its'
+  [DRIFT] bank=<The capital of France is…>  prompt=<The author of Romeo and J…>  -> ' a man.\n\nThis is a false'
+  [OK] bank=<The capital of France is…>  prompt=<Water boils at…>  -> ' 100°C.  '
+  [OK] bank=<The capital of France is…>  prompt=<The Great Wall is located…>  -> ' China. It is a massive fortification system'
+  [DRIFT] bank=<The capital of Japan is…>  prompt=<The capital of France is…>  -> " Rome?\n\nThat's a trick"
+  [OK] bank=<The capital of Japan is…>  prompt=<The largest planet in our…>  -> " Jupiter.\n\nIt's a gas"
+  [DRIFT] bank=<The capital of Japan is…>  prompt=<The author of Romeo and J…>  -> ' Shakespeare.\n\nThis is a common misconception'
+  [OK] bank=<The capital of Japan is…>  prompt=<Water boils at…>  -> ' 100 degrees Celsius.\n\n'
+  [OK] bank=<The capital of Japan is…>  prompt=<The Great Wall is located…>  -> " China.\n\nThat's a very"
+  [OK] bank=<The largest planet in our…>  prompt=<The capital of France is…>  -> ' Paris.\n\nThe largest city in France'
+  [OK] bank=<The largest planet in our…>  prompt=<The capital of Japan is…>  -> ' Tokyo.\n\nThe population of Tokyo is'
+  [DRIFT] bank=<The largest planet in our…>  prompt=<The author of Romeo and J…>  -> ' a man named William Shakespeare. He is'
+  [OK] bank=<The largest planet in our…>  prompt=<Water boils at…>  -> ' 100 degrees Celsius.\n\n'
+  [OK] bank=<The largest planet in our…>  prompt=<The Great Wall is located…>  -> ' China. It is a massive structure built'
+  [OK] bank=<The author of Romeo and J…>  prompt=<The capital of France is…>  -> ' Paris.\nThe largest city in France'
+  [OK] bank=<The author of Romeo and J…>  prompt=<The capital of Japan is…>  -> ' Tokyo.\n\nThe population of Tokyo is'
+  [OK] bank=<The author of Romeo and J…>  prompt=<The largest planet in our…>  -> " Jupiter, and it's a truly"
+  [OK] bank=<The author of Romeo and J…>  prompt=<Water boils at…>  -> ' 100 degrees Celsius.\n\n'
+  [DRIFT] bank=<The author of Romeo and J…>  prompt=<The Great Wall is located…>  -> ' a mountainous region of China. It is'
+  [OK] bank=<Water boils at…>  prompt=<The capital of France is…>  -> ' Paris.\n\nThe largest city in France'
+  [OK] bank=<Water boils at…>  prompt=<The capital of Japan is…>  -> ' Tokyo.\n\nThe population of Tokyo is'
+  [OK] bank=<Water boils at…>  prompt=<The largest planet in our…>  -> " Jupiter, and it's a truly"
+  [OK] bank=<Water boils at…>  prompt=<The author of Romeo and J…>  -> ' William Shakespeare.\n\nThe author of Romeo'
+  [OK] bank=<Water boils at…>  prompt=<The Great Wall is located…>  -> ' China. It is a massive fortification built'
+  [OK] bank=<The Great Wall is located…>  prompt=<The capital of France is…>  -> ' Paris.\n\nThe largest city in France'
+  [OK] bank=<The Great Wall is located…>  prompt=<The capital of Japan is…>  -> ' Tokyo.\n\nThe population of Tokyo is'
+  [OK] bank=<The Great Wall is located…>  prompt=<The largest planet in our…>  -> " Jupiter, and it's a truly"
+  [OK] bank=<The Great Wall is located…>  prompt=<The author of Romeo and J…>  -> ' William Shakespeare.\n\nThe author of Romeo'
+  [OK] bank=<The Great Wall is located…>  prompt=<Water boils at…>  -> ' 100 degrees Celsius.\n\n'
+
+=== summary ===
+counterfactual injection success: 6/6 facts
+cross-prompt independence:        24/30 pairs preserved truth
+overall pass: True
+
+[e21b] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e21b_crossmodel/google_gemma_3_1b_it_L13_500.json
+[D-6b] DeepSeek-R1-Distill-Qwen-32B
+[e21b] device=mps model=deepseek-ai/DeepSeek-R1-Distill-Qwen-32B layer=30
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Traceback (most recent call last):
+  File "/Users/gabiri/projects/RCV-HC/v2/experiments/e21b_crossmodel/run.py", line 256, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/Users/gabiri/projects/RCV-HC/v2/experiments/e21b_crossmodel/run.py", line 146, in main
+    tok, model = load_model(args.model, device=args.device, dtype="bf16")
+                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/gabiri/projects/RCV-HC/v1/experiments/atb_validation_v1/_lib/__init__.py", line 167, in load_model
+    model = AutoModelForCausalLM.from_pretrained(
+        name, device_map={"": device}, **kwargs
+    )
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/transformers/models/auto/auto_factory.py", line 405, in from_pretrained
+    return model_class.from_pretrained(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        pretrained_model_name_or_path, *model_args, config=config, **hub_kwargs, **kwargs
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/transformers/modeling_utils.py", line 4245, in from_pretrained
+    loading_info, disk_offload_index = cls._load_pretrained_model(model, state_dict, checkpoint_files, load_config)
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/transformers/modeling_utils.py", line 4326, in _load_pretrained_model
+    caching_allocator_warmup(model, expanded_device_map, load_config.hf_quantizer)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/transformers/modeling_utils.py", line 4980, in caching_allocator_warmup
+    _ = torch.empty(int(byte_count // 2), dtype=torch.float16, device=device, requires_grad=False)
+RuntimeError: Invalid buffer size: 61.03 GiB
+[done] 2026年 5月17日 星期日 00时46分54秒 CST

@@ -1,6 +1,6 @@
-# V2 Final Verdict — Attention-Side Latent Bank (ALB)
+# V2 Historical Long Verdict — Attention-Side Latent Bank (ALB)
 
-> **Document Status**: DRAFT — Sections marked `[TBD:eXX]` will be filled as experiments e01-e19 complete. This verdict will be sealed when all experiment verdicts are written, V1_CLOSEOUT is complete, and user signs off.
+> **Document Status**: HISTORICAL DRAFT, not paper-facing. This file preserves the long-running reasoning log and still contains old planning sections / `[TBD:eXX]` placeholders. For publication claims, use `v2/README.md`, `E10_VERDICT.md`, `E11_VERDICT.md`, `E20C_VERDICT.md`, `E21_VERDICT.md`, `E21B_CROSSMODEL_VERDICT.md`, and `v2/scripts/prepublish_audit.py`.
 
 ---
 
@@ -52,7 +52,7 @@ What the e11 wave-3 ablations show (all seed 0, same projector/training/eval pip
 | **n1**: iid Gaussian, renormed L2=15 (pure noise) | 21.21 | **−6.05** | ✅ 11.998 |
 | **n3**: ONE real row, replicated 512× | 0.00 | **−5.50** | ✅ 11.998 |
 | **n5**: a constant vector, replicated 512× | 0.00 | **−2.83** | ✅ 11.998 |
-| **n7**: K=0 pure projector (empty bank) | — | crashed at backward() | n/a — cannot train P without bank tokens |
+| **n7**: K=0 no bank rows | 0.00 | **+0.00** | ✅ 11.998 |
 
 **Wave-5 replication at L21 (deeper layer):** the same falsification holds at L21, where the *real* bank's strongest layer also lives.
 
@@ -67,7 +67,7 @@ The capacity reading therefore holds at *both* the layer where v1's claim lived 
 
 Two facts emerge cleanly:
 
-1. **Bank substrate is necessary.** In every variant, emptying the bank at eval returns NLL to the base 11.998 exactly. Take the bank away → the trained projector cannot act. n7 confirms the dual: with no bank tokens at training time, the bank-side projector has no gradient path and the training crashes. **The non-empty bank is a structural requirement, not a content store.**
+1. **Bank substrate is necessary.** In every variant, emptying the bank at eval returns NLL to the base 11.998 exactly. Take the bank away → the trained projector cannot act. The n7 K=0 control now handles this explicitly instead of crashing: with no bank rows there is no active projector path (`n_train_params=0`), `real=rand=zero=off=base=11.9979`, and Δ=0. **The non-empty bank is a structural requirement, not a content store.**
 2. **Bank content is NOT what is being read.** Random Gaussian noise gives a *bigger* NLL drop than the real bank. A single row replicated 512 times (zero distinctness) still gives −5.50. A constant vector — every slot identical — still gives −2.83. None of these banks contain factual information of any kind, and yet the same projector training produces the same (or stronger) Δ NLL.
 
 The original interpretation — "preloaded b-vectors hold compressed knowledge that the projector decodes" — is incompatible with these results. It is dead.
@@ -311,41 +311,41 @@ python3 v1/experiments/atb_validation_v1/exp42_lpl/06_phase_b2_kproj.py \
 ### E01: Anti-cheat suite (falsifiers H1-H10)
 ```bash
 # Canonical (B2 reproduce)
-python3 v2/experiments/e01_anticheat_b2/run.py --variant canonical --seed 0 --n_test 120
+python3 v2/experiments/e01_anticheat_b2/run.py --variant canonical --seed 0 --n_eval 120
 
 # H1: Bank-off ablation (post-training eval with empty bank)
-python3 v2/experiments/e01_anticheat_b2/run.py --variant h1_bank_off --seed 0 --n_test 120
+python3 v2/experiments/e01_anticheat_b2/run.py --variant h1_bank_off --seed 0 --n_eval 120
 
 # H2: Row-level shuffle b dimensions (per-row permutation)
-python3 v2/experiments/e01_anticheat_b2/run.py --variant h2_shuffle_b --seed 0 --n_test 120
+python3 v2/experiments/e01_anticheat_b2/run.py --variant h2_shuffle_b --seed 0 --n_eval 120
 
 # H3: Entity+relation disjoint split
-python3 v2/experiments/e01_anticheat_b2/run.py --variant h3_disjoint_split --seed 0 --n_test 120
+python3 v2/experiments/e01_anticheat_b2/run.py --variant h3_disjoint_split --seed 0 --n_eval 120
 
 # H4: Zero bank slots (replace with zeros at eval)
-python3 v2/experiments/e01_anticheat_b2/run.py --variant h4_zero_bank --seed 0 --n_test 120
+python3 v2/experiments/e01_anticheat_b2/run.py --variant h4_zero_bank --seed 0 --n_eval 120
 
 # H5: N_preload sweep {1,2,4,16,64,256,512,2048,8192}
 for N in 1 2 4 16 64 256 512 2048 8192; do
-    python3 v2/experiments/e01_anticheat_b2/run.py --variant h5_n_sweep --n_preload $N --seed 0 --n_test 120
+    python3 v2/experiments/e01_anticheat_b2/run.py --variant h5_n_sweep --n_preload $N --seed 0 --n_eval 120
 done
 
 # H6: Layer sweep {3,9,15,21,27,33}
 for L in 3 9 15 21 27 33; do
-    python3 v2/experiments/e01_anticheat_b2/run.py --variant h6_layer_sweep --bank_layer $L --seed 0 --n_test 120
+    python3 v2/experiments/e01_anticheat_b2/run.py --variant h6_layer_sweep --bank_layer $L --seed 0 --n_eval 120
 done
 
 # H7: Train random bank from step 0
-python3 v2/experiments/e01_anticheat_b2/run.py --variant h7_rand_train --seed 0 --n_test 120
+python3 v2/experiments/e01_anticheat_b2/run.py --variant h7_rand_train --seed 0 --n_eval 120
 
 # H8: Logit KL on neutral sentences (post-train)
 python3 v2/experiments/e01_anticheat_b2/run.py --variant h8_kl_neutral --seed 0 --n_neutral 1000
 
 # H9: Cross-model smoke (Qwen3-1.7B, quick sanity)
-python3 v2/experiments/e01_anticheat_b2/run.py --variant h9_cross_smoke --model Qwen/Qwen3-1.7B-Instruct --seed 0 --steps 60 --n_test 120
+python3 v2/experiments/e01_anticheat_b2/run.py --variant h9_cross_smoke --model Qwen/Qwen3-1.7B-Instruct --seed 0 --steps 60 --n_eval 120
 
 # H10: Gate histogram + per-layer entropy
-python3 v2/experiments/e01_anticheat_b2/run.py --variant h10_gate_hist --seed 0 --n_test 120
+python3 v2/experiments/e01_anticheat_b2/run.py --variant h10_gate_hist --seed 0 --n_eval 120
 ```
 
 ### E02: Scale matrix (N_preload × N_train × layers × lr × steps)
@@ -353,7 +353,7 @@ python3 v2/experiments/e01_anticheat_b2/run.py --variant h10_gate_hist --seed 0 
 # [TBD:e02] — Latin-square subset of full grid, ~60 configs
 # Example single config:
 python3 v2/experiments/e02_scale_matrix/run.py \
-    --n_preload 2048 --n_train 1000 --n_test 300 \
+    --n_preload 2048 --n_train 1000 --n_eval 300 \
     --layers multi_9_15_21 --lr 2e-4 --steps 1000 --seed 0
 ```
 
@@ -374,7 +374,7 @@ python3 v2/experiments/e03_capability_drift/run.py \
 # [TBD:e04]
 # K_max ∈ {2,4,8}, ponder loss λ ∈ {0.001,0.01,0.1}
 python3 v2/experiments/e04_act_halt_kmax/run.py \
-    --k_max 4 --lambda_ponder 0.01 --curriculum 1_to_kmax --seed 0 --n_test 300
+    --k_max 4 --lambda_ponder 0.01 --curriculum 1_to_kmax --seed 0 --n_eval 300
 ```
 
 ### E05: Cross-model (Qwen3-1.7B / 4B / Llama-3.2-3B / Mistral-7B)
@@ -382,19 +382,19 @@ python3 v2/experiments/e04_act_halt_kmax/run.py \
 # [TBD:e05]
 # Qwen3-1.7B (full anti-cheat, 1k steps)
 python3 v2/experiments/e05_cross_model/run.py \
-    --model Qwen/Qwen3-1.7B-Instruct --steps 1000 --n_train 1000 --n_test 300 --seed 0
+    --model Qwen/Qwen3-1.7B-Instruct --steps 1000 --n_train 1000 --n_eval 300 --seed 0
 
 # Qwen3-4B (extended 5k steps for H12 convergence test)
 python3 v2/experiments/e05_cross_model/run.py \
-    --model Qwen/Qwen3-4B-Instruct-2507 --steps 5000 --n_train 5000 --n_test 300 --seed 0
+    --model Qwen/Qwen3-4B-Instruct-2507 --steps 5000 --n_train 5000 --n_eval 300 --seed 0
 
 # Llama-3.2-3B (cross-family, 1k steps)
 python3 v2/experiments/e05_cross_model/run.py \
-    --model meta-llama/Llama-3.2-3B-Instruct --steps 1000 --n_train 1000 --n_test 300 --seed 0
+    --model meta-llama/Llama-3.2-3B-Instruct --steps 1000 --n_train 1000 --n_eval 300 --seed 0
 
 # Mistral-7B (if MPS 128GB permits, 2k steps)
 python3 v2/experiments/e05_cross_model/run.py \
-    --model mistralai/Mistral-7B-Instruct-v0.3 --steps 2000 --n_train 2000 --n_test 300 --seed 0
+    --model mistralai/Mistral-7B-Instruct-v0.3 --steps 2000 --n_train 2000 --n_eval 300 --seed 0
 ```
 
 ### E06: Relation-disjoint OOD
@@ -402,7 +402,7 @@ python3 v2/experiments/e05_cross_model/run.py \
 # [TBD:e06]
 # Strict relation-level split (train relations ∩ test relations = ∅)
 python3 v2/experiments/e06_relation_disjoint_ood/run.py \
-    --split_mode relation_disjoint --n_train 1000 --n_test 200 --seed 0
+    --split_mode relation_disjoint --n_train 1000 --n_eval 200 --seed 0
 ```
 
 ### E07: Per-layer K-projector ablation
@@ -410,16 +410,16 @@ python3 v2/experiments/e06_relation_disjoint_ood/run.py \
 # [TBD:e07]
 # Single-layer 9 / three-layer [9,15,21] independent P / three-layer shared P / three-layer per-layer rank-32 P
 python3 v2/experiments/e07_per_layer_kproj/run.py \
-    --config single_layer_9 --n_train 2000 --n_test 300 --seed 0
+    --config single_layer_9 --n_train 2000 --n_eval 300 --seed 0
 
 python3 v2/experiments/e07_per_layer_kproj/run.py \
-    --config multi_layer_independent --layers 9,15,21 --n_train 2000 --n_test 300 --seed 0
+    --config multi_layer_independent --layers 9,15,21 --n_train 2000 --n_eval 300 --seed 0
 
 python3 v2/experiments/e07_per_layer_kproj/run.py \
-    --config multi_layer_shared --layers 9,15,21 --n_train 2000 --n_test 300 --seed 0
+    --config multi_layer_shared --layers 9,15,21 --n_train 2000 --n_eval 300 --seed 0
 
 python3 v2/experiments/e07_per_layer_kproj/run.py \
-    --config multi_layer_rank32 --layers 9,15,21 --rank 32 --n_train 2000 --n_test 300 --seed 0
+    --config multi_layer_rank32 --layers 9,15,21 --rank 32 --n_train 2000 --n_eval 300 --seed 0
 ```
 
 ### E08: Interrupt API demo
@@ -427,11 +427,11 @@ python3 v2/experiments/e07_per_layer_kproj/run.py \
 # [TBD:e08]
 # Demo 1: GSM8K hard problems, oracle CoT hidden injection
 python3 v2/experiments/e08_interrupt_api_demo/run.py \
-    --demo gsm8k_oracle --n_test 50
+    --demo gsm8k_oracle --n_eval 50
 
 # Demo 2: User text hint → encode → inject
 python3 v2/experiments/e08_interrupt_api_demo/run.py \
-    --demo text_hint --hint "use dynamic programming" --task algorithmic_qa --n_test 50
+    --demo text_hint --hint "use dynamic programming" --task algorithmic_qa --n_eval 50
 ```
 
 ### E09: v1 AttnNativeBank resurrect (KProj integration)
@@ -451,11 +451,11 @@ python3 v2/experiments/e09_v1_resurrect_attn_native_bank/run.py \
 # [TBD:e10]
 # Compare all-attend (B2 default) vs topK ∈ {1,4,16,64}
 python3 v2/experiments/e10_topk_retrieval/run.py \
-    --topk all --n_test 300 --seed 0
+    --topk all --n_eval 300 --seed 0
 
 for K in 1 4 16 64; do
     python3 v2/experiments/e10_topk_retrieval/run.py \
-        --topk $K --retrieval_mode cosine --n_test 300 --seed 0
+        --topk $K --retrieval_mode cosine --n_eval 300 --seed 0
 done
 ```
 
@@ -464,13 +464,13 @@ done
 # [TBD:e11]
 # Auto-pause only / interrupt only / both
 python3 v2/experiments/e11_dual_channel/run.py \
-    --mode auto_pause_only --n_test 300 --seed 0
+    --mode auto_pause_only --n_eval 300 --seed 0
 
 python3 v2/experiments/e11_dual_channel/run.py \
-    --mode interrupt_only --n_test 300 --seed 0
+    --mode interrupt_only --n_eval 300 --seed 0
 
 python3 v2/experiments/e11_dual_channel/run.py \
-    --mode dual_channel --n_test 300 --seed 0
+    --mode dual_channel --n_eval 300 --seed 0
 ```
 
 ### E12: Long-short coexistence
@@ -478,13 +478,13 @@ python3 v2/experiments/e11_dual_channel/run.py \
 # [TBD:e12]
 # LT only (8K preloaded) / ST only (pause-write) / LT+ST
 python3 v2/experiments/e12_long_short_coexistence/run.py \
-    --mode lt_only --n_preload 8192 --n_test 300 --seed 0
+    --mode lt_only --n_preload 8192 --n_eval 300 --seed 0
 
 python3 v2/experiments/e12_long_short_coexistence/run.py \
-    --mode st_only --pause_head_enabled --n_test 300 --seed 0
+    --mode st_only --pause_head_enabled --n_eval 300 --seed 0
 
 python3 v2/experiments/e12_long_short_coexistence/run.py \
-    --mode lt_st --n_preload 8192 --pause_head_enabled --n_test 300 --seed 0
+    --mode lt_st --n_preload 8192 --pause_head_enabled --n_eval 300 --seed 0
 ```
 
 ### E13: Multi-task capability
@@ -500,7 +500,7 @@ python3 v2/experiments/e13_multi_task_capability/run.py \
 # [TBD:e14]
 # Unfreeze pause heads, train 1k steps with entropy bonus + λ_pause_reg
 python3 v2/experiments/e14_pause_head_train/run.py \
-    --steps 1000 --lambda_pause 0.01 --entropy_bonus 0.001 --n_train 2000 --n_test 300 --seed 0
+    --steps 1000 --lambda_pause 0.01 --entropy_bonus 0.001 --n_train 2000 --n_eval 300 --seed 0
 ```
 
 ### E15: Ponder curriculum
@@ -508,7 +508,7 @@ python3 v2/experiments/e14_pause_head_train/run.py \
 # [TBD:e15]
 # K curriculum: epoch1 K=1→2, epoch2 K=2→4, epoch3 K=4→8
 python3 v2/experiments/e15_ponder_curriculum/run.py \
-    --curriculum 1_2_4_8 --epochs 3 --n_train 5000 --n_test 300 --seed 0
+    --curriculum 1_2_4_8 --epochs 3 --n_train 5000 --n_eval 300 --seed 0
 ```
 
 ### E16: Bank capacity / forgetting
@@ -518,7 +518,7 @@ python3 v2/experiments/e15_ponder_curriculum/run.py \
 for C in 64 256 1024 4096 16384; do
     for EVICT in fifo lru random score_based; do
         python3 v2/experiments/e16_bank_capacity_forgetting/run.py \
-            --capacity $C --eviction $EVICT --n_test 300 --seed 0
+            --capacity $C --eviction $EVICT --n_eval 300 --seed 0
     done
 done
 ```
@@ -528,7 +528,7 @@ done
 # [TBD:e17]
 # NegationQA + auto-constructed negation hard-negatives
 python3 v2/experiments/e17_negation_robustness/run.py \
-    --dataset negqa --augment hard_neg --n_test 300 --seed 0
+    --dataset negqa --augment hard_neg --n_eval 300 --seed 0
 ```
 
 ### E18: Chained 2-hop reasoning
@@ -536,7 +536,7 @@ python3 v2/experiments/e17_negation_robustness/run.py \
 # [TBD:e18]
 # 2-hop data from Exp35b subset, test K=2 + LT preload
 python3 v2/experiments/e18_chained_2hop/run.py \
-    --hops 2 --k_max 2 --n_preload 512 --n_test 300 --seed 0
+    --hops 2 --k_max 2 --n_preload 512 --n_eval 300 --seed 0
 ```
 
 ### E19: Seed replication (B2 + e02 best + e04 best)
@@ -544,17 +544,17 @@ python3 v2/experiments/e18_chained_2hop/run.py \
 # [TBD:e19]
 # B2 canonical, seed ∈ {0,1,2,3,4}
 for S in 0 1 2 3 4; do
-    python3 v2/experiments/e01_anticheat_b2/run.py --variant canonical --seed $S --n_test 120
+    python3 v2/experiments/e01_anticheat_b2/run.py --variant canonical --seed $S --n_eval 120
 done
 
 # e02 best config (TBD from e02 results)
 # for S in 0 1 2 3 4; do
-#     python3 v2/experiments/e02_scale_matrix/run.py --config <BEST_FROM_E02> --seed $S --n_test 300
+#     python3 v2/experiments/e02_scale_matrix/run.py --config <BEST_FROM_E02> --seed $S --n_eval 300
 # done
 
 # e04 best K_max + lambda_ponder (TBD from e04 results)
 # for S in 0 1 2 3 4; do
-#     python3 v2/experiments/e04_act_halt_kmax/run.py --config <BEST_FROM_E04> --seed $S --n_test 300
+#     python3 v2/experiments/e04_act_halt_kmax/run.py --config <BEST_FROM_E04> --seed $S --n_eval 300
 # done
 ```
 
