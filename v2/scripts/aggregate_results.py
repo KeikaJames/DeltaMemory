@@ -93,11 +93,15 @@ def load_records():
         if delta is None:
             verdict = d.get("verdict") or {}
             delta = verdict.get("delta_real") or verdict.get("delta_test_ood") or verdict.get("delta")
-        if delta is None and rec["after_real"] is not None and rec["before_real"] is not None:
+        # Normalize sign: drivers e05/e19 store delta_real as base-post (positive = improvement);
+        # e02/e07/e10/e11 use post-base (negative = improvement). Always recompute signed delta
+        # from before.real/after.real when available so the aggregated column has one convention
+        # (signed, negative = improvement = NLL drop).
+        if rec["after_real"] is not None and rec["before_real"] is not None:
             try:
                 delta = float(rec["after_real"]) - float(rec["before_real"])
             except (TypeError, ValueError):
-                delta = None
+                pass
         rec["delta_real"] = delta
 
         verdict = d.get("verdict") or {}
