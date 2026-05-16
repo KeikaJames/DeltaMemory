@@ -22,16 +22,17 @@
 - **No end-to-end multi-round K>1 proof**: Phase B2 and E01 use K=2 rounds, but halt mechanism, ACT-style dynamic pondering, and K curriculum have not been validated.
 - **Pause-head training not demonstrated in v2**: Phase B2 did not train pause heads; auto-pause mechanism remains unvalidated at v2 scale.
 
-**Overall Stance**: **Substantially falsified in its original framing**; see §1b (Headline finding, revised). The mechanism is real but its interpretation has changed. The K-projector + non-empty bank produces a reliable NLL drop, but six independent wave-3 / wave-5 falsifiers now converge on the "adapter, not memory" reading:
+**Overall Stance**: **Substantially falsified in its original framing**; see §1b (Headline finding, revised). The mechanism is real but its interpretation has changed. The K-projector + non-empty bank produces a reliable NLL drop, but **seven** independent wave-3 / wave-5 / wave-6 falsifiers now converge on the "adapter, not memory" reading:
 
 1. **e11 noise variants** (n1/n2/n3/n4/n5) at both L9 and L21 — random Gaussian, single-row-replicated, and constant-vector banks all match or exceed the real bank's Δ NLL.
 2. **e02 scale breakpoint** — pushing n_preload=2048, n_train=1000, steps=1000 *inverts* the sign of Δ to **+0.61** (the "memory" actively *hurts*). No retrieval system inverts under scaling.
 3. **e13 multi-task** (WikiText-2 partial) — after factual-completion training, Δ on WikiText is +0.0096 (no transfer, neither helpful nor harmful).
 4. **e17 negation robustness** — on standard prompts with **random** (incorrect) targets, the bank still lowers NLL by **2.77 nats**. Direct content-blindness on the cleanest probe in the suite.
 5. **e18 2-hop chaining** — having both bridge facts A *and* B in the bank gives 0.01-nat advantage over having only one. Composition does not happen.
-6. **6 sign-convention driver bugs** found and back-patched across e09/e11/e12/e14/e17/e18/e19; aggregator now defensively recomputes signed Δ. The aggregate scoreboard (`v2/scripts/all_results.md`, 47 rows / 12 experiments) is consistent.
+6. **e10 top-K retrieval (wave-6)** — `topk_cosine_random_K8` Δ=**−4.43** vs `topk_cosine_real_K8` Δ=−2.54. **Random bank under cosine top-K beats real bank under cosine top-K by 1.89 nats.** Also `all_attend_random_renorm15` Δ=**−5.71** beats `all_attend_real` Δ=−4.05. Top-K cosine selection is NOT performing content-based retrieval — random banks just give projectors more room to fit. **The retrieval-rehab path is dead.**
+7. **6 sign-convention driver bugs** found and back-patched across e09/e11/e12/e14/e17/e18/e19; aggregator now defensively recomputes signed Δ. The aggregate scoreboard (`v2/scripts/all_results.md`, 54 rows / 13 experiments) is consistent.
 
-The remaining defensible claim is narrower: the v2 architecture is a **parameter-efficient adapter** for a frozen LM, plumbed through an AttentionBank-like API. The only live retrieval-rescue path is **e10 top-K cosine** (running); **e06 strict relation-disjoint OOD passed (Δ=−4.37)** but is consistent with the adapter reading.
+The only defensible claim that survives is: **the v2 architecture is a parameter-efficient adapter** for a frozen LM, plumbed through an AttentionBank-like API. The bank is required as substrate (not content), the K-projector is the trainable plumbing, and the effect is robust across seeds (e19 std<0.35), layers (e07 multi-layer), and models (e05 Qwen3-1.7B Δ=−6.00). Every test designed to distinguish retrieval from adapter has come back on the adapter side.
 
 ---
 
@@ -132,8 +133,13 @@ The original interpretation — "preloaded b-vectors hold compressed knowledge t
 | **e08** | Interrupt API demo — preload NLL Δ vs base | base=0.4424 → preload=0.4017 (**Δ=−0.041**) on n=5 toy prompts | ✅ API works; identity-projector preload reduces NLL |
 | **e09** | v1 AttnNativeBank only (no K-projector) | Δ=**+0.014** (≈0) | ✅ PASS — reproduces v1's null result |
 | **e09** | v1 AttnNativeBank + v2 K-projector | Δ_signed=**−5.01** | ✅ PASS — K-projector revives the bank; confirms adapter, not native attention, drives the effect |
-| **e10** | topK=16 perf vs all-attend (%) | [TBD:e10] | not started |
-| **e10** | topK=16 compute vs all-attend (%) | [TBD:e10] | not started |
+| **e10** | topk_cosine_real_K1 Δ | **−0.69** | reference (K=1 lower bound) |
+| **e10** | topk_cosine_real_K8 Δ | **−2.54** | mid K |
+| **e10** | topk_cosine_real_K64 Δ | **−3.21** | high K |
+| **e10** | topk_cosine_**random**_K8 Δ | **−4.43** | ❌ random bank BEATS real bank under cosine top-K |
+| **e10** | topk_random_indices_K8 Δ (real bank, random idx selection) | **−1.49** | random index loses 1.05 vs cosine on real bank |
+| **e10** | all_attend_real Δ | **−4.05** | full attention upper bound (real) |
+| **e10** | all_attend_random_renorm15 Δ | **−5.71** | ❌ random bank beats real bank at all-attend too |
 | **e11** | Dual-channel (auto+interrupt) gain vs single | [TBD:e11] | not started |
 | **e12** | LT+ST vs max(LT, ST) gain | [TBD:e12] | not started |
 | **e13** | Multi-task (≥3 tasks +2pp vs base) | [TBD:e13] | not started |
@@ -180,7 +186,7 @@ From V2_METHODOLOGY_DEBATE.md §1, the 15 cheap explanations that must be falsif
 **Current Falsifier Pass Rate**: At seed 0: H1 ✅, H3 ✅, H4 ✅, H6 ✅, H8 ✅ (WikiText-2 portion), **H9 ✅** (Qwen3-1.7B Δ=−6.00), **H13 ✅** (relation-disjoint OOD Δ=−4.37); H2 ❌ failed to falsify (content claim survives the test but is killed by e11); H7 ⚠️ superseded; H14 ⚠️ WikiText null (e13 retry pending); **H_content ❌ definitively falsifies the content-read interpretation**. Post-wave5/6 the scoreboard reads "**7/15 PASS at the *adapter* claim, 0/1 PASS at the *content-read* claim** — original thesis is dead." See §1b.
 
 **Revised pass criteria.** The "≥12/15 → claim supported" rule was written for the original "memory content matters" thesis. Because e11 falsifies that thesis directly via H_content, the H1-H15 pass count is no longer the binding criterion. The binding criteria going forward are:
-1. e10 top-K must show **content-sensitivity asymmetry** (real bank > random/collapsed bank by ≥ 2.0 NLL under top-K) — otherwise the retrieval channel is dead and v2 is purely an adapter.
+1. ~~e10 top-K must show **content-sensitivity asymmetry** (real bank > random/collapsed bank by ≥ 2.0 NLL under top-K)~~ — **FAILED** (random_K8 Δ=−4.43 *beats* real_K8 Δ=−2.54 by 1.89 nat). Retrieval-rehab path closed.
 2. e13 cross-task must show **transfer ≥ +0.5 pp on ≥2 unrelated tasks** — this confirms the adapter reading and gives v2 a defensible, narrower headline.
 3. ~~e06 relation-disjoint must show **Δ ≤ −1.0** on strict relation OOD~~ — **SATISFIED** (Δ=−4.37). The adapter generalizes to OOD relations.
 

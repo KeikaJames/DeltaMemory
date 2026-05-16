@@ -139,6 +139,18 @@
 | v1_orig | 0 | 9 | 512 | 120/200 | 12.033 | 12.019 | 0.002 | PASS |
 | v2_kproj | 0 | 9 | 512 | 120/200 | 12.033 | 7.009 | -5.007 | PASS |
 
+### e10_topk_retrieval
+
+| variant | seed | L | n_prl | t/steps | base | real_after | Δ_real | verdict |
+|---|---|---|---|---|---|---|---|---|
+| all_attend_random_renorm15 | 0 | 9 | 512 | 120/200 | 11.998 | 6.283 | -5.724 | — |
+| all_attend_real | 0 | 9 | 512 | 120/200 | 11.998 | 7.949 | -4.063 | — |
+| topk_cosine_random_K8 | 0 | 9 | 512 | 120/200 | 11.998 | 7.572 | -4.427 | — |
+| topk_cosine_real_K1 | 0 | 9 | 512 | 120/200 | 11.998 | 11.311 | -0.683 | — |
+| topk_cosine_real_K64 | 0 | 9 | 512 | 120/200 | 11.998 | 8.792 | -3.206 | — |
+| topk_cosine_real_K8 | 0 | 9 | 512 | 120/200 | 11.998 | 9.460 | -2.540 | PASS |
+| topk_random_indices_K8 | 0 | 9 | 512 | 120/200 | 11.998 | 10.509 | -1.486 | — |
+
 ### e11_noise_robustness
 
 | variant | seed | L | n_prl | t/steps | base | real_after | Δ_real | verdict |
