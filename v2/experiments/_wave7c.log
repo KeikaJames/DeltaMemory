@@ -1,0 +1,43 @@
+=== WAVE7c START 2026年 5月16日 星期六 17时36分15秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e12] train=120 LT_preload=256 LT_eval=60 ST_eval=64 seed=0
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001fa8cf080 (most recent call first):
+  <no Python frame>
+Loading weights:   0%|          | 1/398 [00:00<01:10,  5.63it/s]Loading weights:  14%|█▍        | 55/398 [00:00<00:01, 242.94it/s]Loading weights:  30%|██▉       | 118/398 [00:00<00:00, 392.81it/s]Loading weights:  46%|████▋     | 185/398 [00:00<00:00, 490.06it/s]Loading weights:  63%|██████▎   | 251/398 [00:00<00:00, 546.56it/s]Loading weights:  80%|███████▉  | 317/398 [00:00<00:00, 581.68it/s]Loading weights:  97%|█████████▋| 385/398 [00:00<00:00, 610.38it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 497.84it/s]
+[e12] preloaded LT b-vectors: torch.Size([256, 2560])
+[e12] BEFORE (LT-eval): base=12.3680  real=12.3776
+  [e12] step 1/200 loss(avg25)=12.2795 (0.2s)
+  [e12] step 25/200 loss(avg25)=12.2990 (4.7s)
+  [e12] step 50/200 loss(avg25)=11.4419 (8.7s)
+  [e12] step 75/200 loss(avg25)=10.3598 (12.8s)
+  [e12] step 100/200 loss(avg25)=9.3823 (16.9s)
+  [e12] step 125/200 loss(avg25)=7.6090 (21.0s)
+  [e12] step 150/200 loss(avg25)=8.4181 (25.0s)
+  [e12] step 175/200 loss(avg25)=7.3361 (29.0s)
+  [e12] step 200/200 loss(avg25)=5.3499 (33.2s)
+[e12] training done in 33.2s
+[e12] LT-only: base=12.3680 lpl=7.6048 Δ=-4.7632
+Traceback (most recent call last):
+  File "/Users/gabiri/projects/RCV-HC/v2/experiments/e12_LT_ST_coexist/run.py", line 372, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/Users/gabiri/projects/RCV-HC/v2/experiments/e12_LT_ST_coexist/run.py", line 271, in main
+    ST_hs = encode_ST_content(tok, model, entries, ST_eval_keys, args.device)
+  File "/Users/gabiri/projects/RCV-HC/v2/experiments/e12_LT_ST_coexist/run.py", line 124, in encode_ST_content
+    target = e["target_str"]
+             ~^^^^^^^^^^^^^^
+KeyError: 'target_str'
+/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/multiprocessing/resource_tracker.py:156: UserWarning: resource_tracker: process died unexpectedly, relaunching.  Some resources might leak.
+  warnings.warn('resource_tracker: process died unexpectedly, '
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001fa8cf080 (most recent call first):
+  <no Python frame>
+  FAIL e12
+=== WAVE7c DONE 2026年 5月16日 星期六 17时37分14秒 CST ===

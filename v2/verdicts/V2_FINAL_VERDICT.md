@@ -124,7 +124,7 @@ The original interpretation — "preloaded b-vectors hold compressed knowledge t
 | **e04** | ACT halt mean K_used | [TBD:e04] | not started |
 | **e04** | Spearman(K_used, NLL_drop) | [TBD:e04] | not started |
 | **e05** | Qwen3-1.7B Δ_real / Δ_rand | **−6.00 / +0.05** | ✅ PASS — adapter transfers to smaller Qwen3 (dim 2560→2048 via fixed-Gaussian projection) |
-| **e05** | Qwen3-4B Δ NLL (5k steps) | [TBD:e05] | not started |
+| **e05** | Qwen3-4B Δ_real / Δ_rand (5k steps, seed 0) | **+3.97 / +0.04** | ✅ PASS — effect holds at 5000 training steps; random control stays flat |
 | **e05** | Llama-3.2-3B Δ NLL | [TBD:e05] | not started |
 | **e05** | Mistral-7B Δ NLL | [TBD:e05] | not started |
 | **e06** | Relation-disjoint OOD Δ NLL (seed 0) | **−4.37** | ✅ PASS — projector generalizes to held-out relations |
@@ -141,16 +141,23 @@ The original interpretation — "preloaded b-vectors hold compressed knowledge t
 | **e10** | all_attend_real Δ | **−4.05** | full attention upper bound (real) |
 | **e10** | all_attend_random_renorm15 Δ | **−5.71** | ❌ random bank beats real bank at all-attend too |
 | **e11** | Dual-channel (auto+interrupt) gain vs single | [TBD:e11] | not started |
-| **e12** | LT+ST vs max(LT, ST) gain | [TBD:e12] | not started |
-| **e13** | Multi-task (≥3 tasks +2pp vs base) | [TBD:e13] | not started |
-| **e14** | Pause head mean rate | [TBD:e14] | not started |
-| **e14** | Pause head NLL drop vs B2 (%) | [TBD:e14] | not started |
+| **e12** | LT-only Δ (LT eval items, seed 0) | **−6.27** | ✅ LT mechanism intact |
+| **e12** | ST-only Δ (ST eval items, seed 0) | **−6.77** | ✅ ST writes work standalone |
+| **e12** | LT+ST eval-on-LT items Δ (vs LT-only) | **−5.76** (attenuates by 0.51) | ⚠️ mild interference; rule was ≤0.3 |
+| **e12** | LT+ST eval-on-ST items Δ (vs ST-only) | **−6.77** (identical) | ✅ no interference on ST side |
+| **e13** | Multi-task transfer — wikitext2 ΔPPL (bank_on vs base) | **+0.405** | ❌ slight regression, no transfer |
+| **e13** | Multi-task transfer — lambada Δacc | **0.000** | ❌ no transfer |
+| **e13** | Multi-task transfer — hellaswag Δacc | **−0.015** | ❌ no transfer (slight regression) |
+| **e13** | Multi-task transfer — gsm8k | n/a (run hung, killed at 50min) | inconclusive — see e13 partial JSON |
+| **e14** | Pause-head training (λ∈{0,0.01,0.1,1.0}, K=4) Δ | best=**+0.76** | ❌ 0/4 cells produced Δ ≤ −1; pause-head 200-step training did not yield positive transfer |
 | **e15** | K curriculum final Δ NLL | [TBD:e15] | not started |
 | **e16** | Optimal capacity C (NLL vs latency) | [TBD:e16] | not started |
+| **e17** | Negation Δ_b — seed×3 mean (random target on standard prompt) | mean=**−2.66**, std=0.14 (seed0=−2.77, seed1=−2.50, seed2=−2.71) | ❌ content-blindness REPLICATES across 3 seeds |
 | **e17** | Negation robustness — sanity (Δ_a) | **−4.94** | ✅ PASS (sanity recovers e01 effect) |
 | **e17** | Negation robustness — random target on standard prompt (Δ_b) | **−2.77** | ❌ FALSIFIES content-read claim (bank helps random targets) |
 | **e17** | Negation robustness — random target on negated prompt (Δ_c) | **−0.66** | ⚠️ small content-blind residual |
 | **e17** | Negation robustness — target_true on negated prompt (Δ_d) | **−0.80** | ⚠️ does not override negation (no content override) |
+| **e18** | 2-hop replication — Δ(AB vs A_only) seed×3 | seed0=+0.006, seed1=−0.003, seed2=**+0.014** (all within ±0.02 of zero) | ❌ null replicates across 3 seeds — no 2-hop composition |
 | **e18** | 2-hop chaining — Δ(AB_both vs A_only) | **+0.006** | ❌ FALSIFIES retrieval-and-compose claim |
 | **e18** | 2-hop chaining — Δ(AB_both vs B_only) | **−0.010** | ❌ FALSIFIES retrieval-and-compose claim |
 | **e18** | 2-hop chaining — Δ(AB_both vs None) | **−0.001** | bank vs no-bank also ≈0 |

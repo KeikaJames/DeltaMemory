@@ -1,0 +1,24 @@
+=== e12 retry2 2026年 5月16日 星期六 17时46分10秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e12] train=120 LT_preload=256 LT_eval=60 ST_eval=64 seed=0
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:10,  5.65it/s]Loading weights:  15%|█▍        | 58/398 [00:00<00:01, 256.45it/s]Loading weights:  31%|███       | 122/398 [00:00<00:00, 405.38it/s]Loading weights:  48%|████▊     | 190/398 [00:00<00:00, 498.46it/s]Loading weights:  64%|██████▍   | 256/398 [00:00<00:00, 548.48it/s]Loading weights:  81%|████████  | 322/398 [00:00<00:00, 580.32it/s]Loading weights:  97%|█████████▋| 388/398 [00:00<00:00, 600.59it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 497.11it/s]
+[e12] preloaded LT b-vectors: torch.Size([256, 2560])
+[e12] BEFORE (LT-eval): base=12.3680  real=12.3776
+  [e12] step 1/200 loss(avg25)=12.2795 (0.2s)
+  [e12] step 25/200 loss(avg25)=12.2832 (4.9s)
+  [e12] step 50/200 loss(avg25)=11.3796 (8.9s)
+  [e12] step 75/200 loss(avg25)=9.7851 (12.9s)
+  [e12] step 100/200 loss(avg25)=8.3198 (17.1s)
+  [e12] step 125/200 loss(avg25)=6.2788 (21.1s)
+  [e12] step 150/200 loss(avg25)=7.0397 (25.1s)
+  [e12] step 175/200 loss(avg25)=5.8246 (29.1s)
+  [e12] step 200/200 loss(avg25)=3.9001 (33.4s)
+[e12] training done in 33.4s
+[e12] LT-only: base=12.3680 lpl=6.1026 Δ=-6.2655
+[e12] ST content encoded: torch.Size([64, 2560])
+[e12] bank after ST writes: torch.Size([320, 2560])
+[e12] ST-only: base=12.0876 lpl=5.3200 Δ=-6.7676
+[e12] LT+ST (LT items): base=12.3680 lpl=6.6087 Δ=-5.7593
+[e12] LT+ST (ST items): base=12.0876 lpl=5.3200 Δ=-6.7676
+[e12] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e12_LT_ST_coexist/e12_seed0.json  verdict=False
+=== e12 retry2 done 2026年 5月16日 星期六 17时47分43秒 CST ===

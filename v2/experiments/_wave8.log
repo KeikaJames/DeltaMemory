@@ -1,0 +1,375 @@
+=== WAVE8 START 2026年 5月16日 星期六 17时47分43秒 CST ===
+
+=== e17/seed1 2026年 5月16日 星期六 17时47分43秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e17] train=120 test=120 preload=512 seed=1
+[e17] negated_t1=120 negated_t2=120
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:19,  4.98it/s]Loading weights:  15%|█▍        | 58/398 [00:00<00:01, 236.95it/s]Loading weights:  30%|██▉       | 118/398 [00:00<00:00, 371.07it/s]Loading weights:  45%|████▌     | 180/398 [00:00<00:00, 453.64it/s]Loading weights:  61%|██████▏   | 244/398 [00:00<00:00, 514.61it/s]Loading weights:  75%|███████▌  | 300/398 [00:00<00:00, 519.87it/s]Loading weights:  90%|████████▉ | 357/398 [00:00<00:00, 533.14it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 454.76it/s]
+  [e17] step 1/200 loss(avg25)=10.8816 (0.3s)
+  [e17] step 25/200 loss(avg25)=12.3021 (4.8s)
+  [e17] step 50/200 loss(avg25)=11.9394 (9.0s)
+  [e17] step 75/200 loss(avg25)=11.1085 (13.1s)
+  [e17] step 100/200 loss(avg25)=11.4726 (17.2s)
+  [e17] step 125/200 loss(avg25)=11.1899 (21.2s)
+  [e17] step 150/200 loss(avg25)=9.8117 (25.4s)
+  [e17] step 175/200 loss(avg25)=9.4066 (29.5s)
+  [e17] step 200/200 loss(avg25)=7.4427 (33.7s)
+[e17] training done in 33.7s
+[e17] eval (a) standard prompts, standard targets...
+[e17] eval (b) standard prompts, random targets...
+[e17] eval (c) negated prompts, random targets...
+[e17] eval (d) negated prompts, target_true labels...
+[e17] RESULTS:
+  (a) standard/standard:   base=11.9706 lpl=7.8909 Δ=-4.0797
+  (b) standard/random:     base=14.3295 lpl=11.8273 Δ=-2.5021
+  (c) negated/random:      base=12.8412 lpl=11.9275 Δ=-0.9137
+  (d) negated/target_true: base=4.5470 lpl=3.5963 Δ=-0.9507
+[e17] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e17_negation_robustness/e17_seed1.json
+[e17] verdict: {'pass': False, 'interpretation': "(a) passes: Δ_a ≤ -1 (sanity) | (b) FAIL: Δ_b ≤ -0.5 → bank is content-blind (terminal) | (c) FAIL: Δ_c ≤ -0.5 → bank helps wrong answers (content-blind) | (d) neutral: bank does not override prompt's negation", 'thresholds': {'a_sanity': 'Δ_a ≤ -1.0', 'b_content_blind_fail': 'Δ_b ≤ -0.5', 'c_content_blind_fail': 'Δ_c ≤ -0.5', 'd_content_override': 'Δ_d ≤ -1.0'}}
+
+=== e18/seed1 2026年 5月16日 星期六 17时51分49秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e18] chains: 60 train, 60 eval (natural=120, synthetic=0)
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:  13%|█▎        | 53/398 [00:00<00:00, 524.81it/s]Loading weights:  29%|██▉       | 115/398 [00:00<00:00, 574.54it/s]Loading weights:  45%|████▌     | 181/398 [00:00<00:00, 603.66it/s]Loading weights:  62%|██████▏   | 245/398 [00:00<00:00, 608.65it/s]Loading weights:  77%|███████▋  | 306/398 [00:00<00:00, 592.55it/s]Loading weights:  92%|█████████▏| 366/398 [00:00<00:00, 592.16it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 593.77it/s]
+[e18] Pre-train eval...
+  [e18:pre] None_single_hop_A: 9.7764
+  [e18:pre] None_single_hop_B: 10.1395
+  [e18:pre] None_two_hop: 12.5754
+  [e18:pre] A_only_single_hop_A: 9.7579
+  [e18:pre] A_only_single_hop_B: 10.1271
+  [e18:pre] A_only_two_hop: 12.5808
+  [e18:pre] B_only_single_hop_A: 9.7701
+  [e18:pre] B_only_single_hop_B: 10.1355
+  [e18:pre] B_only_two_hop: 12.5757
+  [e18:pre] AB_both_single_hop_A: 9.7596
+  [e18:pre] AB_both_single_hop_B: 10.1296
+  [e18:pre] AB_both_two_hop: 12.5777
+[e18] Training on single-hop A+B queries (AB_both bank)...
+  [e18] step 1/200 loss(avg25)=8.7002 (0.5s)
+  [e18] step 25/200 loss(avg25)=10.3311 (5.0s)
+  [e18] step 50/200 loss(avg25)=9.8609 (9.7s)
+  [e18] step 75/200 loss(avg25)=9.9389 (14.3s)
+  [e18] step 100/200 loss(avg25)=8.2674 (19.0s)
+  [e18] step 125/200 loss(avg25)=7.9523 (23.6s)
+  [e18] step 150/200 loss(avg25)=7.7305 (28.2s)
+  [e18] step 175/200 loss(avg25)=6.8715 (33.0s)
+  [e18] step 200/200 loss(avg25)=7.1012 (37.5s)
+[e18] training done in 37.5s
+[e18] Post-train eval...
+  [e18:post] None_single_hop_A: 9.7764
+  [e18:post] None_single_hop_B: 10.1395
+  [e18:post] None_two_hop: 12.5754
+  [e18:post] A_only_single_hop_A: 9.7624
+  [e18:post] A_only_single_hop_B: 10.1386
+  [e18:post] A_only_two_hop: 12.5805
+  [e18:post] B_only_single_hop_A: 9.7801
+  [e18:post] B_only_single_hop_B: 10.1209
+  [e18:post] B_only_two_hop: 12.5857
+  [e18:post] AB_both_single_hop_A: 9.7621
+  [e18:post] AB_both_single_hop_B: 10.1483
+  [e18:post] AB_both_two_hop: 12.5778
+
+[e18] === RESULTS ===
+  Δ(AB vs None): 0.0024
+  Δ(AB vs A_only): -0.0028  FAIL
+  Δ(AB vs B_only): -0.0080  FAIL
+  Overall: FAIL
+
+[e18] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e18_2hop/e18_seed1.json
+
+=== e17/seed2 2026年 5月16日 星期六 17时56分26秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e17] train=120 test=120 preload=512 seed=2
+[e17] negated_t1=120 negated_t2=120
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:27,  4.54it/s]Loading weights:  15%|█▌        | 60/398 [00:00<00:01, 232.77it/s]Loading weights:  31%|███▏      | 125/398 [00:00<00:00, 381.88it/s]Loading weights:  48%|████▊     | 190/398 [00:00<00:00, 471.89it/s]Loading weights:  64%|██████▍   | 256/398 [00:00<00:00, 529.90it/s]Loading weights:  81%|████████  | 322/398 [00:00<00:00, 565.31it/s]Loading weights:  97%|█████████▋| 388/398 [00:00<00:00, 588.71it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 471.18it/s]
+  [e17] step 1/200 loss(avg25)=15.5936 (0.3s)
+  [e17] step 25/200 loss(avg25)=12.4996 (4.9s)
+  [e17] step 50/200 loss(avg25)=11.6113 (8.9s)
+  [e17] step 75/200 loss(avg25)=11.9428 (12.9s)
+  [e17] step 100/200 loss(avg25)=11.7735 (16.9s)
+  [e17] step 125/200 loss(avg25)=9.9960 (20.8s)
+  [e17] step 150/200 loss(avg25)=8.5448 (24.9s)
+  [e17] step 175/200 loss(avg25)=7.5266 (29.0s)
+  [e17] step 200/200 loss(avg25)=6.8364 (33.1s)
+[e17] training done in 33.1s
+[e17] eval (a) standard prompts, standard targets...
+[e17] eval (b) standard prompts, random targets...
+[e17] eval (c) negated prompts, random targets...
+[e17] eval (d) negated prompts, target_true labels...
+[e17] RESULTS:
+  (a) standard/standard:   base=11.9395 lpl=6.6270 Δ=-5.3124
+  (b) standard/random:     base=14.2755 lpl=11.5682 Δ=-2.7072
+  (c) negated/random:      base=12.7602 lpl=12.3277 Δ=-0.4325
+  (d) negated/target_true: base=4.4915 lpl=3.7745 Δ=-0.7171
+[e17] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e17_negation_robustness/e17_seed2.json
+[e17] verdict: {'pass': False, 'interpretation': "(a) passes: Δ_a ≤ -1 (sanity) | (b) FAIL: Δ_b ≤ -0.5 → bank is content-blind (terminal) | (c) passes: bank does NOT help random targets on negated prompts | (d) neutral: bank does not override prompt's negation", 'thresholds': {'a_sanity': 'Δ_a ≤ -1.0', 'b_content_blind_fail': 'Δ_b ≤ -0.5', 'c_content_blind_fail': 'Δ_c ≤ -0.5', 'd_content_override': 'Δ_d ≤ -1.0'}}
+
+=== e18/seed2 2026年 5月16日 星期六 18时00分35秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e18] chains: 60 train, 60 eval (natural=120, synthetic=0)
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:12,  5.48it/s]Loading weights:  15%|█▌        | 60/398 [00:00<00:01, 259.19it/s]Loading weights:  32%|███▏      | 126/398 [00:00<00:00, 406.95it/s]Loading weights:  48%|████▊     | 190/398 [00:00<00:00, 484.74it/s]Loading weights:  62%|██████▏   | 247/398 [00:00<00:00, 508.07it/s]Loading weights:  76%|███████▌  | 302/398 [00:00<00:00, 513.50it/s]Loading weights:  92%|█████████▏| 366/398 [00:00<00:00, 551.91it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 467.93it/s]
+[e18] Pre-train eval...
+  [e18:pre] None_single_hop_A: 10.0666
+  [e18:pre] None_single_hop_B: 10.4463
+  [e18:pre] None_two_hop: 12.5297
+  [e18:pre] A_only_single_hop_A: 10.0550
+  [e18:pre] A_only_single_hop_B: 10.4313
+  [e18:pre] A_only_two_hop: 12.5325
+  [e18:pre] B_only_single_hop_A: 10.0677
+  [e18:pre] B_only_single_hop_B: 10.4306
+  [e18:pre] B_only_two_hop: 12.5410
+  [e18:pre] AB_both_single_hop_A: 10.0575
+  [e18:pre] AB_both_single_hop_B: 10.4241
+  [e18:pre] AB_both_two_hop: 12.5365
+[e18] Training on single-hop A+B queries (AB_both bank)...
+  [e18] step 1/200 loss(avg25)=0.4459 (0.3s)
+  [e18] step 25/200 loss(avg25)=10.1407 (5.0s)
+  [e18] step 50/200 loss(avg25)=10.9418 (9.7s)
+  [e18] step 75/200 loss(avg25)=10.3688 (14.3s)
+  [e18] step 100/200 loss(avg25)=8.5738 (18.8s)
+  [e18] step 125/200 loss(avg25)=7.4165 (23.4s)
+  [e18] step 150/200 loss(avg25)=7.0060 (27.9s)
+  [e18] step 175/200 loss(avg25)=6.6742 (32.4s)
+  [e18] step 200/200 loss(avg25)=6.2561 (37.2s)
+[e18] training done in 37.2s
+[e18] Post-train eval...
+  [e18:post] None_single_hop_A: 10.0666
+  [e18:post] None_single_hop_B: 10.4463
+  [e18:post] None_two_hop: 12.5297
+  [e18:post] A_only_single_hop_A: 10.0530
+  [e18:post] A_only_single_hop_B: 10.4269
+  [e18:post] A_only_two_hop: 12.5283
+  [e18:post] B_only_single_hop_A: 10.0661
+  [e18:post] B_only_single_hop_B: 10.4257
+  [e18:post] B_only_two_hop: 12.5442
+  [e18:post] AB_both_single_hop_A: 10.0604
+  [e18:post] AB_both_single_hop_B: 10.4273
+  [e18:post] AB_both_two_hop: 12.5420
+
+[e18] === RESULTS ===
+  Δ(AB vs None): 0.0123
+  Δ(AB vs A_only): 0.0137  FAIL
+  Δ(AB vs B_only): -0.0022  FAIL
+  Overall: FAIL
+
+[e18] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e18_2hop/e18_seed2.json
+
+=== e05/qwen3-4b-5k 2026年 5月16日 星期六 18时05分14秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e05] Loading model: Qwen/Qwen3-4B-Instruct-2507
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   5%|▌         | 21/398 [00:00<00:01, 209.83it/s]Loading weights:  20%|██        | 81/398 [00:00<00:00, 430.48it/s]Loading weights:  37%|███▋      | 147/398 [00:00<00:00, 526.40it/s]Loading weights:  54%|█████▎    | 213/398 [00:00<00:00, 572.19it/s]Loading weights:  70%|██████▉   | 278/398 [00:00<00:00, 595.67it/s]Loading weights:  86%|████████▌ | 341/398 [00:00<00:00, 604.69it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 567.35it/s]
+[e05] Model type: qwen3 ✓ (Qwen3 compatible)
+[e05] Model config: n_layers=36, hidden_size=2560
+[e05] train=120 test=120 preload=512 seed=0
+[e05] Loaded b_raw: shape=torch.Size([512, 2560]), dtype=torch.float32
+[e05] Evaluating BEFORE training...
+[e05] BEFORE: base=12.0331  real=12.0164  rand=12.0074  zero=12.0212  off=12.0331
+[e05] Training for 5000 steps...
+  [e05] step 1/5000 loss(avg25)=7.2815 (0.3s)
+  [e05] step 25/5000 loss(avg25)=11.8912 (4.5s)
+  [e05] step 50/5000 loss(avg25)=11.2385 (8.6s)
+  [e05] step 75/5000 loss(avg25)=11.7946 (12.8s)
+  [e05] step 100/5000 loss(avg25)=10.2835 (16.9s)
+  [e05] step 125/5000 loss(avg25)=9.7959 (21.0s)
+  [e05] step 150/5000 loss(avg25)=7.8954 (25.3s)
+  [e05] step 175/5000 loss(avg25)=9.3593 (29.3s)
+  [e05] step 200/5000 loss(avg25)=6.6713 (33.3s)
+  [e05] step 225/5000 loss(avg25)=5.8830 (37.3s)
+  [e05] step 250/5000 loss(avg25)=5.8915 (41.5s)
+  [e05] step 275/5000 loss(avg25)=5.4832 (45.5s)
+  [e05] step 300/5000 loss(avg25)=4.7553 (49.6s)
+  [e05] step 325/5000 loss(avg25)=4.7895 (53.5s)
+  [e05] step 350/5000 loss(avg25)=3.6619 (57.5s)
+  [e05] step 375/5000 loss(avg25)=4.3435 (61.6s)
+  [e05] step 400/5000 loss(avg25)=4.8269 (65.7s)
+  [e05] step 425/5000 loss(avg25)=4.0300 (69.9s)
+  [e05] step 450/5000 loss(avg25)=4.2957 (74.0s)
+  [e05] step 475/5000 loss(avg25)=3.6169 (78.2s)
+  [e05] step 500/5000 loss(avg25)=2.9911 (82.3s)
+  [e05] step 525/5000 loss(avg25)=2.9231 (86.6s)
+  [e05] step 550/5000 loss(avg25)=3.5623 (90.9s)
+  [e05] step 575/5000 loss(avg25)=4.3852 (95.0s)
+  [e05] step 600/5000 loss(avg25)=4.0043 (99.1s)
+  [e05] step 625/5000 loss(avg25)=3.7387 (103.2s)
+  [e05] step 650/5000 loss(avg25)=3.3392 (107.3s)
+  [e05] step 675/5000 loss(avg25)=3.1525 (111.4s)
+  [e05] step 700/5000 loss(avg25)=4.0105 (115.5s)
+  [e05] step 725/5000 loss(avg25)=2.8946 (119.6s)
+  [e05] step 750/5000 loss(avg25)=2.9940 (123.7s)
+  [e05] step 775/5000 loss(avg25)=2.9620 (127.9s)
+  [e05] step 800/5000 loss(avg25)=3.7769 (131.9s)
+  [e05] step 825/5000 loss(avg25)=5.0790 (136.0s)
+  [e05] step 850/5000 loss(avg25)=4.0516 (140.0s)
+  [e05] step 875/5000 loss(avg25)=3.2581 (144.1s)
+  [e05] step 900/5000 loss(avg25)=3.4622 (148.2s)
+  [e05] step 925/5000 loss(avg25)=3.9246 (152.3s)
+  [e05] step 950/5000 loss(avg25)=3.1069 (156.4s)
+  [e05] step 975/5000 loss(avg25)=3.0722 (160.6s)
+  [e05] step 1000/5000 loss(avg25)=2.0466 (164.7s)
+  [e05] step 1025/5000 loss(avg25)=3.2450 (168.7s)
+  [e05] step 1050/5000 loss(avg25)=2.6110 (172.7s)
+  [e05] step 1075/5000 loss(avg25)=2.0257 (176.9s)
+  [e05] step 1100/5000 loss(avg25)=2.8883 (181.1s)
+  [e05] step 1125/5000 loss(avg25)=2.8463 (185.1s)
+  [e05] step 1150/5000 loss(avg25)=2.8175 (189.2s)
+  [e05] step 1175/5000 loss(avg25)=3.8517 (193.4s)
+  [e05] step 1200/5000 loss(avg25)=2.3999 (197.4s)
+  [e05] step 1225/5000 loss(avg25)=1.8806 (201.5s)
+  [e05] step 1250/5000 loss(avg25)=3.5748 (205.6s)
+  [e05] step 1275/5000 loss(avg25)=3.0574 (209.7s)
+  [e05] step 1300/5000 loss(avg25)=2.6773 (213.8s)
+  [e05] step 1325/5000 loss(avg25)=2.3402 (218.0s)
+  [e05] step 1350/5000 loss(avg25)=1.2543 (222.2s)
+  [e05] step 1375/5000 loss(avg25)=3.4329 (226.3s)
+  [e05] step 1400/5000 loss(avg25)=2.3382 (230.4s)
+  [e05] step 1425/5000 loss(avg25)=2.5363 (234.4s)
+  [e05] step 1450/5000 loss(avg25)=2.0497 (238.7s)
+  [e05] step 1475/5000 loss(avg25)=1.8098 (242.8s)
+  [e05] step 1500/5000 loss(avg25)=2.5023 (246.8s)
+  [e05] step 1525/5000 loss(avg25)=1.3680 (250.8s)
+  [e05] step 1550/5000 loss(avg25)=2.0982 (255.0s)
+  [e05] step 1575/5000 loss(avg25)=1.9603 (259.1s)
+  [e05] step 1600/5000 loss(avg25)=3.2556 (263.2s)
+  [e05] step 1625/5000 loss(avg25)=1.3376 (267.2s)
+  [e05] step 1650/5000 loss(avg25)=1.6178 (271.5s)
+  [e05] step 1675/5000 loss(avg25)=2.2864 (275.6s)
+  [e05] step 1700/5000 loss(avg25)=2.5235 (279.7s)
+  [e05] step 1725/5000 loss(avg25)=1.5710 (283.8s)
+  [e05] step 1750/5000 loss(avg25)=2.9703 (287.9s)
+  [e05] step 1775/5000 loss(avg25)=0.9716 (292.0s)
+  [e05] step 1800/5000 loss(avg25)=1.3428 (296.1s)
+  [e05] step 1825/5000 loss(avg25)=1.9991 (300.0s)
+  [e05] step 1850/5000 loss(avg25)=1.1700 (304.2s)
+  [e05] step 1875/5000 loss(avg25)=1.1563 (308.3s)
+  [e05] step 1900/5000 loss(avg25)=1.0637 (312.5s)
+  [e05] step 1925/5000 loss(avg25)=3.1632 (316.7s)
+  [e05] step 1950/5000 loss(avg25)=2.3155 (320.8s)
+  [e05] step 1975/5000 loss(avg25)=1.2532 (324.8s)
+  [e05] step 2000/5000 loss(avg25)=1.3533 (329.0s)
+  [e05] step 2025/5000 loss(avg25)=2.0035 (333.0s)
+  [e05] step 2050/5000 loss(avg25)=0.5095 (337.3s)
+  [e05] step 2075/5000 loss(avg25)=1.0329 (341.5s)
+  [e05] step 2100/5000 loss(avg25)=2.5351 (345.5s)
+  [e05] step 2125/5000 loss(avg25)=1.9371 (349.6s)
+  [e05] step 2150/5000 loss(avg25)=0.8881 (353.8s)
+  [e05] step 2175/5000 loss(avg25)=0.7076 (357.9s)
+  [e05] step 2200/5000 loss(avg25)=0.2953 (362.2s)
+  [e05] step 2225/5000 loss(avg25)=2.1655 (366.4s)
+  [e05] step 2250/5000 loss(avg25)=1.4667 (370.4s)
+  [e05] step 2275/5000 loss(avg25)=1.0486 (374.5s)
+  [e05] step 2300/5000 loss(avg25)=0.3424 (378.7s)
+  [e05] step 2325/5000 loss(avg25)=1.5414 (383.0s)
+  [e05] step 2350/5000 loss(avg25)=0.2489 (387.1s)
+  [e05] step 2375/5000 loss(avg25)=0.8554 (391.2s)
+  [e05] step 2400/5000 loss(avg25)=2.3693 (395.4s)
+  [e05] step 2425/5000 loss(avg25)=2.2151 (399.5s)
+  [e05] step 2450/5000 loss(avg25)=1.2020 (403.6s)
+  [e05] step 2475/5000 loss(avg25)=1.7223 (407.6s)
+  [e05] step 2500/5000 loss(avg25)=0.5302 (411.7s)
+  [e05] step 2525/5000 loss(avg25)=1.0860 (415.8s)
+  [e05] step 2550/5000 loss(avg25)=0.7569 (420.1s)
+  [e05] step 2575/5000 loss(avg25)=1.5392 (424.3s)
+  [e05] step 2600/5000 loss(avg25)=1.0840 (428.4s)
+  [e05] step 2625/5000 loss(avg25)=1.1674 (432.6s)
+  [e05] step 2650/5000 loss(avg25)=0.9793 (436.7s)
+  [e05] step 2675/5000 loss(avg25)=0.6585 (440.8s)
+  [e05] step 2700/5000 loss(avg25)=0.1898 (445.0s)
+  [e05] step 2725/5000 loss(avg25)=1.2188 (449.2s)
+  [e05] step 2750/5000 loss(avg25)=1.6287 (453.4s)
+  [e05] step 2775/5000 loss(avg25)=2.0357 (457.4s)
+  [e05] step 2800/5000 loss(avg25)=0.7033 (461.4s)
+  [e05] step 2825/5000 loss(avg25)=0.7233 (465.4s)
+  [e05] step 2850/5000 loss(avg25)=0.4630 (469.4s)
+  [e05] step 2875/5000 loss(avg25)=0.9243 (473.7s)
+  [e05] step 2900/5000 loss(avg25)=1.2759 (478.0s)
+  [e05] step 2925/5000 loss(avg25)=0.9894 (482.1s)
+  [e05] step 2950/5000 loss(avg25)=0.5212 (486.1s)
+  [e05] step 2975/5000 loss(avg25)=1.1357 (490.1s)
+  [e05] step 3000/5000 loss(avg25)=0.2853 (494.2s)
+  [e05] step 3025/5000 loss(avg25)=0.5043 (498.3s)
+  [e05] step 3050/5000 loss(avg25)=0.8843 (502.6s)
+  [e05] step 3075/5000 loss(avg25)=1.0718 (506.8s)
+  [e05] step 3100/5000 loss(avg25)=0.3911 (510.9s)
+  [e05] step 3125/5000 loss(avg25)=1.1155 (515.2s)
+  [e05] step 3150/5000 loss(avg25)=0.4776 (519.4s)
+  [e05] step 3175/5000 loss(avg25)=1.1302 (523.4s)
+  [e05] step 3200/5000 loss(avg25)=0.0438 (527.5s)
+  [e05] step 3225/5000 loss(avg25)=0.5513 (531.6s)
+  [e05] step 3250/5000 loss(avg25)=1.1623 (535.7s)
+  [e05] step 3275/5000 loss(avg25)=1.3032 (539.9s)
+  [e05] step 3300/5000 loss(avg25)=0.9154 (544.0s)
+  [e05] step 3325/5000 loss(avg25)=1.2307 (548.2s)
+  [e05] step 3350/5000 loss(avg25)=1.1692 (552.2s)
+  [e05] step 3375/5000 loss(avg25)=0.3682 (556.5s)
+  [e05] step 3400/5000 loss(avg25)=0.8376 (560.4s)
+  [e05] step 3425/5000 loss(avg25)=0.2897 (564.5s)
+  [e05] step 3450/5000 loss(avg25)=0.4835 (569.0s)
+  [e05] step 3475/5000 loss(avg25)=0.7198 (573.4s)
+  [e05] step 3500/5000 loss(avg25)=0.4979 (577.7s)
+  [e05] step 3525/5000 loss(avg25)=0.0273 (581.8s)
+  [e05] step 3550/5000 loss(avg25)=0.0766 (586.0s)
+  [e05] step 3575/5000 loss(avg25)=0.9173 (590.1s)
+  [e05] step 3600/5000 loss(avg25)=0.3076 (594.2s)
+  [e05] step 3625/5000 loss(avg25)=0.5595 (598.3s)
+  [e05] step 3650/5000 loss(avg25)=0.5583 (602.4s)
+  [e05] step 3675/5000 loss(avg25)=0.1557 (606.6s)
+  [e05] step 3700/5000 loss(avg25)=0.0028 (610.7s)
+  [e05] step 3725/5000 loss(avg25)=0.3453 (614.8s)
+  [e05] step 3750/5000 loss(avg25)=0.1776 (619.0s)
+  [e05] step 3775/5000 loss(avg25)=0.6697 (623.0s)
+  [e05] step 3800/5000 loss(avg25)=0.0985 (627.1s)
+  [e05] step 3825/5000 loss(avg25)=1.0289 (631.3s)
+  [e05] step 3850/5000 loss(avg25)=0.2222 (635.2s)
+  [e05] step 3875/5000 loss(avg25)=0.0169 (639.4s)
+  [e05] step 3900/5000 loss(avg25)=0.0747 (643.7s)
+  [e05] step 3925/5000 loss(avg25)=0.2188 (647.8s)
+  [e05] step 3950/5000 loss(avg25)=0.8278 (651.8s)
+  [e05] step 3975/5000 loss(avg25)=0.0094 (656.0s)
+  [e05] step 4000/5000 loss(avg25)=0.2955 (660.2s)
+  [e05] step 4025/5000 loss(avg25)=0.9465 (664.3s)
+  [e05] step 4050/5000 loss(avg25)=0.9131 (668.4s)
+  [e05] step 4075/5000 loss(avg25)=0.2973 (672.4s)
+  [e05] step 4100/5000 loss(avg25)=0.2921 (676.8s)
+  [e05] step 4125/5000 loss(avg25)=0.5384 (681.1s)
+  [e05] step 4150/5000 loss(avg25)=0.1851 (685.3s)
+  [e05] step 4175/5000 loss(avg25)=0.2884 (689.5s)
+  [e05] step 4200/5000 loss(avg25)=0.0314 (693.7s)
+  [e05] step 4225/5000 loss(avg25)=0.1449 (697.8s)
+  [e05] step 4250/5000 loss(avg25)=0.1706 (702.0s)
+  [e05] step 4275/5000 loss(avg25)=0.4134 (706.2s)
+  [e05] step 4300/5000 loss(avg25)=0.1761 (710.4s)
+  [e05] step 4325/5000 loss(avg25)=0.5343 (714.6s)
+  [e05] step 4350/5000 loss(avg25)=0.4328 (718.7s)
+  [e05] step 4375/5000 loss(avg25)=0.6849 (722.8s)
+  [e05] step 4400/5000 loss(avg25)=0.0281 (727.1s)
+  [e05] step 4425/5000 loss(avg25)=0.3912 (731.4s)
+  [e05] step 4450/5000 loss(avg25)=0.0513 (735.4s)
+  [e05] step 4475/5000 loss(avg25)=0.0153 (739.6s)
+  [e05] step 4500/5000 loss(avg25)=0.1994 (743.7s)
+  [e05] step 4525/5000 loss(avg25)=0.0214 (747.8s)
+  [e05] step 4550/5000 loss(avg25)=0.4504 (751.9s)
+  [e05] step 4575/5000 loss(avg25)=0.0091 (756.0s)
+  [e05] step 4600/5000 loss(avg25)=0.0147 (760.0s)
+  [e05] step 4625/5000 loss(avg25)=0.0577 (764.0s)
+  [e05] step 4650/5000 loss(avg25)=0.2655 (768.1s)
+  [e05] step 4675/5000 loss(avg25)=0.0462 (772.2s)
+  [e05] step 4700/5000 loss(avg25)=0.0088 (776.1s)
+  [e05] step 4725/5000 loss(avg25)=0.2436 (780.2s)
+  [e05] step 4750/5000 loss(avg25)=0.0776 (784.2s)
+  [e05] step 4775/5000 loss(avg25)=0.2976 (788.3s)
+  [e05] step 4800/5000 loss(avg25)=0.1222 (792.4s)
+  [e05] step 4825/5000 loss(avg25)=0.0180 (796.6s)
+  [e05] step 4850/5000 loss(avg25)=0.0366 (800.6s)
+  [e05] step 4875/5000 loss(avg25)=0.4107 (804.6s)
+  [e05] step 4900/5000 loss(avg25)=0.1805 (808.7s)
+  [e05] step 4925/5000 loss(avg25)=0.0875 (812.7s)
+  [e05] step 4950/5000 loss(avg25)=0.2313 (816.9s)
+  [e05] step 4975/5000 loss(avg25)=0.0108 (820.9s)
+  [e05] step 5000/5000 loss(avg25)=0.0365 (825.0s)
+[e05] Training done in 825.0s
+[e05] Evaluating AFTER training...
+[e05] AFTER:  base=12.0331  real=8.0614  rand=11.9888  zero=12.0212  off=12.0331
+[e05] -> v2/experiments/e05_cross_model/e05_qwen3_4B_steps5000_seed0.json
+[e05] Verdict: {'pass': True, 'delta_real': 3.971726944097078, 'delta_rand': 0.04426977237065621, 'criterion_real': 'Δ_real ≥ 1.0 (signal exists)', 'criterion_rand': 'Δ_rand ≤ 0.2 (random control flat)', 'pass_real': True, 'pass_rand': True}
+
+=== WAVE8 DONE 2026年 5月16日 星期六 18时21分14秒 CST ===

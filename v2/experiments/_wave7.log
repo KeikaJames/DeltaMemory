@@ -12,3 +12,67 @@ OSError: [Errno 9] Bad file descriptor
 Current thread 0x00000001fa8cf080 (most recent call first):
   <no Python frame>
 Loading weights:  13%|█▎        | 53/398 [00:00<00:00, 529.48it/s]Loading weights:  29%|██▉       | 115/398 [00:00<00:00, 580.30it/s]Loading weights:  44%|████▎     | 174/398 [00:00<00:00, 560.81it/s]Loading weights:  58%|█████▊    | 231/398 [00:00<00:00, 245.72it/s]Loading weights:  72%|███████▏  | 286/398 [00:00<00:00, 304.02it/s]Loading weights:  88%|████████▊ | 350/398 [00:00<00:00, 376.26it/s]Loading weights: 100%|██████████| 398/398 [00:01<00:00, 390.32it/s]
+[e14] Trainable params: 332,802
+
+[e14] === Cell: λ=0.000, K=4 ===
+  [lam=0.000 K=4] BEFORE: base=12.0331  lpl=17.3220
+    step 1/200 loss=15.8405 sparse=0.0000 (0.2s)
+    step 50/200 loss=14.4468 sparse=0.0000 (9.2s)
+    step 100/200 loss=12.9813 sparse=0.0000 (18.2s)
+    step 150/200 loss=13.1953 sparse=0.0000 (26.7s)
+    step 200/200 loss=12.4084 sparse=0.0000 (36.3s)
+  [lam=0.000 K=4] AFTER:  base=12.0331  lpl=12.7956
+  [e14] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e14_pause_train/cells/lam0.000_K4_seed0.json
+
+[e14] === Cell: λ=0.010, K=4 ===
+  [lam=0.010 K=4] BEFORE: base=12.0331  lpl=17.3220
+    step 1/200 loss=15.8405 sparse=0.6225 (0.2s)
+    step 50/200 loss=14.4468 sparse=0.6225 (9.8s)
+    step 100/200 loss=12.9813 sparse=0.6225 (20.3s)
+    step 150/200 loss=13.1953 sparse=0.6225 (31.0s)
+    step 200/200 loss=12.4084 sparse=0.6225 (41.0s)
+  [lam=0.010 K=4] AFTER:  base=12.0331  lpl=12.7956
+  [e14] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e14_pause_train/cells/lam0.010_K4_seed0.json
+
+[e14] === Cell: λ=0.100, K=4 ===
+  [lam=0.100 K=4] BEFORE: base=12.0331  lpl=17.3220
+    step 1/200 loss=15.8405 sparse=0.6225 (0.2s)
+    step 50/200 loss=14.4468 sparse=0.6225 (10.5s)
+    step 100/200 loss=12.9813 sparse=0.6225 (20.9s)
+    step 150/200 loss=13.1953 sparse=0.6225 (31.5s)
+    step 200/200 loss=12.4084 sparse=0.6225 (40.9s)
+  [lam=0.100 K=4] AFTER:  base=12.0331  lpl=12.7956
+  [e14] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e14_pause_train/cells/lam0.100_K4_seed0.json
+
+[e14] === Cell: λ=1.000, K=4 ===
+  [lam=1.000 K=4] BEFORE: base=12.0331  lpl=17.3220
+    step 1/200 loss=15.8405 sparse=0.6225 (0.1s)
+    step 50/200 loss=14.4468 sparse=0.6225 (10.7s)
+    step 100/200 loss=12.9813 sparse=0.6225 (21.4s)
+    step 150/200 loss=13.1953 sparse=0.6225 (31.9s)
+    step 200/200 loss=12.4084 sparse=0.6225 (41.9s)
+  [lam=1.000 K=4] AFTER:  base=12.0331  lpl=12.7956
+  [e14] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e14_pause_train/cells/lam1.000_K4_seed0.json
+
+[e14] Summary -> /Users/gabiri/projects/RCV-HC/v2/experiments/e14_pause_train/e14_summary_seed0.json
+[e14] Pass rate: 0/4
+[e14] Best cell: λ=0.000, K=4, Δ=0.7625
+/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/multiprocessing/resource_tracker.py:156: UserWarning: resource_tracker: process died unexpectedly, relaunching.  Some resources might leak.
+  warnings.warn('resource_tracker: process died unexpectedly, '
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001fa8cf080 (most recent call first):
+  <no Python frame>
+
+=== e12/LT_ST_coexist 2026年 5月16日 星期六 17时23分00秒 CST ===
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001fa8cf080 (most recent call first):
+  <no Python frame>
+  FAIL e12/LT_ST_coexist
+
+=== WAVE7 DONE 2026年 5月16日 星期六 17时23分00秒 CST ===

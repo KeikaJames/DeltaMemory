@@ -108,7 +108,7 @@ def build_splits(entries, n_train, n_LT, n_ST, seed):
     LT_eval_items = data_io.items_for_keys(entries, LT_eval_keys)
     ST_eval_items = data_io.items_for_keys(entries, ST_eval_keys)
 
-    return train_items, LT_preload_keys, LT_eval_items, ST_eval_items
+    return train_items, LT_preload_keys, LT_eval_items, ST_eval_items, ST_eval_keys
 
 
 def encode_ST_content(tok, model, entries, ST_eval_keys, device):
@@ -121,7 +121,7 @@ def encode_ST_content(tok, model, entries, ST_eval_keys, device):
     for k in ST_eval_keys:
         e = entries[k]
         prompt = f"{e['subject']} {e['relation']}"
-        target = e["target_str"]
+        target = e["target_true"]
         enc, _, _ = encode_qa(tok, prompt, target, device)
         # forward without LPL (vanilla pass-through)
         with torch.no_grad():
@@ -153,7 +153,7 @@ def main():
     blob = data_io.load_bank_blob(args.bank_pt)
     entries = blob["entries"]
 
-    train_items, LT_preload_keys, LT_eval_items, ST_eval_items = build_splits(
+    train_items, LT_preload_keys, LT_eval_items, ST_eval_items, ST_eval_keys = build_splits(
         entries, args.n_train, args.n_LT, args.n_ST, args.seed
     )
     print(
@@ -266,7 +266,8 @@ def main():
     # === Prepare ST content: encode ST items as hidden vectors ===
     # We simulate ST writes as if pause-head had fired at these positions.
     # For simplicity, we extract last-layer hidden from a single forward (no LPL).
-    ST_eval_keys = [k for k in entries.keys() if entries[k] in ST_eval_items]
+    # ST_eval_keys propagated from build_splits (the buggy entries-membership
+    # lookup that used to be here always returned empty).
     ST_hs = encode_ST_content(tok, model, entries, ST_eval_keys, args.device)
     print(f"[e12] ST content encoded: {ST_hs.shape}")
 

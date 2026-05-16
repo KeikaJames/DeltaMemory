@@ -1,0 +1,29 @@
+=== WAVE7b START 2026年 5月16日 星期六 17时29分10秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e12] train=120 LT_preload=256 LT_eval=60 ST_eval=64 seed=0
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:28,  4.46it/s]Loading weights:  15%|█▍        | 58/398 [00:00<00:01, 221.39it/s]Loading weights:  31%|███       | 123/398 [00:00<00:00, 373.07it/s]Loading weights:  47%|████▋     | 187/398 [00:00<00:00, 461.89it/s]Loading weights:  64%|██████▎   | 253/398 [00:00<00:00, 523.86it/s]Loading weights:  80%|███████▉  | 317/398 [00:00<00:00, 559.75it/s]Loading weights:  96%|█████████▌| 382/398 [00:00<00:00, 586.79it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 467.13it/s]
+[e12] preloaded LT b-vectors: torch.Size([256, 2560])
+[e12] BEFORE (LT-eval): base=12.3680  real=12.3776
+  [e12] step 1/200 loss(avg25)=12.2795 (0.2s)
+  [e12] step 25/200 loss(avg25)=12.3002 (4.6s)
+  [e12] step 50/200 loss(avg25)=11.3391 (8.6s)
+  [e12] step 75/200 loss(avg25)=9.7149 (12.7s)
+  [e12] step 100/200 loss(avg25)=8.1746 (16.9s)
+  [e12] step 125/200 loss(avg25)=6.1406 (21.0s)
+  [e12] step 150/200 loss(avg25)=7.5891 (25.4s)
+  [e12] step 175/200 loss(avg25)=6.0360 (29.5s)
+  [e12] step 200/200 loss(avg25)=4.4871 (33.6s)
+[e12] training done in 33.6s
+[e12] LT-only: base=12.3680 lpl=6.5907 Δ=-5.7773
+Traceback (most recent call last):
+  File "/Users/gabiri/projects/RCV-HC/v2/experiments/e12_LT_ST_coexist/run.py", line 371, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/Users/gabiri/projects/RCV-HC/v2/experiments/e12_LT_ST_coexist/run.py", line 270, in main
+    ST_hs = encode_ST_content(tok, model, entries, ST_eval_keys, args.device)
+  File "/Users/gabiri/projects/RCV-HC/v2/experiments/e12_LT_ST_coexist/run.py", line 132, in encode_ST_content
+    return torch.stack(ST_hs, dim=0)  # [N_ST, d]
+           ~~~~~~~~~~~^^^^^^^^^^^^^^
+RuntimeError: stack expects a non-empty TensorList
+  FAIL e12
+=== WAVE7b DONE 2026年 5月16日 星期六 17时30分10秒 CST ===

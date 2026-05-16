@@ -49,6 +49,7 @@
 | variant | seed | L | n_prl | t/steps | base | real_after | Δ_real | verdict |
 |---|---|---|---|---|---|---|---|---|
 | e05_qwen3_1p7B_seed0 | 0 | 9 | 512 | 120/200 | 12.647 | 6.644 | -5.942 | PASS |
+| e05_qwen3_4B_steps5000_seed0 | 0 | 9 | 512 | 120/5000 | 12.033 | 8.061 | -3.955 | PASS |
 
 **e06 relation disjoint OOD (train vs test_ood — Δ shown is OOD)**
 
@@ -113,6 +114,7 @@
 | variant | seed | L | n_prl | t/steps | base | real_after | Δ_real | verdict |
 |---|---|---|---|---|---|---|---|---|
 | e05_qwen3_1p7B_seed0 | 0 | 9 | 512 | 120/200 | 12.647 | 6.644 | -5.942 | PASS |
+| e05_qwen3_4B_steps5000_seed0 | 0 | 9 | 512 | 120/5000 | 12.033 | 8.061 | -3.955 | PASS |
 
 ### e06_relation_disjoint_ood
 
@@ -165,17 +167,43 @@
 | n3_single_row_replicated | 0 | 21 | 512 | 120/200 | 11.998 | 5.642 | -6.344 | FAIL |
 | n5_constant_vector | 0 | 21 | 512 | 120/200 | 11.998 | 5.519 | -6.403 | FAIL |
 
+### e12_LT_ST_coexist
+
+| variant | seed | L | n_prl | t/steps | base | real_after | Δ_real | verdict |
+|---|---|---|---|---|---|---|---|---|
+| e12_seed0 | 0 | 9 | — | 120/200 | — | — | — | — |
+
+### e13_multi_task_capability
+
+| variant | seed | L | n_prl | t/steps | base | real_after | Δ_real | verdict |
+|---|---|---|---|---|---|---|---|---|
+| multitask_triple_partial | 0 | — | — | —/— | — | — | — | — |
+
+### e14_pause_train
+
+| variant | seed | L | n_prl | t/steps | base | real_after | Δ_real | verdict |
+|---|---|---|---|---|---|---|---|---|
+| lam0.000_K4_seed0 | 0 | 9 | 512 | 120/200 | 12.033 | — | — | FAIL |
+| lam0.010_K4_seed0 | 0 | 9 | 512 | 120/200 | 12.033 | — | — | FAIL |
+| lam0.100_K4_seed0 | 0 | 9 | 512 | 120/200 | 12.033 | — | — | FAIL |
+| lam1.000_K4_seed0 | 0 | 9 | 512 | 120/200 | 12.033 | — | — | FAIL |
+| e14_summary_seed0 | 0 | — | — | —/— | — | — | — | — |
+
 ### e17_negation_robustness
 
 | variant | seed | L | n_prl | t/steps | base | real_after | Δ_real | verdict |
 |---|---|---|---|---|---|---|---|---|
 | e17_seed0 | 0 | 9 | 512 | 120/200 | — | — | — | FAIL |
+| e17_seed1 | 1 | 9 | 512 | 120/200 | — | — | — | FAIL |
+| e17_seed2 | 2 | 9 | 512 | 120/200 | — | — | — | FAIL |
 
 ### e18_2hop
 
 | variant | seed | L | n_prl | t/steps | base | real_after | Δ_real | verdict |
 |---|---|---|---|---|---|---|---|---|
 | e18_seed0 | 0 | — | — | —/— | — | — | — | — |
+| e18_seed1 | 1 | — | — | —/— | — | — | — | — |
+| e18_seed2 | 2 | — | — | —/— | — | — | — | — |
 
 ### e19_seed_replication
 
