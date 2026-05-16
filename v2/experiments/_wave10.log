@@ -1,0 +1,37 @@
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e16:forgetting] device=mps model=Qwen/Qwen3-4B-Instruct-2507 seed=0 N=512
+[e16:forgetting] setA=512 setB=512 train=120
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:  12%|█▏        | 49/398 [00:00<00:00, 487.27it/s]Loading weights:  28%|██▊       | 113/398 [00:00<00:00, 563.41it/s]Loading weights:  43%|████▎     | 170/398 [00:00<00:00, 557.99it/s]Loading weights:  58%|█████▊    | 229/398 [00:00<00:00, 569.83it/s]Loading weights:  72%|███████▏  | 286/398 [00:00<00:00, 531.74it/s]Loading weights:  85%|████████▌ | 340/398 [00:00<00:00, 510.63it/s]Loading weights:  98%|█████████▊| 392/398 [00:00<00:00, 453.39it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 500.35it/s]
+[e16:forgetting] computing baseline NLL...
+[e16:forgetting] baseline: setA=12.1453 setB=11.9164
+[e16:forgetting] training projector with set_A in bank...
+    step 1/200 loss(avg50)=10.7176
+    step 50/200 loss(avg50)=11.4430
+    step 100/200 loss(avg50)=10.5126
+    step 150/200 loss(avg50)=9.0176
+    step 200/200 loss(avg50)=8.1855
+[e16:forgetting] training done (49.3s)
+[e16:forgetting] Δ_A_initial=4.2591
+[e16:forgetting] evicting set_A by writing set_B to bank (ring buffer)...
+[e16:forgetting] bank now has 512 entries (set_B)
+[e16:forgetting] Δ_A_after_evict=3.5458 (expect ~0, forgotten)
+[e16:forgetting] Δ_B=3.6324 (expect similar to Δ_A_initial)
+[e16:forgetting] Δ_A_zero (empty bank)=0.0000
+[e16:forgetting] verdict: {'pass': False, 'rule': '|Δ_A_after - Δ_zero| < 0.3 AND |Δ_B - Δ_A_initial| < 1.0', 'delta_A_after_minus_zero': 3.545848735840991, 'delta_B_minus_A_initial': -0.6267132214852609}
+[e16:forgetting] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e16_capacity/forgetting/seed0.json
+200 loss(avg50)=11.4430
+    step 100/200 loss(avg50)=10.5587
+    step 150/200 loss(avg50)=9.1855
+    step 200/200 loss(avg50)=8.4032
+[e16:forgetting] training done (36.3s)
+[e16:forgetting] Δ_A_initial=4.4741
+[e16:forgetting] evicting set_A by writing set_B to bank (ring buffer)...
+[e16:forgetting] bank now has 512 entries (set_B)
+[e16:forgetting] Δ_A_after_evict=4.2153 (expect ~0, forgotten)
+[e16:forgetting] Δ_B=4.2587 (expect similar to Δ_A_initial)
+[e16:forgetting] Δ_A_zero (empty bank)=0.0000
+[e16:forgetting] verdict: {'pass': False, 'rule': '|Δ_A_after - Δ_zero| < 0.3 AND |Δ_B - Δ_A_initial| < 1.0', 'delta_A_after_minus_zero': 4.2153354458278045, 'delta_B_minus_A_initial': -0.21539949713042006}
+[e16:forgetting] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e16_capacity/forgetting/seed0.json
+++ date
++ echo '=== e16 forgetting DONE 2026年 5月16日 星期六 19时00分45秒 CST ==='
+=== e16 forgetting DONE 2026年 5月16日 星期六 19时00分45秒 CST ===
