@@ -16,7 +16,7 @@
 > attention-layer, tensor-bank, and injection mechanisms.
 >
 > Use of this repository is accompanied by the Security Policy and Responsible
-> Use Protocol set out in [`MnEmE/docs/security.md`](./docs/security.md).
+> Use Protocol set out in [`v1/docs/security.md`](v1/docs/security.md).
 >
 > Users, operators, distributors, and downstream recipients are responsible for
 > complying with applicable laws, third-party rights, platform terms, and the
@@ -30,7 +30,7 @@
 </p>
 
 <p align="center">
-  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
+  <a href="v1/LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
   <img alt="Python" src="https://img.shields.io/badge/Python-3.11+-3776AB.svg">
   <img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-MPS%20%7C%20CUDA-EE4C2C.svg">
   <img alt="Hardware" src="https://img.shields.io/badge/Apple%20MPS%20%7C%20GB10%20CUDA-bf16-555.svg">
@@ -40,13 +40,13 @@
 <p align="center">
   <strong>Languages:</strong>
   <a href="README.md">English</a> ·
-  <a href="README.zh-CN.md">中文</a>
+  <a href="v1/README.zh-CN.md">中文</a>
 </p>
 
 <p align="center">
-  <a href="docs/design.md">Design</a> ·
-  <a href="docs/apple_silicon.md">Apple Silicon</a> ·
-  <a href="docs/HISTORY.md">Phase history</a>
+  <a href="v1/docs/design.md">Design</a> ·
+  <a href="v1/docs/apple_silicon.md">Apple Silicon</a> ·
+  <a href="v1/docs/HISTORY.md">Phase history</a>
 </p>
 
 ---
@@ -129,9 +129,9 @@ GQA / MQA expansion uses the model's own `repeat_kv`. KV-shared layers
 (e.g. Gemma 4) consult their source layer's bank slot at read time so every
 attention layer sees the bank.
 
-* File: [`deltamemory/memory/attn_native_bank.py`](deltamemory/memory/attn_native_bank.py)
+* File: [`v1/deltamemory/memory/attn_native_bank.py`](v1/deltamemory/memory/attn_native_bank.py)
 * Patcher: `AttnNativePatcher`. Helpers: `fresh_bank`, `write_fact`, `forward_with_bank`.
-* Bit-equal sanity: `tests/test_attn_native_bank.py`.
+* Bit-equal sanity: `v1/tests/test_attn_native_bank.py`.
 
 ### Dynamic LOPI v3.4
 
@@ -158,7 +158,7 @@ $$
 is the v3.4 default; `enabled=False` and `α=0` are both bit-equal to the
 unmodified model.
 
-* File: [`deltamemory/memory/lopi.py`](deltamemory/memory/lopi.py)
+* File: [`v1/deltamemory/memory/lopi.py`](v1/deltamemory/memory/lopi.py)
 * Public symbols: `LOPIConfig`, `LOPIState`, `apply_lopi`, `derivative_gate`,
   `layer_gaussian_weight`, `orthogonal_novelty`.
 
@@ -184,10 +184,10 @@ introduced and the LLM weights are bit-equal pre/post (verified by
 `mu_span` are ignored at runtime; `profile_mode="static"` reproduces v3.4
 exactly for regression checks.
 
-* File: [`deltamemory/memory/lopi_profiler.py`](deltamemory/memory/lopi_profiler.py)
+* File: [`v1/deltamemory/memory/lopi_profiler.py`](v1/deltamemory/memory/lopi_profiler.py)
 * Public symbols: `LOPIProfile`, `profile_residuals`, `default_profile_corpus`,
   `save_profile`, `load_profile`.
-* Cross-arch coverage: `tests/test_lopi_universal.py` (Gemma / Qwen3 / GLM-4
+* Cross-arch coverage: `v1/tests/test_lopi_universal.py` (Gemma / Qwen3 / GLM-4
   / Llama / GPT-2 shape and bit-equality checks).
 
 ### Persistence (Phase R-6)
@@ -205,10 +205,10 @@ $$
 \mathrm{config\_sha} \;=\; \mathrm{sha256}\!\bigl(\,\mathrm{shape}\;\Vert\;\mathrm{LOPIConfig}\;\Vert\;\tau\;\Vert\;\mathrm{shield}\;\Vert\;\mathrm{VScale}\bigr)
 $$
 
-* File: [`deltamemory/memory/bank_persistence.py`](deltamemory/memory/bank_persistence.py)
+* File: [`v1/deltamemory/memory/bank_persistence.py`](v1/deltamemory/memory/bank_persistence.py)
 * Public symbols: `save_bank`, `load_bank`, `list_banks`,
   `compute_config_sha`, `resolve_location`.
-* Round-trip tests: `tests/test_bank_persistence.py`.
+* Round-trip tests: `v1/tests/test_bank_persistence.py`.
 
 ## Experimental verdict — bank memory vs parameter edit
 
@@ -256,11 +256,11 @@ The main ATB verdicts and raw-cell analyses are expected under:
 
 | Experiment | Expected path |
 |---|---|
-| Exp24–27 | `experiments/atb_validation_v1/exp13_anb_readdressability/` |
-| Exp31 | `experiments/atb_validation_v1/exp31_learned_k_adapter/` |
-| Exp32 | `experiments/atb_validation_v1/exp32_mlp_side_gated_memory/` |
-| Exp33 | `experiments/atb_validation_v1/exp33_joint_softmax_bank/` |
-| Exp34 | `experiments/atb_validation_v1/exp34_rank1_downproj_edit/` |
+| Exp24–27 | `v1/experiments/atb_validation_v1/exp13_anb_readdressability/` |
+| Exp31 | `v1/experiments/atb_validation_v1/exp31_learned_k_adapter/` |
+| Exp32 | `v1/experiments/atb_validation_v1/exp32_mlp_side_gated_memory/` |
+| Exp33 | `v1/experiments/atb_validation_v1/exp33_joint_softmax_bank/` |
+| Exp34 | `v1/experiments/atb_validation_v1/exp34_rank1_downproj_edit/` |
 
 Some generated reports, transcripts, and full raw dumps may remain local-only
 until audited. Public README claims should point to committed verdict files
@@ -270,22 +270,22 @@ when those files are added.
 
 | Phase | What shipped | Evidence | Status |
 |---|---|---|---|
-| Stages 0–14 | v1 → v3 (writer / address bank / K-projector) | local archive | superseded; see [`docs/HISTORY.md`](docs/HISTORY.md) |
+| Stages 0–14 | v1 → v3 (writer / address bank / K-projector) | local archive | superseded; see [`v1/docs/HISTORY.md`](v1/docs/HISTORY.md) |
 | Stage 15 / v3.1 | attn-native bank + per-arch α + cross-arch adapters | local archive | reproduced on Gemma-4 and Qwen3 (GB10/Mac) |
 | Stage 16 / v3.2 | mHC spectral shield (column-cap on bank weights) | local archive | bounds σ_max(W) ≤ 1; α=0 bit-equality preserved |
 | R-3 / v3.3 | Dynamic LOPI ablation (A0–A4, 630 cells) | local archive | preregistered cleanroom run |
 | R-3.5 / v3.4 | default flip → `orthogonal=False, gaussian=True, derivative=True` | local archive | high-α drift collapse + α=1 lift preserved |
 | R-4 / v3.4 | cross-arch α-safety sweep (Gemma / Qwen3 / GLM-4) | local archive | α=0 bit-equal across 12 cells |
 | R-5.1 / v3.4 | Q3 adversarial chat × LOPI on Gemma-4-E2B | local archive | LOPI is the only configuration that elevates the easiest-fact pair to partial implant at α∈{8,10} |
-| R-6 / v3.4 | persistent AttnNativeBank (safetensors + filelock) | `tests/test_bank_persistence.py` | round-trip bit-equal under same dtype |
-| **S / v3.5** | U-LOPI auto-calibration profiler (`ulopi_v35`) | `deltamemory/memory/lopi_profiler.py`, `tests/test_lopi_profiler.py`, `tests/test_lopi_universal.py` | replaces hard-coded `norm_base=10.0`; same LOPI across Gemma / Qwen3 / GLM-4 / Llama / GPT-2 |
-| **R-7 / v3.6** | bank-side V-scale calibration (`ulopi_v36`) | `deltamemory/memory/attn_native_bank.py`, `tests/test_value_scale_calibration.py` | no-v_norm families cap M_V RMS without amplifying small V; Gemma native v_norm stays untouched |
-| **Exp23–27 / ATB-v1** | site-stratified ANB falsification (cosine-routed fact recall) | `experiments/atb_validation_v1/exp13_anb_readdressability/` | N=100 PASS → N=200 FAIL on K site, V site, V span, and joint-vs-additive softmax. Native fact-bank routing does not scale beyond N≈100 on Qwen3-4B. |
-| **Exp31–33 / ATB-v2** | learned K adapter, MLP-side gated bank, and joint-softmax bank on held-out splits | `experiments/atb_validation_v1/exp31_learned_k_adapter/`, `exp32_mlp_side_gated_memory/`, `exp33_joint_softmax_bank/` | all bank protocols remain NEGATIVE at LM-output Gate B = 0/375. |
-| **Exp34 / positive control** | rank-1 ROME-style `mlp.down_proj` parameter edit | `experiments/atb_validation_v1/exp34_rank1_downproj_edit/` | POSITIVE: Gate B = 125/125 and Gate D = 123/125, confirming the harness detects real fact edits. |
+| R-6 / v3.4 | persistent AttnNativeBank (safetensors + filelock) | `v1/tests/test_bank_persistence.py` | round-trip bit-equal under same dtype |
+| **S / v3.5** | U-LOPI auto-calibration profiler (`ulopi_v35`) | `v1/deltamemory/memory/lopi_profiler.py`, `v1/tests/test_lopi_profiler.py`, `v1/tests/test_lopi_universal.py` | replaces hard-coded `norm_base=10.0`; same LOPI across Gemma / Qwen3 / GLM-4 / Llama / GPT-2 |
+| **R-7 / v3.6** | bank-side V-scale calibration (`ulopi_v36`) | `v1/deltamemory/memory/attn_native_bank.py`, `v1/tests/test_value_scale_calibration.py` | no-v_norm families cap M_V RMS without amplifying small V; Gemma native v_norm stays untouched |
+| **Exp23–27 / ATB-v1** | site-stratified ANB falsification (cosine-routed fact recall) | `v1/experiments/atb_validation_v1/exp13_anb_readdressability/` | N=100 PASS → N=200 FAIL on K site, V site, V span, and joint-vs-additive softmax. Native fact-bank routing does not scale beyond N≈100 on Qwen3-4B. |
+| **Exp31–33 / ATB-v2** | learned K adapter, MLP-side gated bank, and joint-softmax bank on held-out splits | `v1/experiments/atb_validation_v1/exp31_learned_k_adapter/`, `v1/experiments/atb_validation_v1/exp32_mlp_side_gated_memory/`, `v1/experiments/atb_validation_v1/exp33_joint_softmax_bank/` | all bank protocols remain NEGATIVE at LM-output Gate B = 0/375. |
+| **Exp34 / positive control** | rank-1 ROME-style `mlp.down_proj` parameter edit | `v1/experiments/atb_validation_v1/exp34_rank1_downproj_edit/` | POSITIVE: Gate B = 125/125 and Gate D = 123/125, confirming the harness detects real fact edits. |
 
-The long-form narrative log lives in [`docs/HISTORY.md`](docs/HISTORY.md).
-Per-stage code/config diffs live in [`CHANGELOG.md`](CHANGELOG.md). Raw
+The long-form narrative log lives in [`v1/docs/HISTORY.md`](v1/docs/HISTORY.md).
+Per-stage code/config diffs live in [`v1/CHANGELOG.md`](v1/CHANGELOG.md). Raw
 experiment dumps, reports, generated paper assets, and transcripts are kept as
 local archives and are intentionally not tracked in the production tree.
 
@@ -294,25 +294,28 @@ local archives and are intentionally not tracked in the production tree.
 Phase-R+ benchmark drivers used by the cleanroom reports:
 
 ```bash
+cd v1
 python scripts/run_v31_benchmark.py --help        # v3.1 baseline benchmark
 ```
 
 The v3.1 intervention demo (true / counter-prior facts, per-arch α defaults):
 
 ```bash
-python scripts/run_intervention_demo.py \
+cd v1
+python scripts/legacy/run_intervention_demo.py \
   --model google/gemma-4-E2B \
   --device cuda --dtype bfloat16 \
   --false-facts
 ```
 
-On Apple Silicon, follow [`docs/apple_silicon.md`](docs/apple_silicon.md) for
+On Apple Silicon, follow [`v1/docs/apple_silicon.md`](v1/docs/apple_silicon.md) for
 the stable MPS stack. Raw experiment outputs are local-only archives; promote
 only audited, reproducible summaries into public documentation.
 
 ## Tests
 
 ```bash
+cd v1
 pytest tests/ --ignore=tests/conservation_real_models.py
 ```
 
@@ -327,26 +330,26 @@ Qwen3 / GLM-4 / Llama / GPT-2).
 
 | Path | Purpose |
 |---|---|
-| `deltamemory/memory/attn_native_bank.py` | AttnNativeBank + per-layer patcher |
-| `deltamemory/memory/lopi.py` | Dynamic LOPI v3.4 injector |
-| `deltamemory/memory/lopi_profiler.py` | U-LOPI Phase S residual profiler |
-| `deltamemory/memory/bank_persistence.py` | safetensors + filelock bank storage |
-| `deltamemory/memory/arch_adapter.py` | per-architecture adapters + α defaults |
-| `deltamemory/__init__.py` | top-level public API (Phase S) |
-| `experiments/atb_validation_v1/` | ATB falsification, bank-readout ablations, and Exp34 positive-control edit |
-| `scripts/run_intervention_demo.py` | cross-architecture true/false-fact demo |
-| `scripts/run_v31_benchmark*.py` | Phase R+ benchmark drivers |
-| `docs/HISTORY.md` | long-form per-stage narrative log |
-| `tests/` | unit and real-model conservation checks |
+| `v1/deltamemory/memory/attn_native_bank.py` | AttnNativeBank + per-layer patcher |
+| `v1/deltamemory/memory/lopi.py` | Dynamic LOPI v3.4 injector |
+| `v1/deltamemory/memory/lopi_profiler.py` | U-LOPI Phase S residual profiler |
+| `v1/deltamemory/memory/bank_persistence.py` | safetensors + filelock bank storage |
+| `v1/deltamemory/memory/arch_adapter.py` | per-architecture adapters + α defaults |
+| `v1/deltamemory/__init__.py` | top-level public API (Phase S) |
+| `v1/experiments/atb_validation_v1/` | ATB falsification, bank-readout ablations, and Exp34 positive-control edit |
+| `v1/scripts/legacy/run_intervention_demo.py` | cross-architecture true/false-fact demo |
+| `v1/scripts/run_v31_benchmark*.py` | Phase R+ benchmark drivers |
+| `v1/docs/HISTORY.md` | long-form per-stage narrative log |
+| `v1/tests/` | unit and real-model conservation checks |
 
 ## Production deployment / API reference / Migration / Versioning
 
-- API reference: [`docs/api/`](docs/api/) (regenerate with `scripts/build_docs.sh`).
-- FastAPI serving scaffold: [`examples/fastapi_serve/`](examples/fastapi_serve/).
-- vLLM integration design draft: [`examples/vllm_integration/README.md`](examples/vllm_integration/README.md).
-- v0.3 → v0.4 migration: [`docs/migration_v0.3_to_v0.4.md`](docs/migration_v0.3_to_v0.4.md).
-- Versioning policy: [`docs/versioning.md`](docs/versioning.md).
+- API reference: [`v1/docs/api/`](v1/docs/api/) (regenerate with `v1/scripts/build_docs.sh`).
+- FastAPI serving scaffold: [`v1/examples/fastapi_serve/`](v1/examples/fastapi_serve/).
+- vLLM integration design draft: [`v1/examples/vllm_integration/README.md`](v1/examples/vllm_integration/README.md).
+- v0.3 → v0.4 migration: [`v1/docs/migration_v0.3_to_v0.4.md`](v1/docs/migration_v0.3_to_v0.4.md).
+- Versioning policy: [`v1/docs/versioning.md`](v1/docs/versioning.md).
 
 ## License
 
-MIT. See [`LICENSE`](LICENSE).
+MIT. See [`v1/LICENSE`](v1/LICENSE).
