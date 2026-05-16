@@ -253,7 +253,7 @@ def main():
     items_a = [(f"{sj} {rl}", tg) for sj, rl, tg in test_items]
     base_a = eval_base(items_a)
     lpl_a = eval_lpl(items_a)
-    delta_a = base_a - lpl_a
+    delta_a = lpl_a - base_a
 
     # (b) standard prompts, random targets — negative control
     print("[e17] eval (b) standard prompts, random targets...")
@@ -261,7 +261,7 @@ def main():
     items_b = [(f"{sj} {rl}", negated_t1[i][1]) for i, (sj, rl, tg) in enumerate(test_items)]
     base_b = eval_base(items_b)
     lpl_b = eval_lpl(items_b)
-    delta_b = base_b - lpl_b
+    delta_b = lpl_b - base_b
 
     # (c) negated prompts (T1+T2), random-target labels (the "correct" answer per negation)
     print("[e17] eval (c) negated prompts, random targets...")
@@ -273,7 +273,7 @@ def main():
     lpl_c_t2 = eval_lpl(items_c_t2)
     base_c = (base_c_t1 + base_c_t2) / 2
     lpl_c = (lpl_c_t1 + lpl_c_t2) / 2
-    delta_c = base_c - lpl_c
+    delta_c = lpl_c - base_c
 
     # (d) negated prompts (T1+T2), target_true labels (the original truth, now "wrong")
     print("[e17] eval (d) negated prompts, target_true labels...")
@@ -285,7 +285,7 @@ def main():
     lpl_d_t2 = eval_lpl(items_d_t2)
     base_d = (base_d_t1 + base_d_t2) / 2
     lpl_d = (lpl_d_t1 + lpl_d_t2) / 2
-    delta_d = base_d - lpl_d
+    delta_d = lpl_d - base_d
 
     print(f"[e17] RESULTS:")
     print(f"  (a) standard/standard:   base={base_a:.4f} lpl={lpl_a:.4f} Δ={delta_a:.4f}")
