@@ -122,14 +122,14 @@ The original interpretation — "preloaded b-vectors hold compressed knowledge t
 | **e03** | lm-eval acc drop (pp) | [TBD:e03] | not started |
 | **e04** | ACT halt mean K_used | [TBD:e04] | not started |
 | **e04** | Spearman(K_used, NLL_drop) | [TBD:e04] | not started |
-| **e05** | Qwen3-1.7B Δ NLL | [TBD:e05] | not started |
+| **e05** | Qwen3-1.7B Δ_real / Δ_rand | **−6.00 / +0.05** | ✅ PASS — adapter transfers to smaller Qwen3 (dim 2560→2048 via fixed-Gaussian projection) |
 | **e05** | Qwen3-4B Δ NLL (5k steps) | [TBD:e05] | not started |
 | **e05** | Llama-3.2-3B Δ NLL | [TBD:e05] | not started |
 | **e05** | Mistral-7B Δ NLL | [TBD:e05] | not started |
 | **e06** | Relation-disjoint OOD Δ NLL (seed 0) | **−4.37** | ✅ PASS — projector generalizes to held-out relations |
 | **e06** | OOD random-bank Δ (eval-time swap, trained-on-real) | **−0.06** | reference — projector trained on real bank cannot use random bank at eval (expected, complements e11) |
-| **e07** | Multi-layer vs single-layer gain | [TBD:e07] | not started |
-| **e08** | Interrupt API demo (GSM8K acc boost) | [TBD:e08] | not started |
+| **e07** | Multi-layer vs single-layer (L9 only, n_preload=512) | Δ_L9=**−2.52** | reference for multi-layer sweep |
+| **e08** | Interrupt API demo — preload NLL Δ vs base | base=0.4424 → preload=0.4017 (**Δ=−0.041**) on n=5 toy prompts | ✅ API works; identity-projector preload reduces NLL |
 | **e09** | v1 AttnNativeBank + KProj gate_d boost | [TBD:e09] | not started |
 | **e10** | topK=16 perf vs all-attend (%) | [TBD:e10] | not started |
 | **e10** | topK=16 compute vs all-attend (%) | [TBD:e10] | not started |
