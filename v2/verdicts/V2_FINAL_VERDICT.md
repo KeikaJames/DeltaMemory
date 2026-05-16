@@ -31,7 +31,7 @@
 5. **e18 2-hop chaining** — having both bridge facts A *and* B in the bank gives 0.01-nat advantage over having only one. Composition does not happen.
 6. **6 sign-convention driver bugs** found and back-patched across e09/e11/e12/e14/e17/e18/e19; aggregator now defensively recomputes signed Δ. The aggregate scoreboard (`v2/scripts/all_results.md`, 47 rows / 12 experiments) is consistent.
 
-The remaining defensible claim is narrower: the v2 architecture is a **parameter-efficient adapter** for a frozen LM, plumbed through an AttentionBank-like API. The only live retrieval-rescue paths are **e10 top-K cosine** (running) and **e06 strict relation-disjoint OOD** (pending).
+The remaining defensible claim is narrower: the v2 architecture is a **parameter-efficient adapter** for a frozen LM, plumbed through an AttentionBank-like API. The only live retrieval-rescue path is **e10 top-K cosine** (running); **e06 strict relation-disjoint OOD passed (Δ=−4.37)** but is consistent with the adapter reading.
 
 ---
 
@@ -126,7 +126,8 @@ The original interpretation — "preloaded b-vectors hold compressed knowledge t
 | **e05** | Qwen3-4B Δ NLL (5k steps) | [TBD:e05] | not started |
 | **e05** | Llama-3.2-3B Δ NLL | [TBD:e05] | not started |
 | **e05** | Mistral-7B Δ NLL | [TBD:e05] | not started |
-| **e06** | Relation-disjoint OOD Δ NLL | [TBD:e06] | not started |
+| **e06** | Relation-disjoint OOD Δ NLL (seed 0) | **−4.37** | ✅ PASS — projector generalizes to held-out relations |
+| **e06** | OOD random-bank Δ (eval-time swap, trained-on-real) | **−0.06** | reference — projector trained on real bank cannot use random bank at eval (expected, complements e11) |
 | **e07** | Multi-layer vs single-layer gain | [TBD:e07] | not started |
 | **e08** | Interrupt API demo (GSM8K acc boost) | [TBD:e08] | not started |
 | **e09** | v1 AttnNativeBank + KProj gate_d boost | [TBD:e09] | not started |
