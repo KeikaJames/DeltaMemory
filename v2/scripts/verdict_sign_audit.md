@@ -79,3 +79,21 @@
 ---
 
 **Recommendation**: Fix the three BUG drivers before merging. For UNCLEAR drivers, obtain full verdict definitions from complete code.
+
+
+---
+
+## Follow-up audit (unclear drivers)
+
+**e04_act_halt / e15_ponder_curriculum / e16_bank_capacity**: re-audited (haiku, dispatched after main audit).
+
+All three are CORRECT.
+
+- **e04** uses signed convention (`post - base`, pass: `delta <= -threshold`) — same as e02/e11.
+- **e15** uses unsigned convention (`base - post`, pass: `improvement >= +threshold`) — same as e05/e19.
+- **e16** uses unsigned convention with phase-specific rules (Phase A: `> 0`, Phase B: `abs(delta) < threshold` for stability).
+
+Full per-driver findings: `v2/scripts/unclear_driver_audit.md`.
+
+**No further sign-convention fixes outstanding.** Aggregator defensively recomputes signed delta from `before.real`/`after.real` for all experiments, so mixed conventions inside drivers do not contaminate the aggregated headline numbers.
+
