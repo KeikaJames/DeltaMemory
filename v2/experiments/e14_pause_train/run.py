@@ -335,10 +335,10 @@ def train_cell(
                                            bank_layer, max_pauses, device)
     print(f"  [lam={lam_sparse:.3f} K={max_pauses}] AFTER:  base={base_test:.4f}  lpl={post_lpl:.4f}")
 
-    delta_nll = base_test - post_lpl
+    delta_nll = post_lpl - base_test
     verdict = {
         "pass": delta_nll <= -2.0 and post_pause_stats["mean_pauses"] <= 8.0,
-        "rule": "Δ NLL ≤ -2.0 AND mean_pauses ≤ 8",
+        "rule": "Δ NLL ≤ -2.0 AND mean_pauses ≤ 8 (Δ = post - base; negative = improvement)",
     }
 
     return {
@@ -553,7 +553,7 @@ def main():
         "lam_grid": lam_grid,
         "K_grid": K_grid,
         "cells": results,
-        "best_cell": max(results, key=lambda r: r["delta_nll"]),
+        "best_cell": min(results, key=lambda r: r["delta_nll"]),
         "pass_count": sum(1 for r in results if r["verdict"]["pass"]),
     }
     summary_path = HERE / f"e14_summary_seed{args.seed}.json"

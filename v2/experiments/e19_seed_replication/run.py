@@ -210,8 +210,8 @@ def run_canonical_cell(*, seed, bank_layer, device, model_name, bank_pt,
     post_real = eval_lpl(test_items)
     print(f"[e19] AFTER:  base={base:.4f}  real={post_real:.4f}")
     
-    delta_real = base - post_real
-    print(f"[e19] Δ_real = {delta_real:.4f}")
+    delta_real = post_real - base
+    print(f"[e19] Δ_real = {delta_real:.4f}  (signed; negative = improvement)")
     
     result = {
         "seed": seed,

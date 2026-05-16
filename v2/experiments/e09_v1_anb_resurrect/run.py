@@ -258,7 +258,7 @@ def main():
           f"rand={post_rand:.4f}  zero={post_zero:.4f}  off={post_off:.4f}")
 
     # === VERDICT ===
-    delta = base - post_real
+    delta = post_real - base  # signed: negative = improvement
     if args.mode == "v1_orig":
         # v1_orig: should get Δ ≈ 0 (null result like original v1 ANB)
         passed = abs(delta) <= 0.3
@@ -266,7 +266,7 @@ def main():
     elif args.mode == "v2_kproj":
         # v2_kproj: should get Δ ≤ -2.0 (projector revives the bank)
         passed = delta <= -2.0
-        rule = "Δ ≤ -2.0 — K-projector revives the bank"
+        rule = "Δ ≤ -2.0 (signed; post - base) — K-projector revives the bank"
     else:
         passed = None
         rule = "unknown mode"

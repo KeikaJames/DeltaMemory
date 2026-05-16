@@ -16,7 +16,7 @@
     "base": 12.03310783704122,
     "real": 7.238508821775516
   },
-  "delta_real": 4.794599015265704,
+  "delta_real": -4.794599015265704,
   "loss_first25": [
     12.294027328491211,
     8.019113540649414,
@@ -71,5 +71,6 @@
     5.126661777496338,
     5.221571922302246
   ],
-  "runtime_sec": 51.79548907279968
+  "runtime_sec": 51.79548907279968,
+  "_sign_convention_note": "patched: was base-post (unsigned positive); now post-base (signed, neg=improvement)"
 }
