@@ -236,7 +236,17 @@ def _make_lpl_decoder_forward(orig_forward):
         h_in_pre = hidden_states  # [B, T, d]
         B, T, _ = h_in_pre.shape
         if state.force_pause_mask is not None:
-            pause_mask = state.force_pause_mask  # [B, T] bool
+            fpm = state.force_pause_mask
+            if callable(fpm):
+                pause_mask = fpm(layer, state.round_idx, h_in_pre)  # [B,T] bool or None
+                if pause_mask is None:
+                    pause_mask = torch.zeros(B, T, dtype=torch.bool, device=h_in_pre.device)
+            elif isinstance(fpm, dict):
+                pause_mask = fpm.get(layer)
+                if pause_mask is None:
+                    pause_mask = torch.zeros(B, T, dtype=torch.bool, device=h_in_pre.device)
+            else:
+                pause_mask = fpm  # [B,T] bool, same for every layer
         elif state.heads is not None:
             p_pause = state.heads.pause_heads[layer](h_in_pre).squeeze(-1)  # [B, T]
             pause_mask = p_pause > 0.5

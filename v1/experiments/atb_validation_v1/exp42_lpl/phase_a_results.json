@@ -1,0 +1,194 @@
+{
+  "summary": {
+    "simple_qa": {
+      "n": 8,
+      "mean_nll_base": 1.048146147863008,
+      "mean_nll_lpl_k1": 1.048146147863008,
+      "mean_nll_lpl_pause_k2": 0.7436940507031977,
+      "delta_vs_base": -0.30445209715981036,
+      "max_diff_k1_vs_base": 0.0
+    },
+    "negation": {
+      "n": 6,
+      "mean_nll_base": 0.06934682597056963,
+      "mean_nll_lpl_k1": 0.06934682597056963,
+      "mean_nll_lpl_pause_k2": 0.09900025507279982,
+      "delta_vs_base": 0.02965342910223019,
+      "max_diff_k1_vs_base": 0.0
+    },
+    "two_hop": {
+      "n": 5,
+      "mean_nll_base": 0.6004824686795474,
+      "mean_nll_lpl_k1": 0.6004824686795474,
+      "mean_nll_lpl_pause_k2": 0.3072066389024258,
+      "delta_vs_base": -0.2932758297771216,
+      "max_diff_k1_vs_base": 0.0
+    }
+  },
+  "rows": {
+    "simple_qa": [
+      {
+        "prompt": "Q: What is the capital of France?\nA:",
+        "gold": " Paris",
+        "nll_base": 3.2889556884765625,
+        "nll_lpl_k1": 3.2889556884765625,
+        "nll_lpl_pause_k2": 2.238553524017334,
+        "bank_size_after": 6
+      },
+      {
+        "prompt": "Q: What is the capital of Japan?\nA:",
+        "gold": " Tokyo",
+        "nll_base": 2.3523638248443604,
+        "nll_lpl_k1": 2.3523638248443604,
+        "nll_lpl_pause_k2": 1.7028448581695557,
+        "bank_size_after": 6
+      },
+      {
+        "prompt": "Q: Who wrote Hamlet?\nA:",
+        "gold": " William Shakespeare",
+        "nll_base": 0.05472522974014282,
+        "nll_lpl_k1": 0.05472522974014282,
+        "nll_lpl_pause_k2": 0.07481955736875534,
+        "bank_size_after": 6
+      },
+      {
+        "prompt": "Q: What planet is known as the Red Planet?\nA:",
+        "gold": " Mars",
+        "nll_base": 0.227982759475708,
+        "nll_lpl_k1": 0.227982759475708,
+        "nll_lpl_pause_k2": 0.25358426570892334,
+        "bank_size_after": 6
+      },
+      {
+        "prompt": "Q: What is the largest ocean on Earth?\nA:",
+        "gold": " The Pacific",
+        "nll_base": 0.8559126257896423,
+        "nll_lpl_k1": 0.8559126257896423,
+        "nll_lpl_pause_k2": 0.3814863860607147,
+        "bank_size_after": 6
+      },
+      {
+        "prompt": "Q: What is the chemical symbol for gold?\nA:",
+        "gold": " Au",
+        "nll_base": 1.3473470211029053,
+        "nll_lpl_k1": 1.3473470211029053,
+        "nll_lpl_pause_k2": 1.0882353782653809,
+        "bank_size_after": 6
+      },
+      {
+        "prompt": "Q: In what year did World War II end?\nA:",
+        "gold": " 1945",
+        "nll_base": 0.2482643574476242,
+        "nll_lpl_k1": 0.2482643574476242,
+        "nll_lpl_pause_k2": 0.2006458044052124,
+        "bank_size_after": 6
+      },
+      {
+        "prompt": "Q: What is the speed of light in vacuum, in m/s? (just the n",
+        "gold": " 299",
+        "nll_base": 0.00961767602711916,
+        "nll_lpl_k1": 0.00961767602711916,
+        "nll_lpl_pause_k2": 0.009382631629705429,
+        "bank_size_after": 6
+      }
+    ],
+    "negation": [
+      {
+        "prompt": "Q: Is Paris in Germany? Answer yes or no.\nA:",
+        "gold": " No",
+        "nll_base": 0.001459962804801762,
+        "nll_lpl_k1": 0.001459962804801762,
+        "nll_lpl_pause_k2": 0.0031956578604876995,
+        "bank_size_after": 6
+      },
+      {
+        "prompt": "Q: Is the Sun a planet? Answer yes or no.\nA:",
+        "gold": " No",
+        "nll_base": 0.003483301494270563,
+        "nll_lpl_k1": 0.003483301494270563,
+        "nll_lpl_pause_k2": 0.0011333954753354192,
+        "bank_size_after": 6
+      },
+      {
+        "prompt": "Q: Is water made of carbon? Answer yes or no.\nA:",
+        "gold": " No",
+        "nll_base": 0.0011328000109642744,
+        "nll_lpl_k1": 0.0011328000109642744,
+        "nll_lpl_pause_k2": 0.0006887924391776323,
+        "bank_size_after": 6
+      },
+      {
+        "prompt": "Q: Does ice float in water? Answer yes or no.\nA:",
+        "gold": " Yes",
+        "nll_base": 0.016855906695127487,
+        "nll_lpl_k1": 0.016855906695127487,
+        "nll_lpl_pause_k2": 0.11437048017978668,
+        "bank_size_after": 6
+      },
+      {
+        "prompt": "Q: Is the Pacific the smallest ocean? Answer yes or no.\nA:",
+        "gold": " No",
+        "nll_base": 0.0009492897079326212,
+        "nll_lpl_k1": 0.0009492897079326212,
+        "nll_lpl_pause_k2": 0.00017331528943032026,
+        "bank_size_after": 6
+      },
+      {
+        "prompt": "Q: Did Shakespeare write Hamlet? Answer yes or no.\nA:",
+        "gold": " Yes",
+        "nll_base": 0.39219969511032104,
+        "nll_lpl_k1": 0.39219969511032104,
+        "nll_lpl_pause_k2": 0.4744398891925812,
+        "bank_size_after": 6
+      }
+    ],
+    "two_hop": [
+      {
+        "prompt": "Marie Curie was born in Poland. The capital of her birth cou",
+        "gold": " Warsaw",
+        "nll_base": 0.8672679662704468,
+        "nll_lpl_k1": 0.8672679662704468,
+        "nll_lpl_pause_k2": 0.2483082413673401,
+        "bank_size_after": 6
+      },
+      {
+        "prompt": "Mount Fuji is in Japan. The capital of that country is",
+        "gold": " Tokyo",
+        "nll_base": 0.02126500941812992,
+        "nll_lpl_k1": 0.02126500941812992,
+        "nll_lpl_pause_k2": 0.03236839547753334,
+        "bank_size_after": 6
+      },
+      {
+        "prompt": "The Eiffel Tower is in France. The capital of that country i",
+        "gold": " Paris",
+        "nll_base": 0.03174220025539398,
+        "nll_lpl_k1": 0.03174220025539398,
+        "nll_lpl_pause_k2": 0.07508010417222977,
+        "bank_size_after": 6
+      },
+      {
+        "prompt": "Albert Einstein was born in Germany. The capital of his birt",
+        "gold": " Berlin",
+        "nll_base": 1.3758983612060547,
+        "nll_lpl_k1": 1.3758983612060547,
+        "nll_lpl_pause_k2": 0.47464460134506226,
+        "bank_size_after": 6
+      },
+      {
+        "prompt": "The Amazon River is mostly in Brazil. The capital of that co",
+        "gold": " Bras\u00edlia",
+        "nll_base": 0.7062388062477112,
+        "nll_lpl_k1": 0.7062388062477112,
+        "nll_lpl_pause_k2": 0.7056318521499634,
+        "bank_size_after": 6
+      }
+    ]
+  },
+  "active_pause_layers": [
+    9,
+    18,
+    27
+  ],
+  "verdict": "MOVEMENT_PASS"
+}
