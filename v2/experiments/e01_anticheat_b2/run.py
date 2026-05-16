@@ -69,9 +69,13 @@ def loss_from_logits(logits, input_ids, ans_start):
     return F.cross_entropy(pred.float(), gold)
 
 
-def shuffle_b_dims(b: torch.Tensor, seed: int = 0) -> torch.Tensor:
-    """Shuffle each row's dimensions independently (per-row permutation)."""
+def shuffle_b_dims(b: torch.Tensor, seed: int = 0, *, same_perm: bool = False) -> torch.Tensor:
+    """Shuffle dimensions. Per-row independent (default), or same perm for
+    every row (kills per-row identity if combined with downstream sum)."""
     g = torch.Generator(device="cpu").manual_seed(seed)
+    if same_perm:
+        perm = torch.randperm(b.shape[1], generator=g)
+        return b[:, perm].clone()
     out = torch.empty_like(b)
     for i in range(b.shape[0]):
         perm = torch.randperm(b.shape[1], generator=g)
@@ -133,6 +137,7 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--variant", required=True,
                    choices=["canonical", "h1_bank_off", "h2_shuffle_b",
+                            "h2b_same_perm", "h2c_collapsed_bank",
                             "h3_disjoint_split", "h4_zero_bank", "h5_n_sweep",
                             "h6_layer_sweep", "h7_rand_train", "h8_kl_neutral",
                             "h9_cross_smoke", "h10_gate_hist"])
@@ -180,6 +185,10 @@ def main():
     if args.variant == "h2_shuffle_b":
         b_raw = shuffle_b_dims(b_raw.cpu(), seed=args.seed).to(args.device)
         print("[e01:h2] applied row-level dim shuffle to b_raw")
+    if args.variant == "h2c_collapsed_bank":
+        # collapse all N rows to the mean of the bank: zero row-distinctness.
+        b_raw = b_raw.mean(dim=0, keepdim=True).expand_as(b_raw).contiguous()
+        print(f"[e01:h2c] collapsed bank — all {b_raw.shape[0]} rows identical (mean)")
 
     P = make_projector(d, rank=args.rank).to(args.device).float()
 
@@ -285,6 +294,11 @@ def main():
         verdict = {"pass": post_off >= base - 0.05, "rule": "post_off >= base-0.05"}
     elif args.variant == "h2_shuffle_b":
         verdict = {"pass": (post_real - 6.30) >= 4.0, "rule": "post_real degrades >=4.0 vs B2 baseline 6.30"}
+    elif args.variant == "h2c_collapsed_bank":
+        # all rows identical → row distinctness destroyed → if trained
+        # projector still helps significantly, claim is hollow.
+        verdict = {"pass": (post_real - 6.30) >= 4.0,
+                   "rule": "collapsed (single-row) bank should NOT match real (gap >=4.0)"}
     elif args.variant == "h3_disjoint_split":
         verdict = {"pass": (base - post_real) >= 1.0, "rule": "Δ NLL <= -1.0 even with disjoint split"}
     elif args.variant == "h4_zero_bank":

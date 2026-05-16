@@ -1,7 +1,16 @@
 # E01 — Anti-cheat suite for Phase B2 (partial, seed 0)
 
-**Status**: 4/5 critical falsifiers PASS at seed 0; 1 reveals an unexpected
-mechanism that does **not** kill the claim but reframes it.
+**Status**: 6/7 critical falsifiers landed at seed 0; **H2c is a serious
+content-specificity warning** that requires e11/e17 to resolve before any
+publication-grade claim.
+
+**Update (wave 2)**: H3 (subj+rel disjoint split) PASS with Δ=−2.69.
+**H2c (all bank rows = mean of real bank) UNEXPECTEDLY Δ=−4.81** — i.e.
+stronger than canonical (−3.90). This means: row-distinctness is not
+required for the projector to extract its training gain. The mechanism is
+either (a) the projector exploits "extra K/V slots" as a generic
+attention-smoother, or (b) the training signal alone — not bank content —
+is what carries the NLL drop. e11 (n7 K=0 pure-proj) will discriminate.
 
 **Claim under test (from B2)**: a frozen LLM + preloaded AttentionBank +
 trainable rank-64 (I+P) residual K/V projector improves NLL on held-out
@@ -23,6 +32,8 @@ Raw JSON: `v2/experiments/e01_anticheat_b2/e01_<variant>_seed0.json`.
 | h4_zero_bank | identical init | 12.00 / 8.10 / 12.01 / **12.00** / 12.00 | (real same) | **PASS** (post_zero == base) |
 | h7_rand_train | identical init | 12.00 / **11.71** / 12.00 / 12.00 / 12.00 | **−0.29** | **PASS** (rand-trained gap=3.6 vs real-trained) |
 | h2_shuffle_b | 12.00 / 12.01 / 12.01 / 12.00 / 12.00 | 12.00 / **7.38** / 12.00 / 12.00 / 12.00 | **−4.62** | revises hypothesis (see below) |
+| h2c_collapsed_bank | 12.00 / 12.03 / 12.00 / 12.00 / 12.00 | 12.00 / **7.19** / 12.01 / 12.00 / 12.00 | **−4.81** | ⚠️ **content-blind warning** |
+| h3_disjoint_split | 12.72 / 12.80 / 12.76 / 12.74 / 12.72 | 12.72 / **10.03** / 12.75 / 12.74 / 12.72 | **−2.69** | **PASS** (subj+rel OOD) |
 
 ## Reading
 
@@ -61,6 +72,22 @@ Raw JSON: `v2/experiments/e01_anticheat_b2/e01_<variant>_seed0.json`.
   to every row — this would destroy per-row identity entirely. We expect
   Δ to collapse there. To be run.
 
+- **H2c (collapsed bank, all rows = mean of real bank)**: Δ=−4.81.
+  Even with ZERO row-distinctness — every bank slot is the identical mean
+  vector — the projector still extracts a 4.81 NLL drop. This **falsifies
+  the "addressable slots" reframe of H2**. The signal is not from N
+  distinct addresses; it is either from training-time gradient signal that
+  doesn't require bank content, or from the projector learning to use the
+  extra K/V positions as a generic attention regularizer. Pinned for e11
+  (n7 K=0 pure-projector test) to discriminate.
+
+- **H3 (subject+relation disjoint train/test split)**: Δ_real=−2.69 with
+  controls flat (rand/zero/off all within 0.05 of base). Even under a hard
+  OOD split where the test set shares neither subject nor relation with
+  any training item, the projector + bank still generalizes. **PASS**.
+  This says: the gain is *not* from per-(subject,relation) routing memorized
+  during training — it's a transferable read mechanism.
+
 ## Falsifier hit-rate (seed 0, partial)
 
 | H | Status |
@@ -68,7 +95,8 @@ Raw JSON: `v2/experiments/e01_anticheat_b2/e01_<variant>_seed0.json`.
 | H1 bank-off | **PASS** |
 | H2 row-shuffle b (per-row perm) | did not falsify — reframe required, see above |
 | H2b same-permutation b (proposed) | pending |
-| H3 entity+relation disjoint split | pending |
+| H2c collapsed bank (all rows = mean) | ⚠️ **did not falsify** — Δ=−4.81 worse than canonical; addressable-slots reframe is dead, needs e11 to decide if memory is necessary at all |
+| H3 entity+relation disjoint split | **PASS** Δ=−2.69 |
 | H4 zero bank | **PASS** |
 | H5 N_preload sweep | pending |
 | H6 layer sweep | pending |
