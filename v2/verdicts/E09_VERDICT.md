@@ -15,11 +15,11 @@ The 5-nat gap *is* what the projector contributes.
 ```bash
 python3 v2/experiments/e09_v1_anb_resurrect/run.py --seed 0 \
     --mode v1_orig --bank_layer 9 --steps 200 \
-    --n_train 120 --n_test 120 --n_preload 512
+    --n_train 120 --n_eval 120 --n_preload 512
 
 python3 v2/experiments/e09_v1_anb_resurrect/run.py --seed 0 \
     --mode v2_kproj --bank_layer 9 --rank 64 --steps 200 \
-    --n_train 120 --n_test 120 --n_preload 512
+    --n_train 120 --n_eval 120 --n_preload 512
 ```
 
 ## b. Seeds & sample size

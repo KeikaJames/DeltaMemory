@@ -11,11 +11,11 @@
 ```bash
 python3 v2/experiments/e05_cross_model/run.py --seed 0 \
     --model Qwen/Qwen3-1.7B --steps 200 \
-    --bank_layer 9 --rank 64 --n_train 120 --n_test 120 --n_preload 512
+    --bank_layer 9 --rank 64 --n_train 120 --n_eval 120 --n_preload 512
 
 python3 v2/experiments/e05_cross_model/run.py --seed 0 \
     --model Qwen/Qwen3-4B-Instruct-2507 --steps 5000 \
-    --bank_layer 9 --rank 64 --n_train 120 --n_test 120 --n_preload 512
+    --bank_layer 9 --rank 64 --n_train 120 --n_eval 120 --n_preload 512
 ```
 
 ## b. Seeds & sample size

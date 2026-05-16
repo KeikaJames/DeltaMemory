@@ -12,7 +12,7 @@
 python3 v2/experiments/e12_LT_ST_coexist/run.py --seed 0 \
     --n_LT 256 --n_ST 64 \
     --bank_layer 9 --rank 64 --steps 200 \
-    --n_train 120 --n_test 120
+    --n_train 120 --n_eval 120
 ```
 
 ## b. Seeds & sample size

@@ -1,10 +1,12 @@
 > [!IMPORTANT]
 > **Active line: [`v2/`](./v2/) — Attention-Side Latent Bank (ALB).**
-> v2 builds on Exp42 Phase B2 (NLL 12.13→6.30 with a learnable rank-64 K-projector
-> over Exp35b's 10⁴ MEMIT bank entries). See [`v2/README.md`](./v2/README.md)
-> for the new architecture (auto-pause + interrupt-API dual channel, long+short
-> term memory coexistence, multi-round halt) and the running v2 plan.
-> Everything below this line is **v1 archive** — kept for reproducibility.
+> v2 is now a narrowed evidence package, not a broad memory-system claim.
+> The multi-slot content-memory interpretation was falsified by E10/E11/E20C;
+> Phase-D supports the adapter interpretation with matched PEFT ablations; the
+> defensible positive result is the E21/E21b single-slot counterfactual editor
+> under frozen base weights. See [`v2/README.md`](./v2/README.md) and
+> `v2/scripts/prepublish_audit.py` before citing results. Everything below this
+> line is **v1 archive** — kept for reproducibility.
 
 **We reassessed our experimental direction. The data was rough, but useful: it gave us a clear reason to change course instead of staying stuck.**
 > [!WARNING]

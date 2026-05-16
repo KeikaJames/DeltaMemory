@@ -7,6 +7,9 @@ def install_bank_patch_for_model(model):
     elif "gemma2" in cls:
         from .gemma2_bank_patch import install_lpl_patch, LPLState, lpl_state_scope
         install_lpl_patch(model)
+    elif "gemma3" in cls:
+        from .gemma3_bank_patch import install_lpl_patch, LPLState, lpl_state_scope
+        install_lpl_patch(model)
     elif "qwen2" in cls:
         from .vanilla_bank_patch import install_qwen2_patch as install_lpl_patch, LPLState, lpl_state_scope
         install_lpl_patch(model)

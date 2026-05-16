@@ -80,6 +80,15 @@ GRANDFATHERED_DIRS = frozenset(
         # Generated report outputs (gitignored; not raw experiment results)
         "experiments/atb_validation_v1/final_report",
         "experiments/atb_validation_v1/results_archive",
+        # Historical ATB validation runs produced before the authenticity
+        # contract required full env metadata. Strict mode still checks them.
+        "experiments/atb_validation_v1/exp31_learned_k_adapter/run_mps_exp31_qwen_smoke/eval_main",
+        "experiments/atb_validation_v1/exp32_mlp_side_gated_memory/run_qwen_full_eval",
+        "experiments/atb_validation_v1/exp32_mlp_side_gated_memory/run_qwen_smoke_eval",
+        "experiments/atb_validation_v1/exp33_reattn_readout/run_qwen_full",
+        "experiments/atb_validation_v1/exp33_reattn_readout/run_smoke",
+        "experiments/atb_validation_v1/exp34_rome_baseline/run_qwen_exp34",
+        "experiments/atb_validation_v1/exp34_rome_baseline/smoke",
     }
 )
 

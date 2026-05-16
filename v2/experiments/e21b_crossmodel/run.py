@@ -1,4 +1,4 @@
-"""e21 — counterfactual injection demo (the "make AI lie" test).
+"""e21b — cross-model counterfactual injection demo.
 
 Phase C pivot.  e20c proved the soft-attention-uniform-bank lift is a global
 style attractor, NOT item-specific memory.  v1-style usability requires the
@@ -19,12 +19,13 @@ Protocol per fact:
 Pass = (a) base says truth, (b) bank flips it to counterfactual, (c)
 cross-prompt unaffected for ≥ N/2 of the cross pairs.
 
-Output: v2/experiments/e21_counterfactual_injection/results.json
+Output: v2/experiments/e21b_crossmodel/<model>_L<layer>_<steps>.json by default.
 """
 from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 import time
 from pathlib import Path
@@ -51,6 +52,13 @@ FACTS = [
     ("Water boils at",                      " 100",       " 50"),
     ("The Great Wall is located in",        " China",     " India"),
 ]
+
+
+def result_path_for(model_name: str, bank_layer: int, steps: int, explicit: str | None) -> Path:
+    if explicit:
+        return Path(explicit)
+    slug = re.sub(r"[^A-Za-z0-9]+", "_", model_name).strip("_").lower()
+    return HERE / f"{slug}_L{bank_layer}_{steps}.json"
 
 
 def greedy_decode(model, tok, prompt, device, *, bank=None, heads=None, max_new=12):
@@ -129,9 +137,10 @@ def main():
     p.add_argument("--rank", type=int, default=64)
     p.add_argument("--steps", type=int, default=200)
     p.add_argument("--lr", type=float, default=5e-3)
+    p.add_argument("--out", default=None, help="Optional JSON output path.")
     args = p.parse_args()
 
-    print(f"[e21] device={args.device} model={args.model} layer={args.bank_layer}")
+    print(f"[e21b] device={args.device} model={args.model} layer={args.bank_layer}")
     torch.manual_seed(0)
 
     tok, model = load_model(args.model, device=args.device, dtype="bf16")
@@ -163,7 +172,7 @@ def main():
     usable_facts = [t for t in base_decodes if t[4]]
     print(f"\nusable facts: {len(usable_facts)}/{len(FACTS)}")
     if not usable_facts:
-        print("[e21] no fact base-decodes to truth — abort")
+        print("[e21b] no fact base-decodes to truth — abort")
         return 1
 
     print("\n=== Phase 1: train one b per fact, decode with bank ===")
@@ -225,7 +234,7 @@ def main():
     print(f"overall pass: {success}")
 
     result = {
-        "experiment": "e21_counterfactual_injection",
+        "experiment": "e21b_crossmodel",
         "model": args.model, "bank_layer": args.bank_layer,
         "steps": args.steps, "lr": args.lr,
         "base_phase": [{"prompt": p, "truth": t, "counter": c,
@@ -236,8 +245,10 @@ def main():
         "n_cross_truth_preserved": n_cross_ok, "n_cross_total": n_cross_total,
         "overall_pass": bool(success),
     }
-    (HERE / "results.json").write_text(json.dumps(result, indent=2))
-    print(f"\n[e21] -> {HERE / 'results.json'}")
+    out_path = result_path_for(args.model, args.bank_layer, args.steps, args.out)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(result, indent=2))
+    print(f"\n[e21b] -> {out_path}")
     return 0 if success else 2
 
 

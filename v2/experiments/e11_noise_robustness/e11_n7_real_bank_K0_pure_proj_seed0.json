@@ -1,0 +1,42 @@
+{
+  "variant": "n7_real_bank_K0_pure_proj",
+  "seed": 0,
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "n_train": 120,
+  "n_test": 120,
+  "n_preload": 0,
+  "bank_layer": 9,
+  "rank": 64,
+  "lr": 0.0002,
+  "steps": 200,
+  "bank_stats": {
+    "mean_norm": 0.0,
+    "mean_pairwise_dist": 0.0
+  },
+  "before": {
+    "base": 11.997906438509624,
+    "real": 11.997906438509624,
+    "rand": 11.997906438509624,
+    "zero": 11.997906438509624,
+    "off": 11.997906438509624
+  },
+  "after": {
+    "base": 11.997906438509624,
+    "real": 11.997906438509624,
+    "rand": 11.997906438509624,
+    "zero": 11.997906438509624,
+    "off": 11.997906438509624
+  },
+  "nll_drop": 0.0,
+  "verdict": {
+    "pass": true,
+    "rule": "no bank (K=0) should NOT reduce NLL by >=2 (got \u0394_signed=+0.00)",
+    "interpretation": "PASS = memory necessary",
+    "delta_signed": 0.0,
+    "nll_drop": 0.0
+  },
+  "loss_first25": [],
+  "loss_last25": [],
+  "n_train_params": 0,
+  "no_active_bank_path": true
+}

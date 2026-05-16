@@ -11,7 +11,7 @@
 ```bash
 python3 v2/experiments/e06_relation_disjoint_ood/run.py --seed 0 \
     --bank_layer 9 --rank 64 --steps 200 \
-    --n_train 120 --n_test_ood 120 --n_preload 512 --train_frac 0.7
+    --n_train 120 --n_eval 120 --n_preload 512 --train_frac 0.7
 ```
 
 ## b. Seeds & sample size

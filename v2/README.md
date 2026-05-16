@@ -1,131 +1,166 @@
-# v2 — Attention-Side Latent Bank (ALB)
+# v2 — Attention-Side Latent Bank
 
-> **2026-05 更名公告**：本仓库主术语已从 "Hippocampus-style Native LLM Memory / HNM"
-> 改名为 **Attention-Side Latent Bank (ALB)**。术语映射：
->
-> | 旧称 | 新称 |
-> |---|---|
-> | HNM / Hippocampus-style Native LLM Memory | Attention-Side Latent Bank (ALB) |
-> | memory bank | latent bank / bank substrate |
-> | long-term memory | preloaded latent bank |
-> | short-term memory | runtime-written latent bank |
-> | memory retrieval | bank readout |
-> | pause-retrieve | pause-write |
->
-> hippocampus / 海马 类比已在 v2/ 全面删除。`v1/` 保持历史命名以维持复现性
-> （见 `tech_debt/V1_CLOSEOUT.md`）。
+v2 是当前主线；`v1/` 只保留历史实验和复现材料。
 
-> **状态**：v2 是 active 主线；`v1/` 是 archive（保留以复现历史）。
+截至 2026-05-17，v2 的结论已经从“可扩展外部记忆系统”收缩为更精确的研究结论：
 
-> ⚠️ **2026-05 更新（pivot）**：e11 噪声鲁棒性实验（wave-3 @ L9 + wave-5 @ L21）
-> 已**证伪**「bank content carries the information that is read out」这一
-> 原始论点。随机 Gaussian / 单行复制 / 常量向量 bank 给出与真实 bank
-> *相同甚至更大* 的 Δ NLL。当前 working interpretation：v2 实质是一个
-> **rank-64 K-projector 残差适配器，以 AttentionBank API 作为表面形式**，
-> 而非 attention-side latent bank 式内容检索系统。详细见
-> [`verdicts/V2_FINAL_VERDICT.md`](verdicts/V2_FINAL_VERDICT.md) §1b
-> 与 [`verdicts/E01_VERDICT.md`](verdicts/E01_VERDICT.md)。
-> 余下决定性实验：e10 top-K（content-vs-capacity 判别）、e13 multi-task
-> （capacity transfer 检验）。
+- 多槽 soft-attention bank 在 E10/E11/E20C 中被反证：随机 bank、常量 bank、shuffle bank 也能产生大幅 NLL 改善，说明早期增益主要不是按内容检索。
+- rank-64 K-projector / residual adapter 是主要有效梯度通道；原始“bank content carries fact identity”的解释不成立。
+- Phase-D 的 matched-parameter 消融显示，普通 residual adapter 在同一 split 上比 Q/K LoRA 更强，也足以解释“可训练小模块吸收事实模式”的现象。
+- E21 证明了一个更小但真实的能力：单 fact、单 slot、只训练一个 `b` 向量，可以让 frozen LLM 对指定 prompt 输出指定 counterfactual。
+- E21b 把 E21 协议移植到多个 decoder family，说明该能力不是 Qwen3 单模型偶然现象。
 
-## 起源
+如果要引用 v2，请优先引用本 README、`verdicts/E10_VERDICT.md`、`verdicts/E11_VERDICT.md`、`verdicts/PHASE_D_LORA_VERDICT.md`、`verdicts/E20C_VERDICT.md`、`verdicts/E21_VERDICT.md`、`verdicts/E21B_CROSSMODEL_VERDICT.md` 和 `scripts/prepublish_audit.py` 的输出。`verdicts/V2_FINAL_VERDICT.md` 是历史长稿，仍含旧计划段落和 `[TBD]`，不能作为投稿主证据。
 
-v1 探索了 ATB / mHC / RCV-mC / Manifold / Sinkhorn / Hyper-Connections 等多条
-路线，最终在 Exp42 LPL Phase B2 拿到关键实证：
+## 当前可信结论
 
-> 在 Qwen3-4B-Instruct-2507（整模型冻结）上，把 Exp35b 的 512 个 MEMIT
-> 残差 b-vector 预填入 layer 9 AttentionBank，再训一个 rank-64 (I+P) 残差
-> K/V 投影器（420K 可训练参数，200 步），test NLL **12.13 → 6.30**
-> （Δ=−5.83）；同体量 random bank + 同一训好的投影器仅 Δ=−0.02。
+### 已证伪
 
-详见 `v1/experiments/atb_validation_v1/exp42_lpl/EXP42_VERDICT.md`。
+1. **512-slot bank 不是可靠的 fact-identity memory。**
+   E11 显示 iid Gaussian、单行复制、常量向量、真实 bank K=1 等控制组可以给出同量级甚至更大的 NLL 改善。
+   三种 seed 的关键均值：E10 real topK8 Δ=-3.856，random topK8 Δ=-3.628，all-random Δ=-5.196；E11 iid Gaussian Δ=-5.582，single-row replicated Δ=-5.752，constant-vector Δ=-2.957，real-bank K=1 Δ=-5.859。K=0 no-bank 控制 Δ=0.000。
 
-v2 把这个发现放进一个完整的、可被人和模型共同使用的**原生记忆机制**框架：
+2. **E20b 的大幅 lift 不是 item-specific retrieval。**
+   E20C 加入 shuffle / held-out / drift audit 后，发现 lift 是全局 style attractor，而不是事实绑定。
 
-## 三大核心机制
+3. **早期 NLL lift 不需要 content bank 才能解释。**
+   Phase-D 在同一 Qwen3-4B split、同一层、相近训练预算下比较 matched-parameter adapter：plain residual adapter 三 seed mean Δ=-7.628，而 LoRA-q mean Δ=-0.221、LoRA-qk mean Δ=-0.246。plain adapter 卸载后 NLL 回到 base，说明 lift 来自可卸载小模块本身，不是持久事实检索。
 
-1. **K-Projector 桥**（已 PoC，需大规模反作弊）
-   - bank-side 可学 (I+P) 把异质 latent 对齐到目标 layer 的 QK 语义空间
-   - 没有它，v1 公式跑不通；有了它，静态长期记忆库可被 frozen 模型直接读
+4. **多轮 ponder / pause-write 尚未证明带来额外收益。**
+   E15 三个 seed 中，K>2 相对 K=2 的 improvement 都是 0.0000；E14 pause-head 训练也没有过关。
 
-2. **双通道注入**：
-   - **AI 自动 pause-write**：pause head 学习何时跳过当前层 attention，
-     把 hidden 写入 bank；下一轮同层 attention 把它当 KV 读
-   - **人工 interrupt**：`v2.core.interrupt_api.interrupt(bank, ...)` 公开
-     API，外部程序可在任意 (round, layer, position) 注入 latent
+### 已证明
 
-3. **长短期共存**：
-   - LT (long-term)：preload Exp35b 的 b-vectors，frozen
-   - ST (short-term)：pause-write 的工作记忆，FIFO 上限 C
-   - 同一 AttentionBank 容器，下一轮 attention concat 一并读
+1. **E21 单槽 counterfactual injection 可行。**
+   对每个 fact 单独训练一个 `b` 向量，base weights 冻结，projector 冻结，bank 只有一个 slot。Qwen3-4B 上 5/5 facts greedy decode 翻转到目标 counterfactual，cross-prompt truth preservation 19/20。
 
-## 与 v1 的对照
+2. **E21b 跨模型复现。**
+   可信结果包括：
 
-| | v1 AttnNativeBank | v2 ALB |
-|---|---|---|
-| 写 | 一次 fact-prompt forward 预存 (K, V) | h-store + 运行时投影；pause-write 跨轮累积 |
-| 读 | concat (K, V) 进 softmax，全局 α | 同结构，bank-side learnable (I+P)，per-position bank_gate |
-| Round | 单 round | K_max 轮 + ACT halt |
-| 注入 | 不支持 | 双通道（auto-pause + interrupt API） |
-| 长短期 | 仅长期（fact-write） | 长短共存 |
+   | Family | Model | Layer | Steps | Flips | Cross-prompt preserved |
+   |---|---|---:|---:|---:|---:|
+   | Qwen3 | Qwen3-4B-Instruct-2507 | 9 | 200 | 5/5 | 19/20 |
+   | Qwen3 | Qwen3-1.7B | 18 | 500 | 5/5 | 16/20 |
+   | Gemma2 | google/gemma-2-2b | 13 | 500 | 2/2 surviving | 1/2 |
+   | Qwen2 | Qwen2.5-0.5B-Instruct | 12 | 500 | 1/1 surviving | 0/0 |
+   | Llama | TinyLlama-1.1B-Chat-v1.0 | 14 | 500 | 5/5 | 13/20 |
 
-## 仓库结构
+   注意：Gemma3 和 DeepSeek 当前没有可信通过结果；旧 driver 曾产生过文件名与模型元数据不一致的伪结果，已从工作区删除。必须用修复后的 `--out` 或默认按模型命名输出重跑后，才能新增相关声明。
+
+## 代码入口
 
 ```
 v2/
-├── core/                       # 单源真理：所有 experiments 共享
-│   ├── attention_bank.py       # 长短期混合 bank
-│   ├── qwen3_lpl_patch.py      # 双通道 hook
-│   ├── runtime.py              # K_max 多轮 + halt
-│   ├── kproj.py                # (I+P) 投影器
-│   ├── retrieval.py            # topK 检索（cosine / dot / learned）
-│   ├── interrupt_api.py        # 公开人工注入接口
-│   ├── load_model.py
-│   ├── data_io.py              # bank.pt 读、relation split
-│   └── eval_lib.py             # NLL / PPL / acc helpers
+├── core/
+│   ├── attention_bank.py          # per-layer hidden-state bank + heads
+│   ├── qwen3_lpl_patch.py         # Qwen3 attention / pause patch
+│   ├── gemma2_bank_patch.py       # Gemma2 attention patch
+│   ├── gemma3_bank_patch.py       # Gemma3 attention patch, pending trusted run
+│   ├── vanilla_bank_patch.py      # Qwen2 / Llama-style attention patch
+│   ├── bank_patch_dispatch.py     # model-class based patch dispatcher
+│   ├── kproj.py                   # low-rank residual projector
+│   ├── runtime.py                 # multi-round runtime
+│   ├── retrieval.py               # top-K bank retrieval helpers
+│   └── data_io.py                 # v1 bank blob and split helpers
 ├── experiments/
-│   ├── e01_anticheat_b2/                 # B2 falsifiers H1-H10
-│   ├── e02_scale_matrix/                 # N_preload×N_train×layers×lr×steps
-│   ├── e03_capability_drift/             # WikiText-103 + lm-eval-harness
-│   ├── e04_act_halt_kmax/                # K∈{2,4,8} + halt
-│   ├── e05_cross_model/                  # Qwen3 / Llama / Mistral
-│   ├── e06_relation_disjoint_ood/
-│   ├── e07_per_layer_kproj/
-│   ├── e08_interrupt_api_demo/
-│   ├── e09_v1_resurrect_attn_native_bank/
+│   ├── e01_anticheat_b2/
 │   ├── e10_topk_retrieval/
-│   ├── e11_dual_channel/
-│   ├── e12_long_short_coexistence/
-│   ├── e13_multi_task_capability/
-│   ├── e14_pause_head_train/
-│   ├── e15_ponder_curriculum/
-│   ├── e16_bank_capacity_forgetting/
-│   ├── e17_negation_robustness/
-│   ├── e18_chained_2hop/
-│   └── e19_seed_replication/
-├── methodology/
-│   ├── V2_METHODOLOGY_DEBATE.md
-│   └── V2_DIFFERENTIATION.md
-├── tech_debt/
-│   └── V1_CLOSEOUT.md
-└── verdicts/
-    ├── E01_VERDICT.md ... E19_VERDICT.md
-    └── V2_FINAL_VERDICT.md
+│   ├── e11_noise_robustness/
+│   ├── e_phase_d_lora/
+│   ├── e20c_adversarial_audit/
+│   ├── e21_counterfactual_injection/
+│   └── e21b_crossmodel/
+├── verdicts/
+│   ├── V2_FINAL_VERDICT.md      # historical long draft; not paper-facing
+│   ├── E10_VERDICT.md
+│   ├── E11_VERDICT.md
+│   ├── PHASE_D_LORA_VERDICT.md
+│   ├── E20C_VERDICT.md
+│   ├── E21_VERDICT.md
+│   └── E21B_CROSSMODEL_VERDICT.md
+└── methodology/
 ```
 
-## 复现 B2
+## 复现
+
+### E21 original
 
 ```bash
-python3 v1/experiments/atb_validation_v1/exp42_lpl/06_phase_b2_kproj.py \
-    --device mps --steps 200 --lr 2e-4 --rank 64
+python3 v2/experiments/e21_counterfactual_injection/run.py \
+  --device mps \
+  --model Qwen/Qwen3-4B-Instruct-2507 \
+  --bank_layer 9 \
+  --steps 200 \
+  --lr 5e-3
 ```
 
-## 主要中央问题
+### E21b cross-model
 
-> A frozen LLM, augmented with (i) per-position learnable pause head,
-> (ii) per-layer K/V projector over a shared AttentionBank, and (iii)
-> multi-round halt mechanism, can integrate attention-side latent bank long-term
-> memory and within-inference working memory through native attention—
-> no fine-tuning of base weights, no prompt rewriting, no external retriever.
+```bash
+python3 v2/experiments/e21b_crossmodel/run.py \
+  --device mps \
+  --model Qwen/Qwen3-1.7B \
+  --bank_layer 18 \
+  --steps 500 \
+  --lr 1e-2
 
-10 个廉价解释（H1-H10）必须分别证伪。详见 `methodology/V2_METHODOLOGY_DEBATE.md`。
+python3 v2/experiments/e21b_crossmodel/run.py \
+  --device mps \
+  --model google/gemma-2-2b \
+  --bank_layer 13 \
+  --steps 500 \
+  --lr 1e-2
+
+python3 v2/experiments/e21b_crossmodel/run.py \
+  --device mps \
+  --model Qwen/Qwen2.5-0.5B-Instruct \
+  --bank_layer 12 \
+  --steps 500 \
+  --lr 1e-2
+
+python3 v2/experiments/e21b_crossmodel/run.py \
+  --device mps \
+  --model TinyLlama/TinyLlama-1.1B-Chat-v1.0 \
+  --bank_layer 14 \
+  --steps 500 \
+  --lr 1e-2
+```
+
+`e21b_crossmodel/run.py` 现在默认写到：
+
+```
+v2/experiments/e21b_crossmodel/<model_slug>_L<bank_layer>_<steps>.json
+```
+
+也可以显式指定：
+
+```bash
+python3 v2/experiments/e21b_crossmodel/run.py ... --out v2/experiments/e21b_crossmodel/my_run.json
+```
+
+### Phase-D matched PEFT ablation
+
+```bash
+python3 v2/experiments/e_phase_d_lora/run.py \
+  --method plain_adapter \
+  --device mps \
+  --seed 0
+
+python3 v2/experiments/e_phase_d_lora/run.py \
+  --method lora_qk \
+  --device mps \
+  --seed 0
+```
+
+Paper-facing Phase-D evidence is the 3-seed grid in `v2/experiments/e_phase_d_lora/`, checked by `v2/scripts/prepublish_audit.py`.
+
+## 已知未收口问题
+
+- Gemma3 patch 已接入 dispatcher，但没有可信通过结果。
+- DeepSeek / gpt-oss flagship 还没有本地可信跑通。主要 blocker 是 MoE/custom kernels、CUDA/Triton 依赖、权重下载和显存。
+- E14 pause-head training 仍有 placeholder 注释，实验结论应按 FAIL 处理，不要作为可用训练流程。
+- E15 `forgetful` mode 不是完整实现；当前可信结论只看 cumulative mode。
+
+## 命名
+
+v2 统一使用 **Attention-Side Latent Bank**。旧称 HNM、hippocampus-style memory、long-term/short-term memory 类比只出现在历史材料中；新的结论应避免继续使用“海马记忆”叙事。

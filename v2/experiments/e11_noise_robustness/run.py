@@ -343,35 +343,44 @@ def main():
     # === training ===
     rng = random.Random(args.seed)
     trainable = list(P.parameters()) + list(heads.bank_gate_heads.parameters())
-    opt = torch.optim.AdamW(trainable, lr=args.lr)
+    active_trainable_params = sum(p.numel() for p in trainable)
+    no_active_bank_path = (args.variant == "n7_real_bank_K0_pure_proj")
+    if no_active_bank_path:
+        # With zero bank rows, the LPL attention path falls back to the
+        # original model and the projector/gate heads are not in the graph.
+        # Treat this as a no-trainable-path control instead of calling
+        # backward() on a detached loss.
+        trainable = []
+        active_trainable_params = 0
+        opt = None
+    else:
+        opt = torch.optim.AdamW(trainable, lr=args.lr)
     losses = []
     t0 = time.time()
-    for step in range(args.steps):
-        sj, rl, tg = rng.choice(train_items)
-        enc, _, ans = encode_qa(tok, f"{sj} {rl}", tg, args.device)
-        
-        # rebuild bank with grad-tracking projector each step
-        bank.frozen = False
-        if b_raw.shape[0] == 0:
-            # n7: no bank rows
-            bank.slots[args.bank_layer] = torch.empty(0, d, device=args.device, dtype=torch.bfloat16)
-            bank.tags[args.bank_layer] = []
-        else:
+    if no_active_bank_path:
+        print(f"  [e11:{args.variant}] no bank rows -> no active trainable path; skipping training")
+    else:
+        for step in range(args.steps):
+            sj, rl, tg = rng.choice(train_items)
+            enc, _, ans = encode_qa(tok, f"{sj} {rl}", tg, args.device)
+
+            # rebuild bank with grad-tracking projector each step
+            bank.frozen = False
             proj = (b_raw + P(b_raw)).to(dtype=torch.bfloat16)
             bank.slots[args.bank_layer] = proj
             bank.tags[args.bank_layer] = [(0, -1)] * proj.shape[0]
-        bank.frozen = True
-        
-        opt.zero_grad()
-        logits = forward_lpl_k2(model, bank, heads, enc, grad=True)
-        loss = loss_from_logits(logits, enc.input_ids, ans)
-        loss.backward()
-        torch.nn.utils.clip_grad_norm_(trainable, 1.0)
-        opt.step()
-        losses.append(float(loss.detach().cpu()))
-        if (step + 1) % 25 == 0 or step == 0:
-            recent = sum(losses[-25:]) / min(25, len(losses))
-            print(f"  [e11:{args.variant}] step {step+1}/{args.steps} loss(avg25)={recent:.4f} ({time.time()-t0:.1f}s)")
+            bank.frozen = True
+
+            opt.zero_grad()
+            logits = forward_lpl_k2(model, bank, heads, enc, grad=True)
+            loss = loss_from_logits(logits, enc.input_ids, ans)
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(trainable, 1.0)
+            opt.step()
+            losses.append(float(loss.detach().cpu()))
+            if (step + 1) % 25 == 0 or step == 0:
+                recent = sum(losses[-25:]) / min(25, len(losses))
+                print(f"  [e11:{args.variant}] step {step+1}/{args.steps} loss(avg25)={recent:.4f} ({time.time()-t0:.1f}s)")
     print(f"[e11:{args.variant}] training done in {time.time()-t0:.1f}s")
     
     # === post-train eval ===
@@ -454,7 +463,8 @@ def main():
         "verdict": verdict,
         "loss_first25": losses[:25],
         "loss_last25": losses[-25:],
-        "n_train_params": sum(p.numel() for p in trainable),
+        "n_train_params": active_trainable_params,
+        "no_active_bank_path": no_active_bank_path,
     }
     out_path.write_text(json.dumps(out, indent=2))
     print(f"[e11:{args.variant}] -> {out_path}")

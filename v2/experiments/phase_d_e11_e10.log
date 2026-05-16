@@ -1,0 +1,322 @@
+[start] 2026年 5月16日 星期六 23时32分41秒 CST
+  skip e11_noise_robustness/n1_iid_gaussian/0 (already)
+  running e11_noise_robustness n1_iid_gaussian seed=1 at 23:32:41
+[e11:n1_iid_gaussian] train=120 test=120 preload=512 seed=1
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<03:00,  2.20it/s]Loading weights:   4%|▎         | 14/398 [00:00<00:12, 31.45it/s]Loading weights:   7%|▋         | 26/398 [00:00<00:07, 52.12it/s]Loading weights:  10%|▉         | 38/398 [00:00<00:05, 67.51it/s]Loading weights:  13%|█▎        | 53/398 [00:00<00:03, 88.09it/s]Loading weights:  16%|█▋        | 65/398 [00:01<00:03, 95.95it/s]Loading weights:  20%|██        | 80/398 [00:01<00:03, 105.75it/s]Loading weights:  23%|██▎       | 92/398 [00:01<00:02, 105.13it/s]Loading weights:  26%|██▌       | 104/398 [00:01<00:02, 104.71it/s]Loading weights:  30%|██▉       | 119/398 [00:01<00:02, 116.13it/s]Loading weights:  33%|███▎      | 132/398 [00:01<00:02, 118.98it/s]Loading weights:  37%|███▋      | 146/398 [00:01<00:02, 119.64it/s]Loading weights:  40%|███▉      | 159/398 [00:01<00:02, 111.63it/s]Loading weights:  44%|████▎     | 174/398 [00:01<00:01, 120.25it/s]Loading weights:  47%|████▋     | 188/398 [00:02<00:01, 124.79it/s]Loading weights:  51%|█████     | 201/398 [00:02<00:01, 121.13it/s]Loading weights:  54%|█████▍    | 214/398 [00:02<00:01, 112.72it/s]Loading weights:  58%|█████▊    | 229/398 [00:02<00:01, 120.69it/s]Loading weights:  61%|██████    | 243/398 [00:02<00:01, 125.27it/s]Loading weights:  64%|██████▍   | 256/398 [00:02<00:01, 121.75it/s]Loading weights:  68%|██████▊   | 269/398 [00:02<00:01, 113.03it/s]Loading weights:  71%|███████▏  | 284/398 [00:02<00:00, 121.98it/s]Loading weights:  75%|███████▍  | 297/398 [00:02<00:00, 123.96it/s]Loading weights:  78%|███████▊  | 310/398 [00:03<00:00, 120.83it/s]Loading weights:  81%|████████  | 323/398 [00:03<00:00, 119.27it/s]Loading weights:  84%|████████▍ | 336/398 [00:03<00:00, 118.48it/s]Loading weights:  88%|████████▊ | 350/398 [00:03<00:00, 123.41it/s]Loading weights:  91%|█████████ | 363/398 [00:03<00:00, 124.29it/s]Loading weights:  95%|█████████▍| 377/398 [00:03<00:00, 123.40it/s]Loading weights:  98%|█████████▊| 390/398 [00:03<00:00, 113.75it/s]Loading weights: 100%|██████████| 398/398 [00:03<00:00, 106.26it/s]
+[e11:n1_iid_gaussian] bank_stats: norm=15.00 distinctness=21.21
+[e11:n1_iid_gaussian] BEFORE: base=11.8376  real=11.7774  rand=11.7805  zero=11.8226  off=11.8376
+  [e11:n1_iid_gaussian] step 1/200 loss(avg25)=10.8170 (0.2s)
+  [e11:n1_iid_gaussian] step 25/200 loss(avg25)=11.4024 (4.9s)
+  [e11:n1_iid_gaussian] step 50/200 loss(avg25)=11.7011 (9.2s)
+  [e11:n1_iid_gaussian] step 75/200 loss(avg25)=11.2412 (13.6s)
+  [e11:n1_iid_gaussian] step 100/200 loss(avg25)=11.1676 (17.9s)
+  [e11:n1_iid_gaussian] step 125/200 loss(avg25)=9.3781 (22.2s)
+  [e11:n1_iid_gaussian] step 150/200 loss(avg25)=9.5628 (26.9s)
+  [e11:n1_iid_gaussian] step 175/200 loss(avg25)=8.3356 (31.5s)
+  [e11:n1_iid_gaussian] step 200/200 loss(avg25)=6.4826 (35.8s)
+[e11:n1_iid_gaussian] training done in 35.8s
+[e11:n1_iid_gaussian] AFTER:  base=11.8376  real=6.3263  rand=11.7812  zero=11.8226  off=11.8376
+[e11:n1_iid_gaussian] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e11_noise_robustness/e11_n1_iid_gaussian_seed1.json
+[e11:n1_iid_gaussian] verdict={'pass': False, 'rule': 'pure noise should NOT reduce NLL by >=2 (got Δ_signed=-5.51)', 'interpretation': 'FAIL = noise still helps → claim hollow', 'delta_signed': -5.511278661588827, 'nll_drop': 5.511278661588827}
+  done e11_noise_robustness n1_iid_gaussian seed=1
+  running e11_noise_robustness n1_iid_gaussian seed=2 at 23:35:50
+[e11:n1_iid_gaussian] train=120 test=120 preload=512 seed=2
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   4%|▍         | 15/398 [00:00<00:02, 149.60it/s]Loading weights:  18%|█▊        | 70/398 [00:00<00:00, 383.07it/s]Loading weights:  33%|███▎      | 130/398 [00:00<00:00, 481.52it/s]Loading weights:  48%|████▊     | 191/398 [00:00<00:00, 527.75it/s]Loading weights:  63%|██████▎   | 251/398 [00:00<00:00, 550.20it/s]Loading weights:  78%|███████▊  | 311/398 [00:00<00:00, 562.40it/s]Loading weights:  92%|█████████▏| 368/398 [00:00<00:00, 543.79it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 518.50it/s]
+[e11:n1_iid_gaussian] bank_stats: norm=15.00 distinctness=21.21
+[e11:n1_iid_gaussian] BEFORE: base=12.0200  real=11.9342  rand=11.9452  zero=11.9830  off=12.0200
+  [e11:n1_iid_gaussian] step 1/200 loss(avg25)=9.8785 (0.2s)
+  [e11:n1_iid_gaussian] step 25/200 loss(avg25)=11.5848 (4.7s)
+  [e11:n1_iid_gaussian] step 50/200 loss(avg25)=12.3024 (9.4s)
+  [e11:n1_iid_gaussian] step 75/200 loss(avg25)=10.0543 (13.6s)
+  [e11:n1_iid_gaussian] step 100/200 loss(avg25)=10.8300 (18.1s)
+  [e11:n1_iid_gaussian] step 125/200 loss(avg25)=8.2189 (22.3s)
+  [e11:n1_iid_gaussian] step 150/200 loss(avg25)=5.9190 (26.7s)
+  [e11:n1_iid_gaussian] step 175/200 loss(avg25)=5.7981 (31.0s)
+  [e11:n1_iid_gaussian] step 200/200 loss(avg25)=5.9601 (35.2s)
+[e11:n1_iid_gaussian] training done in 35.2s
+[e11:n1_iid_gaussian] AFTER:  base=12.0200  real=6.8324  rand=11.9150  zero=11.9830  off=12.0200
+[e11:n1_iid_gaussian] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e11_noise_robustness/e11_n1_iid_gaussian_seed2.json
+[e11:n1_iid_gaussian] verdict={'pass': False, 'rule': 'pure noise should NOT reduce NLL by >=2 (got Δ_signed=-5.19)', 'interpretation': 'FAIL = noise still helps → claim hollow', 'delta_signed': -5.187656881869771, 'nll_drop': 5.187656881869771}
+  done e11_noise_robustness n1_iid_gaussian seed=2
+  skip e11_noise_robustness/n3_single_row_replicated/0 (already)
+  running e11_noise_robustness n3_single_row_replicated seed=1 at 23:38:54
+[e11:n3_single_row_replicated] train=120 test=120 preload=512 seed=1
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:35,  4.14it/s]Loading weights:  14%|█▍        | 55/398 [00:00<00:01, 202.60it/s]Loading weights:  28%|██▊       | 110/398 [00:00<00:00, 322.71it/s]Loading weights:  42%|████▏     | 168/398 [00:00<00:00, 405.94it/s]Loading weights:  57%|█████▋    | 228/398 [00:00<00:00, 467.46it/s]Loading weights:  73%|███████▎  | 290/398 [00:00<00:00, 511.55it/s]Loading weights:  87%|████████▋ | 346/398 [00:00<00:00, 521.06it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 426.96it/s]
+[e11:n3_single_row_replicated] bank_stats: norm=15.00 distinctness=0.03
+[e11:n3_single_row_replicated] BEFORE: base=11.8376  real=11.6927  rand=11.7793  zero=11.8226  off=11.8376
+  [e11:n3_single_row_replicated] step 1/200 loss(avg25)=10.8024 (0.3s)
+  [e11:n3_single_row_replicated] step 25/200 loss(avg25)=11.0745 (4.9s)
+  [e11:n3_single_row_replicated] step 50/200 loss(avg25)=11.1473 (9.0s)
+  [e11:n3_single_row_replicated] step 75/200 loss(avg25)=9.6204 (13.4s)
+  [e11:n3_single_row_replicated] step 100/200 loss(avg25)=9.3429 (17.6s)
+  [e11:n3_single_row_replicated] step 125/200 loss(avg25)=7.7116 (21.6s)
+  [e11:n3_single_row_replicated] step 150/200 loss(avg25)=7.2297 (25.9s)
+  [e11:n3_single_row_replicated] step 175/200 loss(avg25)=6.5431 (29.9s)
+  [e11:n3_single_row_replicated] step 200/200 loss(avg25)=5.5841 (33.9s)
+[e11:n3_single_row_replicated] training done in 33.9s
+[e11:n3_single_row_replicated] AFTER:  base=11.8376  real=5.2810  rand=11.7788  zero=11.8226  off=11.8376
+[e11:n3_single_row_replicated] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e11_noise_robustness/e11_n3_single_row_replicated_seed1.json
+[e11:n3_single_row_replicated] verdict={'pass': False, 'rule': 'zero-distinctness bank should NOT reduce NLL by >=2 (got Δ_signed=-6.56)', 'interpretation': 'FAIL = zero distinctness helps → H2c confirmed', 'delta_signed': -6.556638247023026, 'nll_drop': 6.556638247023026}
+  done e11_noise_robustness n3_single_row_replicated seed=1
+  running e11_noise_robustness n3_single_row_replicated seed=2 at 23:42:05
+[e11:n3_single_row_replicated] train=120 test=120 preload=512 seed=2
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:22,  4.80it/s]Loading weights:  15%|█▍        | 58/398 [00:00<00:01, 233.74it/s]Loading weights:  30%|██▉       | 119/398 [00:00<00:00, 370.51it/s]Loading weights:  45%|████▌     | 181/398 [00:00<00:00, 452.82it/s]Loading weights:  62%|██████▏   | 246/398 [00:00<00:00, 514.79it/s]Loading weights:  78%|███████▊  | 311/398 [00:00<00:00, 554.24it/s]Loading weights:  93%|█████████▎| 370/398 [00:00<00:00, 560.77it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 458.14it/s]
+[e11:n3_single_row_replicated] bank_stats: norm=15.00 distinctness=0.00
+[e11:n3_single_row_replicated] BEFORE: base=12.0200  real=12.0745  rand=11.9469  zero=11.9830  off=12.0200
+  [e11:n3_single_row_replicated] step 1/200 loss(avg25)=9.9072 (0.2s)
+  [e11:n3_single_row_replicated] step 25/200 loss(avg25)=11.5517 (4.3s)
+  [e11:n3_single_row_replicated] step 50/200 loss(avg25)=11.8940 (8.5s)
+  [e11:n3_single_row_replicated] step 75/200 loss(avg25)=9.5362 (12.6s)
+  [e11:n3_single_row_replicated] step 100/200 loss(avg25)=10.0645 (16.8s)
+  [e11:n3_single_row_replicated] step 125/200 loss(avg25)=8.7833 (21.0s)
+  [e11:n3_single_row_replicated] step 150/200 loss(avg25)=6.4544 (25.2s)
+  [e11:n3_single_row_replicated] step 175/200 loss(avg25)=5.0564 (29.3s)
+  [e11:n3_single_row_replicated] step 200/200 loss(avg25)=6.0300 (33.3s)
+[e11:n3_single_row_replicated] training done in 33.3s
+[e11:n3_single_row_replicated] AFTER:  base=12.0200  real=6.8212  rand=11.9550  zero=11.9830  off=12.0200
+[e11:n3_single_row_replicated] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e11_noise_robustness/e11_n3_single_row_replicated_seed2.json
+[e11:n3_single_row_replicated] verdict={'pass': False, 'rule': 'zero-distinctness bank should NOT reduce NLL by >=2 (got Δ_signed=-5.20)', 'interpretation': 'FAIL = zero distinctness helps → H2c confirmed', 'delta_signed': -5.198793032517036, 'nll_drop': 5.198793032517036}
+  done e11_noise_robustness n3_single_row_replicated seed=2
+  skip e11_noise_robustness/n5_constant_vector/0 (already)
+  running e11_noise_robustness n5_constant_vector seed=1 at 23:45:09
+[e11:n5_constant_vector] train=120 test=120 preload=512 seed=1
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:20,  4.90it/s]Loading weights:  12%|█▏        | 49/398 [00:00<00:01, 200.02it/s]Loading weights:  28%|██▊       | 110/398 [00:00<00:00, 349.63it/s]Loading weights:  42%|████▏     | 168/398 [00:00<00:00, 425.84it/s]Loading weights:  57%|█████▋    | 225/398 [00:00<00:00, 472.72it/s]Loading weights:  73%|███████▎  | 289/398 [00:00<00:00, 523.65it/s]Loading weights:  87%|████████▋ | 346/398 [00:00<00:00, 533.69it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 446.48it/s]
+[e11:n5_constant_vector] bank_stats: norm=15.00 distinctness=0.00
+[e11:n5_constant_vector] BEFORE: base=11.8376  real=11.8190  rand=11.7758  zero=11.8226  off=11.8376
+  [e11:n5_constant_vector] step 1/200 loss(avg25)=10.8413 (0.3s)
+  [e11:n5_constant_vector] step 25/200 loss(avg25)=11.3874 (4.6s)
+  [e11:n5_constant_vector] step 50/200 loss(avg25)=11.6599 (9.0s)
+  [e11:n5_constant_vector] step 75/200 loss(avg25)=11.1082 (13.2s)
+  [e11:n5_constant_vector] step 100/200 loss(avg25)=11.1832 (17.4s)
+  [e11:n5_constant_vector] step 125/200 loss(avg25)=10.0049 (21.4s)
+  [e11:n5_constant_vector] step 150/200 loss(avg25)=10.4577 (25.7s)
+  [e11:n5_constant_vector] step 175/200 loss(avg25)=10.0505 (29.8s)
+  [e11:n5_constant_vector] step 200/200 loss(avg25)=9.3008 (34.0s)
+[e11:n5_constant_vector] training done in 34.0s
+[e11:n5_constant_vector] AFTER:  base=11.8376  real=9.1019  rand=11.7708  zero=11.8226  off=11.8376
+[e11:n5_constant_vector] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e11_noise_robustness/e11_n5_constant_vector_seed1.json
+[e11:n5_constant_vector] verdict={'pass': False, 'rule': 'zero-distinctness bank should NOT reduce NLL by >=2 (got Δ_signed=-2.74)', 'interpretation': 'FAIL = zero distinctness helps → H2c confirmed', 'delta_signed': -2.7356742262840257, 'nll_drop': 2.7356742262840257}
+  done e11_noise_robustness n5_constant_vector seed=1
+  running e11_noise_robustness n5_constant_vector seed=2 at 23:48:27
+[e11:n5_constant_vector] train=120 test=120 preload=512 seed=2
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<03:01,  2.18it/s]Loading weights:   4%|▎         | 14/398 [00:00<00:12, 31.16it/s]Loading weights:   7%|▋         | 26/398 [00:00<00:07, 51.62it/s]Loading weights:   9%|▉         | 37/398 [00:00<00:05, 64.77it/s]Loading weights:  13%|█▎        | 53/398 [00:00<00:03, 89.63it/s]Loading weights:  17%|█▋        | 67/398 [00:00<00:03, 103.25it/s]Loading weights:  20%|██        | 80/398 [00:01<00:02, 107.68it/s]Loading weights:  23%|██▎       | 93/398 [00:01<00:02, 104.40it/s]Loading weights:  27%|██▋       | 108/398 [00:01<00:02, 116.33it/s]Loading weights:  31%|███       | 122/398 [00:01<00:02, 122.71it/s]Loading weights:  34%|███▍      | 135/398 [00:01<00:02, 120.70it/s]Loading weights:  37%|███▋      | 148/398 [00:01<00:02, 111.78it/s]Loading weights:  41%|████      | 163/398 [00:01<00:01, 121.19it/s]Loading weights:  44%|████▍     | 176/398 [00:01<00:01, 123.28it/s]Loading weights:  48%|████▊     | 190/398 [00:02<00:01, 123.36it/s]Loading weights:  51%|█████     | 203/398 [00:02<00:01, 114.21it/s]Loading weights:  55%|█████▍    | 218/398 [00:02<00:01, 122.54it/s]Loading weights:  58%|█████▊    | 231/398 [00:02<00:01, 124.31it/s]Loading weights:  62%|██████▏   | 245/398 [00:02<00:01, 123.61it/s]Loading weights:  65%|██████▍   | 258/398 [00:02<00:01, 114.43it/s]Loading weights:  69%|██████▊   | 273/398 [00:02<00:01, 122.98it/s]Loading weights:  72%|███████▏  | 286/398 [00:02<00:00, 123.62it/s]Loading weights:  75%|███████▌  | 300/398 [00:02<00:00, 120.66it/s]Loading weights:  79%|███████▊  | 313/398 [00:03<00:00, 104.30it/s]Loading weights:  81%|████████▏ | 324/398 [00:03<00:00, 100.37it/s]Loading weights:  84%|████████▍ | 335/398 [00:03<00:00, 96.79it/s] Loading weights:  88%|████████▊ | 350/398 [00:03<00:00, 109.64it/s]Loading weights:  91%|█████████ | 362/398 [00:03<00:00, 111.56it/s]Loading weights:  95%|█████████▍| 377/398 [00:03<00:00, 117.43it/s]Loading weights:  98%|█████████▊| 389/398 [00:03<00:00, 114.09it/s]Loading weights: 100%|██████████| 398/398 [00:03<00:00, 104.26it/s]
+[e11:n5_constant_vector] bank_stats: norm=15.00 distinctness=0.00
+[e11:n5_constant_vector] BEFORE: base=12.0200  real=11.9745  rand=11.9379  zero=11.9830  off=12.0200
+  [e11:n5_constant_vector] step 1/200 loss(avg25)=9.8615 (0.2s)
+  [e11:n5_constant_vector] step 25/200 loss(avg25)=11.6162 (4.4s)
+  [e11:n5_constant_vector] step 50/200 loss(avg25)=11.9103 (8.7s)
+  [e11:n5_constant_vector] step 75/200 loss(avg25)=10.3260 (12.9s)
+  [e11:n5_constant_vector] step 100/200 loss(avg25)=11.2376 (17.3s)
+  [e11:n5_constant_vector] step 125/200 loss(avg25)=10.7365 (21.4s)
+  [e11:n5_constant_vector] step 150/200 loss(avg25)=9.3819 (25.7s)
+  [e11:n5_constant_vector] step 175/200 loss(avg25)=8.6079 (29.9s)
+  [e11:n5_constant_vector] step 200/200 loss(avg25)=8.0202 (34.0s)
+[e11:n5_constant_vector] training done in 34.0s
+[e11:n5_constant_vector] AFTER:  base=12.0200  real=8.5936  rand=11.9347  zero=11.9830  off=12.0200
+[e11:n5_constant_vector] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e11_noise_robustness/e11_n5_constant_vector_seed2.json
+[e11:n5_constant_vector] verdict={'pass': False, 'rule': 'zero-distinctness bank should NOT reduce NLL by >=2 (got Δ_signed=-3.43)', 'interpretation': 'FAIL = zero distinctness helps → H2c confirmed', 'delta_signed': -3.4264039576053626, 'nll_drop': 3.4264039576053626}
+  done e11_noise_robustness n5_constant_vector seed=2
+  skip e11_noise_robustness/n6_real_bank_K1/0 (already)
+  running e11_noise_robustness n6_real_bank_K1 seed=1 at 23:51:36
+[e11:n6_real_bank_K1] train=120 test=120 preload=1 seed=1
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:18,  5.03it/s]Loading weights:  15%|█▍        | 58/398 [00:00<00:01, 240.07it/s]Loading weights:  30%|███       | 121/398 [00:00<00:00, 385.06it/s]Loading weights:  45%|████▌     | 181/398 [00:00<00:00, 457.41it/s]Loading weights:  62%|██████▏   | 245/398 [00:00<00:00, 512.23it/s]Loading weights:  77%|███████▋  | 308/398 [00:00<00:00, 547.16it/s]Loading weights:  92%|█████████▏| 368/398 [00:00<00:00, 559.41it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 468.07it/s]
+[e11:n6_real_bank_K1] bank_stats: norm=15.00 distinctness=0.00
+[e11:n6_real_bank_K1] BEFORE: base=11.8376  real=11.8341  rand=11.8344  zero=11.8387  off=11.8376
+  [e11:n6_real_bank_K1] step 1/200 loss(avg25)=10.7939 (0.2s)
+  [e11:n6_real_bank_K1] step 25/200 loss(avg25)=11.4043 (5.0s)
+  [e11:n6_real_bank_K1] step 50/200 loss(avg25)=11.9255 (9.3s)
+  [e11:n6_real_bank_K1] step 75/200 loss(avg25)=11.4736 (13.9s)
+  [e11:n6_real_bank_K1] step 100/200 loss(avg25)=11.5799 (18.2s)
+  [e11:n6_real_bank_K1] step 125/200 loss(avg25)=9.9418 (22.3s)
+  [e11:n6_real_bank_K1] step 150/200 loss(avg25)=8.3321 (26.8s)
+  [e11:n6_real_bank_K1] step 175/200 loss(avg25)=7.9879 (30.9s)
+  [e11:n6_real_bank_K1] step 200/200 loss(avg25)=6.2073 (35.2s)
+[e11:n6_real_bank_K1] training done in 35.2s
+[e11:n6_real_bank_K1] AFTER:  base=11.8376  real=5.6718  rand=11.8362  zero=11.8387  off=11.8376
+[e11:n6_real_bank_K1] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e11_noise_robustness/e11_n6_real_bank_K1_seed1.json
+[e11:n6_real_bank_K1] verdict={'pass': False, 'rule': 'single bank slot should NOT reduce NLL by >=2 (got Δ_signed=-6.17)', 'interpretation': 'FAIL = 1 slot suffices → about slot count not content', 'delta_signed': -6.165818320214748, 'nll_drop': 6.165818320214748}
+  done e11_noise_robustness n6_real_bank_K1 seed=1
+  running e11_noise_robustness n6_real_bank_K1 seed=2 at 23:54:41
+[e11:n6_real_bank_K1] train=120 test=120 preload=1 seed=2
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:17,  5.12it/s]Loading weights:  12%|█▏        | 49/398 [00:00<00:01, 205.32it/s]Loading weights:  29%|██▊       | 114/398 [00:00<00:00, 368.29it/s]Loading weights:  45%|████▍     | 179/398 [00:00<00:00, 460.65it/s]Loading weights:  60%|██████    | 240/398 [00:00<00:00, 507.20it/s]Loading weights:  76%|███████▌  | 301/398 [00:00<00:00, 533.85it/s]Loading weights:  90%|████████▉ | 358/398 [00:00<00:00, 534.23it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 447.85it/s]
+[e11:n6_real_bank_K1] bank_stats: norm=15.00 distinctness=0.00
+[e11:n6_real_bank_K1] BEFORE: base=12.0200  real=12.0239  rand=12.0183  zero=12.0191  off=12.0200
+  [e11:n6_real_bank_K1] step 1/200 loss(avg25)=9.8481 (0.4s)
+  [e11:n6_real_bank_K1] step 25/200 loss(avg25)=11.6500 (4.8s)
+  [e11:n6_real_bank_K1] step 50/200 loss(avg25)=12.1823 (9.1s)
+  [e11:n6_real_bank_K1] step 75/200 loss(avg25)=11.1375 (13.2s)
+  [e11:n6_real_bank_K1] step 100/200 loss(avg25)=11.9304 (17.6s)
+  [e11:n6_real_bank_K1] step 125/200 loss(avg25)=10.2054 (21.7s)
+  [e11:n6_real_bank_K1] step 150/200 loss(avg25)=7.2136 (26.1s)
+  [e11:n6_real_bank_K1] step 175/200 loss(avg25)=5.8446 (30.2s)
+  [e11:n6_real_bank_K1] step 200/200 loss(avg25)=5.3818 (34.4s)
+[e11:n6_real_bank_K1] training done in 34.4s
+[e11:n6_real_bank_K1] AFTER:  base=12.0200  real=6.3688  rand=12.0181  zero=12.0191  off=12.0200
+[e11:n6_real_bank_K1] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e11_noise_robustness/e11_n6_real_bank_K1_seed2.json
+[e11:n6_real_bank_K1] verdict={'pass': False, 'rule': 'single bank slot should NOT reduce NLL by >=2 (got Δ_signed=-5.65)', 'interpretation': 'FAIL = 1 slot suffices → about slot count not content', 'delta_signed': -5.651201012854775, 'nll_drop': 5.651201012854775}
+  done e11_noise_robustness n6_real_bank_K1 seed=2
+  skip e10_topk_retrieval/topk_cosine_real_K8/0 (already)
+  running e10_topk_retrieval topk_cosine_real_K8 seed=1 at 23:58:01
+[e10:topk_cosine_real_K8] train=120 test=120 preload=512 seed=1 K=8 retrieval=cosine random_bank=False query_mode=mean_embed
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<03:12,  2.07it/s]Loading weights:   4%|▎         | 14/398 [00:00<00:12, 30.09it/s]Loading weights:   7%|▋         | 26/398 [00:00<00:07, 50.51it/s]Loading weights:  10%|▉         | 38/398 [00:00<00:05, 66.16it/s]Loading weights:  13%|█▎        | 53/398 [00:00<00:03, 86.69it/s]Loading weights:  17%|█▋        | 69/398 [00:01<00:03, 100.78it/s]Loading weights:  20%|██        | 81/398 [00:01<00:03, 103.52it/s]Loading weights:  23%|██▎       | 93/398 [00:01<00:02, 105.20it/s]Loading weights:  27%|██▋       | 109/398 [00:01<00:02, 117.35it/s]Loading weights:  31%|███       | 124/398 [00:01<00:02, 122.52it/s]Loading weights:  34%|███▍      | 137/398 [00:01<00:02, 114.91it/s]Loading weights:  38%|███▊      | 152/398 [00:01<00:01, 124.01it/s]Loading weights:  42%|████▏     | 166/398 [00:01<00:01, 127.56it/s]Loading weights:  45%|████▌     | 180/398 [00:01<00:01, 120.97it/s]Loading weights:  48%|████▊     | 193/398 [00:02<00:01, 120.56it/s]Loading weights:  52%|█████▏    | 207/398 [00:02<00:01, 124.90it/s]Loading weights:  56%|█████▌    | 221/398 [00:02<00:01, 129.06it/s]Loading weights:  59%|█████▉    | 235/398 [00:02<00:01, 120.54it/s]Loading weights:  62%|██████▏   | 248/398 [00:02<00:01, 119.36it/s]Loading weights:  66%|██████▌   | 262/398 [00:02<00:01, 124.20it/s]Loading weights:  69%|██████▉   | 275/398 [00:02<00:00, 125.75it/s]Loading weights:  73%|███████▎  | 289/398 [00:02<00:00, 124.96it/s]Loading weights:  76%|███████▌  | 302/398 [00:02<00:00, 116.16it/s]Loading weights:  80%|███████▉  | 317/398 [00:03<00:00, 124.74it/s]Loading weights:  83%|████████▎ | 331/398 [00:03<00:00, 128.62it/s]Loading weights:  87%|████████▋ | 345/398 [00:03<00:00, 121.73it/s]Loading weights:  90%|████████▉ | 358/398 [00:03<00:00, 119.95it/s]Loading weights:  93%|█████████▎| 372/398 [00:03<00:00, 124.71it/s]Loading weights:  97%|█████████▋| 385/398 [00:03<00:00, 125.99it/s]Loading weights: 100%|██████████| 398/398 [00:03<00:00, 107.83it/s]
+[e10:topk_cosine_real_K8] using REAL bank pool shape=(512, 2560) L2=15
+[e10:topk_cosine_real_K8] BEFORE: base=11.8376  real=11.8356  rand=11.8364  zero=11.8359  off=11.8376
+  [e10:topk_cosine_real_K8] step 1/200 loss(avg25)=10.8295 (0.2s)
+  [e10:topk_cosine_real_K8] step 25/200 loss(avg25)=11.4035 (4.7s)
+  [e10:topk_cosine_real_K8] step 50/200 loss(avg25)=11.7112 (8.8s)
+  [e10:topk_cosine_real_K8] step 75/200 loss(avg25)=11.2171 (13.0s)
+  [e10:topk_cosine_real_K8] step 100/200 loss(avg25)=11.3953 (17.3s)
+  [e10:topk_cosine_real_K8] step 125/200 loss(avg25)=10.2493 (21.5s)
+  [e10:topk_cosine_real_K8] step 150/200 loss(avg25)=10.4731 (25.9s)
+  [e10:topk_cosine_real_K8] step 175/200 loss(avg25)=9.6397 (30.2s)
+  [e10:topk_cosine_real_K8] step 200/200 loss(avg25)=8.4082 (34.4s)
+[e10:topk_cosine_real_K8] training done in 34.4s
+[e10:topk_cosine_real_K8] AFTER:  base=11.8376  real=7.8824  rand=11.7736  zero=11.8359  off=11.8376
+[e10:topk_cosine_real_K8] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e10_topk_retrieval/e10_topk_cosine_real_K8_seed1.json  verdict={'pass': True, 'rule': 'Δ_real <= -1.0 (single-run; full pass also requires post_real(all_attend_random_renorm15) >= post_real(topk_cosine_real_K8) + 1.0)', 'delta_signed': -3.9551780700683583}
+  done e10_topk_retrieval topk_cosine_real_K8 seed=1
+  running e10_topk_retrieval topk_cosine_real_K8 seed=2 at 00:01:24
+[e10:topk_cosine_real_K8] train=120 test=120 preload=512 seed=2 K=8 retrieval=cosine random_bank=False query_mode=mean_embed
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:16,  5.21it/s]Loading weights:  12%|█▏        | 49/398 [00:00<00:01, 198.49it/s]Loading weights:  28%|██▊       | 113/398 [00:00<00:00, 357.68it/s]Loading weights:  44%|████▍     | 176/398 [00:00<00:00, 449.60it/s]Loading weights:  59%|█████▉    | 236/398 [00:00<00:00, 498.02it/s]Loading weights:  75%|███████▌  | 300/398 [00:00<00:00, 537.16it/s]Loading weights:  91%|█████████ | 361/398 [00:00<00:00, 558.42it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 452.92it/s]
+[e10:topk_cosine_real_K8] using REAL bank pool shape=(512, 2560) L2=15
+[e10:topk_cosine_real_K8] BEFORE: base=12.0200  real=12.0064  rand=12.0143  zero=12.0188  off=12.0200
+  [e10:topk_cosine_real_K8] step 1/200 loss(avg25)=9.8410 (0.2s)
+  [e10:topk_cosine_real_K8] step 25/200 loss(avg25)=11.6324 (4.5s)
+  [e10:topk_cosine_real_K8] step 50/200 loss(avg25)=12.1117 (9.0s)
+  [e10:topk_cosine_real_K8] step 75/200 loss(avg25)=10.6273 (13.4s)
+  [e10:topk_cosine_real_K8] step 100/200 loss(avg25)=11.5471 (17.9s)
+  [e10:topk_cosine_real_K8] step 125/200 loss(avg25)=11.1699 (22.1s)
+  [e10:topk_cosine_real_K8] step 150/200 loss(avg25)=7.7930 (26.4s)
+  [e10:topk_cosine_real_K8] step 175/200 loss(avg25)=6.5445 (30.7s)
+  [e10:topk_cosine_real_K8] step 200/200 loss(avg25)=5.8203 (35.0s)
+[e10:topk_cosine_real_K8] training done in 35.0s
+[e10:topk_cosine_real_K8] AFTER:  base=12.0200  real=6.9454  rand=11.9930  zero=12.0188  off=12.0200
+[e10:topk_cosine_real_K8] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e10_topk_retrieval/e10_topk_cosine_real_K8_seed2.json  verdict={'pass': True, 'rule': 'Δ_real <= -1.0 (single-run; full pass also requires post_real(all_attend_random_renorm15) >= post_real(topk_cosine_real_K8) + 1.0)', 'delta_signed': -5.074659525975585}
+  done e10_topk_retrieval topk_cosine_real_K8 seed=2
+  skip e10_topk_retrieval/topk_cosine_random_K8/0 (already)
+  running e10_topk_retrieval topk_cosine_random_K8 seed=1 at 00:04:23
+[e10:topk_cosine_random_K8] train=120 test=120 preload=512 seed=1 K=8 retrieval=cosine random_bank=True query_mode=mean_embed
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:18,  5.05it/s]Loading weights:  12%|█▏        | 49/398 [00:00<00:01, 202.45it/s]Loading weights:  28%|██▊       | 113/398 [00:00<00:00, 362.58it/s]Loading weights:  44%|████▎     | 174/398 [00:00<00:00, 447.21it/s]Loading weights:  59%|█████▉    | 235/398 [00:00<00:00, 499.60it/s]Loading weights:  75%|███████▌  | 300/398 [00:00<00:00, 542.79it/s]Loading weights:  91%|█████████ | 363/398 [00:00<00:00, 567.28it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 458.43it/s]
+[e10:topk_cosine_random_K8] using RANDOM bank pool shape=(512, 2560) L2=15
+[e10:topk_cosine_random_K8] BEFORE: base=11.8376  real=11.8391  rand=11.8364  zero=11.8359  off=11.8376
+  [e10:topk_cosine_random_K8] step 1/200 loss(avg25)=10.8408 (0.3s)
+  [e10:topk_cosine_random_K8] step 25/200 loss(avg25)=11.3964 (4.9s)
+  [e10:topk_cosine_random_K8] step 50/200 loss(avg25)=11.9387 (9.1s)
+  [e10:topk_cosine_random_K8] step 75/200 loss(avg25)=11.6044 (13.5s)
+  [e10:topk_cosine_random_K8] step 100/200 loss(avg25)=12.0904 (17.8s)
+  [e10:topk_cosine_random_K8] step 125/200 loss(avg25)=11.2293 (22.1s)
+  [e10:topk_cosine_random_K8] step 150/200 loss(avg25)=11.6961 (26.5s)
+  [e10:topk_cosine_random_K8] step 175/200 loss(avg25)=10.8106 (31.0s)
+  [e10:topk_cosine_random_K8] step 200/200 loss(avg25)=9.1759 (35.2s)
+[e10:topk_cosine_random_K8] training done in 35.2s
+[e10:topk_cosine_random_K8] AFTER:  base=11.8376  real=9.2904  rand=11.8124  zero=11.8359  off=11.8376
+[e10:topk_cosine_random_K8] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e10_topk_retrieval/e10_topk_cosine_random_K8_seed1.json  verdict={'pass': None, 'rule': 'informational; see cross-variant comparison', 'delta_signed': -2.547161738077799}
+  done e10_topk_retrieval topk_cosine_random_K8 seed=1
+  running e10_topk_retrieval topk_cosine_random_K8 seed=2 at 00:07:20
+[e10:topk_cosine_random_K8] train=120 test=120 preload=512 seed=2 K=8 retrieval=cosine random_bank=True query_mode=mean_embed
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:25,  4.62it/s]Loading weights:  15%|█▍        | 58/398 [00:00<00:01, 227.38it/s]Loading weights:  30%|███       | 121/398 [00:00<00:00, 370.63it/s]Loading weights:  45%|████▌     | 181/398 [00:00<00:00, 443.12it/s]Loading weights:  61%|██████    | 242/398 [00:00<00:00, 494.26it/s]Loading weights:  76%|███████▌  | 301/398 [00:00<00:00, 517.81it/s]Loading weights:  91%|█████████ | 361/398 [00:00<00:00, 541.82it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 443.18it/s]
+[e10:topk_cosine_random_K8] using RANDOM bank pool shape=(512, 2560) L2=15
+[e10:topk_cosine_random_K8] BEFORE: base=12.0200  real=12.0129  rand=12.0143  zero=12.0188  off=12.0200
+  [e10:topk_cosine_random_K8] step 1/200 loss(avg25)=9.8328 (0.3s)
+  [e10:topk_cosine_random_K8] step 25/200 loss(avg25)=11.6473 (4.6s)
+  [e10:topk_cosine_random_K8] step 50/200 loss(avg25)=11.9761 (9.1s)
+  [e10:topk_cosine_random_K8] step 75/200 loss(avg25)=10.7979 (13.4s)
+  [e10:topk_cosine_random_K8] step 100/200 loss(avg25)=11.5873 (17.9s)
+  [e10:topk_cosine_random_K8] step 125/200 loss(avg25)=10.9406 (22.1s)
+  [e10:topk_cosine_random_K8] step 150/200 loss(avg25)=8.9671 (26.5s)
+  [e10:topk_cosine_random_K8] step 175/200 loss(avg25)=7.9496 (30.6s)
+  [e10:topk_cosine_random_K8] step 200/200 loss(avg25)=7.5614 (34.9s)
+[e10:topk_cosine_random_K8] training done in 34.9s
+[e10:topk_cosine_random_K8] AFTER:  base=12.0200  real=8.1087  rand=11.9663  zero=12.0188  off=12.0200
+[e10:topk_cosine_random_K8] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e10_topk_retrieval/e10_topk_cosine_random_K8_seed2.json  verdict={'pass': None, 'rule': 'informational; see cross-variant comparison', 'delta_signed': -3.9112925800184417}
+  done e10_topk_retrieval topk_cosine_random_K8 seed=2
+  skip e10_topk_retrieval/all_attend_real/0 (already)
+  running e10_topk_retrieval all_attend_real seed=1 at 00:10:14
+[e10:all_attend_real] train=120 test=120 preload=512 seed=1 K=8 retrieval=all random_bank=False query_mode=mean_embed
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:  12%|█▏        | 49/398 [00:00<00:00, 478.38it/s]Loading weights:  28%|██▊       | 113/398 [00:00<00:00, 568.93it/s]Loading weights:  44%|████▍     | 176/398 [00:00<00:00, 592.75it/s]Loading weights:  59%|█████▉    | 236/398 [00:00<00:00, 579.15it/s]Loading weights:  75%|███████▍  | 297/398 [00:00<00:00, 588.41it/s]Loading weights:  89%|████████▉ | 356/398 [00:00<00:00, 566.22it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 553.83it/s]
+[e10:all_attend_real] using REAL bank pool shape=(512, 2560) L2=15
+[e10:all_attend_real] BEFORE: base=11.8376  real=11.7591  rand=11.7861  zero=11.8226  off=11.8376
+  [e10:all_attend_real] step 1/200 loss(avg25)=10.8168 (0.2s)
+  [e10:all_attend_real] step 25/200 loss(avg25)=11.4135 (4.7s)
+  [e10:all_attend_real] step 50/200 loss(avg25)=11.7053 (9.1s)
+  [e10:all_attend_real] step 75/200 loss(avg25)=11.2699 (13.3s)
+  [e10:all_attend_real] step 100/200 loss(avg25)=11.3765 (17.6s)
+  [e10:all_attend_real] step 125/200 loss(avg25)=10.0318 (21.8s)
+  [e10:all_attend_real] step 150/200 loss(avg25)=10.0497 (26.1s)
+  [e10:all_attend_real] step 175/200 loss(avg25)=9.4009 (30.4s)
+  [e10:all_attend_real] step 200/200 loss(avg25)=7.7691 (34.5s)
+[e10:all_attend_real] training done in 34.5s
+[e10:all_attend_real] AFTER:  base=11.8376  real=7.0927  rand=11.6883  zero=11.8226  off=11.8376
+[e10:all_attend_real] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e10_topk_retrieval/e10_all_attend_real_seed1.json  verdict={'pass': None, 'rule': 'informational; see cross-variant comparison', 'delta_signed': -4.744909840573866}
+  done e10_topk_retrieval all_attend_real seed=1
+  running e10_topk_retrieval all_attend_real seed=2 at 00:13:10
+[e10:all_attend_real] train=120 test=120 preload=512 seed=2 K=8 retrieval=all random_bank=False query_mode=mean_embed
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:  12%|█▏        | 48/398 [00:00<00:00, 472.09it/s]Loading weights:  28%|██▊       | 111/398 [00:00<00:00, 564.11it/s]Loading weights:  43%|████▎     | 170/398 [00:00<00:00, 568.53it/s]Loading weights:  59%|█████▉    | 235/398 [00:00<00:00, 593.66it/s]Loading weights:  75%|███████▌  | 300/398 [00:00<00:00, 605.93it/s]Loading weights:  91%|█████████ | 361/398 [00:00<00:00, 600.36it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 584.62it/s]
+[e10:all_attend_real] using REAL bank pool shape=(512, 2560) L2=15
+[e10:all_attend_real] BEFORE: base=12.0200  real=11.9355  rand=11.9513  zero=11.9830  off=12.0200
+  [e10:all_attend_real] step 1/200 loss(avg25)=9.9952 (0.2s)
+  [e10:all_attend_real] step 25/200 loss(avg25)=11.5804 (4.4s)
+  [e10:all_attend_real] step 50/200 loss(avg25)=12.0290 (8.7s)
+  [e10:all_attend_real] step 75/200 loss(avg25)=10.3618 (12.9s)
+  [e10:all_attend_real] step 100/200 loss(avg25)=11.3730 (17.2s)
+  [e10:all_attend_real] step 125/200 loss(avg25)=11.0227 (21.5s)
+  [e10:all_attend_real] step 150/200 loss(avg25)=9.2781 (25.7s)
+  [e10:all_attend_real] step 175/200 loss(avg25)=7.6050 (29.9s)
+  [e10:all_attend_real] step 200/200 loss(avg25)=6.5401 (33.9s)
+[e10:all_attend_real] training done in 33.9s
+[e10:all_attend_real] AFTER:  base=12.0200  real=6.7708  rand=11.8679  zero=11.9830  off=12.0200
+[e10:all_attend_real] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e10_topk_retrieval/e10_all_attend_real_seed2.json  verdict={'pass': None, 'rule': 'informational; see cross-variant comparison', 'delta_signed': -5.2492337351044025}
+  done e10_topk_retrieval all_attend_real seed=2
+  skip e10_topk_retrieval/all_attend_random_renorm15/0 (already)
+  running e10_topk_retrieval all_attend_random_renorm15 seed=1 at 00:16:01
+[e10:all_attend_random_renorm15] train=120 test=120 preload=512 seed=1 K=8 retrieval=all random_bank=True query_mode=mean_embed
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   4%|▍         | 15/398 [00:00<00:02, 148.08it/s]Loading weights:  19%|█▊        | 74/398 [00:00<00:00, 406.26it/s]Loading weights:  34%|███▍      | 137/398 [00:00<00:00, 500.35it/s]Loading weights:  51%|█████     | 202/398 [00:00<00:00, 552.58it/s]Loading weights:  67%|██████▋   | 267/398 [00:00<00:00, 585.51it/s]Loading weights:  83%|████████▎ | 330/398 [00:00<00:00, 597.00it/s]Loading weights:  98%|█████████▊| 390/398 [00:00<00:00, 554.20it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 537.75it/s]
+[e10:all_attend_random_renorm15] using RANDOM bank pool shape=(512, 2560) L2=15
+[e10:all_attend_random_renorm15] BEFORE: base=11.8376  real=11.7711  rand=11.7861  zero=11.8226  off=11.8376
+  [e10:all_attend_random_renorm15] step 1/200 loss(avg25)=10.8698 (0.2s)
+  [e10:all_attend_random_renorm15] step 25/200 loss(avg25)=11.3344 (4.7s)
+  [e10:all_attend_random_renorm15] step 50/200 loss(avg25)=11.6307 (8.9s)
+  [e10:all_attend_random_renorm15] step 75/200 loss(avg25)=10.6870 (13.3s)
+  [e10:all_attend_random_renorm15] step 100/200 loss(avg25)=10.4603 (17.5s)
+  [e10:all_attend_random_renorm15] step 125/200 loss(avg25)=9.1267 (21.6s)
+  [e10:all_attend_random_renorm15] step 150/200 loss(avg25)=9.6344 (26.1s)
+  [e10:all_attend_random_renorm15] step 175/200 loss(avg25)=8.9810 (30.3s)
+  [e10:all_attend_random_renorm15] step 200/200 loss(avg25)=8.1821 (34.5s)
+[e10:all_attend_random_renorm15] training done in 34.5s
+[e10:all_attend_random_renorm15] AFTER:  base=11.8376  real=7.0829  rand=11.7086  zero=11.8226  off=11.8376
+[e10:all_attend_random_renorm15] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e10_topk_retrieval/e10_all_attend_random_renorm15_seed1.json  verdict={'pass': None, 'rule': 'informational; see cross-variant comparison', 'delta_signed': -4.754667390386262}
+  done e10_topk_retrieval all_attend_random_renorm15 seed=1
+  running e10_topk_retrieval all_attend_random_renorm15 seed=2 at 00:18:54
+[e10:all_attend_random_renorm15] train=120 test=120 preload=512 seed=2 K=8 retrieval=all random_bank=True query_mode=mean_embed
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   4%|▍         | 16/398 [00:00<00:02, 156.55it/s]Loading weights:  20%|██        | 80/398 [00:00<00:00, 429.84it/s]Loading weights:  37%|███▋      | 146/398 [00:00<00:00, 525.90it/s]Loading weights:  53%|█████▎    | 209/398 [00:00<00:00, 562.89it/s]Loading weights:  68%|██████▊   | 269/398 [00:00<00:00, 575.82it/s]Loading weights:  84%|████████▍ | 334/398 [00:00<00:00, 600.49it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 561.59it/s]
+[e10:all_attend_random_renorm15] using RANDOM bank pool shape=(512, 2560) L2=15
+[e10:all_attend_random_renorm15] BEFORE: base=12.0200  real=11.9310  rand=11.9513  zero=11.9830  off=12.0200
+  [e10:all_attend_random_renorm15] step 1/200 loss(avg25)=9.9602 (0.3s)
+  [e10:all_attend_random_renorm15] step 25/200 loss(avg25)=11.5866 (4.6s)
+  [e10:all_attend_random_renorm15] step 50/200 loss(avg25)=11.8700 (9.1s)
+  [e10:all_attend_random_renorm15] step 75/200 loss(avg25)=10.3481 (13.2s)
+  [e10:all_attend_random_renorm15] step 100/200 loss(avg25)=11.4209 (17.7s)
+  [e10:all_attend_random_renorm15] step 125/200 loss(avg25)=10.9843 (21.8s)
+  [e10:all_attend_random_renorm15] step 150/200 loss(avg25)=9.3155 (26.1s)
+  [e10:all_attend_random_renorm15] step 175/200 loss(avg25)=7.1646 (30.3s)
+  [e10:all_attend_random_renorm15] step 200/200 loss(avg25)=7.0463 (34.3s)
+[e10:all_attend_random_renorm15] training done in 34.3s
+[e10:all_attend_random_renorm15] AFTER:  base=12.0200  real=6.9021  rand=11.8749  zero=11.9830  off=12.0200
+[e10:all_attend_random_renorm15] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e10_topk_retrieval/e10_all_attend_random_renorm15_seed2.json  verdict={'pass': None, 'rule': 'informational; see cross-variant comparison', 'delta_signed': -5.117965601136287}
+  done e10_topk_retrieval all_attend_random_renorm15 seed=2
+[done] 2026年 5月17日 星期日 00时21分45秒 CST

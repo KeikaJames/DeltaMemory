@@ -13,7 +13,7 @@ for LAM in 0.01 0.10; do
     python3 v2/experiments/e04_act_halt/run.py --seed 0 \
         --lam_ponder $LAM --k_max $KMAX \
         --bank_layer 9 --rank 64 --steps 200 \
-        --n_train 120 --n_test 80
+        --n_train 120 --n_eval 80
   done
 done
 ```

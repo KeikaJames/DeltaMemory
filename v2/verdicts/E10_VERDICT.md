@@ -12,7 +12,7 @@ for V in all_attend_real all_attend_random_renorm15 \
          topk_cosine_real_K1 topk_cosine_real_K8 topk_cosine_real_K64 \
          topk_cosine_random_K8 topk_random_indices_K8; do
   python3 v2/experiments/e10_topk_retrieval/run.py --variant $V --seed 0 \
-      --bank_layer 9 --rank 64 --steps 200 --n_train 120 --n_test 80
+      --bank_layer 9 --rank 64 --steps 200 --n_train 120 --n_eval 80
 done
 ```
 

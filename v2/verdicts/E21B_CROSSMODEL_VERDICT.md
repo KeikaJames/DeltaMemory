@@ -17,7 +17,7 @@ emit a counterfactual answer while leaving unrelated prompts' truth intact.
 
 | Family   | Model                       | Layer | Steps | Flips        | Cross-prompt truth preserved | Pass |
 |----------|-----------------------------|------:|------:|--------------|------------------------------|:----:|
-| Qwen3    | Qwen3-4B-Instruct-2507 (e21 original) |   16 |   200 | 5/5          | 19/20                        | ✅   |
+| Qwen3    | Qwen3-4B-Instruct-2507 (e21 original) |    9 |   200 | 5/5          | 19/20                        | ✅   |
 | Qwen3    | Qwen3-1.7B                  |   18 |   500 | 5/5          | 16/20                        | ✅   |
 | Gemma2   | gemma-2-2b (base)           |   13 |   500 | 2/2 surviving | 1/2                          | ✅   |
 | Qwen2    | Qwen2.5-0.5B-Instruct       |   12 |   500 | 1/1 surviving | 0/0                          | ✅   |
