@@ -124,6 +124,10 @@ def eval_lambada(model, tok, *, n_items: int, device: str, run_forward_fn) -> di
         # encode prefix only to find split
         prefix_ids = tok(prefix, return_tensors="pt").input_ids
         split = prefix_ids.shape[1]
+        # Guard: BPE may re-tokenize "prefix" + " " + "target" differently from "text";
+        # if the target token doesn't exist past the split, skip this item.
+        if split >= full_ids.shape[1]:
+            continue
 
         with torch.no_grad():
             logits = run_forward_fn(full_ids)
