@@ -19,7 +19,7 @@ Protocol per fact:
 Pass = (a) base says truth, (b) bank flips it to counterfactual, (c)
 cross-prompt unaffected for ≥ N/2 of the cross pairs.
 
-Output: v2/experiments/e21b_crossmodel/<model>_L<layer>_<steps>.json by default.
+Output: v2/experiments/e21b_crossmodel/<trusted_model_slug>_L<layer>_<steps>.json by default.
 """
 from __future__ import annotations
 
@@ -54,11 +54,24 @@ FACTS = [
 ]
 
 
+TRUSTED_MODEL_SLUGS = {
+    "Qwen/Qwen3-1.7B": "qwen3_1p7b",
+    "google/gemma-2-2b": "gemma2_2b",
+    "Qwen/Qwen2.5-0.5B-Instruct": "qwen25_0p5b",
+    "TinyLlama/TinyLlama-1.1B-Chat-v1.0": "tinyllama",
+}
+
+
+def model_slug(model_name: str) -> str:
+    if model_name in TRUSTED_MODEL_SLUGS:
+        return TRUSTED_MODEL_SLUGS[model_name]
+    return re.sub(r"[^A-Za-z0-9]+", "_", model_name).strip("_").lower()
+
+
 def result_path_for(model_name: str, bank_layer: int, steps: int, explicit: str | None) -> Path:
     if explicit:
         return Path(explicit)
-    slug = re.sub(r"[^A-Za-z0-9]+", "_", model_name).strip("_").lower()
-    return HERE / f"{slug}_L{bank_layer}_{steps}.json"
+    return HERE / f"{model_slug(model_name)}_L{bank_layer}_{steps}.json"
 
 
 def greedy_decode(model, tok, prompt, device, *, bank=None, heads=None, max_new=12):

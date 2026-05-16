@@ -159,6 +159,7 @@ def main():
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--out", default=None)
     args = p.parse_args()
+    torch.manual_seed(args.seed)
 
     out_path = Path(args.out) if args.out else HERE / (
         f"phase_d_lora_{args.method}_seed{args.seed}_r{args.rank}.json"
@@ -168,8 +169,9 @@ def main():
     entries = blob["entries"]
     train_keys = data_io.filter_keys(entries, split="train", solo_pass=True)
     test_keys = data_io.filter_keys(entries, split="test", solo_pass=True)
-    rng = random.Random(args.seed)
-    rng.shuffle(train_keys); rng.shuffle(test_keys)
+    split_rng = random.Random(args.seed)
+    split_rng.shuffle(train_keys); split_rng.shuffle(test_keys)
+    train_rng = random.Random(args.seed)
     train_keys = train_keys[:args.n_train]
     test_keys = test_keys[:args.n_eval]
     train_items = data_io.items_for_keys(entries, train_keys)
@@ -218,7 +220,7 @@ def main():
     t0 = time.time()
     losses = []
     for step in range(args.steps):
-        sj, rl, tg = random.choice(train_items)
+        sj, rl, tg = train_rng.choice(train_items)
         enc, _, ans = encode_qa(tok, f"{sj} {rl}", tg, args.device)
         out = model(**enc, use_cache=False)
         logits = out.logits
