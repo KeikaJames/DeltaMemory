@@ -1,0 +1,51 @@
++ cd /Users/gabiri/projects/RCV-HC
+++ date
++ echo '=== wave11 START 2026年 5月16日 星期六 19时06分07秒 CST ==='
+=== wave11 START 2026年 5月16日 星期六 19时06分07秒 CST ===
++ python3 v2/experiments/e16_capacity/run.py --phase forgetting --seed 1 --steps 200 --n_train 120 --n_eval 80
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e16:forgetting] device=mps model=Qwen/Qwen3-4B-Instruct-2507 seed=1 N=512
+[e16:forgetting] setA=512 setB=512 train=120
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<04:13,  1.57it/s]Loading weights:  15%|█▌        | 60/398 [00:00<00:03, 108.48it/s]Loading weights:  32%|███▏      | 127/398 [00:00<00:01, 224.16it/s]Loading weights:  44%|████▍     | 176/398 [00:00<00:00, 280.79it/s]Loading weights:  56%|█████▋    | 224/398 [00:01<00:00, 309.26it/s]Loading weights:  71%|███████▏  | 284/398 [00:01<00:00, 379.34it/s]Loading weights:  88%|████████▊ | 352/398 [00:01<00:00, 456.52it/s]Loading weights: 100%|██████████| 398/398 [00:01<00:00, 295.86it/s]
+[e16:forgetting] computing baseline NLL...
+[e16:forgetting] baseline: setA=12.0164 setB=11.9809
+[e16:forgetting] training projector with set_A in bank...
+    step 1/200 loss(avg50)=10.9223
+    step 50/200 loss(avg50)=11.9148
+    step 100/200 loss(avg50)=10.7482
+    step 150/200 loss(avg50)=9.0491
+    step 200/200 loss(avg50)=6.6256
+[e16:forgetting] training done (33.6s)
+[e16:forgetting] Δ_A_initial=5.2688
+[e16:forgetting] evicting set_A by writing set_B to bank (ring buffer)...
+[e16:forgetting] bank now has 512 entries (set_B)
+[e16:forgetting] Δ_A_after_evict=1.6129 (expect ~0, forgotten)
+[e16:forgetting] Δ_B=1.6152 (expect similar to Δ_A_initial)
+[e16:forgetting] Δ_A_zero (empty bank)=0.0000
+[e16:forgetting] verdict: {'pass': False, 'rule': '|Δ_A_after - Δ_zero| < 0.3 AND |Δ_B - Δ_A_initial| < 1.0', 'delta_A_after_minus_zero': 1.6129187447950244, 'delta_B_minus_A_initial': -3.653586382686626}
+[e16:forgetting] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e16_capacity/forgetting/seed1.json
++ python3 v2/experiments/e16_capacity/run.py --phase forgetting --seed 2 --steps 200 --n_train 120 --n_eval 80
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e16:forgetting] device=mps model=Qwen/Qwen3-4B-Instruct-2507 seed=2 N=512
+[e16:forgetting] setA=512 setB=512 train=120
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   6%|▋         | 25/398 [00:00<00:01, 243.70it/s]Loading weights:  23%|██▎       | 91/398 [00:00<00:00, 481.95it/s]Loading weights:  40%|███▉      | 158/398 [00:00<00:00, 557.92it/s]Loading weights:  57%|█████▋    | 225/398 [00:00<00:00, 593.11it/s]Loading weights:  74%|███████▎  | 293/398 [00:00<00:00, 623.73it/s]Loading weights:  90%|████████▉ | 357/398 [00:00<00:00, 618.49it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 592.40it/s]
+[e16:forgetting] computing baseline NLL...
+[e16:forgetting] baseline: setA=11.9998 setB=11.8298
+[e16:forgetting] training projector with set_A in bank...
+    step 1/200 loss(avg50)=14.2993
+    step 50/200 loss(avg50)=11.2691
+    step 100/200 loss(avg50)=10.1835
+    step 150/200 loss(avg50)=7.8862
+    step 200/200 loss(avg50)=8.5012
+[e16:forgetting] training done (36.4s)
+[e16:forgetting] Δ_A_initial=4.7409
+[e16:forgetting] evicting set_A by writing set_B to bank (ring buffer)...
+[e16:forgetting] bank now has 512 entries (set_B)
+[e16:forgetting] Δ_A_after_evict=0.2827 (expect ~0, forgotten)
+[e16:forgetting] Δ_B=0.2982 (expect similar to Δ_A_initial)
+[e16:forgetting] Δ_A_zero (empty bank)=0.0000
+[e16:forgetting] verdict: {'pass': False, 'rule': '|Δ_A_after - Δ_zero| < 0.3 AND |Δ_B - Δ_A_initial| < 1.0', 'delta_A_after_minus_zero': 0.2826539967209101, 'delta_B_minus_A_initial': -4.442682736553252}
+[e16:forgetting] -> /Users/gabiri/projects/RCV-HC/v2/experiments/e16_capacity/forgetting/seed2.json
+++ date
++ echo '=== wave11 DONE 2026年 5月16日 星期六 19时18分29秒 CST ==='
+=== wave11 DONE 2026年 5月16日 星期六 19时18分29秒 CST ===
