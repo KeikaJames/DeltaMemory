@@ -1,3 +1,11 @@
+> [!IMPORTANT]
+> **Active line: [`v2/`](./v2/) — Hippocampus-style Native LLM Memory (HNM).**
+> v2 builds on Exp42 Phase B2 (NLL 12.13→6.30 with a learnable rank-64 K-projector
+> over Exp35b's 10⁴ MEMIT bank entries). See [`v2/README.md`](./v2/README.md)
+> for the new architecture (auto-pause + interrupt-API dual channel, long+short
+> term memory coexistence, multi-round halt) and the running v2 plan.
+> Everything below this line is **v1 archive** — kept for reproducibility.
+
 **We reassessed our experimental direction. The data was rough, but useful: it gave us a clear reason to change course instead of staying stuck.**
 > [!WARNING]
 > This repository is a research prototype involving LLM hidden-state,
