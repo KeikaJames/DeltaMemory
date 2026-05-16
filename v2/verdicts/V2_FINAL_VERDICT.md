@@ -168,21 +168,21 @@ From V2_METHODOLOGY_DEBATE.md §1, the 15 cheap explanations that must be falsif
 | **H6** | Layer-9 selection accidental (any layer would work) | e01-6: layer sweep {3,9,15,21,27,33}×seed×3 | ≥3 layers achieve Δ ≤ −1.0 | ✅ **PASS** L3=−1.58, L9=−3.90, L21=−6.29, L33=−3.97 (4/4) | [TBD:e01] |
 | **H7** | Random bank + projector training achieves same performance | e01-7: train random-bank from scratch 200 steps | random stays ≥ 4.0 NLL above real bank | ⚠️ **SUPERSEDED**: at L2=1, Δ=−0.29 (gap=3.61); at correct L2=15 (e11/n1), Δ=−6.05 — random *beats* real | [TBD:e01] |
 | **H8** | General LM capability destroyed (overfitting to fact-recall) | e01-8 + e03: WikiText-2/103 PPL + lm-eval (HellaSwag, ARC, MMLU) | rel PPL drift ≤ 5%, acc drop ≤ 2pp | ✅ **PASS** (WikiText-2: 8.349→8.380, +0.37%); lm-eval [TBD:e03] | [TBD:e01, e03] |
-| **H9** | Single-model fluke (Qwen3-4B architecture quirk) | e01-9 + e05: cross-model (Qwen3-1.7B, Llama-3.2-3B, Mistral-7B) | ≥1 model achieves Δ ≤ −1.0 | [TBD:e01, e05] | [TBD:e01, e05] |
+| **H9** | Single-model fluke (Qwen3-4B architecture quirk) | e01-9 + e05: cross-model (Qwen3-1.7B, Llama-3.2-3B, Mistral-7B) | ≥1 model achieves Δ ≤ −1.0 | ✅ **PASS** (Qwen3-1.7B Δ=**−6.00**) | [TBD:e05 multi-model] |
 | **H10** | Bank_gate learns degenerate on/off (always 0 or 1) | e01-10: gate histogram + per-layer entropy (H = −Σ p log p) | gate selectivity entropy > 0.3 nats | [TBD:e01] | [TBD:e01] |
 | **H11** | K-projector rank-64 over-parameterized (memorizing test set) | e02: projector rank sweep {8,16,32,64,128} + N_train {120,1k,5k} | lower rank (16/32) still Δ ≤ −2.0 | [TBD:e02] | [TBD:e02] |
 | **H12** | 200 steps cherry-picked convergence point | e02: step sweep {50,100,200,500,1000,5000} | improvement plateaus after 200, no U-shape | [TBD:e02] | [TBD:e02] |
-| **H13** | Test set accidentally similar to train (correlation) | e06: relation-disjoint OOD (train ∩ test = ∅ on relations) | Δ NLL ≤ −0.5 on OOD | [TBD:e06] | [TBD:e06] |
-| **H14** | Effect tied to specific prompt format or tokenization | e13: multi-task eval (GSM8K, StrategyQA, NegQA, CSQA) | ≥2 tasks show Δ ≤ −0.5 | [TBD:e13] | [TBD:e13] |
+| **H13** | Test set accidentally similar to train (correlation) | e06: relation-disjoint OOD (train ∩ test = ∅ on relations) | Δ NLL ≤ −0.5 on OOD | ✅ **PASS** (Δ_OOD=**−4.37**) | [TBD:e06 seed×3] |
+| **H14** | Effect tied to specific prompt format or tokenization | e13: multi-task eval (GSM8K, StrategyQA, NegQA, CSQA, WikiText) | ≥2 tasks show Δ ≤ −0.5 | ⚠️ **WikiText-2 Δ=+0.0096 (null)**; lambada/hellaswag/gsm8k retry in wave6 | [TBD] |
 | **H15** | Learning rate 2e-4 tuned to this exact data | e02: lr sweep {5e-5,1e-4,2e-4,5e-4,1e-3} | ≥2 lr values achieve Δ ≤ −3.0 | [TBD:e02] | [TBD:e02] |
 | **H_content** (e11 wave-3 + wave-5) | Bank content carries the information that is read out | e11: random Gaussian / single-row / constant-vector banks at L9 **and** L21 | random/degenerate banks should give Δ ≈ 0 at every layer | ❌ **FALSIFIED at L9 and L21**: L9 n1=−6.05, n3=−5.50, n5=−2.83; **L21 n1=−6.32, n3=−6.36, n5=−6.48** (all four bank constructions match real-bank L21 reference −6.35/−6.53/−6.52) | [TBD] |
 
-**Current Falsifier Pass Rate**: At seed 0: H1 ✅, H3 ✅, H4 ✅, H6 ✅, H8 ✅ (WikiText-2 portion); H2 ❌ failed to falsify (content claim survives the test but is killed by e11); H7 ⚠️ superseded; **H_content ❌ definitively falsifies the content-read interpretation**. Pre-e11 the scoreboard read "5/15 PASS, on track"; post-e11 the scoreboard reads "5/15 PASS at the *adapter* claim, 0/1 PASS at the *content-read* claim — original thesis is dead." See §1b.
+**Current Falsifier Pass Rate**: At seed 0: H1 ✅, H3 ✅, H4 ✅, H6 ✅, H8 ✅ (WikiText-2 portion), **H9 ✅** (Qwen3-1.7B Δ=−6.00), **H13 ✅** (relation-disjoint OOD Δ=−4.37); H2 ❌ failed to falsify (content claim survives the test but is killed by e11); H7 ⚠️ superseded; H14 ⚠️ WikiText null (e13 retry pending); **H_content ❌ definitively falsifies the content-read interpretation**. Post-wave5/6 the scoreboard reads "**7/15 PASS at the *adapter* claim, 0/1 PASS at the *content-read* claim** — original thesis is dead." See §1b.
 
 **Revised pass criteria.** The "≥12/15 → claim supported" rule was written for the original "memory content matters" thesis. Because e11 falsifies that thesis directly via H_content, the H1-H15 pass count is no longer the binding criterion. The binding criteria going forward are:
 1. e10 top-K must show **content-sensitivity asymmetry** (real bank > random/collapsed bank by ≥ 2.0 NLL under top-K) — otherwise the retrieval channel is dead and v2 is purely an adapter.
 2. e13 cross-task must show **transfer ≥ +0.5 pp on ≥2 unrelated tasks** — this confirms the adapter reading and gives v2 a defensible, narrower headline.
-3. e06 relation-disjoint must show **Δ ≤ −1.0** on strict relation OOD — adapter prediction; if it fails, even the adapter claim is task-specific.
+3. ~~e06 relation-disjoint must show **Δ ≤ −1.0** on strict relation OOD~~ — **SATISFIED** (Δ=−4.37). The adapter generalizes to OOD relations.
 
 If (1) succeeds, the memory framing partially recovers. If (1) fails and (2)+(3) succeed, v2 is reframed and shipped as an adapter. If all three fail, v2 has no defensible headline beyond "reproduces v1's −3.90 number under tighter falsifiers."
 
