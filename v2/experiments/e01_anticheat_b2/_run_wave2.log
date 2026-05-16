@@ -55,3 +55,36 @@
 [transformers] `torch_dtype` is deprecated! Use `dtype` instead!
 [e01:canonical] train=120 test=120 preload=512 seed=0
 Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:16,  5.22it/s]Loading weights:  15%|█▍        | 59/398 [00:00<00:01, 247.13it/s]Loading weights:  32%|███▏      | 126/398 [00:00<00:00, 400.54it/s]Loading weights:  49%|████▉     | 195/398 [00:00<00:00, 500.17it/s]Loading weights:  66%|██████▌   | 262/398 [00:00<00:00, 554.27it/s]Loading weights:  82%|████████▏ | 327/398 [00:00<00:00, 583.90it/s]Loading weights:  98%|█████████▊| 390/398 [00:00<00:00, 596.58it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 493.33it/s]
+[e01:canonical] BEFORE: base=11.9979  real=11.9395  rand=11.9341  zero=11.9906  off=11.9979
+  [e01:canonical] step 1/200 loss(avg25)=11.0789 (0.4s)
+  [e01:canonical] step 25/200 loss(avg25)=11.2862 (4.9s)
+  [e01:canonical] step 50/200 loss(avg25)=10.8919 (9.5s)
+  [e01:canonical] step 75/200 loss(avg25)=8.4684 (13.9s)
+  [e01:canonical] step 100/200 loss(avg25)=5.9930 (18.6s)
+  [e01:canonical] step 125/200 loss(avg25)=7.0559 (22.9s)
+  [e01:canonical] step 150/200 loss(avg25)=5.3760 (27.5s)
+  [e01:canonical] step 175/200 loss(avg25)=4.2351 (31.8s)
+  [e01:canonical] step 200/200 loss(avg25)=4.2503 (36.0s)
+[e01:canonical] training done in 36.0s
+[e01:canonical] AFTER:  base=11.9979  real=5.6533  rand=11.9393  zero=11.9906  off=11.9979
+[e01:canonical] -> v2/experiments/e01_anticheat_b2/e01_h6_layer21_seed0.json  verdict={'pass': True, 'rule': 'B2 canonical reproduce: Δ NLL <= -5.0'}
+=== layer=33 2026年 5月16日 星期六 12时52分20秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[e01:canonical] train=120 test=120 preload=512 seed=0
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:14,  5.35it/s]Loading weights:  14%|█▍        | 55/398 [00:00<00:01, 236.57it/s]Loading weights:  30%|██▉       | 119/398 [00:00<00:00, 389.90it/s]Loading weights:  46%|████▌     | 184/398 [00:00<00:00, 481.35it/s]Loading weights:  63%|██████▎   | 251/398 [00:00<00:00, 543.41it/s]Loading weights:  79%|███████▊  | 313/398 [00:00<00:00, 567.64it/s]Loading weights:  95%|█████████▍| 378/398 [00:00<00:00, 590.82it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 486.74it/s]
+[e01:canonical] BEFORE: base=11.9979  real=11.9936  rand=11.9947  zero=12.0030  off=11.9979
+  [e01:canonical] step 1/200 loss(avg25)=10.9171 (0.4s)
+  [e01:canonical] step 25/200 loss(avg25)=11.2883 (4.1s)
+  [e01:canonical] step 50/200 loss(avg25)=11.1612 (7.9s)
+  [e01:canonical] step 75/200 loss(avg25)=10.0915 (11.5s)
+  [e01:canonical] step 100/200 loss(avg25)=8.7730 (15.4s)
+  [e01:canonical] step 125/200 loss(avg25)=9.3328 (19.2s)
+  [e01:canonical] step 150/200 loss(avg25)=8.4979 (22.7s)
+  [e01:canonical] step 175/200 loss(avg25)=7.5148 (26.3s)
+  [e01:canonical] step 200/200 loss(avg25)=7.5849 (29.7s)
+[e01:canonical] training done in 29.7s
+[e01:canonical] AFTER:  base=11.9979  real=8.0297  rand=11.9922  zero=12.0030  off=11.9979
+[e01:canonical] -> v2/experiments/e01_anticheat_b2/e01_h6_layer33_seed0.json  verdict={'pass': False, 'rule': 'B2 canonical reproduce: Δ NLL <= -5.0'}
+=== e03 drift 2026年 5月16日 星期六 12时55分11秒 CST ===
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   6%|▌         | 22/398 [00:00<00:01, 217.57it/s]Loading weights:  20%|██        | 81/398 [00:00<00:00, 435.52it/s]Loading weights:  37%|███▋      | 147/398 [00:00<00:00, 536.19it/s]Loading weights:  54%|█████▎    | 213/398 [00:00<00:00, 583.10it/s]Loading weights:  70%|███████   | 279/398 [00:00<00:00, 609.30it/s]Loading weights:  87%|████████▋ | 345/398 [00:00<00:00, 623.15it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 584.98it/s]
