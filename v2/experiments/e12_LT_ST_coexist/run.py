@@ -260,7 +260,7 @@ def main():
     apply_LT_proj()
     LT_only_base = eval_base(LT_eval_items)
     LT_only_lpl = eval_lpl(LT_eval_items)
-    LT_only_delta = LT_only_base - LT_only_lpl
+    LT_only_delta = LT_only_lpl - LT_only_base
     print(f"[e12] LT-only: base={LT_only_base:.4f} lpl={LT_only_lpl:.4f} Δ={LT_only_delta:.4f}")
 
     # === Prepare ST content: encode ST items as hidden vectors ===
@@ -287,20 +287,20 @@ def main():
 
     ST_only_base = eval_base(ST_eval_items)
     ST_only_lpl = eval_lpl(ST_eval_items)
-    ST_only_delta = ST_only_base - ST_only_lpl
+    ST_only_delta = ST_only_lpl - ST_only_base
     print(f"[e12] ST-only: base={ST_only_base:.4f} lpl={ST_only_lpl:.4f} Δ={ST_only_delta:.4f}")
 
     # === Eval 3: LT+ST mix (same bank, eval both LT and ST items) ===
     # Bank already contains LT + ST. Eval on LT items first.
     LT_ST_LT_base = eval_base(LT_eval_items)
     LT_ST_LT_lpl = eval_lpl(LT_eval_items)
-    LT_ST_LT_delta = LT_ST_LT_base - LT_ST_LT_lpl
+    LT_ST_LT_delta = LT_ST_LT_lpl - LT_ST_LT_base
     print(f"[e12] LT+ST (LT items): base={LT_ST_LT_base:.4f} lpl={LT_ST_LT_lpl:.4f} Δ={LT_ST_LT_delta:.4f}")
 
     # Eval on ST items (bank unchanged).
     LT_ST_ST_base = eval_base(ST_eval_items)
     LT_ST_ST_lpl = eval_lpl(ST_eval_items)
-    LT_ST_ST_delta = LT_ST_ST_base - LT_ST_ST_lpl
+    LT_ST_ST_delta = LT_ST_ST_lpl - LT_ST_ST_base
     print(f"[e12] LT+ST (ST items): base={LT_ST_ST_base:.4f} lpl={LT_ST_ST_lpl:.4f} Δ={LT_ST_ST_delta:.4f}")
 
     # === Pass criteria ===
